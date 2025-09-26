@@ -1,14 +1,16 @@
-import { useState } from "react";
+import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { LauflistenContent } from "./LauflistenContent";
 
 export const Dashboard = () => {
   return (
-    <div className="flex min-h-screen bg-muted/30">
-      <DashboardSidebar />
-      <main className="flex-1">
-        <LauflistenContent />
-      </main>
-    </div>
+    <SidebarProvider>
+      <div className="flex min-h-screen w-full bg-muted/30">
+        <DashboardSidebar />
+        <SidebarInset>
+          <LauflistenContent />
+        </SidebarInset>
+      </div>
+    </SidebarProvider>
   );
 };

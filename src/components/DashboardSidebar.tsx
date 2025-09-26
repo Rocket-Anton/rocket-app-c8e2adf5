@@ -1,117 +1,141 @@
 import { ChevronDown, ChevronRight, Home, Activity, MapPin, List, Map, Calendar, Users } from "lucide-react";
 import { useState } from "react";
-import { Button } from "./ui/button";
+import { 
+  Sidebar, 
+  SidebarContent, 
+  SidebarHeader, 
+  SidebarFooter, 
+  SidebarGroup, 
+  SidebarGroupContent, 
+  SidebarMenu, 
+  SidebarMenuItem, 
+  SidebarMenuButton,
+  SidebarTrigger,
+  useSidebar 
+} from "./ui/sidebar";
 import { Badge } from "./ui/badge";
 
 export const DashboardSidebar = () => {
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(true);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 
+  const { state } = useSidebar();
+
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border">
-      {/* Logo Header */}
-      <div className="p-4 border-b border-sidebar-border">
-        <div className="flex items-center gap-2">
+    <Sidebar collapsible="icon" className="border-r border-sidebar-border">
+      <SidebarHeader className="border-b border-sidebar-border">
+        <div className="flex items-center gap-2 px-2">
           <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
             <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
           </div>
-          <span className="font-semibold text-sidebar-foreground">Rocket</span>
+          {state === "expanded" && (
+            <span className="font-semibold text-sidebar-foreground">Rocket</span>
+          )}
         </div>
-      </div>
+      </SidebarHeader>
 
-      {/* Navigation */}
-      <nav className="p-2 space-y-1">
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          <Home className="w-4 h-4 mr-3" />
-          Dashboard
-        </Button>
+      <SidebarContent>
+        <SidebarGroup>
+          <SidebarGroupContent>
+            <SidebarMenu>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Home className="w-4 h-4" />
+                  <span>Dashboard</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          <Activity className="w-4 h-4 mr-3" />
-          Aktivitäten
-        </Button>
+              <SidebarMenuItem>
+                <SidebarMenuButton>
+                  <Activity className="w-4 h-4" />
+                  <span>Aktivitäten</span>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
 
-        {/* Lauflisten - Expanded */}
-        <div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-sidebar-primary bg-sidebar-accent font-medium"
-            onClick={() => setIsLauflistenExpanded(!isLauflistenExpanded)}
-          >
-            <MapPin className="w-4 h-4 mr-3" />
-            Lauflisten
-            {isLauflistenExpanded ? (
-              <ChevronDown className="w-4 h-4 ml-auto" />
-            ) : (
-              <ChevronRight className="w-4 h-4 ml-auto" />
-            )}
-          </Button>
-          {isLauflistenExpanded && (
-            <div className="ml-6 space-y-1 mt-1">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-sidebar-primary bg-sidebar-accent/50 font-medium"
-              >
-                <List className="w-4 h-4 mr-3" />
-                Liste
-              </Button>
-              <Button
-                variant="ghost"
-                size="sm"
-                className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-              >
-                <Map className="w-4 h-4 mr-3" />
-                Karte
-              </Button>
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsLauflistenExpanded(!isLauflistenExpanded)}
+                  className="w-full justify-between bg-sidebar-accent font-medium text-sidebar-primary"
+                >
+                  <div className="flex items-center gap-2">
+                    <MapPin className="w-4 h-4" />
+                    <span>Lauflisten</span>
+                  </div>
+                  {isLauflistenExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {isLauflistenExpanded && (
+                <>
+                  <SidebarMenuItem className="ml-6">
+                    <SidebarMenuButton size="sm" className="bg-sidebar-accent/50 font-medium text-sidebar-primary">
+                      <List className="w-4 h-4" />
+                      <span>Liste</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                  
+                  <SidebarMenuItem className="ml-6">
+                    <SidebarMenuButton size="sm">
+                      <Map className="w-4 h-4" />
+                      <span>Karte</span>
+                    </SidebarMenuButton>
+                  </SidebarMenuItem>
+                </>
+              )}
+
+              <SidebarMenuItem>
+                <SidebarMenuButton className="justify-between">
+                  <div className="flex items-center gap-2">
+                    <Calendar className="w-4 h-4" />
+                    <span>Termine</span>
+                  </div>
+                  <Badge variant="destructive" className="w-4 h-4 p-0 text-xs flex items-center justify-center">
+                    1
+                  </Badge>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              <SidebarMenuItem>
+                <SidebarMenuButton
+                  onClick={() => setIsLeadsExpanded(!isLeadsExpanded)}
+                  className="justify-between"
+                >
+                  <div className="flex items-center gap-2">
+                    <Users className="w-4 h-4" />
+                    <span>Leads</span>
+                  </div>
+                  {isLeadsExpanded ? (
+                    <ChevronDown className="w-4 h-4" />
+                  ) : (
+                    <ChevronRight className="w-4 h-4" />
+                  )}
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+            </SidebarMenu>
+          </SidebarGroupContent>
+        </SidebarGroup>
+      </SidebarContent>
+
+      <SidebarFooter className="border-t border-sidebar-border">
+        <div className="p-2">
+          {state === "expanded" ? (
+            <div className="text-sm">
+              <div className="font-medium text-sidebar-foreground">Oleg Stemnev</div>
+              <button className="text-xs text-muted-foreground hover:text-sidebar-foreground">
+                Abmelden
+              </button>
+            </div>
+          ) : (
+            <div className="w-8 h-8 bg-muted rounded-full flex items-center justify-center">
+              <span className="text-xs font-medium">OS</span>
             </div>
           )}
         </div>
-
-        <Button
-          variant="ghost"
-          className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-        >
-          <Calendar className="w-4 h-4 mr-3" />
-          Termine
-          <Badge variant="destructive" className="ml-auto w-4 h-4 p-0 text-xs flex items-center justify-center">
-            1
-          </Badge>
-        </Button>
-
-        {/* Leads */}
-        <div>
-          <Button
-            variant="ghost"
-            className="w-full justify-start text-sidebar-foreground hover:bg-sidebar-accent"
-            onClick={() => setIsLeadsExpanded(!isLeadsExpanded)}
-          >
-            <Users className="w-4 h-4 mr-3" />
-            Leads
-            {isLeadsExpanded ? (
-              <ChevronDown className="w-4 h-4 ml-auto" />
-            ) : (
-              <ChevronRight className="w-4 h-4 ml-auto" />
-            )}
-          </Button>
-        </div>
-      </nav>
-
-      {/* User Section at Bottom */}
-      <div className="absolute bottom-0 left-0 right-0 p-4 border-t border-sidebar-border">
-        <div className="text-sm">
-          <div className="font-medium text-sidebar-foreground">Oleg Stemnev</div>
-          <button className="text-xs text-muted-foreground hover:text-sidebar-foreground">
-            Abmelden
-          </button>
-        </div>
-      </div>
-    </div>
+      </SidebarFooter>
+    </Sidebar>
   );
 };
