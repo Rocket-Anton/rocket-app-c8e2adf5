@@ -26,7 +26,7 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      <Sidebar collapsible="icon" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)', ['--sidebar-width-icon' as any]: '11rem' }}>
+      <Sidebar collapsible="icon" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <SidebarHeader className={`border-b border-white/20 ${state === "collapsed" ? "pb-4" : "pb-2"}`}>
           <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"} px-2`}>
             <div className="flex items-center gap-3">
