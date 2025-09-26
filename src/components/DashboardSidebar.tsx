@@ -72,14 +72,14 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
               <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10" : "hover:bg-white/20"}`}>
                     <Home className="w-6 h-6" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10" : "hover:bg-white/20"}`}>
                     <Clock className="w-6 h-6" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
@@ -90,7 +90,7 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
                     className={`w-full text-white font-medium rounded-lg ${
                       state === "collapsed" 
-                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" 
+                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10" 
                         : "justify-between bg-white/20 hover:bg-white/30"
                     }`}
                   >
@@ -129,7 +129,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-white rounded-lg ${
                     state === "collapsed" 
-                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20 relative" 
+                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10 relative" 
                       : "justify-between hover:bg-white/20"
                   }`}>
                     <div className="flex items-center gap-2">
@@ -153,7 +153,7 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
                     className={`text-white rounded-lg ${
                       state === "collapsed" 
-                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" 
+                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10" 
                         : "justify-between hover:bg-white/20"
                     }`}
                   >
