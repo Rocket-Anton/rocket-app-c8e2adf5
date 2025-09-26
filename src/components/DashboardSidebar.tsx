@@ -24,20 +24,20 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border transition-all duration-300 ease-in-out">
-        <SidebarHeader className="border-b border-sidebar-border">
+      <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)' }}>
+        <SidebarHeader className="border-b border-white/20">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-primary rounded flex items-center justify-center">
-                <div className="w-4 h-4 bg-primary-foreground rounded-sm"></div>
+              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
+                <div className="w-4 h-4 bg-blue-600 rounded-sm"></div>
               </div>
-              <span className="font-semibold text-sidebar-foreground">Rocket</span>
+              <span className="font-semibold text-white">Rocket</span>
             </div>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 hover:bg-sidebar-accent"
+              className="h-8 w-8 hover:bg-white/20 text-white"
             >
               <ChevronLeft className="w-4 h-4" />
             </Button>
@@ -49,14 +49,14 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu>
                 <SidebarMenuItem>
-                  <SidebarMenuButton>
+                  <SidebarMenuButton className="text-white hover:bg-white/20 rounded-lg">
                     <Home className="w-4 h-4" />
                     <span>Dashboard</span>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton>
+                  <SidebarMenuButton className="text-white hover:bg-white/20 rounded-lg">
                     <Activity className="w-4 h-4" />
                     <span>Aktivitäten</span>
                   </SidebarMenuButton>
@@ -65,7 +65,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => setIsLauflistenExpanded(!isLauflistenExpanded)}
-                    className="w-full justify-between bg-sidebar-accent font-medium text-sidebar-primary"
+                    className="w-full justify-between bg-white/20 text-white font-medium rounded-lg hover:bg-white/30"
                   >
                     <div className="flex items-center gap-2">
                       <MapPin className="w-4 h-4" />
@@ -82,14 +82,14 @@ export const DashboardSidebar = () => {
                 {isLauflistenExpanded && (
                   <div className="animate-accordion-down">
                     <SidebarMenuItem className="ml-6">
-                      <SidebarMenuButton size="sm" className="bg-sidebar-accent/50 font-medium text-sidebar-primary">
+                      <SidebarMenuButton size="sm" className="bg-white/30 text-white font-medium rounded-lg hover:bg-white/40">
                         <List className="w-4 h-4" />
                         <span>Liste</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     
                     <SidebarMenuItem className="ml-6">
-                      <SidebarMenuButton size="sm">
+                      <SidebarMenuButton size="sm" className="text-white hover:bg-white/20 rounded-lg">
                         <Map className="w-4 h-4" />
                         <span>Karte</span>
                       </SidebarMenuButton>
@@ -98,7 +98,7 @@ export const DashboardSidebar = () => {
                 )}
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="justify-between">
+                  <SidebarMenuButton className="justify-between text-white hover:bg-white/20 rounded-lg">
                     <div className="flex items-center gap-2">
                       <Calendar className="w-4 h-4" />
                       <span>Termine</span>
@@ -112,7 +112,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => setIsLeadsExpanded(!isLeadsExpanded)}
-                    className="justify-between"
+                    className="justify-between text-white hover:bg-white/20 rounded-lg"
                   >
                     <div className="flex items-center gap-2">
                       <Users className="w-4 h-4" />
@@ -130,11 +130,11 @@ export const DashboardSidebar = () => {
           </SidebarGroup>
         </SidebarContent>
 
-        <SidebarFooter className="border-t border-sidebar-border">
+        <SidebarFooter className="border-t border-white/20">
           <div className="p-2">
             <div className="text-sm">
-              <div className="font-medium text-sidebar-foreground">Oleg Stemnev</div>
-              <button className="text-xs text-muted-foreground hover:text-sidebar-foreground">
+              <div className="font-medium text-white">Oleg Stemnev</div>
+              <button className="text-xs text-white/70 hover:text-white">
                 Abmelden
               </button>
             </div>
