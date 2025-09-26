@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Activity, MapPin, List, Map, Calendar, Users } from "lucide-react";
 import { useState } from "react";
+import rocketLogo from "@/assets/rocket-logo-white.png";
 import { 
   Sidebar, 
   SidebarContent, 
@@ -27,11 +28,12 @@ export const DashboardSidebar = () => {
       <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)' }}>
         <SidebarHeader className="border-b border-white/20">
           <div className="flex items-center justify-between px-2">
-            <div className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-white rounded flex items-center justify-center">
-                <div className="w-4 h-4 bg-blue-600 rounded-sm"></div>
-              </div>
-              <span className="font-semibold text-white">Rocket</span>
+            <div className="flex items-center gap-3">
+              <img 
+                src={rocketLogo} 
+                alt="Rocket Promotions" 
+                className="h-8 w-auto"
+              />
             </div>
             <Button
               variant="ghost"
