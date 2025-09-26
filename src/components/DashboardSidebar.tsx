@@ -26,7 +26,7 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      <Sidebar collapsible="icon" className={`border-r border-sidebar-border transition-all duration-300 ease-in-out ${state === "collapsed" ? "w-32" : ""}`} style={{ background: 'var(--sidebar-gradient)' }}>
+      <Sidebar collapsible="icon" className={`border-r border-sidebar-border transition-all duration-300 ease-in-out ${state === "collapsed" ? "w-36" : ""}`} style={{ background: 'var(--sidebar-gradient)' }}>
         <SidebarHeader className={`border-b border-white/20 ${state === "collapsed" ? "pb-4" : "pb-2"}`}>
           <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"} px-2`}>
             <div className="flex items-center gap-3">
@@ -72,15 +72,15 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
               <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "bg-white/30 h-12 w-12 p-0 flex items-center justify-center" : "hover:bg-white/20"}`}>
-                    <Home className="w-5 h-5" />
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "bg-white/30 h-14 w-full mx-auto flex items-center justify-center" : "hover:bg-white/20"}`}>
+                    <Home className="w-6 h-6" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
-                    <Activity className="w-5 h-5" />
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
+                    <Activity className="w-6 h-6" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -90,12 +90,12 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
                     className={`w-full text-white font-medium rounded-lg ${
                       state === "collapsed" 
-                        ? "h-12 w-12 p-0 flex items-center justify-center bg-white/20 hover:bg-white/30" 
+                        ? "h-14 w-full mx-auto flex items-center justify-center bg-white/20 hover:bg-white/30" 
                         : "justify-between bg-white/20 hover:bg-white/30"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-5 h-5" />
+                      <MapPin className="w-6 h-6" />
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -129,11 +129,11 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-white rounded-lg ${
                     state === "collapsed" 
-                      ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20 relative" 
+                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20 relative" 
                       : "justify-between hover:bg-white/20"
                   }`}>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5" />
+                      <Calendar className="w-6 h-6" />
                       {state !== "collapsed" && <span>Termine</span>}
                     </div>
                     {state !== "collapsed" ? (
@@ -153,12 +153,12 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
                     className={`text-white rounded-lg ${
                       state === "collapsed" 
-                        ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20" 
+                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" 
                         : "justify-between hover:bg-white/20"
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="w-5 h-5" />
+                      <Users className="w-6 h-6" />
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -189,15 +189,15 @@ export const DashboardSidebar = () => {
         ) : (
           <SidebarFooter className="border-t border-white/20 px-2 py-4">
             <div className="flex flex-col items-center space-y-3">
-              <div className="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+              <div className="w-14 h-14 bg-white/30 rounded-full flex items-center justify-center text-white font-semibold text-base">
                 OS
               </div>
               <Button
                 variant="ghost"
                 size="icon"
-                className="h-8 w-8 hover:bg-white/20 text-white"
+                className="h-10 w-10 hover:bg-white/20 text-white"
               >
-                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5v-8H9.83l3-3-3-3H15v8z" />
                 </svg>
               </Button>
