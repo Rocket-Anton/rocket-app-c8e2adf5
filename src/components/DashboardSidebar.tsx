@@ -80,7 +80,7 @@ export const DashboardSidebar = () => {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/10" : "hover:bg-white/20"}`}>
-                    <Clock className="w-6 h-6" />
+                    <Clock className="w-7 h-7" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -95,7 +95,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <PersonStanding className="w-6 h-6" />
+                      <PersonStanding className="w-5 h-5" />
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -158,7 +158,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <User className="w-6 h-6" />
+                      <User className="w-7 h-7" />
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
