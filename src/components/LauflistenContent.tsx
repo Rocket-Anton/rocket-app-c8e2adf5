@@ -25,7 +25,6 @@ export const LauflistenContent = () => {
       <div className="p-6 border-b border-border">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
-            <SidebarTrigger />
             <div>
               <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
                 <span>🏠</span>
