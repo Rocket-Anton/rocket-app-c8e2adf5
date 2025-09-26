@@ -26,13 +26,13 @@ export const DashboardSidebar = () => {
   return (
     <>
       <Sidebar collapsible="offcanvas" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)' }}>
-        <SidebarHeader className="border-b border-white/20">
+        <SidebarHeader className="border-b border-white/20 pb-2">
           <div className="flex items-center justify-between px-2">
             <div className="flex items-center gap-3">
               <img 
                 src={rocketLogo} 
                 alt="Rocket Promotions" 
-                className="h-12 w-auto"
+                className="h-16 w-auto"
               />
             </div>
             <Button
