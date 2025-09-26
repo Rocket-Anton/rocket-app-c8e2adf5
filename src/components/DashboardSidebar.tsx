@@ -72,7 +72,7 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
               <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "bg-white/30 h-14 w-full mx-auto flex items-center justify-center" : "hover:bg-white/20"}`}>
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
                     <Home className="w-6 h-6" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
@@ -90,7 +90,7 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
                     className={`w-full text-white font-medium rounded-lg ${
                       state === "collapsed" 
-                        ? "h-14 w-full mx-auto flex items-center justify-center bg-white/20 hover:bg-white/30" 
+                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" 
                         : "justify-between bg-white/20 hover:bg-white/30"
                     }`}
                   >
@@ -111,7 +111,7 @@ export const DashboardSidebar = () => {
                 {isLauflistenExpanded && state !== "collapsed" && (
                   <div className="animate-accordion-down">
                     <SidebarMenuItem className="ml-6">
-                      <SidebarMenuButton size="sm" className="bg-white/30 text-white font-medium rounded-lg hover:bg-white/40">
+                      <SidebarMenuButton size="sm" className="text-white hover:bg-white/20 rounded-lg">
                         <Circle className="w-4 h-4 fill-current" />
                         <span>Liste</span>
                       </SidebarMenuButton>
