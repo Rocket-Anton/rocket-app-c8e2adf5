@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Activity, MapPin, List, Map, Calendar, Users } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User } from "lucide-react";
 import { useState } from "react";
 import rocketLogo from "@/assets/rocket-logo-white.png";
 import rocketIcon from "@/assets/rocket-icon-transparent.png";
@@ -80,7 +80,7 @@ export const DashboardSidebar = () => {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
-                    <Activity className="w-6 h-6" />
+                    <Clock className="w-6 h-6" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -95,7 +95,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-6 h-6" />
+                      <PersonStanding className="w-6 h-6" />
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -112,14 +112,14 @@ export const DashboardSidebar = () => {
                   <div className="animate-accordion-down">
                     <SidebarMenuItem className="ml-6">
                       <SidebarMenuButton size="sm" className="bg-white/30 text-white font-medium rounded-lg hover:bg-white/40">
-                        <List className="w-4 h-4" />
+                        <Circle className="w-4 h-4 fill-current" />
                         <span>Liste</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     
                     <SidebarMenuItem className="ml-6">
                       <SidebarMenuButton size="sm" className="text-white hover:bg-white/20 rounded-lg">
-                        <Map className="w-4 h-4" />
+                        <Circle className="w-4 h-4" />
                         <span>Karte</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
@@ -158,7 +158,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="w-6 h-6" />
+                      <User className="w-6 h-6" />
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
