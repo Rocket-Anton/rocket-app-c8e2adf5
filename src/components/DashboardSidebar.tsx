@@ -26,7 +26,7 @@ export const DashboardSidebar = () => {
 
   return (
     <>
-      <Sidebar collapsible="offcanvas" className={`border-r border-sidebar-border transition-all duration-300 ease-in-out ${state === "collapsed" ? "w-16" : ""}`} style={{ background: 'var(--sidebar-gradient)' }}>
+      <Sidebar collapsible="icon" className={`border-r border-sidebar-border transition-all duration-300 ease-in-out ${state === "collapsed" ? "w-16" : ""}`} style={{ background: 'var(--sidebar-gradient)' }}>
         <SidebarHeader className={`border-b border-white/20 ${state === "collapsed" ? "pb-4" : "pb-2"}`}>
           <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"} px-2`}>
             <div className="flex items-center gap-3">
@@ -206,19 +206,6 @@ export const DashboardSidebar = () => {
         )}
       </Sidebar>
 
-      {/* Toggle Button for when sidebar is completely hidden */}
-      {!["expanded", "collapsed"].includes(state) && (
-        <div className="fixed top-4 left-4 z-50 animate-fade-in">
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={toggleSidebar}
-            className="h-10 w-10 bg-background shadow-lg border border-border hover:bg-accent transition-all duration-200 hover:scale-105"
-          >
-            <ChevronRight className="w-4 h-4" />
-          </Button>
-        </div>
-      )}
     </>
   );
 };
