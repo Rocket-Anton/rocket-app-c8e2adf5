@@ -27,14 +27,14 @@ export const DashboardSidebar = () => {
   return (
     <>
       <Sidebar collapsible="offcanvas" className={`border-r border-sidebar-border transition-all duration-300 ease-in-out ${state === "collapsed" ? "w-16" : ""}`} style={{ background: 'var(--sidebar-gradient)' }}>
-        <SidebarHeader className="border-b border-white/20 pb-2">
-          <div className="flex items-center justify-between px-2">
+        <SidebarHeader className={`border-b border-white/20 ${state === "collapsed" ? "pb-4" : "pb-2"}`}>
+          <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"} px-2`}>
             <div className="flex items-center gap-3">
               {state === "collapsed" ? (
                 <img 
                   src={rocketIcon} 
                   alt="Rocket" 
-                  className="h-8 w-8 object-contain"
+                  className="h-10 w-10 object-contain"
                 />
               ) : (
                 <img 
@@ -54,23 +54,33 @@ export const DashboardSidebar = () => {
                 <ChevronLeft className="w-4 h-4" />
               </Button>
             )}
+            {state === "collapsed" && (
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={toggleSidebar}
+                className="absolute top-2 right-2 h-6 w-6 hover:bg-white/20 text-white"
+              >
+                <ChevronRight className="w-3 h-3" />
+              </Button>
+            )}
           </div>
         </SidebarHeader>
 
-        <SidebarContent>
+        <SidebarContent className={state === "collapsed" ? "px-2" : ""}>
           <SidebarGroup>
-            <SidebarGroupContent>
-              <SidebarMenu>
+            <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
+              <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="text-white hover:bg-white/20 rounded-lg">
-                    <Home className="w-4 h-4" />
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "bg-white/30 h-12 w-12 p-0 flex items-center justify-center" : "hover:bg-white/20"}`}>
+                    <Home className="w-5 h-5" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className="text-white hover:bg-white/20 rounded-lg">
-                    <Activity className="w-4 h-4" />
+                  <SidebarMenuButton className={`text-white rounded-lg ${state === "collapsed" ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20" : "hover:bg-white/20"}`}>
+                    <Activity className="w-5 h-5" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -78,10 +88,14 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
-                    className={`w-full ${state !== "collapsed" ? "justify-between" : "justify-center"} bg-white/20 text-white font-medium rounded-lg hover:bg-white/30`}
+                    className={`w-full text-white font-medium rounded-lg ${
+                      state === "collapsed" 
+                        ? "h-12 w-12 p-0 flex items-center justify-center bg-white/20 hover:bg-white/30" 
+                        : "justify-between bg-white/20 hover:bg-white/30"
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <MapPin className="w-4 h-4" />
+                      <MapPin className="w-5 h-5" />
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -113,15 +127,23 @@ export const DashboardSidebar = () => {
                 )}
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`${state !== "collapsed" ? "justify-between" : "justify-center"} text-white hover:bg-white/20 rounded-lg`}>
+                  <SidebarMenuButton className={`text-white rounded-lg ${
+                    state === "collapsed" 
+                      ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20 relative" 
+                      : "justify-between hover:bg-white/20"
+                  }`}>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-4 h-4" />
+                      <Calendar className="w-5 h-5" />
                       {state !== "collapsed" && <span>Termine</span>}
                     </div>
-                    {state !== "collapsed" && (
+                    {state !== "collapsed" ? (
                       <Badge variant="destructive" className="w-4 h-4 p-0 text-xs flex items-center justify-center">
                         1
                       </Badge>
+                    ) : (
+                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-[8px] flex items-center justify-center text-white">
+                        1
+                      </div>
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -129,10 +151,14 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
-                    className={`${state !== "collapsed" ? "justify-between" : "justify-center"} text-white hover:bg-white/20 rounded-lg`}
+                    className={`text-white rounded-lg ${
+                      state === "collapsed" 
+                        ? "h-12 w-12 p-0 flex items-center justify-center hover:bg-white/20" 
+                        : "justify-between hover:bg-white/20"
+                    }`}
                   >
                     <div className="flex items-center gap-2">
-                      <Users className="w-4 h-4" />
+                      <Users className="w-5 h-5" />
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -149,7 +175,7 @@ export const DashboardSidebar = () => {
           </SidebarGroup>
         </SidebarContent>
 
-        {state !== "collapsed" && (
+        {state !== "collapsed" ? (
           <SidebarFooter className="border-t border-white/20">
             <div className="p-2">
               <div className="text-sm">
@@ -158,6 +184,23 @@ export const DashboardSidebar = () => {
                   Abmelden
                 </button>
               </div>
+            </div>
+          </SidebarFooter>
+        ) : (
+          <SidebarFooter className="border-t border-white/20 px-2 py-4">
+            <div className="flex flex-col items-center space-y-3">
+              <div className="w-12 h-12 bg-white/30 rounded-full flex items-center justify-center text-white font-semibold text-sm">
+                OS
+              </div>
+              <Button
+                variant="ghost"
+                size="icon"
+                className="h-8 w-8 hover:bg-white/20 text-white"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5v-8H9.83l3-3-3-3H15v8z" />
+                </svg>
+              </Button>
             </div>
           </SidebarFooter>
         )}
