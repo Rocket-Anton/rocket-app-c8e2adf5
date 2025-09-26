@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Activity, MapPin, List, Map, Calendar, Users } from "lucide-react";
 import { useState } from "react";
 import rocketLogo from "@/assets/rocket-logo-white.png";
-import rocketIcon from "@/assets/rocket-icon-white.jpg";
+import rocketIcon from "@/assets/rocket-icon-transparent.png";
 import { 
   Sidebar, 
   SidebarContent, 
@@ -27,24 +27,24 @@ export const DashboardSidebar = () => {
   return (
     <>
       <Sidebar collapsible="icon" className="border-r border-sidebar-border transition-all duration-300 ease-in-out" style={{ background: 'var(--sidebar-gradient)', ['--sidebar-width-icon' as any]: '5.5rem' }}>
-        <SidebarHeader className={`border-b border-white/20 ${state === "collapsed" ? "pb-4" : "pb-2"}`}>
-          <div className={`flex items-center ${state === "collapsed" ? "justify-center" : "justify-between"} px-2`}>
-            <div className="flex items-center gap-3">
-              {state === "collapsed" ? (
-                <img 
-                  src={rocketIcon} 
-                  alt="Rocket" 
-                  className="h-10 w-10 object-contain"
-                />
-              ) : (
+        <SidebarHeader className={`${state === "collapsed" ? "pb-2 border-b-0" : "border-b border-white/20 pb-2"}`}>
+          {state === "collapsed" ? (
+            <div className="flex items-center justify-center pt-2">
+              <img 
+                src={rocketIcon} 
+                alt="Rocket" 
+                className="h-8 w-8 object-contain"
+              />
+            </div>
+          ) : (
+            <div className="flex items-center justify-between px-2">
+              <div className="flex items-center gap-3">
                 <img 
                   src={rocketLogo} 
                   alt="Rocket Promotions" 
                   className="h-16 w-auto"
                 />
-              )}
-            </div>
-            {state !== "collapsed" && (
+              </div>
               <Button
                 variant="ghost"
                 size="icon"
@@ -53,18 +53,18 @@ export const DashboardSidebar = () => {
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
-            )}
-            {state === "collapsed" && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={toggleSidebar}
-                className="absolute top-2 right-2 h-6 w-6 hover:bg-white/20 text-white"
-              >
-                <ChevronRight className="w-3 h-3" />
-              </Button>
-            )}
-          </div>
+            </div>
+          )}
+          {state === "collapsed" && (
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="absolute top-2 right-2 h-6 w-6 hover:bg-white/20 text-white"
+            >
+              <ChevronRight className="w-3 h-3" />
+            </Button>
+          )}
         </SidebarHeader>
 
         <SidebarContent className={state === "collapsed" ? "px-2" : ""}>
