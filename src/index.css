@@ -96,6 +96,42 @@ All colors MUST be HSL.
 }
 
 @layer base {
+  :root {
+    --header-height: 64px;
+    --list-gap: 12px;
+  }
+  
+  /* EINZIGER Scroller */
+  .scroll-root { 
+    overscroll-behavior: contain; 
+  }
+
+  /* Overlay-Filter: sticky + via Var verschiebbar */
+  .filter-wrap {
+    position: sticky;
+    top: var(--header-height);
+    margin-top: var(--list-gap);
+    margin-bottom: 0;
+    transform: translateY(var(--filter-offset, 0px));
+    will-change: transform;
+  }
+  
+  .filter-card {
+    background: hsl(var(--background));
+    border-radius: 12px;
+    box-shadow: 0 1px 6px rgba(0,0,0,.06);
+    padding: 1rem 1.5rem;
+    border: 1px solid hsl(var(--border));
+  }
+
+  /* Platzhalter: gleiche Höhe wie Filter + standard Gap zur ersten Card */
+  .filter-spacer {
+    height: var(--filter-height, 0px);
+    margin-bottom: var(--list-gap);
+  }
+}
+
+@layer base {
   * {
     @apply border-border;
   }
