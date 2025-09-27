@@ -1,9 +1,16 @@
 import { useState } from "react";
-import { Search, Filter, HelpCircle } from "lucide-react";
+import { Search, Filter, HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import { SidebarTrigger } from "./ui/sidebar";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "./ui/select";
 
 const mockAddresses = [
   { id: 1, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
@@ -18,6 +25,8 @@ const mockAddresses = [
 
 export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
+  const [statusFilter, setStatusFilter] = useState("");
+  const [allFilter, setAllFilter] = useState("");
 
   return (
     <div className="flex flex-col h-screen">
@@ -48,7 +57,7 @@ export const LauflistenContent = () => {
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
-                placeholder="Suchen"
+                placeholder="Adresse suchen"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -56,6 +65,37 @@ export const LauflistenContent = () => {
             </div>
           </div>
 
+          <div className="flex items-center gap-2">
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-32">
+                <Filter className="w-4 h-4 mr-2" />
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="offen">Offen</SelectItem>
+                <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
+                <SelectItem value="potenzial">Potenzial</SelectItem>
+                <SelectItem value="neukunde">Neukunde</SelectItem>
+                <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
+                <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
+                <SelectItem value="termin">Termin</SelectItem>
+                <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
+                <SelectItem value="gewerbe">Gewerbe</SelectItem>
+              </SelectContent>
+            </Select>
+
+            <Select value={allFilter} onValueChange={setAllFilter}>
+              <SelectTrigger className="w-20">
+                <SelectValue placeholder="Alle" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="alle">Alle</SelectItem>
+                <SelectItem value="heute">Heute</SelectItem>
+                <SelectItem value="woche">Diese Woche</SelectItem>
+                <SelectItem value="monat">Dieser Monat</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
