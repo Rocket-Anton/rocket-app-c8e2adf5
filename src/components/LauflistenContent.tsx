@@ -32,7 +32,7 @@ export const LauflistenContent = () => {
   return (
     <div className="flex flex-col h-screen">
       {/* Header */}
-      <div className="app-header p-6 border-b border-border">
+      <div className="app-header p-6">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
