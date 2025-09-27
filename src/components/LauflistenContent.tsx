@@ -113,7 +113,7 @@ export const LauflistenContent = () => {
                       <Filter className="w-4 h-4 mr-2" />
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent position="popper" align="start" sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
                       <SelectItem value="offen">Offen</SelectItem>
                       <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
                       <SelectItem value="potenzial">Potenzial</SelectItem>
@@ -130,11 +130,11 @@ export const LauflistenContent = () => {
                     <SelectTrigger className="w-20">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
-                    <SelectContent align="start">
-                      <SelectItem value="alle">Alle</SelectItem>
-                      <SelectItem value="gerade">Gerade</SelectItem>
-                      <SelectItem value="ungerade">Ungerade</SelectItem>
-                    </SelectContent>
+                     <SelectContent position="popper" align="start" sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
+                       <SelectItem value="alle">Alle</SelectItem>
+                       <SelectItem value="gerade">Gerade</SelectItem>
+                       <SelectItem value="ungerade">Ungerade</SelectItem>
+                     </SelectContent>
                   </Select>
                 </div>
               </div>
