@@ -130,10 +130,10 @@ export const LauflistenContent = () => {
                     <SelectTrigger className="w-20">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
-                     <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[120px] w-[120px] z-[60]">
-                       <SelectItem value="alle" className="pl-3">Alle</SelectItem>
-                       <SelectItem value="gerade" className="pl-3">Gerade</SelectItem>
-                       <SelectItem value="ungerade" className="pl-3">Ungerade</SelectItem>
+                     <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
+                       <SelectItem value="alle" className="pl-3 pr-2">Alle</SelectItem>
+                       <SelectItem value="gerade" className="pl-3 pr-2">Gerade</SelectItem>
+                       <SelectItem value="ungerade" className="pl-3 pr-2 text-xs">Ungerade</SelectItem>
                      </SelectContent>
                   </Select>
                 </div>
