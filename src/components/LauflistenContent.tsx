@@ -142,7 +142,7 @@ export const LauflistenContent = () => {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-24 justify-between"
+                        className="w-32 justify-between"
                       >
                         {statusFilter.length === 0
                           ? "Status"
