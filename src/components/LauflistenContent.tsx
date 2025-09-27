@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2 } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -140,6 +140,17 @@ export const LauflistenContent = () => {
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                  {searchTerm && (
+                    <button
+                      onClick={() => {
+                        setSearchTerm("");
+                        setSearchOpen(false);
+                      }}
+                      className="absolute right-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground hover:text-foreground z-10"
+                    >
+                      <X className="w-4 h-4" />
+                    </button>
+                  )}
                   <Popover open={searchOpen && searchTerm.length > 0} onOpenChange={setSearchOpen}>
                     <PopoverTrigger asChild>
                       <Input
@@ -151,7 +162,7 @@ export const LauflistenContent = () => {
                         }}
                         onFocus={() => setSearchOpen(searchTerm.length > 0)}
                         onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
-                        className="pl-10"
+                        className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
                       />
                     </PopoverTrigger>
                     <PopoverContent className="w-[400px] p-0" align="start">
