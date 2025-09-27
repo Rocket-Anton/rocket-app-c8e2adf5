@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Filter, HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -27,6 +27,34 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
+  const [showFilters, setShowFilters] = useState(true);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const lastScrollY = useRef(0);
+
+  useEffect(() => {
+    const scrollContainer = scrollContainerRef.current;
+    if (!scrollContainer) return;
+
+    const handleScroll = () => {
+      const currentScrollY = scrollContainer.scrollTop;
+      
+      if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
+        // Scrolling down
+        setShowFilters(false);
+      } else if (currentScrollY < lastScrollY.current) {
+        // Scrolling up
+        setShowFilters(true);
+      }
+      
+      lastScrollY.current = currentScrollY;
+    };
+
+    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
+    
+    return () => {
+      scrollContainer.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -54,9 +82,11 @@ export const LauflistenContent = () => {
       </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
+      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {/* Filter Section */}
-        <div className="px-6 pt-6 pb-4">
+        <div className={`px-6 pt-6 pb-4 transition-all duration-200 ${
+          showFilters ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full h-0 py-0'
+        }`}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
