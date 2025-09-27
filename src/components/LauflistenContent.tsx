@@ -204,6 +204,11 @@ export const LauflistenContent = () => {
                     </TooltipContent>
                   </Tooltip>
                 </div>
+                {isGreenCard && (
+                  <div className="absolute top-2 right-2">
+                    <Check className="w-5 h-5 text-green-500" />
+                  </div>
+                )}
                 <div className="flex flex-col items-center justify-center text-center mt-2">
                   <div className="text-3xl font-bold text-foreground mb-2">{metric.value}</div>
                   <div className="text-sm text-muted-foreground">{metric.title}</div>
@@ -223,6 +228,9 @@ export const LauflistenContent = () => {
                     <p className="max-w-xs text-sm">Anzahl der heute bearbeiteten Aufträge</p>
                   </TooltipContent>
                 </Tooltip>
+              </div>
+              <div className="absolute top-2 right-2">
+                <X className="w-5 h-5 text-red-500" />
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
                 <div className="text-3xl font-bold text-foreground mb-2">6,5%</div>
