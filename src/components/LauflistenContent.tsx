@@ -191,16 +191,13 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Header */}
-        <div className="app-header p-6 relative z-20 bg-background">
+        <div className="app-header px-6 pt-6 pb-3 relative z-20 bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
             </div>
           </div>
-          
-          <div className="flex items-center gap-3">
-            <HelpCircle className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground" />
-          </div>
+        </div>
         </div>
       </div>
 
@@ -352,7 +349,6 @@ export const LauflistenContent = () => {
             </div>
           </div>
         </div>
-      </div>
       </div>
     </TooltipProvider>
   );
