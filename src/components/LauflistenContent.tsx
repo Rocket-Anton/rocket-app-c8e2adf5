@@ -30,6 +30,8 @@ export const LauflistenContent = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);
+  const [showFilter, setShowFilter] = useState(true);
+  const lastScrollTop = useRef(0);
 
   useEffect(() => {
     const measure = () => setFilterH(filterRef.current?.offsetHeight ?? 0);
@@ -41,6 +43,25 @@ export const LauflistenContent = () => {
       window.removeEventListener("resize", measure);
       ro.disconnect();
     };
+  }, []);
+
+  useEffect(() => {
+    const root = scrollRef.current;
+    if (!root) return;
+    const onScroll = () => {
+      const st = root.scrollTop;
+      const delta = 6;
+      if (st <= 0) {
+        setShowFilter(true);
+      } else if (st < lastScrollTop.current - delta) {
+        setShowFilter(true);
+      } else if (st > lastScrollTop.current + delta) {
+        setShowFilter(false);
+      }
+      lastScrollTop.current = st;
+    };
+    root.addEventListener("scroll", onScroll, { passive: true });
+    return () => root.removeEventListener("scroll", onScroll);
   }, []);
 
   return (
@@ -69,52 +90,55 @@ export const LauflistenContent = () => {
 
       {/* Address List - Scrollable */}
       <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-        <div className="relative">
+        <div>
           <div
             ref={filterRef}
-            className="absolute inset-x-0 top-0 z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm"
+            className="sticky top-0 z-10 px-6"
+            style={{ marginBottom: -filterH }}
           >
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Adresse suchen"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+            <div className={`bg-background/95 backdrop-blur-sm py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+              <div className="flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <div className="relative max-w-md">
+                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                    <Input
+                      placeholder="Adresse suchen"
+                      value={searchTerm}
+                      onChange={(e) => setSearchTerm(e.target.value)}
+                      className="pl-10"
+                    />
+                  </div>
+
+                  <Select value={statusFilter} onValueChange={setStatusFilter}>
+                    <SelectTrigger className="w-28">
+                      <Filter className="w-4 h-4 mr-2" />
+                      <SelectValue placeholder="Status" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="offen">Offen</SelectItem>
+                      <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
+                      <SelectItem value="potenzial">Potenzial</SelectItem>
+                      <SelectItem value="neukunde">Neukunde</SelectItem>
+                      <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
+                      <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
+                      <SelectItem value="termin">Termin</SelectItem>
+                      <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
+                      <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
 
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-28">
-                    <Filter className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Status" />
+                <Select value={allFilter} onValueChange={setAllFilter}>
+                  <SelectTrigger className="w-20">
+                    <SelectValue placeholder="Nr." />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="offen">Offen</SelectItem>
-                    <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
-                    <SelectItem value="potenzial">Potenzial</SelectItem>
-                    <SelectItem value="neukunde">Neukunde</SelectItem>
-                    <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
-                    <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
-                    <SelectItem value="termin">Termin</SelectItem>
-                    <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
-                    <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                    <SelectItem value="alle">Alle</SelectItem>
+                    <SelectItem value="gerade">Gerade</SelectItem>
+                    <SelectItem value="ungerade">Ungerade</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
-
-              <Select value={allFilter} onValueChange={setAllFilter}>
-                <SelectTrigger className="w-20">
-                  <SelectValue placeholder="Nr." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="alle">Alle</SelectItem>
-                  <SelectItem value="gerade">Gerade</SelectItem>
-                  <SelectItem value="ungerade">Ungerade</SelectItem>
-                </SelectContent>
-              </Select>
             </div>
           </div>
 
