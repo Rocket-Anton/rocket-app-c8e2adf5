@@ -109,8 +109,7 @@ export const LauflistenContent = () => {
 
                 <div className="flex items-center gap-2">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-28">
-                      <Filter className="w-4 h-4 mr-2" />
+                    <SelectTrigger className="w-24">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
                     <SelectContent>
