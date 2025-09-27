@@ -189,7 +189,7 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="grid grid-cols-4 gap-4 w-full">
+          <div className="grid grid-cols-4 gap-4 w-full pb-6 overflow-visible">
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
@@ -205,7 +205,7 @@ export const LauflistenContent = () => {
                   </Tooltip>
                 </div>
                 {isGreenCard && (
-                  <div className="absolute -bottom-3 -right-3">
+                  <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                       <Check className="w-4 h-4 text-white" />
                     </div>
@@ -231,7 +231,7 @@ export const LauflistenContent = () => {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="absolute -bottom-3 -right-3">
+              <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
                 <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
                   <X className="w-4 h-4 text-white" />
                 </div>
