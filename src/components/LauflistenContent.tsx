@@ -179,20 +179,6 @@ export const LauflistenContent = () => {
         {/* Page Title */}
         <div className="p-6 pb-0">
           <h1 className="text-2xl font-semibold text-foreground mb-2">Lauflisten</h1>
-          
-          {/* Pagination */}
-          <div className="flex items-center justify-between mb-2">
-            <div className="flex items-center gap-2">
-              <button className="p-2 hover:bg-muted rounded">
-                <ChevronLeft className="w-4 h-4" />
-              </button>
-              <span className="text-sm text-muted-foreground">Seite 1 von 5</span>
-              <button className="p-2 hover:bg-muted rounded">
-                <ChevronRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>🏠</span>
             <span>Lauflisten</span>
