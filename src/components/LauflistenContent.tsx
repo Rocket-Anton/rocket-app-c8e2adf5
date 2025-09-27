@@ -199,7 +199,6 @@ export const LauflistenContent = () => {
           </div>
         </div>
         </div>
-      </div>
 
       {/* Address List - Scrollable */}
       <div className="flex-1 overflow-y-auto" ref={scrollRef}>
@@ -350,6 +349,7 @@ export const LauflistenContent = () => {
           </div>
         </div>
       </div>
+    </div>
     </TooltipProvider>
   );
 };
