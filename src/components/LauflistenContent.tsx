@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Search, Filter, HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -27,31 +27,6 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(true);
-  const [filterTransform, setFilterTransform] = useState(0);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const scrollContainer = scrollContainerRef.current;
-    if (!scrollContainer) return;
-
-    const handleScroll = () => {
-      const scrollY = scrollContainer.scrollTop;
-      
-      // Move filter up with scroll, but cap it at -100px (fully hidden)
-      const transform = Math.min(0, -scrollY);
-      setFilterTransform(transform);
-      
-      // Show/hide based on scroll position
-      setShowFilters(scrollY < 10);
-    };
-
-    scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
-    
-    return () => {
-      scrollContainer.removeEventListener('scroll', handleScroll);
-    };
-  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -79,12 +54,9 @@ export const LauflistenContent = () => {
       </div>
 
       {/* Address List - Scrollable */}
-      <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto">
         {/* Filter Section */}
-        <div 
-          className="px-6 pt-6 pb-4"
-          style={{ transform: `translateY(${filterTransform}px)` }}
-        >
+        <div className="px-6 pt-6 pb-4">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
