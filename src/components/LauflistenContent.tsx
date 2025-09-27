@@ -162,7 +162,7 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Metrics Dashboard */}
-        <div className="px-6 pb-1">
+        <div className="px-6">
           <div className="grid grid-cols-4 gap-4">
             {metricsData.map((metric, index) => (
               <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
@@ -191,7 +191,7 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Header */}
-        <div className="app-header px-6 pt-1 pb-3 relative z-20 bg-background">
+        <div className="app-header px-6 pb-3 relative z-20 bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
