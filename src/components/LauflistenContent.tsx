@@ -184,7 +184,7 @@ export const LauflistenContent = () => {
             <span>&gt;</span>
             <span>Laufliste</span>
           </div>
-          <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
+          <h1 className="text-2xl font-semibold text-foreground">Laufliste</h1>
         </div>
 
         {/* Metrics Dashboard */}
