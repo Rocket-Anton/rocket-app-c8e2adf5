@@ -193,7 +193,7 @@ export const LauflistenContent = () => {
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500 animate-pulse' : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500' : ''}`}>
                 <div className="absolute top-2 left-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -213,7 +213,7 @@ export const LauflistenContent = () => {
             })}
             
             {/* Gauge Chart Card */}
-            <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 animate-pulse">
+            <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500">
               <div className="absolute top-2 left-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
