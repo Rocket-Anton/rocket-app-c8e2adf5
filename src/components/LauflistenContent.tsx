@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -9,6 +9,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover";
+import { Button } from "./ui/button";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "./ui/command";
+import { cn } from "@/lib/utils";
 
 const mockAddresses = [
   { id: 1, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
@@ -23,8 +38,21 @@ const mockAddresses = [
 
 export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("");
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [allFilter, setAllFilter] = useState("");
+  const [open, setOpen] = useState(false);
+
+  const statusOptions = [
+    { value: "offen", label: "Offen" },
+    { value: "nicht-angetroffen", label: "Nicht angetroffen" },
+    { value: "potenzial", label: "Potenzial" },
+    { value: "neukunde", label: "Neukunde" },
+    { value: "bestandskunde", label: "Bestandskunde" },
+    { value: "kein-interesse", label: "Kein Interesse" },
+    { value: "termin", label: "Termin" },
+    { value: "nicht-vorhanden", label: "Nicht vorhanden" },
+    { value: "gewerbe", label: "Gewerbe" },
+  ];
 
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -108,22 +136,53 @@ export const LauflistenContent = () => {
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Select value={statusFilter} onValueChange={setStatusFilter}>
-                    <SelectTrigger className="w-24">
-                      <SelectValue placeholder="Status" />
-                    </SelectTrigger>
-                    <SelectContent className="z-[60]">
-                      <SelectItem value="offen" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Offen</SelectItem>
-                      <SelectItem value="nicht-angetroffen" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Nicht angetroffen</SelectItem>
-                      <SelectItem value="potenzial" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Potenzial</SelectItem>
-                      <SelectItem value="neukunde" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Neukunde</SelectItem>
-                      <SelectItem value="bestandskunde" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Bestandskunde</SelectItem>
-                      <SelectItem value="kein-interesse" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Kein Interesse</SelectItem>
-                      <SelectItem value="termin" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Termin</SelectItem>
-                      <SelectItem value="nicht-vorhanden" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Nicht vorhanden</SelectItem>
-                      <SelectItem value="gewerbe" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Gewerbe</SelectItem>
-                    </SelectContent>
-                  </Select>
+                  <Popover open={open} onOpenChange={setOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={open}
+                        className="w-24 justify-between"
+                      >
+                        {statusFilter.length === 0
+                          ? "Status"
+                          : statusFilter.length === 1
+                          ? statusOptions.find((option) => option.value === statusFilter[0])?.label
+                          : `${statusFilter.length} ausgewählt`}
+                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[200px] p-0" align="start">
+                      <Command>
+                        <CommandList>
+                          <CommandGroup>
+                            {statusOptions.map((option) => (
+                              <CommandItem
+                                key={option.value}
+                                value={option.value}
+                                onSelect={(currentValue) => {
+                                  setStatusFilter(prev => 
+                                    prev.includes(currentValue)
+                                      ? prev.filter(item => item !== currentValue)
+                                      : [...prev, currentValue]
+                                  )
+                                }}
+                                className="pl-3 pr-8"
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    statusFilter.includes(option.value) ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {option.label}
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
 
                   <Select value={allFilter} onValueChange={setAllFilter}>
                   <SelectTrigger className="w-28">
