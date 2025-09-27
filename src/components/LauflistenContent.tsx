@@ -205,7 +205,7 @@ export const LauflistenContent = () => {
                   </Tooltip>
                 </div>
                 {isGreenCard && (
-                  <div className="absolute bottom-2 right-2">
+                  <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
                     <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
                       <Check className="w-4 h-4 text-white" />
                     </div>
@@ -231,7 +231,7 @@ export const LauflistenContent = () => {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="absolute bottom-2 right-2">
+              <div className="absolute -bottom-3 left-1/2 transform -translate-x-1/2">
                 <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
                   <X className="w-4 h-4 text-white" />
                 </div>
