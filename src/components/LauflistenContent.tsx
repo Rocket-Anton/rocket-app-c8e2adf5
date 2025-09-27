@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -24,6 +24,13 @@ import {
   CommandList,
 } from "./ui/command";
 import { cn } from "@/lib/utils";
+import { Card } from "./ui/card";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from "./ui/tooltip";
 
 const mockAddresses = [
   { id: 1, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
@@ -67,6 +74,41 @@ export const LauflistenContent = () => {
 
   const displayedAddresses = searchTerm ? filteredAddresses : mockAddresses;
 
+  const metricsData = [
+    {
+      title: "Potentiale",
+      value: "127",
+      icon: Target,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+      explanation: "Anzahl der identifizierten potentiellen Kunden basierend auf Bewertungskriterien"
+    },
+    {
+      title: "Qualifiziert heute",
+      value: "23",
+      icon: CheckCircle,
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+      explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
+    },
+    {
+      title: "Kunden heute",
+      value: "8",
+      icon: Users,
+      color: "text-purple-600",
+      bgColor: "bg-purple-100",
+      explanation: "Anzahl der heute gewonnenen Neukunden"
+    },
+    {
+      title: "Conversion Rate",
+      value: "6.3%",
+      icon: TrendingUp,
+      color: "text-orange-600",
+      bgColor: "bg-orange-100",
+      explanation: "Verhältnis von qualifizierten Leads zu gewonnenen Kunden"
+    }
+  ];
+
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
@@ -106,9 +148,39 @@ export const LauflistenContent = () => {
   }, []);
 
   return (
-    <div className="flex flex-col h-screen">
-      {/* Header */}
-      <div className="app-header p-6 relative z-20 bg-background">
+    <TooltipProvider>
+      <div className="flex flex-col h-screen">
+        {/* Metrics Dashboard */}
+        <div className="p-6 bg-background border-b">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+            {metricsData.map((metric, index) => (
+              <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
+                <div className="absolute top-2 left-2">
+                  <Tooltip>
+                    <TooltipTrigger asChild>
+                      <Info className="w-3 h-3 text-green-600 cursor-help" />
+                    </TooltipTrigger>
+                    <TooltipContent>
+                      <p className="max-w-xs text-sm">{metric.explanation}</p>
+                    </TooltipContent>
+                  </Tooltip>
+                </div>
+                <div className="flex items-center gap-3 mt-2">
+                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
+                    <metric.icon className={`w-5 h-5 ${metric.color}`} />
+                  </div>
+                  <div>
+                    <div className="text-2xl font-bold text-foreground">{metric.value}</div>
+                    <div className="text-sm text-muted-foreground">{metric.title}</div>
+                  </div>
+                </div>
+              </Card>
+            ))}
+          </div>
+        </div>
+
+        {/* Header */}
+        <div className="app-header p-6 relative z-20 bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -278,6 +350,7 @@ export const LauflistenContent = () => {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </TooltipProvider>
   );
 };
