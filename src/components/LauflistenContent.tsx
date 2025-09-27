@@ -206,7 +206,9 @@ export const LauflistenContent = () => {
                 </div>
                 {isGreenCard && (
                   <div className="absolute top-2 right-2">
-                    <Check className="w-5 h-5 text-green-500" />
+                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
                   </div>
                 )}
                 <div className="flex flex-col items-center justify-center text-center mt-2">
@@ -230,7 +232,9 @@ export const LauflistenContent = () => {
                 </Tooltip>
               </div>
               <div className="absolute top-2 right-2">
-                <X className="w-5 h-5 text-red-500" />
+                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
+                  <X className="w-4 h-4 text-white" />
+                </div>
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
                 <div className="text-3xl font-bold text-foreground mb-2">6,5%</div>
