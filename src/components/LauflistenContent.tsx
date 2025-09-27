@@ -150,9 +150,14 @@ export const LauflistenContent = () => {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen">
+        {/* Page Title */}
+        <div className="p-6 pb-0">
+          <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
+        </div>
+
         {/* Metrics Dashboard */}
-        <div className="p-6 bg-background border-b">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <div className="px-6 pb-6">
+          <div className="grid grid-cols-4 gap-4">
             {metricsData.map((metric, index) => (
               <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
                 <div className="absolute top-2 left-2">
@@ -190,8 +195,6 @@ export const LauflistenContent = () => {
                 <span>&gt;</span>
                 <span>Liste</span>
               </div>
-              <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
-              
             </div>
           </div>
           
