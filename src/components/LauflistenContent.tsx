@@ -40,7 +40,8 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [allFilter, setAllFilter] = useState("");
-  const [open, setOpen] = useState(false);
+  const [statusOpen, setStatusOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
 
   const statusOptions = [
     { value: "offen", label: "Offen" },
@@ -53,6 +54,18 @@ export const LauflistenContent = () => {
     { value: "nicht-vorhanden", label: "Nicht vorhanden" },
     { value: "gewerbe", label: "Gewerbe" },
   ];
+
+  // Filter addresses based on search term
+  const filteredAddresses = mockAddresses.filter(address => {
+    const searchLower = searchTerm.toLowerCase();
+    return (
+      address.street.toLowerCase().includes(searchLower) ||
+      address.postalCode.includes(searchTerm) ||
+      address.city.toLowerCase().includes(searchLower)
+    );
+  });
+
+  const displayedAddresses = searchTerm ? filteredAddresses : mockAddresses;
 
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -106,7 +119,7 @@ export const LauflistenContent = () => {
                 <span>Liste</span>
               </div>
               <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
-              <p className="text-sm text-muted-foreground">Insgesamt gefunden: {mockAddresses.length}</p>
+              <p className="text-sm text-muted-foreground">Insgesamt gefunden: {displayedAddresses.length}</p>
             </div>
           </div>
           
@@ -126,22 +139,56 @@ export const LauflistenContent = () => {
             <div className={`bg-background py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Adresse suchen"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
+                  <Popover open={searchOpen && searchTerm.length > 0} onOpenChange={setSearchOpen}>
+                    <PopoverTrigger asChild>
+                      <Input
+                        placeholder="Adresse suchen"
+                        value={searchTerm}
+                        onChange={(e) => {
+                          setSearchTerm(e.target.value);
+                          setSearchOpen(e.target.value.length > 0);
+                        }}
+                        onFocus={() => setSearchOpen(searchTerm.length > 0)}
+                        onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                        className="pl-10"
+                      />
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[400px] p-0" align="start">
+                      <div className="max-h-60 overflow-y-auto">
+                        {filteredAddresses.length > 0 ? (
+                          filteredAddresses.slice(0, 5).map((address) => (
+                            <div
+                              key={address.id}
+                              className="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
+                              onClick={() => {
+                                setSearchTerm(`${address.street}, ${address.postalCode} ${address.city}`);
+                                setSearchOpen(false);
+                              }}
+                            >
+                              <div className="font-medium">{address.street}</div>
+                              <div className="text-sm text-muted-foreground">
+                                {address.postalCode} {address.city}
+                              </div>
+                            </div>
+                          ))
+                        ) : (
+                          <div className="p-3 text-sm text-muted-foreground">
+                            Keine Ergebnisse gefunden
+                          </div>
+                        )}
+                      </div>
+                    </PopoverContent>
+                  </Popover>
                 </div>
 
                 <div className="flex items-center gap-2">
-                  <Popover open={open} onOpenChange={setOpen}>
+                  <Popover open={statusOpen} onOpenChange={setStatusOpen}>
                     <PopoverTrigger asChild>
                       <Button
                         variant="outline"
                         role="combobox"
-                        aria-expanded={open}
+                        aria-expanded={statusOpen}
                         className="w-36 h-10 px-3 py-2 flex items-center justify-between"
                       >
                         <span className="truncate">
@@ -215,7 +262,7 @@ export const LauflistenContent = () => {
           {/* Address Cards */}
           <div className="px-6 pb-6">
             <div className="space-y-4">
-              {mockAddresses.map((address) => (
+              {displayedAddresses.map((address) => (
                 <AddressCard key={address.id} address={address} />
               ))}
             </div>
