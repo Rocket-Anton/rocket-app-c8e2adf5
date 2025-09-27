@@ -151,21 +151,19 @@ export const LauflistenContent = () => {
                       <X className="w-4 h-4" />
                     </button>
                   )}
-                  <Popover open={searchOpen && searchTerm.length > 0} onOpenChange={setSearchOpen}>
-                    <PopoverTrigger asChild>
-                      <Input
-                        placeholder="Adresse suchen"
-                        value={searchTerm}
-                        onChange={(e) => {
-                          setSearchTerm(e.target.value);
-                          setSearchOpen(e.target.value.length > 0);
-                        }}
-                        onFocus={() => setSearchOpen(searchTerm.length > 0)}
-                        onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
-                        className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
-                      />
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[400px] p-0" align="start">
+                  <Input
+                    placeholder="Adresse suchen"
+                    value={searchTerm}
+                    onChange={(e) => {
+                      setSearchTerm(e.target.value);
+                      setSearchOpen(e.target.value.length > 0);
+                    }}
+                    onFocus={() => setSearchOpen(searchTerm.length > 0)}
+                    onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
+                    className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
+                  />
+                  {searchOpen && searchTerm.length > 0 && (
+                    <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
                       <div className="max-h-60 overflow-y-auto">
                         {filteredAddresses.length > 0 ? (
                           filteredAddresses.slice(0, 5).map((address) => (
@@ -189,8 +187,8 @@ export const LauflistenContent = () => {
                           </div>
                         )}
                       </div>
-                    </PopoverContent>
-                  </Popover>
+                    </div>
+                  )}
                 </div>
 
                 <div className="flex items-center gap-2">
