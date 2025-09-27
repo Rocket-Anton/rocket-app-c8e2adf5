@@ -103,8 +103,8 @@ export const LauflistenContent = () => {
   ];
 
   const gaugeData = [
-    { name: 'completed', value: 795, fill: '#22c55e' },
-    { name: 'remaining', value: 205, fill: '#e5e7eb' }
+    { name: 'completed', value: 5, fill: '#22c55e' },
+    { name: 'remaining', value: 95, fill: '#e5e7eb' }
   ];
 
   const GaugeChart = () => (
@@ -128,9 +128,8 @@ export const LauflistenContent = () => {
           </Pie>
         </PieChart>
       </ResponsiveContainer>
-      <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="text-2xl font-bold text-foreground">795</div>
-        <div className="text-xs text-muted-foreground">/ 1000</div>
+      <div className="absolute inset-0 flex flex-col items-center justify-center z-10">
+        <div className="text-2xl font-bold text-foreground">5</div>
       </div>
     </div>
   );
