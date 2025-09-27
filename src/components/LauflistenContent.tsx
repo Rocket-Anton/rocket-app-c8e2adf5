@@ -182,7 +182,6 @@ export const LauflistenContent = () => {
                   </div>
                   <div>
                     <div className="text-2xl font-bold text-foreground">{metric.value}</div>
-                    <div className="text-sm text-muted-foreground">{metric.title}</div>
                   </div>
                 </div>
               </Card>
