@@ -127,7 +127,7 @@ export const LauflistenContent = () => {
                   </Select>
 
                   <Select value={allFilter} onValueChange={setAllFilter}>
-                  <SelectTrigger className="w-24">
+                  <SelectTrigger className="w-28">
                     <SelectValue placeholder="Nr." />
                   </SelectTrigger>
                      <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
