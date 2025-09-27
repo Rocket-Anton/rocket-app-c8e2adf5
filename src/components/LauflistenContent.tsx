@@ -93,7 +93,7 @@ export const LauflistenContent = () => {
       explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
     },
     {
-      title: "Kunden heute",
+      title: "Aufträge heute",
       value: "8",
       icon: Users,
       color: "text-purple-600",
@@ -222,7 +222,7 @@ export const LauflistenContent = () => {
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
                 <div className="text-3xl font-bold text-foreground mb-2">5</div>
-                <div className="text-sm text-muted-foreground">Aufträge heute</div>
+                <div className="text-sm text-muted-foreground">Conversion</div>
               </div>
             </Card>
           </div>
