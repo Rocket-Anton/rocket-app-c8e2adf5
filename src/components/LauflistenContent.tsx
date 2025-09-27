@@ -142,7 +142,7 @@ export const LauflistenContent = () => {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-40 h-10 px-3 py-2 flex items-center gap-1"
+                        className="w-36 h-10 px-3 py-2 flex items-center gap-1"
                       >
                         <span className="truncate">
                           {statusFilter.length === 0
