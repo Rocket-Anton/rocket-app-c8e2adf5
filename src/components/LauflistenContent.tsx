@@ -189,7 +189,7 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="grid grid-cols-4 gap-4 w-full pb-6 overflow-visible">
+          <div className="grid grid-cols-4 gap-4 w-full pb-3 overflow-visible">
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
