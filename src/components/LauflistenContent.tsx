@@ -69,62 +69,62 @@ export const LauflistenContent = () => {
 
       {/* Address List - Scrollable */}
       <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-        {/* Single Filter (no copy, no sticky). It scrolls first and overlays the list. */}
-        <div
-          ref={filterRef}
-          className="relative z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm"
-          style={{ marginBottom: -filterH }}
-        >
-          <div className="flex items-center justify-between gap-2">
-            <div className="flex items-center gap-2">
-              <div className="relative max-w-md">
-                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input
-                  placeholder="Adresse suchen"
-                  value={searchTerm}
-                  onChange={(e) => setSearchTerm(e.target.value)}
-                  className="pl-10"
-                />
+        <div className="relative">
+          <div
+            ref={filterRef}
+            className="absolute inset-x-0 top-0 z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm"
+          >
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="relative max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Adresse suchen"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-28">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="offen">Offen</SelectItem>
+                    <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
+                    <SelectItem value="potenzial">Potenzial</SelectItem>
+                    <SelectItem value="neukunde">Neukunde</SelectItem>
+                    <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
+                    <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
+                    <SelectItem value="termin">Termin</SelectItem>
+                    <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
+                    <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                  </SelectContent>
+                </Select>
               </div>
 
-              <Select value={statusFilter} onValueChange={setStatusFilter}>
-                <SelectTrigger className="w-28">
-                  <Filter className="w-4 h-4 mr-2" />
-                  <SelectValue placeholder="Status" />
+              <Select value={allFilter} onValueChange={setAllFilter}>
+                <SelectTrigger className="w-20">
+                  <SelectValue placeholder="Nr." />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="offen">Offen</SelectItem>
-                  <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
-                  <SelectItem value="potenzial">Potenzial</SelectItem>
-                  <SelectItem value="neukunde">Neukunde</SelectItem>
-                  <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
-                  <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
-                  <SelectItem value="termin">Termin</SelectItem>
-                  <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
-                  <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                  <SelectItem value="alle">Alle</SelectItem>
+                  <SelectItem value="gerade">Gerade</SelectItem>
+                  <SelectItem value="ungerade">Ungerade</SelectItem>
                 </SelectContent>
               </Select>
             </div>
-
-            <Select value={allFilter} onValueChange={setAllFilter}>
-              <SelectTrigger className="w-20">
-                <SelectValue placeholder="Nr." />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="alle">Alle</SelectItem>
-                <SelectItem value="gerade">Gerade</SelectItem>
-                <SelectItem value="ungerade">Ungerade</SelectItem>
-              </SelectContent>
-            </Select>
           </div>
-        </div>
 
-        {/* Address Cards */}
-        <div className="px-6 pb-6">
-          <div className="space-y-4">
-            {mockAddresses.map((address) => (
-              <AddressCard key={address.id} address={address} />
-            ))}
+          {/* Address Cards */}
+          <div className="px-6 pb-6">
+            <div className="space-y-4">
+              {mockAddresses.map((address) => (
+                <AddressCard key={address.id} address={address} />
+              ))}
+            </div>
           </div>
         </div>
       </div>
