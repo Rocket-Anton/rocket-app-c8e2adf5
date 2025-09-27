@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "./ui/tooltip";
+import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const mockAddresses = [
   { id: 1, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
@@ -98,16 +99,41 @@ export const LauflistenContent = () => {
       color: "text-purple-600",
       bgColor: "bg-purple-100",
       explanation: "Anzahl der heute gewonnenen Neukunden"
-    },
-    {
-      title: "Conversion Rate",
-      value: "6.3%",
-      icon: TrendingUp,
-      color: "text-orange-600",
-      bgColor: "bg-orange-100",
-      explanation: "Verhältnis von qualifizierten Leads zu gewonnenen Kunden"
     }
   ];
+
+  const gaugeData = [
+    { name: 'completed', value: 795, fill: '#22c55e' },
+    { name: 'remaining', value: 205, fill: '#e5e7eb' }
+  ];
+
+  const GaugeChart = () => (
+    <div className="relative">
+      <ResponsiveContainer width="100%" height={120}>
+        <PieChart>
+          <Pie
+            data={gaugeData}
+            cx="50%"
+            cy="70%"
+            startAngle={180}
+            endAngle={0}
+            innerRadius={40}
+            outerRadius={60}
+            dataKey="value"
+            strokeWidth={0}
+          >
+            {gaugeData.map((entry, index) => (
+              <Cell key={`cell-${index}`} fill={entry.fill} />
+            ))}
+          </Pie>
+        </PieChart>
+      </ResponsiveContainer>
+      <div className="absolute inset-0 flex flex-col items-center justify-center">
+        <div className="text-2xl font-bold text-foreground mt-8">795</div>
+        <div className="text-xs text-muted-foreground">/ 1000</div>
+      </div>
+    </div>
+  );
 
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -163,7 +189,7 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="grid grid-cols-4 gap-4">
+          <div className="grid grid-cols-5 gap-4">
             {metricsData.map((metric, index) => (
               <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
                 <div className="absolute top-2 left-2">
@@ -186,6 +212,23 @@ export const LauflistenContent = () => {
                 </div>
               </Card>
             ))}
+            
+            {/* Gauge Chart Card */}
+            <Card className="relative p-4 hover:shadow-md transition-shadow">
+              <div className="absolute top-2 left-2">
+                <Tooltip>
+                  <TooltipTrigger asChild>
+                    <Info className="w-3 h-3 text-green-600 cursor-help" />
+                  </TooltipTrigger>
+                  <TooltipContent>
+                    <p className="max-w-xs text-sm">Anzahl der heute bearbeiteten Aufträge</p>
+                  </TooltipContent>
+                </Tooltip>
+              </div>
+              <div className="mt-2">
+                <GaugeChart />
+              </div>
+            </Card>
           </div>
         </div>
 
