@@ -28,25 +28,22 @@ export const LauflistenContent = () => {
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
   const [showFilters, setShowFilters] = useState(true);
+  const [filterTransform, setFilterTransform] = useState(0);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const lastScrollY = useRef(0);
 
   useEffect(() => {
     const scrollContainer = scrollContainerRef.current;
     if (!scrollContainer) return;
 
     const handleScroll = () => {
-      const currentScrollY = scrollContainer.scrollTop;
+      const scrollY = scrollContainer.scrollTop;
       
-      if (currentScrollY > lastScrollY.current && currentScrollY > 10) {
-        // Scrolling down
-        setShowFilters(false);
-      } else if (currentScrollY < lastScrollY.current) {
-        // Scrolling up
-        setShowFilters(true);
-      }
+      // Move filter up with scroll, but cap it at -100px (fully hidden)
+      const transform = Math.min(0, -scrollY);
+      setFilterTransform(transform);
       
-      lastScrollY.current = currentScrollY;
+      // Show/hide based on scroll position
+      setShowFilters(scrollY < 10);
     };
 
     scrollContainer.addEventListener('scroll', handleScroll, { passive: true });
@@ -84,9 +81,10 @@ export const LauflistenContent = () => {
       {/* Address List - Scrollable */}
       <div ref={scrollContainerRef} className="flex-1 overflow-y-auto">
         {/* Filter Section */}
-        <div className={`px-6 pt-6 pb-4 transition-all duration-200 ${
-          showFilters ? 'opacity-100 translate-y-0' : 'opacity-0 -translate-y-full h-0 py-0'
-        }`}>
+        <div 
+          className="px-6 pt-6 pb-4"
+          style={{ transform: `translateY(${filterTransform}px)` }}
+        >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
