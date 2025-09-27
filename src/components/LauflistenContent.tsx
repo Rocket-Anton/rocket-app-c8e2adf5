@@ -244,6 +244,11 @@ export const LauflistenContent = () => {
           </div>
         </div>
 
+        {/* Subtle divider */}
+        <div className="px-6">
+          <div className="h-px bg-border/50"></div>
+        </div>
+
         {/* Header */}
         <div className="app-header px-6 pb-3 relative z-20 bg-background">
         <div className="flex items-center justify-between">
