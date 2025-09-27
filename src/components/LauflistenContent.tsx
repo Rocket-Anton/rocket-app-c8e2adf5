@@ -108,17 +108,17 @@ export const LauflistenContent = () => {
   ];
 
   const GaugeChart = () => (
-    <div className="relative">
-      <ResponsiveContainer width="100%" height={120}>
+    <div className="relative flex items-center justify-center">
+      <ResponsiveContainer width={80} height={60}>
         <PieChart>
           <Pie
             data={gaugeData}
             cx="50%"
-            cy="70%"
+            cy="80%"
             startAngle={180}
             endAngle={0}
-            innerRadius={40}
-            outerRadius={60}
+            innerRadius={20}
+            outerRadius={30}
             dataKey="value"
             strokeWidth={0}
           >
@@ -129,7 +129,7 @@ export const LauflistenContent = () => {
         </PieChart>
       </ResponsiveContainer>
       <div className="absolute inset-0 flex flex-col items-center justify-center">
-        <div className="text-2xl font-bold text-foreground mt-8">795</div>
+        <div className="text-2xl font-bold text-foreground">795</div>
         <div className="text-xs text-muted-foreground">/ 1000</div>
       </div>
     </div>
@@ -225,7 +225,10 @@ export const LauflistenContent = () => {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="mt-2">
+              <div className="flex items-center gap-3 mt-2">
+                <div className="p-2 rounded-lg bg-gray-100">
+                  <FileText className="w-5 h-5 text-gray-600" />
+                </div>
                 <GaugeChart />
               </div>
             </Card>
