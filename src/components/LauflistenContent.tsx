@@ -56,8 +56,8 @@ export const LauflistenContent = () => {
 
       {/* Address List - Scrollable */}
       <div className="flex-1 overflow-y-auto">
-        {/* Filter Section - Sticky direkt unter Header */}
-        <div className="sticky top-0 z-10 bg-background px-6 py-3 border-b border-border">
+        {/* Filter Section - Normal scrolling under header */}
+        <div className="bg-background px-6 py-3 border-b border-border">
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
