@@ -27,13 +27,21 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
-  const floatingRef = useRef<HTMLDivElement>(null);
-  const [filterH, setFilterH] = useState(0);
+  const [showSticky, setShowSticky] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
+
   useEffect(() => {
-    const measure = () => setFilterH(floatingRef.current?.offsetHeight ?? 0);
-    measure();
-    window.addEventListener('resize', measure);
-    return () => window.removeEventListener('resize', measure);
+    const root = scrollRef.current;
+    const target = filterRef.current;
+    if (!root || !target) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowSticky(entry.intersectionRatio < 1);
+    }, { root, threshold: [1] });
+
+    observer.observe(target);
+    return () => observer.disconnect();
   }, []);
 
   return (
@@ -62,11 +70,10 @@ export const LauflistenContent = () => {
       </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
-
-        {/* Filter Section - Floating over addresses, scrolls out first */}
-        <div className="relative">
-          <div ref={floatingRef} className="absolute inset-x-0 top-0 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm">
+      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Sticky proxy filter - appears as soon as original starts leaving */}
+        {showSticky && (
+          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-2">
                 <div className="relative max-w-md">
@@ -110,9 +117,53 @@ export const LauflistenContent = () => {
               </Select>
             </div>
           </div>
-          <div style={{ height: filterH }} />
-        </div>
+        )}
 
+        {/* Original filter - normal flow under header */}
+        <div className="bg-background/95 px-6 py-3" ref={filterRef}>
+          <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center gap-2">
+              <div className="relative max-w-md">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Adresse suchen"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+
+              <Select value={statusFilter} onValueChange={setStatusFilter}>
+                <SelectTrigger className="w-28">
+                  <Filter className="w-4 h-4 mr-2" />
+                  <SelectValue placeholder="Status" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="offen">Offen</SelectItem>
+                  <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
+                  <SelectItem value="potenzial">Potenzial</SelectItem>
+                  <SelectItem value="neukunde">Neukunde</SelectItem>
+                  <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
+                  <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
+                  <SelectItem value="termin">Termin</SelectItem>
+                  <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
+                  <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Select value={allFilter} onValueChange={setAllFilter}>
+              <SelectTrigger className="w-20">
+                <SelectValue placeholder="Nr." />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="alle">Alle</SelectItem>
+                <SelectItem value="gerade">Gerade</SelectItem>
+                <SelectItem value="ungerade">Ungerade</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
 
         {/* Address Cards */}
         <div className="px-6 pb-6">
