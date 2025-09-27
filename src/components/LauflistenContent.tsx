@@ -86,13 +86,12 @@ export const LauflistenContent = () => {
 
             <Select value={allFilter} onValueChange={setAllFilter}>
               <SelectTrigger className="w-20">
-                <SelectValue placeholder="Alle" />
+                <SelectValue placeholder="Nr." />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="alle">Alle</SelectItem>
-                <SelectItem value="heute">Heute</SelectItem>
-                <SelectItem value="woche">Diese Woche</SelectItem>
-                <SelectItem value="monat">Dieser Monat</SelectItem>
+                <SelectItem value="gerade">Gerade</SelectItem>
+                <SelectItem value="ungerade">Ungerade</SelectItem>
               </SelectContent>
             </Select>
           </div>
