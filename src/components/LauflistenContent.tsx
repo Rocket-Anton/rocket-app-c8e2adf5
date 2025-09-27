@@ -221,8 +221,8 @@ export const LauflistenContent = () => {
                 </Tooltip>
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
-                <GaugeChart />
-                <div className="text-sm text-muted-foreground mt-2">Aufträge heute</div>
+                <div className="text-3xl font-bold text-foreground mb-2">5</div>
+                <div className="text-sm text-muted-foreground">Aufträge heute</div>
               </div>
             </Card>
           </div>
