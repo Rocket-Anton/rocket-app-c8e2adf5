@@ -151,7 +151,7 @@ export const LauflistenContent = () => {
                             ? statusOptions.find((option) => option.value === statusFilter[0])?.label
                             : `${statusFilter.length} ausgewählt`}
                         </span>
-                        <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        <ChevronDown className="ml-1 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
                     <PopoverContent className="w-[200px] p-0" align="start">
