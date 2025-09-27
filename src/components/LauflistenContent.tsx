@@ -180,9 +180,9 @@ export const LauflistenContent = () => {
         <div className="p-6 pb-0">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <span>🏠</span>
-            <span>Lauflisten</span>
+            <span>Home</span>
             <span>&gt;</span>
-            <span>Liste</span>
+            <span>Laufliste</span>
           </div>
           <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
         </div>
