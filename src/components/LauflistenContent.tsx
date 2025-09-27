@@ -176,9 +176,12 @@ export const LauflistenContent = () => {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen">
-        {/* Pagination */}
+        {/* Page Title */}
         <div className="p-6 pb-0">
-          <div className="flex items-center justify-between">
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Lauflisten</h1>
+          
+          {/* Pagination */}
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-2">
               <button className="p-2 hover:bg-muted rounded">
                 <ChevronLeft className="w-4 h-4" />
@@ -189,11 +192,7 @@ export const LauflistenContent = () => {
               </button>
             </div>
           </div>
-        </div>
 
-        {/* Page Title */}
-        <div className="px-6 pb-0">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Lauflisten</h1>
           <div className="flex items-center gap-2 text-sm text-muted-foreground">
             <span>🏠</span>
             <span>Lauflisten</span>
