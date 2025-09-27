@@ -112,16 +112,16 @@ export const LauflistenContent = () => {
                     <SelectTrigger className="w-24">
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="offen">Offen</SelectItem>
-                      <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
-                      <SelectItem value="potenzial">Potenzial</SelectItem>
-                      <SelectItem value="neukunde">Neukunde</SelectItem>
-                      <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
-                      <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
-                      <SelectItem value="termin">Termin</SelectItem>
-                      <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
-                      <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                    <SelectContent className="z-[60]">
+                      <SelectItem value="offen" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Offen</SelectItem>
+                      <SelectItem value="nicht-angetroffen" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Nicht angetroffen</SelectItem>
+                      <SelectItem value="potenzial" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Potenzial</SelectItem>
+                      <SelectItem value="neukunde" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Neukunde</SelectItem>
+                      <SelectItem value="bestandskunde" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Bestandskunde</SelectItem>
+                      <SelectItem value="kein-interesse" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Kein Interesse</SelectItem>
+                      <SelectItem value="termin" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Termin</SelectItem>
+                      <SelectItem value="nicht-vorhanden" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Nicht vorhanden</SelectItem>
+                      <SelectItem value="gewerbe" className="pl-3 pr-8 text-left justify-start [&>span:first-child]:hidden">Gewerbe</SelectItem>
                     </SelectContent>
                   </Select>
 
