@@ -147,8 +147,6 @@ export const LauflistenContent = () => {
                         <span className="truncate">
                           {statusFilter.length === 0
                             ? "Status"
-                            : statusFilter.length === 1
-                            ? statusOptions.find((option) => option.value === statusFilter[0])?.label
                             : `${statusFilter.length} ausgewählt`}
                         </span>
                         <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
