@@ -51,21 +51,25 @@ export const LauflistenContent = () => {
           </div>
         </div>
 
-        {/* Action Bar */}
-        <div className="flex items-center gap-2 mt-6">
-          <div className="flex-1 max-w-md">
-            <div className="relative">
-              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-              <Input
-                placeholder="Adresse suchen"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10"
-              />
-            </div>
-          </div>
+      </div>
 
+      {/* Address List - Scrollable */}
+      <div className="flex-1 overflow-y-auto">
+        {/* Sticky Filters */}
+        <div className="sticky top-0 bg-background border-b border-border p-4 z-10">
           <div className="flex items-center gap-2">
+            <div className="flex-1 max-w-md">
+              <div className="relative">
+                <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                <Input
+                  placeholder="Adresse suchen"
+                  value={searchTerm}
+                  onChange={(e) => setSearchTerm(e.target.value)}
+                  className="pl-10"
+                />
+              </div>
+            </div>
+
             <Select value={statusFilter} onValueChange={setStatusFilter}>
               <SelectTrigger className="w-28">
                 <Filter className="w-4 h-4 mr-2" />
@@ -96,14 +100,14 @@ export const LauflistenContent = () => {
             </Select>
           </div>
         </div>
-      </div>
 
-      {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="space-y-4">
-          {mockAddresses.map((address) => (
-            <AddressCard key={address.id} address={address} />
-          ))}
+        {/* Address Cards */}
+        <div className="p-6">
+          <div className="space-y-4">
+            {mockAddresses.map((address) => (
+              <AddressCard key={address.id} address={address} />
+            ))}
+          </div>
         </div>
       </div>
     </div>
