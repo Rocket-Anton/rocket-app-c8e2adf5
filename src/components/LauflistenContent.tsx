@@ -189,7 +189,7 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-4 gap-4 w-full">
             {metricsData.map((metric, index) => (
               <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
                 <div className="absolute top-2 left-2">
