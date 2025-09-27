@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Search, Filter, HelpCircle, ChevronDown } from "lucide-react";
 import { Button } from "./ui/button";
 import { Input } from "./ui/input";
@@ -27,7 +27,22 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
+  const [showSticky, setShowSticky] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const filterRef = useRef<HTMLDivElement>(null);
 
+  useEffect(() => {
+    const root = scrollRef.current;
+    const target = filterRef.current;
+    if (!root || !target) return;
+
+    const observer = new IntersectionObserver(([entry]) => {
+      setShowSticky(!entry.isIntersecting);
+    }, { root, threshold: 1 });
+
+    observer.observe(target);
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <div className="flex flex-col h-screen">
@@ -55,9 +70,57 @@ export const LauflistenContent = () => {
       </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+        {/* Sticky proxy filter - appears when original is out of view */}
+        {showSticky && (
+          <div className="sticky top-0 z-20 bg-background px-6 py-3">
+            <div className="flex items-center justify-between gap-2">
+              <div className="flex items-center gap-2">
+                <div className="relative max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Adresse suchen"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
+
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger className="w-28">
+                    <Filter className="w-4 h-4 mr-2" />
+                    <SelectValue placeholder="Status" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="offen">Offen</SelectItem>
+                    <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
+                    <SelectItem value="potenzial">Potenzial</SelectItem>
+                    <SelectItem value="neukunde">Neukunde</SelectItem>
+                    <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
+                    <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
+                    <SelectItem value="termin">Termin</SelectItem>
+                    <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
+                    <SelectItem value="gewerbe">Gewerbe</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <Select value={allFilter} onValueChange={setAllFilter}>
+                <SelectTrigger className="w-20">
+                  <SelectValue placeholder="Nr." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="alle">Alle</SelectItem>
+                  <SelectItem value="gerade">Gerade</SelectItem>
+                  <SelectItem value="ungerade">Ungerade</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+          </div>
+        )}
+
         {/* Filter Section - Normal scrolling under header */}
-        <div className="bg-background px-6 py-3">
+        <div className="bg-background px-6 py-3" ref={filterRef}>
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
