@@ -56,15 +56,6 @@ export const LauflistenContent = () => {
             </div>
           </div>
 
-          <div className="flex items-center gap-2">
-            <Button variant="outline">
-              Empfehlung melden
-            </Button>
-            
-            <Button variant="outline" size="icon">
-              <Filter className="w-4 h-4" />
-            </Button>
-          </div>
         </div>
       </div>
 
