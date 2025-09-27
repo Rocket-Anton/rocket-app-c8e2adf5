@@ -142,13 +142,15 @@ export const LauflistenContent = () => {
                         variant="outline"
                         role="combobox"
                         aria-expanded={open}
-                        className="w-32 justify-between"
+                        className="w-32 justify-between h-10 px-3 py-2"
                       >
-                        {statusFilter.length === 0
-                          ? "Status"
-                          : statusFilter.length === 1
-                          ? statusOptions.find((option) => option.value === statusFilter[0])?.label
-                          : `${statusFilter.length} ausgewählt`}
+                        <span className="truncate">
+                          {statusFilter.length === 0
+                            ? "Status"
+                            : statusFilter.length === 1
+                            ? statusOptions.find((option) => option.value === statusFilter[0])?.label
+                            : `${statusFilter.length} ausgewählt`}
+                        </span>
                         <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                       </Button>
                     </PopoverTrigger>
