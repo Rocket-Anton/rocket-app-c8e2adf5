@@ -1,9 +1,7 @@
-import { useState, useRef, useEffect } from "react";
-import { Search, Filter, HelpCircle, ChevronDown } from "lucide-react";
-import { Button } from "./ui/button";
+import { useState, useEffect, useRef } from "react";
+import { Search, Filter, HelpCircle } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
-import { SidebarTrigger } from "./ui/sidebar";
 import {
   Select,
   SelectContent,
@@ -27,31 +25,23 @@ export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("");
   const [allFilter, setAllFilter] = useState("");
-  
+
+  // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
-  const [showSticky, setShowSticky] = useState(false);
-  const lastScrollTop = useRef(0);
+  const [filterH, setFilterH] = useState(0);
 
   useEffect(() => {
-    const root = scrollRef.current;
-    if (!root) return;
-    const onScroll = () => {
-      const st = root.scrollTop;
-      const delta = 4;
-      const scrollingUp = st < lastScrollTop.current - delta;
-      const scrollingDown = st > lastScrollTop.current + delta;
-      if (scrollingUp && st > 0) {
-        setShowSticky(true);
-      } else if (scrollingDown || st === 0) {
-        setShowSticky(false);
-      }
-      lastScrollTop.current = st;
+    const measure = () => setFilterH(filterRef.current?.offsetHeight ?? 0);
+    measure();
+    const ro = new ResizeObserver(measure);
+    if (filterRef.current) ro.observe(filterRef.current);
+    window.addEventListener("resize", measure);
+    return () => {
+      window.removeEventListener("resize", measure);
+      ro.disconnect();
     };
-    root.addEventListener("scroll", onScroll, { passive: true });
-    return () => root.removeEventListener("scroll", onScroll);
   }, []);
-
 
   return (
     <div className="flex flex-col h-screen">
@@ -75,62 +65,16 @@ export const LauflistenContent = () => {
             <HelpCircle className="w-5 h-5 text-muted-foreground cursor-pointer hover:text-foreground" />
           </div>
         </div>
-
       </div>
 
       {/* Address List - Scrollable */}
       <div className="flex-1 overflow-y-auto" ref={scrollRef}>
-        {/* Sticky proxy filter - appears as soon as original starts leaving */}
-
-        {/* Original filter - normal flow under header */}
-        {showSticky && (
-          <div className="sticky top-0 z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-2">
-                <div className="relative max-w-md">
-                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                  <Input
-                    placeholder="Adresse suchen"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
-
-                <Select value={statusFilter} onValueChange={setStatusFilter}>
-                  <SelectTrigger className="w-28">
-                    <Filter className="w-4 h-4 mr-2" />
-                    <SelectValue placeholder="Status" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="offen">Offen</SelectItem>
-                    <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
-                    <SelectItem value="potenzial">Potenzial</SelectItem>
-                    <SelectItem value="neukunde">Neukunde</SelectItem>
-                    <SelectItem value="bestandskunde">Bestandskunde</SelectItem>
-                    <SelectItem value="kein-interesse">Kein Interesse</SelectItem>
-                    <SelectItem value="termin">Termin</SelectItem>
-                    <SelectItem value="nicht-vorhanden">Nicht vorhanden</SelectItem>
-                    <SelectItem value="gewerbe">Gewerbe</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <Select value={allFilter} onValueChange={setAllFilter}>
-                <SelectTrigger className="w-20">
-                  <SelectValue placeholder="Nr." />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="alle">Alle</SelectItem>
-                  <SelectItem value="gerade">Gerade</SelectItem>
-                  <SelectItem value="ungerade">Ungerade</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-          </div>
-        )}
-
-        <div className="bg-background/95 px-6 py-3" ref={filterRef}>
+        {/* Single Filter (no copy, no sticky). It scrolls first and overlays the list. */}
+        <div
+          ref={filterRef}
+          className="relative z-10 bg-background/95 backdrop-blur-sm px-6 py-3 shadow-sm"
+          style={{ marginBottom: -filterH }}
+        >
           <div className="flex items-center justify-between gap-2">
             <div className="flex items-center gap-2">
               <div className="relative max-w-md">
