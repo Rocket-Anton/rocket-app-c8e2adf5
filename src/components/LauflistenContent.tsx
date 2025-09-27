@@ -96,9 +96,10 @@ export const LauflistenContent = () => {
       title: "Aufträge heute",
       value: "8",
       icon: Users,
-      color: "text-purple-600",
-      bgColor: "bg-purple-100",
-      explanation: "Anzahl der heute gewonnenen Neukunden"
+      color: "text-green-600",
+      bgColor: "bg-green-100",
+      explanation: "Anzahl der heute gewonnenen Neukunden",
+      cardColor: "border-green-500"
     }
   ];
 
@@ -189,8 +190,10 @@ export const LauflistenContent = () => {
         {/* Metrics Dashboard */}
         <div className="px-6">
           <div className="grid grid-cols-4 gap-4 w-full">
-            {metricsData.map((metric, index) => (
-              <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
+            {metricsData.map((metric, index) => {
+              const isGreenCard = metric.title === "Aufträge heute";
+              return (
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500' : ''}`}>
                 <div className="absolute top-2 left-2">
                   <Tooltip>
                     <TooltipTrigger asChild>
@@ -206,10 +209,11 @@ export const LauflistenContent = () => {
                   <div className="text-sm text-muted-foreground">{metric.title}</div>
                 </div>
               </Card>
-            ))}
+              );
+            })}
             
             {/* Gauge Chart Card */}
-            <Card className="relative p-4 hover:shadow-md transition-shadow">
+            <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500">
               <div className="absolute top-2 left-2">
                 <Tooltip>
                   <TooltipTrigger asChild>
@@ -221,7 +225,7 @@ export const LauflistenContent = () => {
                 </Tooltip>
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
-                <div className="text-3xl font-bold text-foreground mb-2">5</div>
+                <div className="text-3xl font-bold text-foreground mb-2">6,5%</div>
                 <div className="text-sm text-muted-foreground">Conversion</div>
               </div>
             </Card>
