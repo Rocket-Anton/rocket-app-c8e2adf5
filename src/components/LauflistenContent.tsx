@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2 } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -180,6 +180,19 @@ export const LauflistenContent = () => {
                             ))}
                           </CommandGroup>
                         </CommandList>
+                        {statusFilter.length > 1 && (
+                          <div className="border-t bg-muted/50 p-2 flex items-center justify-between">
+                            <span className="text-sm text-muted-foreground">
+                              {statusFilter.length} ausgewählt
+                            </span>
+                            <button
+                              onClick={() => setStatusFilter([])}
+                              className="p-1 hover:bg-background rounded"
+                            >
+                              <Trash2 className="h-4 w-4 text-muted-foreground hover:text-foreground" />
+                            </button>
+                          </div>
+                        )}
                       </Command>
                     </PopoverContent>
                   </Popover>
