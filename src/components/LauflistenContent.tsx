@@ -113,7 +113,7 @@ export const LauflistenContent = () => {
                       <Filter className="w-4 h-4 mr-2" />
                       <SelectValue placeholder="Status" />
                     </SelectTrigger>
-                    <SelectContent position="popper" align="start" sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
+                    <SelectContent>
                       <SelectItem value="offen">Offen</SelectItem>
                       <SelectItem value="nicht-angetroffen">Nicht angetroffen</SelectItem>
                       <SelectItem value="potenzial">Potenzial</SelectItem>
