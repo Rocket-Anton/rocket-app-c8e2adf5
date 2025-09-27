@@ -97,17 +97,17 @@ export const LauflistenContent = () => {
           >
             <div className={`bg-background py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
-                <div className="flex items-center gap-2">
-                  <div className="relative max-w-md">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                    <Input
-                      placeholder="Adresse suchen"
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
+                <div className="relative max-w-md">
+                  <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+                  <Input
+                    placeholder="Adresse suchen"
+                    value={searchTerm}
+                    onChange={(e) => setSearchTerm(e.target.value)}
+                    className="pl-10"
+                  />
+                </div>
 
+                <div className="flex items-center gap-2">
                   <Select value={statusFilter} onValueChange={setStatusFilter}>
                     <SelectTrigger className="w-28">
                       <Filter className="w-4 h-4 mr-2" />
@@ -125,18 +125,18 @@ export const LauflistenContent = () => {
                       <SelectItem value="gewerbe">Gewerbe</SelectItem>
                     </SelectContent>
                   </Select>
-                </div>
 
-                <Select value={allFilter} onValueChange={setAllFilter}>
-                  <SelectTrigger className="w-20">
-                    <SelectValue placeholder="Nr." />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="alle">Alle</SelectItem>
-                    <SelectItem value="gerade">Gerade</SelectItem>
-                    <SelectItem value="ungerade">Ungerade</SelectItem>
-                  </SelectContent>
-                </Select>
+                  <Select value={allFilter} onValueChange={setAllFilter}>
+                    <SelectTrigger className="w-20">
+                      <SelectValue placeholder="Nr." />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="alle">Alle</SelectItem>
+                      <SelectItem value="gerade">Gerade</SelectItem>
+                      <SelectItem value="ungerade">Ungerade</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
             </div>
           </div>
