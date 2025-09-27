@@ -152,7 +152,13 @@ export const LauflistenContent = () => {
       <div className="flex flex-col h-screen">
         {/* Page Title */}
         <div className="p-6 pb-0">
-          <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
+          <h1 className="text-2xl font-semibold text-foreground mb-2">Lauflisten</h1>
+          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+            <span>🏠</span>
+            <span>Lauflisten</span>
+            <span>&gt;</span>
+            <span>Liste</span>
+          </div>
         </div>
 
         {/* Metrics Dashboard */}
@@ -189,12 +195,6 @@ export const LauflistenContent = () => {
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
-              <div className="flex items-center gap-2 text-sm text-muted-foreground mb-1">
-                <span>🏠</span>
-                <span>Lauflisten</span>
-                <span>&gt;</span>
-                <span>Liste</span>
-              </div>
             </div>
           </div>
           
