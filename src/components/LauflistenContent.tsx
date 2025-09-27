@@ -119,7 +119,7 @@ export const LauflistenContent = () => {
                 <span>Liste</span>
               </div>
               <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
-              <p className="text-sm text-muted-foreground">Insgesamt gefunden: {displayedAddresses.length}</p>
+              
             </div>
           </div>
           
