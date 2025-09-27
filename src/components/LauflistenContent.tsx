@@ -95,7 +95,7 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10 px-6"
           >
-            <div className={`bg-background/95 backdrop-blur-sm py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="flex items-center gap-2">
                   <div className="relative max-w-md">
