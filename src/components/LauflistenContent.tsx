@@ -130,7 +130,7 @@ export const LauflistenContent = () => {
                     <SelectTrigger className="w-20">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
-                    <SelectContent>
+                    <SelectContent align="start">
                       <SelectItem value="alle">Alle</SelectItem>
                       <SelectItem value="gerade">Gerade</SelectItem>
                       <SelectItem value="ungerade">Ungerade</SelectItem>
