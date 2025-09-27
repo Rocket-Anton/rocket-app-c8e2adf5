@@ -176,15 +176,15 @@ export const LauflistenContent = () => {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-screen">
-        {/* Page Title */}
+        {/* Breadcrumb Navigation */}
         <div className="p-6 pb-0">
-          <h1 className="text-2xl font-semibold text-foreground mb-2">Lauflisten</h1>
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
             <span>🏠</span>
             <span>Lauflisten</span>
             <span>&gt;</span>
             <span>Liste</span>
           </div>
+          <h1 className="text-2xl font-semibold text-foreground">Lauflisten</h1>
         </div>
 
         {/* Metrics Dashboard */}
