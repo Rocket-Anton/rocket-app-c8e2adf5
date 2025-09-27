@@ -201,13 +201,9 @@ export const LauflistenContent = () => {
                     </TooltipContent>
                   </Tooltip>
                 </div>
-                <div className="flex items-center gap-3 mt-2">
-                  <div className={`p-2 rounded-lg ${metric.bgColor}`}>
-                    <metric.icon className={`w-5 h-5 ${metric.color}`} />
-                  </div>
-                  <div>
-                    <div className="text-2xl font-bold text-foreground">{metric.value}</div>
-                  </div>
+                <div className="flex flex-col items-center justify-center text-center mt-2">
+                  <div className="text-3xl font-bold text-foreground mb-2">{metric.value}</div>
+                  <div className="text-sm text-muted-foreground">{metric.title}</div>
                 </div>
               </Card>
             ))}
@@ -224,8 +220,9 @@ export const LauflistenContent = () => {
                   </TooltipContent>
                 </Tooltip>
               </div>
-              <div className="mt-2">
+              <div className="flex flex-col items-center justify-center text-center mt-2">
                 <GaugeChart />
+                <div className="text-sm text-muted-foreground mt-2">Aufträge heute</div>
               </div>
             </Card>
           </div>
