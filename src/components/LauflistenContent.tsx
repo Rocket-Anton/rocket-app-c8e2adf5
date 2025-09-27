@@ -127,13 +127,13 @@ export const LauflistenContent = () => {
                   </Select>
 
                   <Select value={allFilter} onValueChange={setAllFilter}>
-                    <SelectTrigger className="w-20">
-                      <SelectValue placeholder="Nr." />
-                    </SelectTrigger>
+                  <SelectTrigger className="w-32">
+                    <SelectValue placeholder="Nr." />
+                  </SelectTrigger>
                      <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[var(--radix-select-trigger-width)] w-[var(--radix-select-trigger-width)] z-[60]">
-                       <SelectItem value="alle" className="pl-3 pr-2">Alle</SelectItem>
-                       <SelectItem value="gerade" className="pl-3 pr-2">Gerade</SelectItem>
-                       <SelectItem value="ungerade" className="pl-3 pr-2 text-xs">Ungerade</SelectItem>
+                        <SelectItem value="alle" className="pl-3 pr-2">Alle</SelectItem>
+                        <SelectItem value="gerade" className="pl-3 pr-2">Gerade</SelectItem>
+                        <SelectItem value="ungerade" className="pl-3 pr-2">Ungerade</SelectItem>
                      </SelectContent>
                   </Select>
                 </div>
