@@ -28,9 +28,13 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
   const statusOptions = [
     { value: "UNBEARBEITET", label: "Unbearbeitet", color: "bg-gray-500 text-white" },
-    { value: "LEAD", label: "LEAD", color: "bg-green-500 text-white" },
-    { value: "POT", label: "POT", color: "bg-orange-500 text-white" },
-    { value: "GEE", label: "GEE", color: "bg-cyan-500 text-white" }
+    { value: "OFFEN", label: "Offen", color: "bg-blue-500 text-white" },
+    { value: "NICHT_ANGETROFFEN", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+    { value: "POTENZIAL", label: "Potenzial", color: "bg-green-500 text-white" },
+    { value: "BESTANDSKUNDE", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
+    { value: "KEIN_INTERESSE", label: "Kein Interesse", color: "bg-red-500 text-white" },
+    { value: "NICHT_VORHANDEN", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
+    { value: "GEWERBE", label: "Gewerbe", color: "bg-purple-500 text-white" }
   ];
 
   const notes = [
