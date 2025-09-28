@@ -28,7 +28,6 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
   const statusOptions = [
     { value: "UNBEARBEITET", label: "Unbearbeitet", color: "bg-gray-500 text-white" },
-    { value: "OFFEN", label: "Offen", color: "bg-blue-500 text-white" },
     { value: "NICHT_ANGETROFFEN", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
     { value: "POTENZIAL", label: "Potenzial", color: "bg-green-500 text-white" },
     { value: "BESTANDSKUNDE", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
