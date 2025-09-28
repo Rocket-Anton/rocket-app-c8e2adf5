@@ -87,7 +87,27 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
               {/* First Unit */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-3">
+                  <div className="flex items-center gap-2">
+                    <Select defaultValue="LEAD">
+                      <SelectTrigger className="flex-1">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="LEAD">
+                          <Badge className={statusColors.LEAD}>LEAD</Badge>
+                        </SelectItem>
+                        <SelectItem value="POT">
+                          <Badge className={statusColors.POT}>POT</Badge>
+                        </SelectItem>
+                        <SelectItem value="GEE">
+                          <Badge className={statusColors.GEE}>GEE</Badge>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                    <Clock className="w-4 h-4 text-muted-foreground" />
+                  </div>
+
                   <Select defaultValue="3">
                     <SelectTrigger>
                       <SelectValue placeholder="OG" />
@@ -109,26 +129,6 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       <SelectItem value="mitte">Mitte</SelectItem>
                     </SelectContent>
                   </Select>
-
-                  <div className="flex items-center gap-2">
-                    <Select defaultValue="LEAD">
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="LEAD">
-                          <Badge className={statusColors.LEAD}>LEAD</Badge>
-                        </SelectItem>
-                        <SelectItem value="POT">
-                          <Badge className={statusColors.POT}>POT</Badge>
-                        </SelectItem>
-                        <SelectItem value="GEE">
-                          <Badge className={statusColors.GEE}>GEE</Badge>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                    <Clock className="w-4 h-4 text-muted-foreground" />
-                  </div>
                 </div>
 
                 <div className="space-y-2">
@@ -157,7 +157,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
               {/* Second Unit - GEE */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-3">
                   <Select defaultValue="GEE">
                     <SelectTrigger>
                       <SelectValue />
@@ -201,7 +201,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
               {/* Third Unit - POT */}
               <div className="space-y-3 p-4 bg-muted/30 rounded-lg">
-                <div className="grid grid-cols-3 gap-3">
+                <div className="space-y-3">
                   <Select defaultValue="POT">
                     <SelectTrigger>
                       <SelectValue />
