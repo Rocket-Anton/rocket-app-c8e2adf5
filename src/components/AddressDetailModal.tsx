@@ -27,7 +27,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   const [wohneinheiten] = useState(7);
 
   const statusOptions = [
-    { value: "KI", label: "KI - Kein Interesse", color: "bg-red-500 text-white" },
+    { value: "UNBEARBEITET", label: "Unbearbeitet", color: "bg-gray-500 text-white" },
     { value: "LEAD", label: "LEAD", color: "bg-green-500 text-white" },
     { value: "POT", label: "POT", color: "bg-orange-500 text-white" },
     { value: "GEE", label: "GEE", color: "bg-cyan-500 text-white" }
@@ -96,18 +96,15 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                   </select>
 
                   <div className="flex items-center gap-3">
-                    <Select defaultValue="KI">
+                    <Select defaultValue="UNBEARBEITET">
                       <SelectTrigger className="w-40">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
                         {statusOptions.map((status) => (
                           <SelectItem key={status.value} value={status.value}>
-                            <div className="flex items-center gap-2">
-                              <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                                {status.value}
-                              </div>
-                              <span className="text-sm">{status.label}</span>
+                            <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                              {status.label}
                             </div>
                           </SelectItem>
                         ))}
