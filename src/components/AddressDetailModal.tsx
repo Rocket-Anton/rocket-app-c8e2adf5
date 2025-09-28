@@ -62,7 +62,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
             {address.postalCode} {address.city}
           </p>
           
-          <div className="flex items-center justify-between w-full mt-8">
+          <div className="flex items-center justify-between w-full pt-6">
             <div className="flex items-center gap-2">
               <span className="text-base font-medium">Wohneinheiten</span>
               <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
