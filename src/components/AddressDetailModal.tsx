@@ -68,7 +68,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
             {/* Wohneinheiten Section */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-between w-full">
                 <div className="flex items-center gap-2">
                   <span className="text-lg font-medium">Wohneinheiten</span>
                   <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
