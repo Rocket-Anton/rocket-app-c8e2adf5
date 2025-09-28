@@ -84,14 +84,14 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
               {/* Unit Card */}
               <div className="p-4 bg-muted/30 rounded-lg space-y-4">
                 <div className="space-y-3">
-                  <select className="w-3/4 p-3 border border-gray-300 rounded-lg bg-background text-muted-foreground">
+                  <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground">
                     <option>Stockwerk</option>
                     <option>1. OG</option>
                     <option>2. OG</option>
                     <option>3. OG</option>
                   </select>
 
-                  <select className="w-3/4 p-3 border border-gray-300 rounded-lg bg-background text-muted-foreground">
+                  <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground">
                     <option>Lage</option>
                     <option>Links</option>
                     <option>Rechts</option>
