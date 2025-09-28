@@ -84,14 +84,14 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
               {/* Unit Card */}
               <div className="p-4 bg-muted/30 rounded-lg space-y-4">
                 <div className="space-y-3">
-                  <select className="w-full p-3 border rounded-lg bg-background text-muted-foreground">
+                  <select className="w-full p-3 border border-gray-300 rounded-lg bg-background text-muted-foreground">
                     <option>Stockwerk</option>
                     <option>1. OG</option>
                     <option>2. OG</option>
                     <option>3. OG</option>
                   </select>
 
-                  <select className="w-full p-3 border rounded-lg bg-background text-muted-foreground">
+                  <select className="w-full p-3 border border-gray-300 rounded-lg bg-background text-muted-foreground">
                     <option>Lage</option>
                     <option>Links</option>
                     <option>Rechts</option>
@@ -100,7 +100,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                   <div className="flex items-center gap-3">
                     <Select defaultValue="UNBEARBEITET">
-                      <SelectTrigger className="w-40 border-0 shadow-none bg-background">
+                      <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-400">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
