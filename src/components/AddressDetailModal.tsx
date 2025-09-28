@@ -100,7 +100,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                   <div className="flex items-center gap-3">
                     <Select defaultValue="UNBEARBEITET">
-                      <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-400">
+                      <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
