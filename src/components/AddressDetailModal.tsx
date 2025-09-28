@@ -57,7 +57,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl h-[80vh] overflow-hidden p-0">
+      <DialogContent className="max-w-2xl h-[80vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl font-semibold">
             {address.street}
