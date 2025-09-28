@@ -23,7 +23,7 @@ export const AddressCard = ({ address }: AddressCardProps) => {
   return (
     <>
       <Card 
-        className="p-4 hover:shadow-md transition-shadow cursor-pointer" 
+        className="p-4 hover:shadow-md transition-shadow cursor-pointer max-w-md" 
         onClick={() => setModalOpen(true)}
       >
         <div className="flex items-center justify-between">
