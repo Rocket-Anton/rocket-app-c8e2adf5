@@ -61,25 +61,26 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
           <p className="text-sm text-muted-foreground">
             {address.postalCode} {address.city}
           </p>
+          
+          <div className="flex items-center justify-between w-full mt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-medium">Wohneinheiten</span>
+              <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                {wohneinheiten}
+              </div>
+            </div>
+            <Button variant="ghost" size="sm" className="text-blue-600">
+              <Plus className="w-4 h-4 mr-1" />
+              Hinzufügen
+            </Button>
+          </div>
         </DialogHeader>
 
         <div className="flex h-full overflow-hidden">
           {/* Left Panel */}
           <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
-            {/* Wohneinheiten Section */}
+            {/* Unit Cards */}
             <div className="space-y-4">
-              <div className="flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-medium">Wohneinheiten</span>
-                  <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                    {wohneinheiten}
-                  </div>
-                </div>
-                <Button variant="ghost" size="sm" className="text-blue-600">
-                  <Plus className="w-4 h-4 mr-1" />
-                  Hinzufügen
-                </Button>
-              </div>
 
               {/* Unit Card */}
               <div className="p-4 bg-muted/30 rounded-lg space-y-4">
