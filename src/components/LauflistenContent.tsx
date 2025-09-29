@@ -190,8 +190,7 @@ export const LauflistenContent = () => {
     const onScroll = () => {
       const st = root.scrollTop;
       
-      // Calculate transform based on scroll position
-      // When scrolled down, move filter up (negative transform)
+      // Calculate transform based on scroll position - moves immediately with scroll
       const maxTransform = filterH + 20; // Move it behind the separator line
       const transform = Math.min(st, maxTransform);
       setFilterTransform(-transform);
@@ -300,7 +299,7 @@ export const LauflistenContent = () => {
             className="sticky top-0 z-10"
           >
             <div 
-              className="bg-background py-3 px-6"
+              className="bg-background py-3 px-6 transition-none"
               style={{ transform: `translateY(${filterTransform}px)` }}
             >
               <div className="flex items-center justify-between gap-2">
