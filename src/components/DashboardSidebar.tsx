@@ -68,10 +68,10 @@ export const DashboardSidebar = () => {
           )}
         </SidebarHeader>
 
-        <SidebarContent className={state === "collapsed" ? "px-2" : ""}>
+        <SidebarContent className="px-2">
           <SidebarGroup>
-            <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
-              <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Home className="w-5 h-5" />
@@ -176,16 +176,16 @@ export const DashboardSidebar = () => {
           </SidebarGroup>
 
           {/* SYSTEM Section */}
-          <SidebarGroup>
+          <SidebarGroup className="mt-4 pt-4 border-t border-sidebar-border">
             {state !== "collapsed" && (
-              <div className="px-3 py-2">
+              <div className="px-3 pb-2 -mt-2">
                 <span className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider">
                   SYSTEM
                 </span>
               </div>
             )}
-            <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
-              <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Settings className="w-5 h-5" />
