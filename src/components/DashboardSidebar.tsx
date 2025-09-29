@@ -75,14 +75,14 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Home className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span>Dashboard</span>}
+                    {state !== "collapsed" && <span className="whitespace-nowrap">Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Clock className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span>Aktivitäten</span>}
+                    {state !== "collapsed" && <span className="whitespace-nowrap">Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
@@ -97,7 +97,7 @@ export const DashboardSidebar = () => {
                   >
                     <div className="flex items-center gap-2">
                       <PersonStanding className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span>Lauflisten</span>}
+                      {state !== "collapsed" && <span className="whitespace-nowrap">Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
                       isLauflistenExpanded ? (
@@ -135,7 +135,7 @@ export const DashboardSidebar = () => {
                   }`}>
                     <div className="flex items-center gap-2">
                       <Calendar className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span>Termine</span>}
+                      {state !== "collapsed" && <span className="whitespace-nowrap">Termine</span>}
                     </div>
                     {state !== "collapsed" ? (
                       <Badge variant="destructive" className="w-4 h-4 p-0 text-xs flex items-center justify-center">
@@ -160,7 +160,7 @@ export const DashboardSidebar = () => {
                   >
                     <div className="flex items-center gap-2">
                       <User className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span>Leads</span>}
+                      {state !== "collapsed" && <span className="whitespace-nowrap">Leads</span>}
                     </div>
                     {state !== "collapsed" && (
                       isLeadsExpanded ? (
@@ -189,7 +189,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Settings className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span>Settings</span>}
+                    {state !== "collapsed" && <span className="whitespace-nowrap">Settings</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
@@ -203,9 +203,9 @@ export const DashboardSidebar = () => {
                       <Switch className="scale-75" />
                     ) : (
                       <>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-2 min-w-0">
                           <Moon className="!w-5 !h-5 flex-shrink-0" />
-                          <span>Dark mode</span>
+                          <span className="whitespace-nowrap">Dark mode</span>
                         </div>
                         <Switch className="ml-auto scale-90" />
                       </>
