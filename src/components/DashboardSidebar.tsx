@@ -1,6 +1,6 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
 import { useState } from "react";
-import rocketLogo from "@/assets/rocket-logo-white.png";
+import rocketLogo from "@/assets/rocket-logo-blue.png";
 import rocketIcon from "@/assets/rocket-icon-transparent.png";
 import { 
   Sidebar, 
@@ -43,7 +43,7 @@ export const DashboardSidebar = () => {
                 <img 
                   src={rocketLogo} 
                   alt="Rocket Promotions" 
-                  className="h-16 w-auto"
+                  className="h-12 w-auto"
                 />
               </div>
               <Button
