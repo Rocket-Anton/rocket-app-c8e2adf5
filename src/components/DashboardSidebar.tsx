@@ -100,13 +100,11 @@ export const DashboardSidebar = () => {
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
-                      <div className="w-6 h-6 rounded-full bg-sidebar-accent-foreground/20 flex items-center justify-center">
-                        {isLauflistenExpanded ? (
-                          <ChevronDown className="w-3 h-3" />
-                        ) : (
-                          <ChevronRight className="w-3 h-3" />
-                        )}
-                      </div>
+                      isLauflistenExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -165,13 +163,11 @@ export const DashboardSidebar = () => {
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
-                      <div className="w-6 h-6 rounded-full bg-sidebar-foreground/10 flex items-center justify-center">
-                        {isLeadsExpanded ? (
-                          <ChevronDown className="w-3 h-3" />
-                        ) : (
-                          <ChevronRight className="w-3 h-3" />
-                        )}
-                      </div>
+                      isLeadsExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>

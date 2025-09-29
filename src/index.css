@@ -38,15 +38,15 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Light sidebar colors with teal active state */
+    /* Light sidebar colors with blue active state */
     --sidebar-background: 220 14% 96%;
     --sidebar-foreground: 220 9% 46%;
-    --sidebar-primary: 170 75% 41%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 70% 90%;
-    --sidebar-accent-foreground: 170 70% 35%;
+    --sidebar-primary: 220 75% 75%;
+    --sidebar-primary-foreground: 220 100% 15%;
+    --sidebar-accent: 220 60% 92%;
+    --sidebar-accent-foreground: 220 75% 35%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 170 75% 41%;
+    --sidebar-ring: 220 75% 75%;
   }
 
   .dark {
@@ -80,12 +80,12 @@ All colors MUST be HSL.
     /* Dark mode - light sidebar colors */
     --sidebar-background: 220 14% 96%;
     --sidebar-foreground: 220 9% 46%;
-    --sidebar-primary: 170 75% 41%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 170 70% 90%;
-    --sidebar-accent-foreground: 170 70% 35%;
+    --sidebar-primary: 220 75% 75%;
+    --sidebar-primary-foreground: 220 100% 15%;
+    --sidebar-accent: 220 60% 92%;
+    --sidebar-accent-foreground: 220 75% 35%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 170 75% 41%;
+    --sidebar-ring: 220 75% 75%;
   }
 }
 
