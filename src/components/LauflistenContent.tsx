@@ -169,7 +169,7 @@ export const LauflistenContent = () => {
   const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);
-  const [showFilter, setShowFilter] = useState(true);
+  const [filterTransform, setFilterTransform] = useState(0);
   const lastScrollTop = useRef(0);
 
   useEffect(() => {
@@ -189,20 +189,18 @@ export const LauflistenContent = () => {
     if (!root) return;
     const onScroll = () => {
       const st = root.scrollTop;
-      // Reduced delta for more responsive filter hiding/showing
-      const delta = 2;
-      if (st <= 0) {
-        setShowFilter(true);
-      } else if (st < lastScrollTop.current - delta) {
-        setShowFilter(true);
-      } else if (st > lastScrollTop.current + delta) {
-        setShowFilter(false);
-      }
+      
+      // Calculate transform based on scroll position
+      // When scrolled down, move filter up (negative transform)
+      const maxTransform = filterH + 20; // Move it behind the separator line
+      const transform = Math.min(st, maxTransform);
+      setFilterTransform(-transform);
+      
       lastScrollTop.current = st;
     };
     root.addEventListener("scroll", onScroll, { passive: true });
     return () => root.removeEventListener("scroll", onScroll);
-  }, []);
+  }, [filterH]);
 
   return (
     <TooltipProvider>
@@ -301,7 +299,10 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10"
           >
-            <div className={`bg-background py-3 px-6 transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div 
+              className="bg-background py-3 px-6"
+              style={{ transform: `translateY(${filterTransform}px)` }}
+            >
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
