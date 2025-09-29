@@ -365,7 +365,7 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50`}
+                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50 max-h-[80vh] flex flex-col overflow-hidden`}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
@@ -373,7 +373,7 @@ export const LauflistenContent = () => {
                     <div className="p-4 border-b border-border bg-background">
                       <h3 className="text-lg font-semibold">Filter</h3>
                     </div>
-                    <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto bg-background">
+                    <div className="flex-1 p-4 space-y-4 overflow-y-auto bg-background overscroll-contain">
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
@@ -398,7 +398,7 @@ export const LauflistenContent = () => {
                           <SelectTrigger className="bg-background">
                             <SelectValue placeholder="Sortierung wählen" />
                           </SelectTrigger>
-                          <SelectContent className="bg-background z-50 max-h-[300px] overflow-y-auto" side="bottom" align="start" avoidCollisions={false}>
+                          <SelectContent className="bg-background z-50 max-h-[50vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false} onWheel={(e) => e.stopPropagation()}>
                             <SelectItem value="alle">Alle</SelectItem>
                             <SelectItem value="gerade">Gerade</SelectItem>
                             <SelectItem value="ungerade">Ungerade</SelectItem>
