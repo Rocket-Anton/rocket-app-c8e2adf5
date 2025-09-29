@@ -296,7 +296,7 @@ export const LauflistenContent = () => {
         </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto overscroll-behavior-none" ref={scrollRef} style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className="flex-1 overflow-y-auto" ref={scrollRef} style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
         <div>
           <div
             ref={filterRef}
