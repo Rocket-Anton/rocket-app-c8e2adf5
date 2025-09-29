@@ -50,7 +50,7 @@ export const DashboardSidebar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="h-8 w-8 hover:bg-sidebar-accent text-sidebar-foreground"
+                className="h-8 w-8 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-sm border border-border"
               >
                 <ChevronLeft className="w-4 h-4" />
               </Button>
