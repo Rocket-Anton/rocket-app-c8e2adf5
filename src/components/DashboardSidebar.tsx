@@ -43,7 +43,7 @@ export const DashboardSidebar = () => {
                 <img 
                   src={rocketLogo} 
                   alt="Rocket Promotions" 
-                  className="h-12 w-auto"
+                  className="h-16 w-auto"
                 />
               </div>
               <Button
