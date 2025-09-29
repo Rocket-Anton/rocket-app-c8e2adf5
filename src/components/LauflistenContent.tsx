@@ -224,15 +224,17 @@ export const LauflistenContent = () => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
               <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
-                <div className="absolute top-2 left-2">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <Info className="w-3 h-3 text-green-600 cursor-help" />
-                    </TooltipTrigger>
-                    <TooltipContent>
-                      <p className="max-w-xs text-sm">{metric.explanation}</p>
-                    </TooltipContent>
-                  </Tooltip>
+                <div className="absolute top-2 right-2">
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <button className="p-1 hover:bg-muted rounded-full transition-colors">
+                        <Info className="w-3 h-3 text-green-600 cursor-pointer" />
+                      </button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-80 p-3" align="end" side="bottom">
+                      <p className="text-sm">{metric.explanation}</p>
+                    </PopoverContent>
+                  </Popover>
                 </div>
                 {isGreenCard && (
                   <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
@@ -251,15 +253,17 @@ export const LauflistenContent = () => {
             
             {/* Gauge Chart Card */}
             <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50">
-              <div className="absolute top-2 left-2">
-                <Tooltip>
-                  <TooltipTrigger asChild>
-                    <Info className="w-3 h-3 text-green-600 cursor-help" />
-                  </TooltipTrigger>
-                  <TooltipContent>
-                    <p className="max-w-xs text-sm">Anzahl der heute bearbeiteten Aufträge</p>
-                  </TooltipContent>
-                </Tooltip>
+              <div className="absolute top-2 right-2">
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <button className="p-1 hover:bg-muted rounded-full transition-colors">
+                      <Info className="w-3 h-3 text-green-600 cursor-pointer" />
+                    </button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-80 p-3" align="end" side="bottom">
+                    <p className="text-sm">Anzahl der heute bearbeiteten Aufträge</p>
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
                 <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
