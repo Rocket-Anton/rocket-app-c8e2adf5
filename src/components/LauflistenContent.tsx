@@ -296,7 +296,7 @@ export const LauflistenContent = () => {
         </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto" ref={scrollRef}>
+      <div className="flex-1 overflow-y-auto overscroll-behavior-none" ref={scrollRef} style={{ WebkitOverflowScrolling: 'touch' }}>
         <div>
           <div
             ref={filterRef}
@@ -595,7 +595,7 @@ export const LauflistenContent = () => {
           </div>
 
           {/* Address Cards */}
-          <div className="px-6 pb-6">
+          <div className="px-6 pb-20">
             <div className="space-y-4">
               {displayedAddresses.map((address) => (
                 <AddressCard key={address.id} address={address} />
