@@ -74,14 +74,14 @@ export const DashboardSidebar = () => {
               <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Home className="w-5 h-5" />
+                    <Home className="w-5 h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Clock className="w-5 h-5" />
+                    <Clock className="w-5 h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -96,7 +96,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <PersonStanding className="w-5 h-5" />
+                      <PersonStanding className="w-5 h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -134,7 +134,7 @@ export const DashboardSidebar = () => {
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     <div className="flex items-center gap-2">
-                      <Calendar className="w-5 h-5" />
+                      <Calendar className="w-5 h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span>Termine</span>}
                     </div>
                     {state !== "collapsed" ? (
@@ -159,7 +159,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-2">
-                      <User className="w-5 h-5" />
+                      <User className="w-5 h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -188,7 +188,7 @@ export const DashboardSidebar = () => {
               <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Settings className="w-5 h-5" />
+                    <Settings className="w-5 h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span>Settings</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -204,7 +204,7 @@ export const DashboardSidebar = () => {
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
-                          <Moon className="w-5 h-5" />
+                          <Moon className="w-5 h-5 flex-shrink-0" />
                           <span>Dark mode</span>
                         </div>
                         <Switch className="ml-auto scale-90" />
