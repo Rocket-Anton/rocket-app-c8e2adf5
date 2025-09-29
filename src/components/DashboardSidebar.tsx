@@ -61,9 +61,9 @@ export const DashboardSidebar = () => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="absolute top-2 right-2 h-6 w-6 hover:bg-sidebar-accent text-sidebar-foreground"
+              className="absolute -right-3 top-2 h-8 w-8 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-md border border-border rounded-md"
             >
-              <ChevronRight className="w-3 h-3" />
+              <ChevronRight className="w-4 h-4" />
             </Button>
           )}
         </SidebarHeader>
