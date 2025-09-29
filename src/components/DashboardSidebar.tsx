@@ -30,11 +30,11 @@ export const DashboardSidebar = () => {
       <Sidebar collapsible="icon" className="border-r border-sidebar-border transition-all duration-300 ease-in-out bg-sidebar" style={{ ['--sidebar-width-icon' as any]: '5.5rem', ['--sidebar-width' as any]: '14rem' }}>
         <SidebarHeader className={`${state === "collapsed" ? "pb-2 border-b-0" : "border-b border-sidebar-border pb-2"}`}>
           {state === "collapsed" ? (
-            <div className="flex items-end justify-center pt-4 pb-2">
+            <div className="flex items-end justify-center pt-2 pb-2">
               <img 
                 src={rocketIcon} 
                 alt="Rocket" 
-                className="h-10 w-10 object-contain"
+                className="h-12 w-12 object-contain"
               />
             </div>
           ) : (
