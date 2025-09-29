@@ -299,9 +299,9 @@ export const LauflistenContent = () => {
         <div>
           <div
             ref={filterRef}
-            className="sticky top-0 z-10 px-6"
+            className="sticky top-0 z-10"
           >
-            <div className={`bg-background py-3 shadow-sm transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background py-3 px-6 transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -325,7 +325,7 @@ export const LauflistenContent = () => {
                     }}
                     onFocus={() => setSearchOpen(searchTerm.length > 0)}
                     onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
-                    className={`pl-10 border-0 shadow-none ${searchTerm ? 'pr-10' : 'pr-3'}`}
+                    className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
                   />
                   {searchOpen && searchTerm.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
@@ -522,7 +522,7 @@ export const LauflistenContent = () => {
                         variant="outline"
                         role="combobox"
                         aria-expanded={statusOpen}
-                        className="w-36 h-10 px-3 py-2 flex items-center justify-between border-0 shadow-none bg-muted/30"
+                        className="w-36 h-10 px-3 py-2 flex items-center justify-between"
                       >
                           <span className="truncate">
                             {statusFilter.length === 0
@@ -578,7 +578,7 @@ export const LauflistenContent = () => {
                     </Popover>
 
                     <Select value={allFilter} onValueChange={setAllFilter}>
-                    <SelectTrigger className="w-28 border-0 shadow-none bg-muted/30">
+                    <SelectTrigger className="w-28">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
                        <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[110px] w-[110px] z-[60] border-0">
