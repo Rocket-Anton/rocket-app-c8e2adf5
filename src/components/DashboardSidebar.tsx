@@ -200,14 +200,14 @@ export const DashboardSidebar = () => {
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     {state === "collapsed" ? (
-                      <Switch />
+                      <Switch className="scale-75" />
                     ) : (
                       <>
                         <div className="flex items-center gap-2">
                           <Moon className="w-5 h-5" />
                           <span>Dark mode</span>
                         </div>
-                        <Switch className="ml-auto" />
+                        <Switch className="ml-auto scale-90" />
                       </>
                     )}
                   </SidebarMenuButton>
