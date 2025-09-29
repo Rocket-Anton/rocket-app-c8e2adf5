@@ -365,16 +365,47 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className={`${isMobile ? 'w-screen h-[70vh]' : 'w-80'} p-0 border-0 shadow-lg`} 
+                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50`}
                     align={isMobile ? "center" : "end"}
-                    side={isMobile ? "bottom" : "bottom"}
-                    sideOffset={isMobile ? 8 : 4}
-                    alignOffset={isMobile ? 0 : -10}
+                    side="bottom"
+                    sideOffset={8}
                   >
-                    <div className="p-4 border-b border-border">
-                      <h3 className="text-lg font-semibold">Filters</h3>
+                    <div className="p-4 border-b border-border bg-background">
+                      <h3 className="text-lg font-semibold">Filter</h3>
                     </div>
-                    <div className="p-4 space-y-4 overflow-y-auto max-h-[calc(70vh-60px)]">
+                    <div className="p-4 space-y-4 max-h-[60vh] overflow-y-auto bg-background">
+                      {/* Status Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Status</label>
+                        <Select value={allFilter} onValueChange={setAllFilter}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Status wählen" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            {statusOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Sortierung Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Sortierung</label>
+                        <Select>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Sortierung wählen" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-50">
+                            <SelectItem value="alle">Alle</SelectItem>
+                            <SelectItem value="gerade">Gerade</SelectItem>
+                            <SelectItem value="ungerade">Ungerade</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
                       {/* Street Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Straße</label>
@@ -383,147 +414,41 @@ export const LauflistenContent = () => {
                           value={streetFilter}
                           onChange={(e) => setStreetFilter(e.target.value)}
                           autoFocus={false}
+                          className="bg-background"
                         />
                       </div>
 
-                      {/* City Filter */}
+                      {/* Hausnummer Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Handy</label>
+                        <label className="text-sm font-medium">Hausnummer</label>
                         <Input
-                          placeholder="Handy Filter eingeben"
-                          value={cityFilter}
-                          onChange={(e) => setCityFilter(e.target.value)}
-                        />
-                      </div>
-
-                      {/* Postal Code Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Werber</label>
-                        <Input
-                          placeholder="Werber Filter eingeben"
-                          value={postalCodeFilter}
-                          onChange={(e) => setPostalCodeFilter(e.target.value)}
-                        />
-                      </div>
-
-                      {/* Agency Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Agenturname</label>
-                        <Input
-                          placeholder="Agenturname eingeben"
+                          placeholder="Hausnummer eingeben"
                           value=""
                           onChange={() => {}}
-                        />
-                      </div>
-
-                      {/* Location Potential Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Ort Potential</label>
-                        <Input
-                          placeholder="Ort Potential eingeben"
-                          value=""
-                          onChange={() => {}}
+                          className="bg-background"
                         />
                       </div>
 
                       {/* PLZ Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter PLZ</label>
+                        <label className="text-sm font-medium">PLZ</label>
                         <Input
                           placeholder="PLZ eingeben"
-                          value=""
-                          onChange={() => {}}
+                          value={postalCodeFilter}
+                          onChange={(e) => setPostalCodeFilter(e.target.value)}
+                          className="bg-background"
                         />
                       </div>
 
-                      {/* Email Filter */}
+                      {/* Ort Filter */}
                       <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter E-Mail</label>
+                        <label className="text-sm font-medium">Ort</label>
                         <Input
-                          placeholder="E-Mail eingeben"
-                          value=""
-                          onChange={() => {}}
+                          placeholder="Ort eingeben"
+                          value={cityFilter}
+                          onChange={(e) => setCityFilter(e.target.value)}
+                          className="bg-background"
                         />
-                      </div>
-
-                      {/* City Filter 2 */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Stadt</label>
-                        <Input
-                          placeholder="Stadt eingeben"
-                          value=""
-                          onChange={() => {}}
-                        />
-                      </div>
-
-                      {/* Status Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Status Aktivi...</label>
-                        <Select value="" onValueChange={() => {}}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Status Aktivität auswählen" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="aktiv">Aktiv</SelectItem>
-                            <SelectItem value="inaktiv">Inaktiv</SelectItem>
-                            <SelectItem value="pending">Pending</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Closer Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Closer</label>
-                        <Select value="" onValueChange={() => {}}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Closer auswählen" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="closer1">Closer 1</SelectItem>
-                            <SelectItem value="closer2">Closer 2</SelectItem>
-                            <SelectItem value="closer3">Closer 3</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Bundesland Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Bundesland</label>
-                        <Input
-                          placeholder="Bundesland eingeben"
-                          value=""
-                          onChange={() => {}}
-                        />
-                      </div>
-
-                      {/* Projektleiter Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Filter Projektleiter</label>
-                        <Select value="" onValueChange={() => {}}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Projektleiter auswählen" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="pm1">Projektleiter 1</SelectItem>
-                            <SelectItem value="pm2">Projektleiter 2</SelectItem>
-                            <SelectItem value="pm3">Projektleiter 3</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
-
-                      {/* Number Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Nummer</label>
-                        <Select value={allFilter} onValueChange={setAllFilter}>
-                          <SelectTrigger className="w-full">
-                            <SelectValue placeholder="Nummer auswählen" />
-                          </SelectTrigger>
-                          <SelectContent>
-                            <SelectItem value="alle">Alle</SelectItem>
-                            <SelectItem value="gerade">Gerade</SelectItem>
-                            <SelectItem value="ungerade">Ungerade</SelectItem>
-                          </SelectContent>
-                        </Select>
                       </div>
                     </div>
                   </PopoverContent>
