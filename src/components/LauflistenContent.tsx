@@ -189,7 +189,8 @@ export const LauflistenContent = () => {
     if (!root) return;
     const onScroll = () => {
       const st = root.scrollTop;
-      const delta = 6;
+      // Reduced delta for more responsive filter hiding/showing
+      const delta = 2;
       if (st <= 0) {
         setShowFilter(true);
       } else if (st < lastScrollTop.current - delta) {
@@ -279,8 +280,8 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Subtle divider */}
-        <div className="px-6">
-          <div className="h-px bg-border/50"></div>
+        <div className="px-6 py-2">
+          <div className="h-px bg-border/30"></div>
         </div>
 
         {/* Header */}
@@ -300,7 +301,7 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10 px-6"
           >
-            <div className={`bg-background py-3 shadow-sm transition-transform duration-150 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background py-3 shadow-sm transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -531,7 +532,7 @@ export const LauflistenContent = () => {
                           <ChevronDown className="h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </PopoverTrigger>
-                      <PopoverContent className="w-[200px] p-0" align="start">
+                      <PopoverContent className="w-[200px] p-0 border-0" align="start">
                         <Command>
                           <CommandList>
                             <CommandGroup>
@@ -580,7 +581,7 @@ export const LauflistenContent = () => {
                     <SelectTrigger className="w-28">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
-                       <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[110px] w-[110px] z-[60]">
+                       <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[110px] w-[110px] z-[60] border-0">
                          <SelectItem value="alle" className="pl-3 pr-8 [&>span:first-child]:hidden">Alle</SelectItem>
                          <SelectItem value="gerade" className="pl-3 pr-8 [&>span:first-child]:hidden">Gerade</SelectItem>
                          <SelectItem value="ungerade" className="pl-3 pr-8 [&>span:first-child]:hidden">Ungerade</SelectItem>
