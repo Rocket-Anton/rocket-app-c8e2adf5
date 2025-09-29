@@ -301,7 +301,7 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10"
           >
-            <div className={`bg-background pt-2 pb-3 px-6 transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background pt-2 pb-3 px-6 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
