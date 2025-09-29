@@ -73,14 +73,14 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Home className="w-5 h-5" />
                     {state !== "collapsed" && <span>Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Clock className="w-5 h-5" />
                     {state !== "collapsed" && <span>Aktivitäten</span>}
                   </SidebarMenuButton>
@@ -91,7 +91,7 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
                     className={`w-full text-sidebar-accent-foreground font-medium rounded-lg ${
                       state === "collapsed" 
-                        ? "h-14 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/80" 
+                        ? "h-10 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/80" 
                         : "justify-between bg-sidebar-accent hover:bg-sidebar-accent/80"
                     }`}
                   >
@@ -130,7 +130,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${
                     state === "collapsed" 
-                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent relative" 
+                      ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent relative" 
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     <div className="flex items-center gap-2">
@@ -154,7 +154,7 @@ export const DashboardSidebar = () => {
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
                     className={`text-sidebar-foreground rounded-lg ${
                       state === "collapsed" 
-                        ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                         : "justify-between hover:bg-sidebar-accent"
                     }`}
                   >
@@ -187,7 +187,7 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu className="space-y-2">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
                     <Settings className="w-5 h-5" />
                     {state !== "collapsed" && <span>Settings</span>}
                   </SidebarMenuButton>
@@ -196,7 +196,7 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${
                     state === "collapsed" 
-                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                      ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     {state === "collapsed" ? (
