@@ -1,5 +1,5 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
 import rocketIcon from "@/assets/rocket-icon-blue.png";
 import { 
@@ -24,6 +24,14 @@ export const DashboardSidebar = () => {
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 
   const { state, toggleSidebar } = useSidebar();
+
+  // Close expanded menus when sidebar collapses
+  useEffect(() => {
+    if (state === "collapsed") {
+      setIsLauflistenExpanded(false);
+      setIsLeadsExpanded(false);
+    }
+  }, [state]);
 
   return (
     <>
