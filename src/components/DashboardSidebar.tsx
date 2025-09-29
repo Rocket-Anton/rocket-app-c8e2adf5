@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
 import { useState } from "react";
 import rocketLogo from "@/assets/rocket-logo-white.png";
 import rocketIcon from "@/assets/rocket-icon-transparent.png";
@@ -17,6 +17,7 @@ import {
 } from "./ui/sidebar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
+import { Switch } from "./ui/switch";
 
 export const DashboardSidebar = () => {
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(true);
@@ -99,11 +100,13 @@ export const DashboardSidebar = () => {
                       {state !== "collapsed" && <span>Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
-                      isLauflistenExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )
+                      <div className="w-6 h-6 rounded-full bg-sidebar-accent-foreground/20 flex items-center justify-center">
+                        {isLauflistenExpanded ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </div>
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -162,11 +165,50 @@ export const DashboardSidebar = () => {
                       {state !== "collapsed" && <span>Leads</span>}
                     </div>
                     {state !== "collapsed" && (
-                      isLeadsExpanded ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
-                        <ChevronRight className="w-4 h-4" />
-                      )
+                      <div className="w-6 h-6 rounded-full bg-sidebar-foreground/10 flex items-center justify-center">
+                        {isLeadsExpanded ? (
+                          <ChevronDown className="w-3 h-3" />
+                        ) : (
+                          <ChevronRight className="w-3 h-3" />
+                        )}
+                      </div>
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
+
+          {/* SYSTEM Section */}
+          <SidebarGroup>
+            {state !== "collapsed" && (
+              <div className="px-3 py-2">
+                <span className="text-xs font-medium text-sidebar-foreground/60 uppercase tracking-wider">
+                  SYSTEM
+                </span>
+              </div>
+            )}
+            <SidebarGroupContent className={state === "collapsed" ? "space-y-2" : ""}>
+              <SidebarMenu className={state === "collapsed" ? "space-y-2" : ""}>
+                <SidebarMenuItem>
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                    <Settings className="w-5 h-5" />
+                    {state !== "collapsed" && <span>Settings</span>}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${
+                    state === "collapsed" 
+                      ? "h-14 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                      : "justify-between hover:bg-sidebar-accent"
+                  }`}>
+                    <div className="flex items-center gap-2">
+                      <Moon className="w-5 h-5" />
+                      {state !== "collapsed" && <span>Dark mode</span>}
+                    </div>
+                    {state !== "collapsed" && (
+                      <Switch className="ml-auto" />
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
