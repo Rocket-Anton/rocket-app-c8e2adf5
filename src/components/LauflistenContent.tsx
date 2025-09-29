@@ -381,7 +381,7 @@ export const LauflistenContent = () => {
                           <SelectTrigger className="bg-background">
                             <SelectValue placeholder="Status wählen" />
                           </SelectTrigger>
-                          <SelectContent className="bg-background z-50">
+                          <SelectContent className="bg-background z-50" side="bottom" align="start">
                             {statusOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
                                 {option.label}
@@ -398,7 +398,7 @@ export const LauflistenContent = () => {
                           <SelectTrigger className="bg-background">
                             <SelectValue placeholder="Sortierung wählen" />
                           </SelectTrigger>
-                          <SelectContent className="bg-background z-50">
+                          <SelectContent className="bg-background z-50" side="bottom" align="start">
                             <SelectItem value="alle">Alle</SelectItem>
                             <SelectItem value="gerade">Gerade</SelectItem>
                             <SelectItem value="ungerade">Ungerade</SelectItem>
