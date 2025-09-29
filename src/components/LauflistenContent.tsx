@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, TrendingDown, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, ShoppingBag, DollarSign, Package } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import {
@@ -107,63 +107,43 @@ export const LauflistenContent = () => {
 
   const metricsData = [
     {
-      title: "Potentiale",
-      value: "127",
-      icon: Target,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-      explanation: "Anzahl der identifizierten potentiellen Kunden basierend auf Bewertungskriterien"
-    },
-    {
-      title: "Qualifiziert heute",
-      value: "23",
-      icon: CheckCircle,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
-    },
-    {
-      title: "Aufträge heute",
-      value: "8",
+      title: "Total customers",
+      value: "567,899",
       icon: Users,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      explanation: "Anzahl der heute gewonnenen Neukunden",
-      cardColor: "border-green-500"
+      trend: "+2.5%",
+      isPositive: true,
+      iconBgColor: "bg-muted",
+      iconColor: "text-muted-foreground"
+    },
+    {
+      title: "Total revenue",
+      value: "$3,465 M",
+      icon: DollarSign,
+      trend: "+0.5%",
+      isPositive: true,
+      iconBgColor: "bg-muted",
+      iconColor: "text-muted-foreground"
+    },
+    {
+      title: "Total orders",
+      value: "1,136 M",
+      icon: ShoppingBag,
+      trend: "-0.2%",
+      isPositive: false,
+      iconBgColor: "bg-muted",
+      iconColor: "text-muted-foreground"
+    },
+    {
+      title: "Total returns",
+      value: "1,789",
+      icon: Package,
+      trend: "+0.12%",
+      isPositive: true,
+      iconBgColor: "bg-muted",
+      iconColor: "text-muted-foreground"
     }
   ];
 
-  const gaugeData = [
-    { name: 'completed', value: 5, fill: '#22c55e' },
-    { name: 'remaining', value: 95, fill: '#e5e7eb' }
-  ];
-
-  const GaugeChart = () => (
-    <div className="relative flex items-center justify-center">
-      <div className="absolute inset-0 flex flex-col items-center justify-center z-0">
-        <div className="text-2xl font-bold text-foreground">5</div>
-      </div>
-      <ResponsiveContainer width={80} height={60}>
-        <PieChart>
-          <Pie
-            data={gaugeData}
-            cx="50%"
-            cy="50%"
-            startAngle={180}
-            endAngle={0}
-            innerRadius={25}
-            outerRadius={35}
-            dataKey="value"
-            strokeWidth={0}
-          >
-            {gaugeData.map((entry, index) => (
-              <Cell key={`cell-${index}`} fill={entry.fill} />
-            ))}
-          </Pie>
-        </PieChart>
-      </ResponsiveContainer>
-    </div>
-  );
 
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -220,62 +200,38 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="grid grid-cols-4 gap-4 w-full pb-3 overflow-visible">
+          <div className="grid grid-cols-4 gap-4 w-full pb-3">
             {metricsData.map((metric, index) => {
-              const isGreenCard = metric.title === "Aufträge heute";
+              const Icon = metric.icon;
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
-                <div className="absolute top-2 right-2">
-                  <Popover>
-                    <PopoverTrigger asChild>
-                      <button className="p-1 hover:bg-muted rounded-full transition-colors">
-                        <Info className="w-3 h-3 text-green-600 cursor-pointer" />
-                      </button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-80 p-3" align="end" side="bottom">
-                      <p className="text-sm">{metric.explanation}</p>
-                    </PopoverContent>
-                  </Popover>
-                </div>
-                {isGreenCard && (
-                  <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
+              <Card key={index} className="relative p-4 hover:shadow-md transition-shadow">
+                <div className="flex flex-col h-full">
+                  {/* Icon and Label */}
+                  <div className="flex items-start gap-3 mb-4">
+                    <div className={`${metric.iconBgColor} p-2 rounded-lg`}>
+                      <Icon className={`w-5 h-5 ${metric.iconColor}`} />
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-sm text-muted-foreground">{metric.title}</div>
                     </div>
                   </div>
-                )}
-                <div className="flex flex-col items-center justify-center text-center mt-2">
-                  <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{metric.value}</div>
-                  {!isMobile && <div className="text-sm text-muted-foreground">{metric.title}</div>}
+                  
+                  {/* Value and Trend */}
+                  <div className="flex items-end justify-between mt-auto">
+                    <div className="text-3xl font-bold text-foreground">{metric.value}</div>
+                    <div className={`flex items-center gap-1 text-sm font-medium ${metric.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                      {metric.isPositive ? (
+                        <TrendingUp className="w-4 h-4" />
+                      ) : (
+                        <TrendingDown className="w-4 h-4" />
+                      )}
+                      <span>{metric.trend}</span>
+                    </div>
+                  </div>
                 </div>
               </Card>
               );
             })}
-            
-            {/* Gauge Chart Card */}
-            <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50">
-              <div className="absolute top-2 right-2">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="p-1 hover:bg-muted rounded-full transition-colors">
-                      <Info className="w-3 h-3 text-green-600 cursor-pointer" />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-3" align="end" side="bottom">
-                    <p className="text-sm">Anzahl der heute bearbeiteten Aufträge</p>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
-                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                  <X className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center text-center mt-2">
-                <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>6,5%</div>
-                {!isMobile && <div className="text-sm text-muted-foreground">Conversion</div>}
-              </div>
-            </Card>
           </div>
         </div>
 
