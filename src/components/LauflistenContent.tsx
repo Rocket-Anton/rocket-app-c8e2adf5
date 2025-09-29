@@ -207,7 +207,7 @@ export const LauflistenContent = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-screen">
+      <div className="flex flex-col h-dvh">
         {/* Breadcrumb Navigation */}
         <div className="p-6 pb-0">
           <div className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
