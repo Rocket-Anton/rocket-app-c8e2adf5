@@ -38,18 +38,15 @@ All colors MUST be HSL.
 
     --radius: 0.5rem;
 
-    /* Blue gradient sidebar colors */
-    --sidebar-background: 224 76% 48%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 224 76% 48%;
-    --sidebar-accent: 224 76% 40%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 76% 35%;
-    --sidebar-ring: 224 76% 48%;
-    
-    /* Blue gradient definition */
-    --sidebar-gradient: linear-gradient(180deg, hsl(224, 76%, 55%) 0%, hsl(224, 76%, 35%) 100%);
+    /* Light sidebar colors with teal active state */
+    --sidebar-background: 220 14% 96%;
+    --sidebar-foreground: 220 9% 46%;
+    --sidebar-primary: 170 75% 41%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 170 70% 90%;
+    --sidebar-accent-foreground: 170 70% 35%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 170 75% 41%;
   }
 
   .dark {
@@ -80,18 +77,15 @@ All colors MUST be HSL.
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    /* Dark mode - keep same blue gradient */
-    --sidebar-background: 224 76% 48%;
-    --sidebar-foreground: 0 0% 100%;
-    --sidebar-primary: 0 0% 100%;
-    --sidebar-primary-foreground: 224 76% 48%;
-    --sidebar-accent: 224 76% 40%;
-    --sidebar-accent-foreground: 0 0% 100%;
-    --sidebar-border: 224 76% 35%;
-    --sidebar-ring: 224 76% 48%;
-    
-    /* Blue gradient definition for dark mode */
-    --sidebar-gradient: linear-gradient(180deg, hsl(224, 76%, 55%) 0%, hsl(224, 76%, 35%) 100%);
+    /* Dark mode - light sidebar colors */
+    --sidebar-background: 220 14% 96%;
+    --sidebar-foreground: 220 9% 46%;
+    --sidebar-primary: 170 75% 41%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 170 70% 90%;
+    --sidebar-accent-foreground: 170 70% 35%;
+    --sidebar-border: 220 13% 91%;
+    --sidebar-ring: 170 75% 41%;
   }
 }
 
