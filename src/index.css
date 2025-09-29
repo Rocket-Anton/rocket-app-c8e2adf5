@@ -77,15 +77,15 @@ All colors MUST be HSL.
     --border: 217.2 32.6% 17.5%;
     --input: 217.2 32.6% 17.5%;
     --ring: 212.7 26.8% 83.9%;
-    /* Dark mode - light sidebar colors */
-    --sidebar-background: 220 14% 96%;
-    --sidebar-foreground: 220 9% 46%;
-    --sidebar-primary: 220 75% 75%;
-    --sidebar-primary-foreground: 220 100% 15%;
-    --sidebar-accent: 220 60% 92%;
-    --sidebar-accent-foreground: 220 75% 35%;
+    /* Dark mode - light sidebar with mint/teal accents */
+    --sidebar-background: 0 0% 97%;
+    --sidebar-foreground: 215 16% 47%;
+    --sidebar-primary: 172 44% 37%;
+    --sidebar-primary-foreground: 0 0% 100%;
+    --sidebar-accent: 165 55% 90%;
+    --sidebar-accent-foreground: 172 44% 37%;
     --sidebar-border: 220 13% 91%;
-    --sidebar-ring: 220 75% 75%;
+    --sidebar-ring: 172 44% 37%;
   }
 }
 
