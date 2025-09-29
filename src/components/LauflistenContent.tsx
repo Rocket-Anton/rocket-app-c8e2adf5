@@ -280,12 +280,12 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Divider between Dashboard and Filter */}
-        <div className="px-6 py-3">
+        <div className="px-6 pb-3">
           <div className="h-px bg-border"></div>
         </div>
 
         {/* Header */}
-        <div className="app-header px-6 pb-3 relative z-20 bg-background">
+        <div className="app-header px-6 pt-3 relative z-20 bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
