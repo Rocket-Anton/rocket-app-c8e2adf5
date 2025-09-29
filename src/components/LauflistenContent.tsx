@@ -280,8 +280,8 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Subtle divider */}
-        <div className="px-6 py-2">
-          <div className="h-px bg-border/30"></div>
+        <div className="px-6 py-3 flex justify-center">
+          <div className="h-px bg-border/20 w-2/3"></div>
         </div>
 
         {/* Header */}
@@ -325,7 +325,7 @@ export const LauflistenContent = () => {
                     }}
                     onFocus={() => setSearchOpen(searchTerm.length > 0)}
                     onBlur={() => setTimeout(() => setSearchOpen(false), 150)}
-                    className={`pl-10 ${searchTerm ? 'pr-10' : 'pr-3'}`}
+                    className={`pl-10 border-0 shadow-none ${searchTerm ? 'pr-10' : 'pr-3'}`}
                   />
                   {searchOpen && searchTerm.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
@@ -518,12 +518,12 @@ export const LauflistenContent = () => {
                   <div className="flex items-center gap-2">
                     <Popover open={statusOpen} onOpenChange={setStatusOpen}>
                       <PopoverTrigger asChild>
-                        <Button
-                          variant="outline"
-                          role="combobox"
-                          aria-expanded={statusOpen}
-                          className="w-36 h-10 px-3 py-2 flex items-center justify-between"
-                        >
+                      <Button
+                        variant="outline"
+                        role="combobox"
+                        aria-expanded={statusOpen}
+                        className="w-36 h-10 px-3 py-2 flex items-center justify-between border-0 shadow-none bg-muted/30"
+                      >
                           <span className="truncate">
                             {statusFilter.length === 0
                               ? "Status"
@@ -578,7 +578,7 @@ export const LauflistenContent = () => {
                     </Popover>
 
                     <Select value={allFilter} onValueChange={setAllFilter}>
-                    <SelectTrigger className="w-28">
+                    <SelectTrigger className="w-28 border-0 shadow-none bg-muted/30">
                       <SelectValue placeholder="Nr." />
                     </SelectTrigger>
                        <SelectContent position="popper" align="start" alignOffset={0} sideOffset={4} className="min-w-[110px] w-[110px] z-[60] border-0">
