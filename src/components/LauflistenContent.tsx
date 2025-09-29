@@ -280,12 +280,12 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Divider between Dashboard and Filter */}
-        <div className="px-6 pb-3">
+        <div className="px-6 py-3">
           <div className="h-px bg-border"></div>
         </div>
 
         {/* Header */}
-        <div className="app-header px-6 pt-3 relative z-20 bg-background">
+        <div className="app-header px-6 pb-3 relative z-20 bg-background">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -301,7 +301,7 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10"
           >
-            <div className={`bg-background py-3 px-6 transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background pt-3 pb-3 px-6 transition-transform duration-100 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
