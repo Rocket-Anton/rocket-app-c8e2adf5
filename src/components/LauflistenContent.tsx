@@ -381,7 +381,7 @@ export const LauflistenContent = () => {
                           <SelectTrigger className="bg-background">
                             <SelectValue placeholder="Status wählen" />
                           </SelectTrigger>
-                          <SelectContent className="bg-background z-50 max-h-[300px] overflow-y-auto" side="bottom" align="start" avoidCollisions={false}>
+                          <SelectContent className="bg-background z-50 max-h-[50vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false} onWheelCapture={(e) => e.stopPropagation()}>
                             {statusOptions.map((option) => (
                               <SelectItem key={option.value} value={option.value}>
                                 {option.label}
