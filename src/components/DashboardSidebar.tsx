@@ -1,7 +1,7 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
 import { useState } from "react";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
-import rocketIcon from "@/assets/rocket-icon-transparent.png";
+import rocketIcon from "@/assets/rocket-icon-blue.png";
 import { 
   Sidebar, 
   SidebarContent, 
