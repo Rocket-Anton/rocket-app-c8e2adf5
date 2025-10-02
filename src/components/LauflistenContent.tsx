@@ -14,7 +14,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
-import { ScrollArea } from "./ui/scroll-area";
+
 import { Button } from "./ui/button";
 import {
   Command,
@@ -206,25 +206,6 @@ export const LauflistenContent = () => {
     return () => root.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Hook for dynamic Max-Height of Popover
-  const usePopoverMaxHeight = (open: boolean, contentRef: React.RefObject<HTMLDivElement>) => {
-    useEffect(() => {
-      if (!open || !contentRef.current) return;
-      // Short delay to ensure position is rendered
-      const timeoutId = setTimeout(() => {
-        const rect = contentRef.current!.getBoundingClientRect();
-        const availableHeight = Math.max(200, window.innerHeight - rect.top - 16); // 16px Bottom-Padding
-        contentRef.current!.style.setProperty('--popover-max-h', `${availableHeight}px`);
-      }, 0);
-      return () => clearTimeout(timeoutId);
-    }, [open, contentRef]);
-  };
-
-  // Ref for Popover-Content
-  const popoverContentRef = useRef<HTMLDivElement>(null);
-
-  // Apply the hook
-  usePopoverMaxHeight(mobileFiltersOpen, popoverContentRef);
 
   return (
     <TooltipProvider>
@@ -386,12 +367,11 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    ref={popoverContentRef}
                     className={cn(
-                      "p-0 border shadow-lg bg-background z-[9999] rounded-lg",
-                      isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'
+                      "p-0 border shadow-lg bg-background z-[9999] rounded-lg overflow-hidden",
+                      isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96',
+                      'max-h-[85dvh]'
                     )}
-                    style={{ "--popover-max-h": "80vh" } as React.CSSProperties}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
@@ -402,87 +382,85 @@ export const LauflistenContent = () => {
                       <h3 className="text-lg font-semibold">Filter</h3>
                     </div>
 
-                    {/* Scrollable Content – max-h calculated dynamically */}
-                    <ScrollArea className="max-h-[calc(var(--popover-max-h)-4rem)]" type="auto">
-                      <div className="p-4 space-y-4 [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
-                        {/* Status Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Status</label>
-                          <Select value={allFilter} onValueChange={setAllFilter}>
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder="Status wählen" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
-                              {statusOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Sortierung Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Sortierung</label>
-                          <Select>
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder="Sortierung wählen" />
-                            </SelectTrigger>
-                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
-                              <SelectItem value="alle">Alle</SelectItem>
-                              <SelectItem value="gerade">Gerade</SelectItem>
-                              <SelectItem value="ungerade">Ungerade</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-
-                        {/* Street Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Straße</label>
-                          <Input
-                            placeholder="Straße eingeben"
-                            value={streetFilter}
-                            onChange={(e) => setStreetFilter(e.target.value)}
-                            autoFocus={false}
-                            className="bg-background"
-                          />
-                        </div>
-
-                        {/* Hausnummer Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Hausnummer</label>
-                          <Input
-                            placeholder="Hausnummer eingeben"
-                            value=""
-                            onChange={() => {}}
-                            className="bg-background"
-                          />
-                        </div>
-
-                        {/* PLZ Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">PLZ</label>
-                          <Input
-                            placeholder="PLZ eingeben"
-                            value={postalCodeFilter}
-                            onChange={(e) => setPostalCodeFilter(e.target.value)}
-                            className="bg-background"
-                          />
-                        </div>
-
-                        {/* Ort Filter */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Ort</label>
-                          <Input
-                            placeholder="Ort eingeben"
-                            value={cityFilter}
-                            onChange={(e) => setCityFilter(e.target.value)}
-                            className="bg-background"
-                          />
-                        </div>
+                    {/* Scrollable Content with native scrolling */}
+                    <div className="max-h-[calc(85dvh-65px)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
+                      {/* Status Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Status</label>
+                        <Select value={allFilter} onValueChange={setAllFilter}>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Status wählen" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                            {statusOptions.map((option) => (
+                              <SelectItem key={option.value} value={option.value}>
+                                {option.label}
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
                       </div>
-                    </ScrollArea>
+
+                      {/* Sortierung Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Sortierung</label>
+                        <Select>
+                          <SelectTrigger className="bg-background">
+                            <SelectValue placeholder="Sortierung wählen" />
+                          </SelectTrigger>
+                          <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                            <SelectItem value="alle">Alle</SelectItem>
+                            <SelectItem value="gerade">Gerade</SelectItem>
+                            <SelectItem value="ungerade">Ungerade</SelectItem>
+                          </SelectContent>
+                        </Select>
+                      </div>
+
+                      {/* Street Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Straße</label>
+                        <Input
+                          placeholder="Straße eingeben"
+                          value={streetFilter}
+                          onChange={(e) => setStreetFilter(e.target.value)}
+                          autoFocus={false}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      {/* Hausnummer Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Hausnummer</label>
+                        <Input
+                          placeholder="Hausnummer eingeben"
+                          value=""
+                          onChange={() => {}}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      {/* PLZ Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">PLZ</label>
+                        <Input
+                          placeholder="PLZ eingeben"
+                          value={postalCodeFilter}
+                          onChange={(e) => setPostalCodeFilter(e.target.value)}
+                          className="bg-background"
+                        />
+                      </div>
+
+                      {/* Ort Filter */}
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Ort</label>
+                        <Input
+                          placeholder="Ort eingeben"
+                          value={cityFilter}
+                          onChange={(e) => setCityFilter(e.target.value)}
+                          className="bg-background"
+                        />
+                      </div>
+                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
