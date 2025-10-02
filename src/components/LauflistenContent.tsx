@@ -58,7 +58,6 @@ const mockAddresses = [
 export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
-  const [allFilter, setAllFilter] = useState("");
   const [statusOpen, setStatusOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -153,6 +152,11 @@ export const LauflistenContent = () => {
     );
 
     // Mobile filters
+    const matchesStatus = statusFilter.length === 0 || statusFilter.some(status => {
+      // TODO: Add status field to address data
+      // For now, we'll just return true if any status is selected
+      return true;
+    });
     const matchesStreet = streetFilter === "" || address.street === streetFilter;
     const matchesCity = cityFilter === "" || address.city === cityFilter;
     const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
@@ -162,7 +166,7 @@ export const LauflistenContent = () => {
     // In real implementation, you would check: address.lastModified >= lastModifiedDate
     const matchesLastModified = true;
 
-    return matchesSearch && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesLastModified;
+    return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesLastModified;
   });
 
   const displayedAddresses = filteredAddresses;
@@ -443,12 +447,12 @@ export const LauflistenContent = () => {
                     {/* Fixed Header */}
                     <div className="flex-shrink-0 p-4 border-b border-border bg-background flex items-center justify-between">
                       <h3 className="text-lg font-semibold">Filter</h3>
-                      {(allFilter || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                      {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
                         <Button 
                           variant="ghost" 
                           size="sm"
                           onClick={() => {
-                            setAllFilter("");
+                            setStatusFilter([]);
                             setStreetFilter("");
                             setStreetInput("");
                             setCityFilter("");
@@ -471,30 +475,64 @@ export const LauflistenContent = () => {
                         {/* Status Filter */}
                         <div className="space-y-1">
                           <label className="text-sm font-medium">Status</label>
-                          <div className="relative">
-                            <Select value={allFilter} onValueChange={setAllFilter}>
-                              <SelectTrigger className="bg-background h-9">
-                                <SelectValue placeholder="Status wählen" />
-                              </SelectTrigger>
-                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
-                                {statusOptions.map((option) => (
-                                  <SelectItem key={option.value} value={option.value}>
-                                    <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                      {option.label}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                            {allFilter && (
-                              <button
-                                onClick={() => setAllFilter("")}
-                                className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                          <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                            <PopoverTrigger asChild>
+                              <Button
+                                variant="outline"
+                                role="combobox"
+                                className="w-full justify-between h-9 bg-background font-normal"
                               >
-                                <X className="w-4 h-4" />
-                              </button>
-                            )}
-                          </div>
+                                {statusFilter.length > 0
+                                  ? `${statusFilter.length} ausgewählt`
+                                  : "Status wählen"}
+                                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverContent className="w-full p-0 bg-background" align="start" style={{ maxHeight: 'min(var(--radix-popper-available-height, 60vh), 60vh)' }}>
+                              <Command className="bg-background">
+                                <CommandList className="max-h-[300px] overflow-y-auto">
+                                  <CommandGroup>
+                                    {statusOptions.map((option) => (
+                                      <CommandItem
+                                        key={option.value}
+                                        onSelect={() => {
+                                          setStatusFilter(
+                                            statusFilter.includes(option.value)
+                                              ? statusFilter.filter((s) => s !== option.value)
+                                              : [...statusFilter, option.value]
+                                          );
+                                        }}
+                                        className="cursor-pointer"
+                                      >
+                                        <div className="flex items-center gap-2 w-full">
+                                          <div className={`flex-shrink-0 w-4 h-4 border rounded ${
+                                            statusFilter.includes(option.value)
+                                              ? 'bg-primary border-primary'
+                                              : 'border-input'
+                                          } flex items-center justify-center`}>
+                                            {statusFilter.includes(option.value) && (
+                                              <Check className="w-3 h-3 text-primary-foreground" />
+                                            )}
+                                          </div>
+                                          <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                            {option.label}
+                                          </div>
+                                        </div>
+                                      </CommandItem>
+                                    ))}
+                                  </CommandGroup>
+                                </CommandList>
+                              </Command>
+                            </PopoverContent>
+                          </Popover>
+                          {statusFilter.length > 0 && (
+                            <button
+                              onClick={() => setStatusFilter([])}
+                              className="absolute right-8 top-[32px] text-muted-foreground hover:text-foreground z-10"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
 
                         {/* Sortierung Filter */}
