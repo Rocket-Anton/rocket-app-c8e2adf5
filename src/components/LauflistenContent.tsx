@@ -432,7 +432,7 @@ export const LauflistenContent = () => {
                   <PopoverContent
                     className={cn(
                       "p-0 border shadow-lg bg-background z-[9999] rounded-lg flex flex-col",
-                      isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'
+                      isMobile ? 'w-[75vw] max-w-[calc(100vw-2rem)]' : 'w-80'
                     )}
                     style={{ maxHeight: 'min(var(--radix-popper-available-height, 80dvh), 85dvh)' }}
                     align={isMobile ? "center" : "end"}
