@@ -211,12 +211,25 @@ export const LauflistenContent = () => {
 
   useEffect(() => {
     if (!mobileFiltersOpen || !popoverContentRef.current) return;
-    const raf = requestAnimationFrame(() => {
-      const rect = popoverContentRef.current!.getBoundingClientRect();
-      const available = Math.max(200, window.innerHeight - rect.top - 16);
-      popoverContentRef.current!.style.setProperty('--popover-max-h', `${available}px`);
-    });
-    return () => cancelAnimationFrame(raf);
+    
+    const updateMaxHeight = () => {
+      if (!popoverContentRef.current) return;
+      const rect = popoverContentRef.current.getBoundingClientRect();
+      const availableHeight = window.innerHeight - rect.top - 16;
+      const maxHeight = Math.max(200, Math.min(availableHeight, window.innerHeight * 0.8));
+      popoverContentRef.current.style.setProperty('--popover-max-h', `${maxHeight}px`);
+    };
+
+    // Initial calculation
+    const raf = requestAnimationFrame(updateMaxHeight);
+    
+    // Update on resize
+    window.addEventListener('resize', updateMaxHeight);
+    
+    return () => {
+      cancelAnimationFrame(raf);
+      window.removeEventListener('resize', updateMaxHeight);
+    };
   }, [mobileFiltersOpen]);
 
   return (
