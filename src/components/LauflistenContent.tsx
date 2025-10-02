@@ -383,7 +383,7 @@ export const LauflistenContent = () => {
       <div className="flex flex-col h-dvh">
         {/* Mobile Header - nur auf kleinen Bildschirmen */}
         <div className="md:hidden bg-blue-700 h-14 flex items-center justify-between px-4">
-          <img src={rocketLogoWhite} alt="Rocket Logo" className="h-10" />
+          <img src={rocketLogoWhite} alt="Rocket Logo" className="h-12" />
           <Sheet>
             <SheetTrigger asChild>
               <button className="text-white">
