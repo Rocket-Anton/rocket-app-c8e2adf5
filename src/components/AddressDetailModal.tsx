@@ -53,7 +53,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl h-[80vh] overflow-hidden p-0">
+      <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[85vh] sm:h-[80vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl font-semibold">
             {address.street}
@@ -76,9 +76,9 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
           </div>
         </DialogHeader>
 
-        <div className="flex h-full overflow-hidden">
+        <div className="flex flex-col sm:flex-row h-full overflow-hidden">
           {/* Left Panel */}
-          <div className="flex-1 overflow-y-auto px-6 py-4 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-6">
             {/* Unit Cards */}
             <div className="space-y-4">
 
@@ -143,7 +143,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
           </div>
 
           {/* Right Panel */}
-          <div className="w-80 border-l bg-muted/30 overflow-y-auto">
+          <div className="w-full sm:w-80 border-t sm:border-t-0 sm:border-l bg-muted/30 overflow-y-auto">
             {/* Notes Section */}
             <div className="p-4 border-b">
               <h3 className="font-medium mb-3">Notizen</h3>
