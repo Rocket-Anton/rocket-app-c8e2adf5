@@ -599,14 +599,25 @@ export const LauflistenContent = () => {
                               <Button
                                 variant="outline"
                                 role="combobox"
-                                className="w-full justify-between h-9 bg-background font-normal"
+                                className="w-full h-9 bg-background font-normal pr-12 text-left"
                               >
                                 {statusFilter.length > 0
                                   ? `${statusFilter.length} ausgewählt`
                                   : "Status wählen"}
-                                <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </PopoverTrigger>
+                            <div className="absolute inset-y-0 right-3 flex items-center gap-2 pointer-events-none">
+                              {statusFilter.length > 0 && (
+                                <button
+                                  onClick={(e) => { e.stopPropagation(); setStatusFilter([]); }}
+                                  className="text-muted-foreground hover:text-foreground pointer-events-auto"
+                                  aria-label="Status-Filter löschen"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              <ChevronDown className="h-4 w-4 opacity-50" />
+                            </div>
                             <PopoverContent 
                               className="p-0 bg-background z-[10001]" 
                               align="start" 
@@ -651,17 +662,6 @@ export const LauflistenContent = () => {
                               </Command>
                             </PopoverContent>
                           </Popover>
-                          {statusFilter.length > 0 && (
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setStatusFilter([]);
-                              }}
-                              className="absolute right-9 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
-                            >
-                              <X className="w-3.5 h-3.5" />
-                            </button>
-                          )}
                         </div>
 
                         {/* Sortierung Filter */}
