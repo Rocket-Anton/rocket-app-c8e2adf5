@@ -592,7 +592,7 @@ export const LauflistenContent = () => {
                     {/* Scrollable Content */}
                     <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
                         {/* Status Filter */}
-                        <div className="space-y-1">
+                        <div className="space-y-1 relative">
                           <label className="text-sm font-medium">Status</label>
                           <Popover open={statusOpen} onOpenChange={setStatusOpen}>
                             <PopoverTrigger asChild>
@@ -651,6 +651,17 @@ export const LauflistenContent = () => {
                               </Command>
                             </PopoverContent>
                           </Popover>
+                          {statusFilter.length > 0 && (
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setStatusFilter([]);
+                              }}
+                              className="absolute right-8 top-[26px] text-muted-foreground hover:text-foreground z-10"
+                            >
+                              <X className="w-4 h-4" />
+                            </button>
+                          )}
                         </div>
 
                         {/* Sortierung Filter */}
