@@ -409,7 +409,7 @@ export const LauflistenContent = () => {
         </div>
         
         {/* Header */}
-        <div className="p-4 pb-0">
+        <div className="px-6 pt-4 pb-0">
           <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
         </div>
 
