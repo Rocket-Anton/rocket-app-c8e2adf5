@@ -38,7 +38,7 @@ export const AddressCard = ({ address }: AddressCardProps) => {
           </div>
           
           <div className="flex items-center gap-4">
-            <div className={`flex ${isMobile ? 'flex-row gap-3' : 'flex-col'} items-center gap-2`}>
+            <div className={`flex flex-col items-center gap-2`}>
               <div className="flex items-center gap-1">
                 <Home className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-muted-foreground`} />
                 <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>{address.wohneinheiten || 2}</span>
