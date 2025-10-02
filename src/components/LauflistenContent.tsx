@@ -365,7 +365,7 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50 flex flex-col overflow-hidden`}
+                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50 flex flex-col overflow-hidden min-h-0`}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
