@@ -58,6 +58,7 @@ const mockAddresses = [
 export const LauflistenContent = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [sortierung, setSortierung] = useState("alle");
   const [statusOpen, setStatusOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
@@ -439,6 +440,7 @@ export const LauflistenContent = () => {
                           (postalCodeFilter ? 1 : 0) + 
                           (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
                           (lastModifiedDate ? 1 : 0);
+                        // Sortierung wird nicht gezählt, da "alle" der Standard ist
                         return activeFilterCount > 0 ? (
                           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
                             {activeFilterCount}
@@ -467,6 +469,7 @@ export const LauflistenContent = () => {
                           size="sm"
                           onClick={() => {
                             setStatusFilter([]);
+                            setSortierung("alle");
                             setStreetFilter("");
                             setStreetInput("");
                             setCityFilter("");
@@ -551,7 +554,7 @@ export const LauflistenContent = () => {
                         {/* Sortierung Filter */}
                         <div className="space-y-1">
                           <label className="text-sm font-medium">Sortierung</label>
-                          <Select>
+                          <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
                             <SelectTrigger className="bg-background h-9">
                               <SelectValue placeholder="Sortierung wählen" />
                             </SelectTrigger>
