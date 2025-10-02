@@ -381,7 +381,7 @@ export const LauflistenContent = () => {
                   <PopoverContent
                     ref={popoverContentRef}
                     className={cn(
-                      "p-0 border shadow-lg bg-background z-[9999] rounded-lg overflow-hidden",
+                      "p-0 border shadow-lg bg-background z-[9999] rounded-lg flex flex-col",
                       isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96',
                       'max-h-[var(--popover-max-h)]'
                     )}
@@ -391,15 +391,13 @@ export const LauflistenContent = () => {
                     sideOffset={8}
                     collisionPadding={8}
                   >
-                    {/* Scroll-Wrapper: enthält Header + Inhalt, scrollt als Ganzes */}
-                    <div className="max-h-[var(--popover-max-h)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
-                      {/* Sticky Header */}
-                      <div className="sticky top-0 z-10 p-4 border-b border-border bg-background">
-                        <h3 className="text-lg font-semibold">Filter</h3>
-                      </div>
+                    {/* Fixed Header */}
+                    <div className="flex-shrink-0 p-4 border-b border-border bg-background">
+                      <h3 className="text-lg font-semibold">Filter</h3>
+                    </div>
 
-                      {/* Inhalt */}
-                      <div className="p-4 space-y-4">
+                    {/* Scrollable Content */}
+                    <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
                         {/* Status Filter */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Status</label>
@@ -477,7 +475,6 @@ export const LauflistenContent = () => {
                           />
                         </div>
                       </div>
-                    </div>
                   </PopoverContent>
                 </Popover>
               </div>
