@@ -391,88 +391,91 @@ export const LauflistenContent = () => {
                     sideOffset={8}
                     collisionPadding={8}
                   >
-                    {/* Sticky Header */}
-                    <div className="sticky top-0 z-10 p-4 border-b border-border bg-background">
-                      <h3 className="text-lg font-semibold">Filter</h3>
-                    </div>
-
-                    {/* Scrollable Content with native scrolling */}
-                    <div className="h-[calc(var(--popover-max-h)-65px)] min-h-[200px] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
-                      {/* Status Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Status</label>
-                        <Select value={allFilter} onValueChange={setAllFilter}>
-                          <SelectTrigger className="bg-background">
-                            <SelectValue placeholder="Status wählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
-                            {statusOptions.map((option) => (
-                              <SelectItem key={option.value} value={option.value}>
-                                {option.label}
-                              </SelectItem>
-                            ))}
-                          </SelectContent>
-                        </Select>
+                    {/* Scroll-Wrapper: enthält Header + Inhalt, scrollt als Ganzes */}
+                    <div className="max-h-[var(--popover-max-h)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch]">
+                      {/* Sticky Header */}
+                      <div className="sticky top-0 z-10 p-4 border-b border-border bg-background">
+                        <h3 className="text-lg font-semibold">Filter</h3>
                       </div>
 
-                      {/* Sortierung Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Sortierung</label>
-                        <Select>
-                          <SelectTrigger className="bg-background">
-                            <SelectValue placeholder="Sortierung wählen" />
-                          </SelectTrigger>
-                          <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
-                            <SelectItem value="alle">Alle</SelectItem>
-                            <SelectItem value="gerade">Gerade</SelectItem>
-                            <SelectItem value="ungerade">Ungerade</SelectItem>
-                          </SelectContent>
-                        </Select>
-                      </div>
+                      {/* Inhalt */}
+                      <div className="p-4 space-y-4">
+                        {/* Status Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Status</label>
+                          <Select value={allFilter} onValueChange={setAllFilter}>
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder="Status wählen" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                              {statusOptions.map((option) => (
+                                <SelectItem key={option.value} value={option.value}>
+                                  {option.label}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                      {/* Street Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Straße</label>
-                        <Input
-                          placeholder="Straße eingeben"
-                          value={streetFilter}
-                          onChange={(e) => setStreetFilter(e.target.value)}
-                          autoFocus={false}
-                          className="bg-background"
-                        />
-                      </div>
+                        {/* Sortierung Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Sortierung</label>
+                          <Select>
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder="Sortierung wählen" />
+                            </SelectTrigger>
+                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                              <SelectItem value="alle">Alle</SelectItem>
+                              <SelectItem value="gerade">Gerade</SelectItem>
+                              <SelectItem value="ungerade">Ungerade</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
 
-                      {/* Hausnummer Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Hausnummer</label>
-                        <Input
-                          placeholder="Hausnummer eingeben"
-                          value=""
-                          onChange={() => {}}
-                          className="bg-background"
-                        />
-                      </div>
+                        {/* Street Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Straße</label>
+                          <Input
+                            placeholder="Straße eingeben"
+                            value={streetFilter}
+                            onChange={(e) => setStreetFilter(e.target.value)}
+                            autoFocus={false}
+                            className="bg-background"
+                          />
+                        </div>
 
-                      {/* PLZ Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">PLZ</label>
-                        <Input
-                          placeholder="PLZ eingeben"
-                          value={postalCodeFilter}
-                          onChange={(e) => setPostalCodeFilter(e.target.value)}
-                          className="bg-background"
-                        />
-                      </div>
+                        {/* Hausnummer Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Hausnummer</label>
+                          <Input
+                            placeholder="Hausnummer eingeben"
+                            value=""
+                            onChange={() => {}}
+                            className="bg-background"
+                          />
+                        </div>
 
-                      {/* Ort Filter */}
-                      <div className="space-y-2">
-                        <label className="text-sm font-medium">Ort</label>
-                        <Input
-                          placeholder="Ort eingeben"
-                          value={cityFilter}
-                          onChange={(e) => setCityFilter(e.target.value)}
-                          className="bg-background"
-                        />
+                        {/* PLZ Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">PLZ</label>
+                          <Input
+                            placeholder="PLZ eingeben"
+                            value={postalCodeFilter}
+                            onChange={(e) => setPostalCodeFilter(e.target.value)}
+                            className="bg-background"
+                          />
+                        </div>
+
+                        {/* Ort Filter */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Ort</label>
+                          <Input
+                            placeholder="Ort eingeben"
+                            value={cityFilter}
+                            onChange={(e) => setCityFilter(e.target.value)}
+                            className="bg-background"
+                          />
+                        </div>
                       </div>
                     </div>
                   </PopoverContent>
