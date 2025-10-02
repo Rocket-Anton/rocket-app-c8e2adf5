@@ -206,6 +206,18 @@ export const LauflistenContent = () => {
     return () => root.removeEventListener("scroll", onScroll);
   }, []);
 
+  // Dynamische Max-Height für das Popover
+  const popoverContentRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!mobileFiltersOpen || !popoverContentRef.current) return;
+    const raf = requestAnimationFrame(() => {
+      const rect = popoverContentRef.current!.getBoundingClientRect();
+      const available = Math.max(200, window.innerHeight - rect.top - 16);
+      popoverContentRef.current!.style.setProperty('--popover-max-h', `${available}px`);
+    });
+    return () => cancelAnimationFrame(raf);
+  }, [mobileFiltersOpen]);
 
   return (
     <TooltipProvider>
@@ -367,11 +379,13 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
+                    ref={popoverContentRef}
                     className={cn(
                       "p-0 border shadow-lg bg-background z-[9999] rounded-lg overflow-hidden",
                       isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96',
-                      'max-h-[85dvh]'
+                      'max-h-[var(--popover-max-h)]'
                     )}
+                    style={{ "--popover-max-h": "80dvh" } as React.CSSProperties}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
@@ -383,7 +397,7 @@ export const LauflistenContent = () => {
                     </div>
 
                     {/* Scrollable Content with native scrolling */}
-                    <div className="max-h-[calc(85dvh-65px)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
+                    <div className="max-h-[calc(var(--popover-max-h)-65px)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
