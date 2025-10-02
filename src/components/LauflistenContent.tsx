@@ -382,7 +382,7 @@ export const LauflistenContent = () => {
     <TooltipProvider>
       <div className="flex flex-col h-dvh">
         {/* Mobile Header - nur auf kleinen Bildschirmen */}
-        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-2 pr-4">
+        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4">
           <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16" />
           <Sheet>
             <SheetTrigger asChild>
