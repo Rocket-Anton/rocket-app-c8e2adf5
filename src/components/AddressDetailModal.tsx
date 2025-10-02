@@ -13,6 +13,7 @@ import { Badge } from "./ui/badge";
 interface Address {
   id: number;
   street: string;
+  houseNumber: string;
   postalCode: string;
   city: string;
 }
@@ -56,7 +57,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
       <DialogContent className="max-w-2xl w-[50vw] sm:w-full h-[85vh] sm:h-[80vh] overflow-hidden p-0">
         <DialogHeader className="px-6 py-4 border-b">
           <DialogTitle className="text-xl font-semibold">
-            {address.street}
+            {address.street} {address.houseNumber}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
             {address.postalCode} {address.city}

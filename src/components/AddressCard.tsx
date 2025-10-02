@@ -8,6 +8,7 @@ import { useIsMobile } from "../hooks/use-mobile";
 interface Address {
   id: number;
   street: string;
+  houseNumber: string;
   postalCode: string;
   city: string;
   wohneinheiten?: number;
@@ -30,7 +31,7 @@ export const AddressCard = ({ address }: AddressCardProps) => {
       >
         <div className="flex items-center justify-between">
           <div className="space-y-1 flex-1">
-            <h3 className="font-medium text-foreground">{address.street}</h3>
+            <h3 className="font-medium text-foreground">{address.street} {address.houseNumber}</h3>
             <p className="text-sm text-muted-foreground">
               {address.postalCode} {address.city}
             </p>

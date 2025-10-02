@@ -45,14 +45,14 @@ import { format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const mockAddresses = [
-  { id: 1, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 2, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 3, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 4, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 5, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 6, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 7, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
-  { id: 8, street: "Alt-Lindenau 7", postalCode: "88175", city: "Lindenau" },
+  { id: 1, street: "Alt-Lindenau", houseNumber: "7", postalCode: "88175", city: "Lindenau" },
+  { id: 2, street: "Alt-Lindenau", houseNumber: "9", postalCode: "88175", city: "Lindenau" },
+  { id: 3, street: "Hauptstraße", houseNumber: "12", postalCode: "88175", city: "Lindenau" },
+  { id: 4, street: "Hauptstraße", houseNumber: "14", postalCode: "88175", city: "Lindenau" },
+  { id: 5, street: "Bahnhofstraße", houseNumber: "3", postalCode: "88176", city: "Scheidegg" },
+  { id: 6, street: "Bahnhofstraße", houseNumber: "5", postalCode: "88176", city: "Scheidegg" },
+  { id: 7, street: "Bergstraße", houseNumber: "21", postalCode: "88177", city: "Westallgäu" },
+  { id: 8, street: "Bergstraße", houseNumber: "23", postalCode: "88177", city: "Westallgäu" },
 ];
 
 export const LauflistenContent = () => {
@@ -65,10 +65,63 @@ export const LauflistenContent = () => {
   const [streetFilter, setStreetFilter] = useState("");
   const [cityFilter, setCityFilter] = useState("");
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
+  const [houseNumberFilter, setHouseNumberFilter] = useState("");
   const [lastModifiedDate, setLastModifiedDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [streetSuggestions, setStreetSuggestions] = useState<string[]>([]);
+  const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
+  const [postalCodeSuggestions, setPostalCodeSuggestions] = useState<string[]>([]);
+  const [showStreetSuggestions, setShowStreetSuggestions] = useState(false);
+  const [showCitySuggestions, setShowCitySuggestions] = useState(false);
+  const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
   const isMobile = useIsMobile();
+
+  // Get unique streets, cities, and postal codes for autocomplete
+  const uniqueStreets = Array.from(new Set(mockAddresses.map(a => a.street)));
+  const uniqueCities = Array.from(new Set(mockAddresses.map(a => a.city)));
+  const uniquePostalCodes = Array.from(new Set(mockAddresses.map(a => a.postalCode)));
+  
+  // Get available house numbers for selected street
+  const availableHouseNumbers = streetFilter
+    ? mockAddresses
+        .filter(a => a.street === streetFilter)
+        .map(a => a.houseNumber)
+    : [];
+
+  // Update suggestions when user types
+  useEffect(() => {
+    if (streetFilter) {
+      const filtered = uniqueStreets.filter(s => 
+        s.toLowerCase().includes(streetFilter.toLowerCase())
+      );
+      setStreetSuggestions(filtered);
+    } else {
+      setStreetSuggestions([]);
+    }
+  }, [streetFilter]);
+
+  useEffect(() => {
+    if (cityFilter) {
+      const filtered = uniqueCities.filter(c => 
+        c.toLowerCase().includes(cityFilter.toLowerCase())
+      );
+      setCitySuggestions(filtered);
+    } else {
+      setCitySuggestions([]);
+    }
+  }, [cityFilter]);
+
+  useEffect(() => {
+    if (postalCodeFilter) {
+      const filtered = uniquePostalCodes.filter(p => 
+        p.includes(postalCodeFilter)
+      );
+      setPostalCodeSuggestions(filtered);
+    } else {
+      setPostalCodeSuggestions([]);
+    }
+  }, [postalCodeFilter]);
 
   const statusOptions = [
     { value: "offen", label: "Offen" },
@@ -88,20 +141,22 @@ export const LauflistenContent = () => {
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = searchTerm === "" || (
       address.street.toLowerCase().includes(searchLower) ||
+      address.houseNumber.includes(searchTerm) ||
       address.postalCode.includes(searchTerm) ||
       address.city.toLowerCase().includes(searchLower)
     );
 
     // Mobile filters
-    const matchesStreet = streetFilter === "" || address.street.toLowerCase().includes(streetFilter.toLowerCase());
-    const matchesCity = cityFilter === "" || address.city.toLowerCase().includes(cityFilter.toLowerCase());
-    const matchesPostalCode = postalCodeFilter === "" || address.postalCode.includes(postalCodeFilter);
+    const matchesStreet = streetFilter === "" || address.street === streetFilter;
+    const matchesCity = cityFilter === "" || address.city === cityFilter;
+    const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
+    const matchesHouseNumber = houseNumberFilter === "" || address.houseNumber === houseNumberFilter;
     
     // For now, we don't have lastModified data in mock, so we'll always match
     // In real implementation, you would check: address.lastModified >= lastModifiedDate
     const matchesLastModified = true;
 
-    return matchesSearch && matchesStreet && matchesCity && matchesPostalCode && matchesLastModified;
+    return matchesSearch && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesLastModified;
   });
 
   const displayedAddresses = filteredAddresses;
@@ -364,11 +419,11 @@ export const LauflistenContent = () => {
                               key={address.id}
                               className="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
                               onClick={() => {
-                                setSearchTerm(`${address.street}, ${address.postalCode} ${address.city}`);
+                                setSearchTerm(`${address.street} ${address.houseNumber}, ${address.postalCode} ${address.city}`);
                                 setSearchOpen(false);
                               }}
                             >
-                              <div className="font-medium">{address.street}</div>
+                              <div className="font-medium">{address.street} {address.houseNumber}</div>
                               <div className="text-sm text-muted-foreground">
                                 {address.postalCode} {address.city}
                               </div>
@@ -444,48 +499,130 @@ export const LauflistenContent = () => {
                         </div>
 
                         {/* Street Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                           <label className="text-sm font-medium">Straße</label>
-                          <Input
-                            placeholder="Straße eingeben"
-                            value={streetFilter}
-                            onChange={(e) => setStreetFilter(e.target.value)}
-                            autoFocus={false}
-                            className="bg-background"
-                          />
+                          <div className="relative">
+                            <Input
+                              placeholder="Straße eingeben"
+                              value={streetFilter}
+                              onChange={(e) => {
+                                setStreetFilter(e.target.value);
+                                setShowStreetSuggestions(true);
+                                // Reset house number when street changes
+                                setHouseNumberFilter("");
+                              }}
+                              onFocus={() => streetFilter && setShowStreetSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
+                              autoFocus={false}
+                              className="bg-background"
+                            />
+                            {showStreetSuggestions && streetSuggestions.length > 0 && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                                {streetSuggestions.map((street) => (
+                                  <div
+                                    key={street}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                    onClick={() => {
+                                      setStreetFilter(street);
+                                      setShowStreetSuggestions(false);
+                                    }}
+                                  >
+                                    {street}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Hausnummer Filter */}
                         <div className="space-y-2">
                           <label className="text-sm font-medium">Hausnummer</label>
-                          <Input
-                            placeholder="Hausnummer eingeben"
-                            value=""
-                            onChange={() => {}}
-                            className="bg-background"
-                          />
+                          <Select 
+                            value={houseNumberFilter} 
+                            onValueChange={setHouseNumberFilter}
+                            disabled={!streetFilter}
+                          >
+                            <SelectTrigger className="bg-background">
+                              <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
+                            </SelectTrigger>
+                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                              <SelectItem value="alle">Alle</SelectItem>
+                              {availableHouseNumbers.map((num) => (
+                                <SelectItem key={num} value={num}>
+                                  {num}
+                                </SelectItem>
+                              ))}
+                            </SelectContent>
+                          </Select>
                         </div>
 
                         {/* PLZ Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                           <label className="text-sm font-medium">PLZ</label>
-                          <Input
-                            placeholder="PLZ eingeben"
-                            value={postalCodeFilter}
-                            onChange={(e) => setPostalCodeFilter(e.target.value)}
-                            className="bg-background"
-                          />
+                          <div className="relative">
+                            <Input
+                              placeholder="PLZ eingeben"
+                              value={postalCodeFilter}
+                              onChange={(e) => {
+                                setPostalCodeFilter(e.target.value);
+                                setShowPostalCodeSuggestions(true);
+                              }}
+                              onFocus={() => postalCodeFilter && setShowPostalCodeSuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
+                              className="bg-background"
+                            />
+                            {showPostalCodeSuggestions && postalCodeSuggestions.length > 0 && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                                {postalCodeSuggestions.map((plz) => (
+                                  <div
+                                    key={plz}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                    onClick={() => {
+                                      setPostalCodeFilter(plz);
+                                      setShowPostalCodeSuggestions(false);
+                                    }}
+                                  >
+                                    {plz}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
 
                         {/* Ort Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-2 relative">
                           <label className="text-sm font-medium">Ort</label>
-                          <Input
-                            placeholder="Ort eingeben"
-                            value={cityFilter}
-                            onChange={(e) => setCityFilter(e.target.value)}
-                            className="bg-background"
-                          />
+                          <div className="relative">
+                            <Input
+                              placeholder="Ort eingeben"
+                              value={cityFilter}
+                              onChange={(e) => {
+                                setCityFilter(e.target.value);
+                                setShowCitySuggestions(true);
+                              }}
+                              onFocus={() => cityFilter && setShowCitySuggestions(true)}
+                              onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                              className="bg-background"
+                            />
+                            {showCitySuggestions && citySuggestions.length > 0 && (
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                                {citySuggestions.map((city) => (
+                                  <div
+                                    key={city}
+                                    className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                    onClick={() => {
+                                      setCityFilter(city);
+                                      setShowCitySuggestions(false);
+                                    }}
+                                  >
+                                    {city}
+                                  </div>
+                                ))}
+                              </div>
+                            )}
+                          </div>
                         </div>
                       </div>
                   </PopoverContent>
