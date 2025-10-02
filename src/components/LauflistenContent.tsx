@@ -418,7 +418,7 @@ export const LauflistenContent = () => {
                             <SelectTrigger className="bg-background">
                               <SelectValue placeholder="Status wählen" />
                             </SelectTrigger>
-                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                            <SelectContent className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper">
                               {statusOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
                                   {option.label}
@@ -435,7 +435,7 @@ export const LauflistenContent = () => {
                             <SelectTrigger className="bg-background">
                               <SelectValue placeholder="Sortierung wählen" />
                             </SelectTrigger>
-                            <SelectContent className="bg-background z-[10000] max-h-[40vh] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper" avoidCollisions={false}>
+                            <SelectContent className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain" side="bottom" align="start" position="popper">
                               <SelectItem value="alle">Alle</SelectItem>
                               <SelectItem value="gerade">Gerade</SelectItem>
                               <SelectItem value="ungerade">Ungerade</SelectItem>
