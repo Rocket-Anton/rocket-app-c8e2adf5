@@ -441,36 +441,67 @@ export const LauflistenContent = () => {
                     collisionPadding={8}
                   >
                     {/* Fixed Header */}
-                    <div className="flex-shrink-0 p-4 border-b border-border bg-background">
+                    <div className="flex-shrink-0 p-4 border-b border-border bg-background flex items-center justify-between">
                       <h3 className="text-lg font-semibold">Filter</h3>
+                      {(allFilter || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                        <Button 
+                          variant="ghost" 
+                          size="sm"
+                          onClick={() => {
+                            setAllFilter("");
+                            setStreetFilter("");
+                            setStreetInput("");
+                            setCityFilter("");
+                            setCityInput("");
+                            setPostalCodeFilter("");
+                            setPostalCodeInput("");
+                            setHouseNumberFilter("");
+                            setLastModifiedDate(undefined);
+                          }}
+                          className="h-8 text-xs"
+                        >
+                          <X className="w-3 h-3 mr-1" />
+                          Zurücksetzen
+                        </Button>
+                      )}
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-4" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+                    <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
                         {/* Status Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <label className="text-sm font-medium">Status</label>
-                          <Select value={allFilter} onValueChange={setAllFilter}>
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder="Status wählen" />
-                            </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
-                              {statusOptions.map((option) => (
-                                <SelectItem key={option.value} value={option.value}>
-                                  <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                    {option.label}
-                                  </div>
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="relative">
+                            <Select value={allFilter} onValueChange={setAllFilter}>
+                              <SelectTrigger className="bg-background h-9">
+                                <SelectValue placeholder="Status wählen" />
+                              </SelectTrigger>
+                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
+                                {statusOptions.map((option) => (
+                                  <SelectItem key={option.value} value={option.value}>
+                                    <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                      {option.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {allFilter && (
+                              <button
+                                onClick={() => setAllFilter("")}
+                                className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {/* Sortierung Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <label className="text-sm font-medium">Sortierung</label>
                           <Select>
-                            <SelectTrigger className="bg-background">
+                            <SelectTrigger className="bg-background h-9">
                               <SelectValue placeholder="Sortierung wählen" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
@@ -482,7 +513,7 @@ export const LauflistenContent = () => {
                         </div>
 
                         {/* Street Filter */}
-                        <div className="space-y-2 relative">
+                        <div className="space-y-1 relative">
                           <label className="text-sm font-medium">Straße</label>
                           <div className="relative">
                             <Input
@@ -495,8 +526,20 @@ export const LauflistenContent = () => {
                               onFocus={() => streetInput && setShowStreetSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
                               autoFocus={false}
-                              className="bg-background"
+                              className="bg-background h-9 pr-8"
                             />
+                            {streetInput && (
+                              <button
+                                onClick={() => {
+                                  setStreetInput("");
+                                  setStreetFilter("");
+                                  setHouseNumberFilter("");
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
                             {showStreetSuggestions && streetSuggestions.length > 0 && (
                               <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
                                 {streetSuggestions.map((street) => (
@@ -519,29 +562,39 @@ export const LauflistenContent = () => {
                         </div>
 
                         {/* Hausnummer Filter */}
-                        <div className="space-y-2">
+                        <div className="space-y-1">
                           <label className="text-sm font-medium">Hausnummer</label>
-                          <Select 
-                            value={houseNumberFilter} 
-                            onValueChange={setHouseNumberFilter}
-                            disabled={!streetFilter}
-                          >
-                            <SelectTrigger className="bg-background">
-                              <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
-                            </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
-                              <SelectItem value="alle">Alle</SelectItem>
-                              {availableHouseNumbers.map((num) => (
-                                <SelectItem key={num} value={num}>
-                                  {num}
-                                </SelectItem>
-                              ))}
-                            </SelectContent>
-                          </Select>
+                          <div className="relative">
+                            <Select 
+                              value={houseNumberFilter} 
+                              onValueChange={setHouseNumberFilter}
+                              disabled={!streetFilter}
+                            >
+                              <SelectTrigger className="bg-background h-9">
+                                <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
+                              </SelectTrigger>
+                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                                <SelectItem value="alle">Alle</SelectItem>
+                                {availableHouseNumbers.map((num) => (
+                                  <SelectItem key={num} value={num}>
+                                    {num}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                            {houseNumberFilter && houseNumberFilter !== "alle" && (
+                              <button
+                                onClick={() => setHouseNumberFilter("")}
+                                className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
+                          </div>
                         </div>
 
                         {/* PLZ Filter */}
-                        <div className="space-y-2 relative">
+                        <div className="space-y-1 relative">
                           <label className="text-sm font-medium">PLZ</label>
                           <div className="relative">
                             <Input
@@ -553,8 +606,19 @@ export const LauflistenContent = () => {
                               }}
                               onFocus={() => postalCodeInput && setShowPostalCodeSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
-                              className="bg-background"
+                              className="bg-background h-9 pr-8"
                             />
+                            {postalCodeInput && (
+                              <button
+                                onClick={() => {
+                                  setPostalCodeInput("");
+                                  setPostalCodeFilter("");
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
                             {showPostalCodeSuggestions && postalCodeSuggestions.length > 0 && (
                               <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
                                 {postalCodeSuggestions.map((plz) => (
@@ -576,7 +640,7 @@ export const LauflistenContent = () => {
                         </div>
 
                         {/* Ort Filter */}
-                        <div className="space-y-2 relative">
+                        <div className="space-y-1 relative">
                           <label className="text-sm font-medium">Ort</label>
                           <div className="relative">
                             <Input
@@ -588,8 +652,19 @@ export const LauflistenContent = () => {
                               }}
                               onFocus={() => cityInput && setShowCitySuggestions(true)}
                               onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                              className="bg-background"
+                              className="bg-background h-9 pr-8"
                             />
+                            {cityInput && (
+                              <button
+                                onClick={() => {
+                                  setCityInput("");
+                                  setCityFilter("");
+                                }}
+                                className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                              >
+                                <X className="w-4 h-4" />
+                              </button>
+                            )}
                             {showCitySuggestions && citySuggestions.length > 0 && (
                               <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
                                 {citySuggestions.map((city) => (
