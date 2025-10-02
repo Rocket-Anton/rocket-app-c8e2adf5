@@ -261,31 +261,8 @@ export const LauflistenContent = () => {
     return () => root.removeEventListener("scroll", onScroll);
   }, []);
 
-  // Dynamische Max-Height für das Popover
-  const popoverContentRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!mobileFiltersOpen || !popoverContentRef.current) return;
-    
-    const updateMaxHeight = () => {
-      if (!popoverContentRef.current) return;
-      const rect = popoverContentRef.current.getBoundingClientRect();
-      const availableHeight = window.innerHeight - rect.top - 16;
-      const maxHeight = Math.max(200, Math.min(availableHeight, window.innerHeight * 0.8));
-      popoverContentRef.current.style.setProperty('--popover-max-h', `${maxHeight}px`);
-    };
-
-    // Initial calculation
-    const raf = requestAnimationFrame(updateMaxHeight);
-    
-    // Update on resize
-    window.addEventListener('resize', updateMaxHeight);
-    
-    return () => {
-      cancelAnimationFrame(raf);
-      window.removeEventListener('resize', updateMaxHeight);
-    };
-  }, [mobileFiltersOpen]);
+  // Popover-Höhe: wir nutzen direkt Radix' CSS-Variable
+  // --radix-popper-available-height; kein JS-Resize-Workaround nötig.
 
   return (
     <TooltipProvider>
@@ -447,13 +424,11 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
-                    ref={popoverContentRef}
                     className={cn(
                       "p-0 border shadow-lg bg-background z-[9999] rounded-lg flex flex-col",
-                      isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96',
-                      'max-h-[var(--popover-max-h)]'
+                      isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'
                     )}
-                    style={{ "--popover-max-h": "80dvh" } as React.CSSProperties}
+                    style={{ maxHeight: 'min(var(--radix-popper-available-height, 80dvh), 85dvh)' }}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
