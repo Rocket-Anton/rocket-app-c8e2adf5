@@ -476,7 +476,7 @@ export const LauflistenContent = () => {
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
-                        <Info className="w-3.5 h-3.5 text-green-600 cursor-pointer" />
+                        <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
                       </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80 p-3" align="end" side="bottom">
@@ -505,7 +505,7 @@ export const LauflistenContent = () => {
                 <Popover>
                   <PopoverTrigger asChild>
                     <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
-                      <Info className="w-3.5 h-3.5 text-green-600 cursor-pointer" />
+                      <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-3" align="end" side="bottom">
