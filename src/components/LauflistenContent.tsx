@@ -45,14 +45,93 @@ import { format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 
 const mockAddresses = [
-  { id: 1, street: "Alt-Lindenau", houseNumber: "7", postalCode: "88175", city: "Lindenau" },
-  { id: 2, street: "Alt-Lindenau", houseNumber: "9", postalCode: "88175", city: "Lindenau" },
-  { id: 3, street: "Hauptstraße", houseNumber: "12", postalCode: "88175", city: "Lindenau" },
-  { id: 4, street: "Hauptstraße", houseNumber: "14", postalCode: "88175", city: "Lindenau" },
-  { id: 5, street: "Bahnhofstraße", houseNumber: "3", postalCode: "88176", city: "Scheidegg" },
-  { id: 6, street: "Bahnhofstraße", houseNumber: "5", postalCode: "88176", city: "Scheidegg" },
-  { id: 7, street: "Bergstraße", houseNumber: "21", postalCode: "88177", city: "Westallgäu" },
-  { id: 8, street: "Bergstraße", houseNumber: "23", postalCode: "88177", city: "Westallgäu" },
+  { 
+    id: 1, 
+    street: "Alt-Lindenau", 
+    houseNumber: "7", 
+    postalCode: "88175", 
+    city: "Lindenau",
+    units: [
+      { id: 1, floor: "EG", position: "Links", status: "offen" },
+      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
+    ]
+  },
+  { 
+    id: 2, 
+    street: "Alt-Lindenau", 
+    houseNumber: "9", 
+    postalCode: "88175", 
+    city: "Lindenau",
+    units: [
+      { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
+      { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
+    ]
+  },
+  { 
+    id: 3, 
+    street: "Hauptstraße", 
+    houseNumber: "12", 
+    postalCode: "88175", 
+    city: "Lindenau",
+    units: [
+      { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
+      { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
+    ]
+  },
+  { 
+    id: 4, 
+    street: "Hauptstraße", 
+    houseNumber: "14", 
+    postalCode: "88175", 
+    city: "Lindenau",
+    units: [
+      { id: 1, floor: "EG", position: "Mitte", status: "offen" },
+    ]
+  },
+  { 
+    id: 5, 
+    street: "Bahnhofstraße", 
+    houseNumber: "3", 
+    postalCode: "88176", 
+    city: "Scheidegg",
+    units: [
+      { id: 1, floor: "EG", position: "Links", status: "potenzial" },
+      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
+      { id: 3, floor: "2. OG", position: "Links", status: "offen" },
+    ]
+  },
+  { 
+    id: 6, 
+    street: "Bahnhofstraße", 
+    houseNumber: "5", 
+    postalCode: "88176", 
+    city: "Scheidegg",
+    units: [
+      { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
+    ]
+  },
+  { 
+    id: 7, 
+    street: "Bergstraße", 
+    houseNumber: "21", 
+    postalCode: "88177", 
+    city: "Westallgäu",
+    units: [
+      { id: 1, floor: "EG", position: "Links", status: "termin" },
+      { id: 2, floor: "1. OG", position: "Links", status: "nicht-vorhanden" },
+    ]
+  },
+  { 
+    id: 8, 
+    street: "Bergstraße", 
+    houseNumber: "23", 
+    postalCode: "88177", 
+    city: "Westallgäu",
+    units: [
+      { id: 1, floor: "EG", position: "Mitte", status: "neukunde" },
+      { id: 2, floor: "1. OG", position: "Mitte", status: "bestandskunde" },
+    ]
+  },
 ];
 
 export const LauflistenContent = () => {
@@ -152,12 +231,10 @@ export const LauflistenContent = () => {
       address.city.toLowerCase().includes(searchLower)
     );
 
-    // Mobile filters
-    const matchesStatus = statusFilter.length === 0 || statusFilter.some(status => {
-      // TODO: Add status field to address data
-      // For now, we'll just return true if any status is selected
-      return true;
-    });
+    // Status filter - only show addresses that have units with selected statuses
+    const matchesStatus = statusFilter.length === 0 || 
+      address.units.some(unit => statusFilter.includes(unit.status));
+    
     const matchesStreet = streetFilter === "" || address.street === streetFilter;
     const matchesCity = cityFilter === "" || address.city === cityFilter;
     const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
@@ -174,6 +251,25 @@ export const LauflistenContent = () => {
     const matchesLastModified = true;
 
     return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
+  }).map(address => {
+    // Calculate wohneinheiten and potentiale based on filtered units
+    const filteredUnits = statusFilter.length === 0 
+      ? address.units 
+      : address.units.filter(unit => statusFilter.includes(unit.status));
+    
+    const wohneinheiten = filteredUnits.length;
+    
+    // Potenziale sind: offen, potenzial, termin
+    const potentiale = filteredUnits.filter(unit => 
+      ['offen', 'potenzial', 'termin'].includes(unit.status)
+    ).length;
+    
+    return {
+      ...address,
+      wohneinheiten,
+      potentiale,
+      filteredUnits // Pass filtered units to modal
+    };
   });
 
   const displayedAddresses = filteredAddresses;

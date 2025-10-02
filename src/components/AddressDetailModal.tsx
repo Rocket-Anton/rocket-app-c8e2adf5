@@ -16,6 +16,8 @@ interface Address {
   houseNumber: string;
   postalCode: string;
   city: string;
+  units?: { id: number; floor: string; position: string; status: string }[];
+  filteredUnits?: { id: number; floor: string; position: string; status: string }[];
 }
 
 interface AddressDetailModalProps {
@@ -25,16 +27,20 @@ interface AddressDetailModalProps {
 }
 
 export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetailModalProps) => {
-  const [wohneinheiten] = useState(7);
+  // Use filteredUnits if available (from status filter), otherwise use all units
+  const displayUnits = address.filteredUnits || address.units || [];
+  const wohneinheiten = displayUnits.length;
 
   const statusOptions = [
-    { value: "UNBEARBEITET", label: "Unbearbeitet", color: "bg-gray-500 text-white" },
-    { value: "NICHT_ANGETROFFEN", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
-    { value: "POTENZIAL", label: "Potenzial", color: "bg-green-500 text-white" },
-    { value: "BESTANDSKUNDE", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
-    { value: "KEIN_INTERESSE", label: "Kein Interesse", color: "bg-red-500 text-white" },
-    { value: "NICHT_VORHANDEN", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
-    { value: "GEWERBE", label: "Gewerbe", color: "bg-purple-500 text-white" }
+    { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
+    { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+    { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
+    { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
+    { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
+    { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
+    { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
+    { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
+    { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" }
   ];
 
   const notes = [
@@ -82,64 +88,71 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
           <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-6">
             {/* Unit Cards */}
             <div className="space-y-4">
+              {displayUnits.length > 0 ? (
+                displayUnits.map((unit) => (
+                  <div key={unit.id} className="p-4 bg-muted/30 rounded-lg space-y-4">
+                    <div className="space-y-3">
+                      <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground" defaultValue={unit.floor}>
+                        <option>Stockwerk</option>
+                        <option>EG</option>
+                        <option>1. OG</option>
+                        <option>2. OG</option>
+                        <option>3. OG</option>
+                      </select>
 
-              {/* Unit Card */}
-              <div className="p-4 bg-muted/30 rounded-lg space-y-4">
-                <div className="space-y-3">
-                  <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground">
-                    <option>Stockwerk</option>
-                    <option>1. OG</option>
-                    <option>2. OG</option>
-                    <option>3. OG</option>
-                  </select>
+                      <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground" defaultValue={unit.position}>
+                        <option>Lage</option>
+                        <option>Links</option>
+                        <option>Rechts</option>
+                        <option>Mitte</option>
+                      </select>
 
-                  <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground">
-                    <option>Lage</option>
-                    <option>Links</option>
-                    <option>Rechts</option>
-                    <option>Mitte</option>
-                  </select>
+                      <div className="flex items-center gap-3">
+                        <Select defaultValue={unit.status}>
+                          <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                            <SelectValue />
+                          </SelectTrigger>
+                          <SelectContent>
+                            {statusOptions.map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                                  {status.label}
+                                </div>
+                              </SelectItem>
+                            ))}
+                          </SelectContent>
+                        </Select>
+                        <button className="p-2 text-muted-foreground hover:text-foreground">
+                          <RotateCcw className="w-4 h-4" />
+                        </button>
+                      </div>
+                    </div>
 
-                  <div className="flex items-center gap-3">
-                    <Select defaultValue="UNBEARBEITET">
-                      <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        {statusOptions.map((status) => (
-                          <SelectItem key={status.value} value={status.value}>
-                            <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                              {status.label}
-                            </div>
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <button className="p-2 text-muted-foreground hover:text-foreground">
-                      <RotateCcw className="w-4 h-4" />
-                    </button>
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                      <RotateCcw className="w-4 h-4 mr-2" />
+                      Status updaten
+                    </Button>
+
+                    <p className="text-sm text-muted-foreground">
+                      Aktualisiert: 16.07.2025 16:41
+                    </p>
+
+                    <Button className="w-full bg-black hover:bg-gray-800 text-white">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Auftrag
+                    </Button>
+
+                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80">
+                      <Info className="w-4 h-4 mr-2" />
+                      Mehr
+                    </Button>
                   </div>
+                ))
+              ) : (
+                <div className="p-4 bg-muted/30 rounded-lg text-center text-muted-foreground">
+                  Keine Wohneinheiten vorhanden
                 </div>
-
-                <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
-                  <RotateCcw className="w-4 h-4 mr-2" />
-                  Status updaten
-                </Button>
-
-                <p className="text-sm text-muted-foreground">
-                  Aktualisiert: 16.07.2025 16:41
-                </p>
-
-                <Button className="w-full bg-black hover:bg-gray-800 text-white">
-                  <FileText className="w-4 h-4 mr-2" />
-                  Auftrag
-                </Button>
-
-                <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80">
-                  <Info className="w-4 h-4 mr-2" />
-                  Mehr
-                </Button>
-              </div>
+              )}
             </div>
           </div>
 

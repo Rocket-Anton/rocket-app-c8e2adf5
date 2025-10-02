@@ -13,6 +13,8 @@ interface Address {
   city: string;
   wohneinheiten?: number;
   potentiale?: number;
+  units?: { id: number; floor: string; position: string; status: string }[];
+  filteredUnits?: { id: number; floor: string; position: string; status: string }[];
 }
 
 interface AddressCardProps {
@@ -41,11 +43,11 @@ export const AddressCard = ({ address }: AddressCardProps) => {
             <div className={`flex flex-col items-center gap-2`}>
               <div className="flex items-center gap-1">
                 <Home className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-muted-foreground`} />
-                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>{address.wohneinheiten || 2}</span>
+                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>{address.wohneinheiten || 0}</span>
               </div>
               <div className="flex items-center gap-1">
                 <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-green-600`} />
-                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-green-600`}>{address.potentiale || 2}</span>
+                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-green-600`}>{address.potentiale || 0}</span>
               </div>
             </div>
             <ChevronRight className="w-4 h-4 text-muted-foreground" />
