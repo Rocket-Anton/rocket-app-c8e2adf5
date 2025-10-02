@@ -409,8 +409,8 @@ export const LauflistenContent = () => {
         </div>
         
         {/* Header */}
-        <div className="p-6 pb-0">
-          <h1 className="text-2xl font-semibold text-foreground">Laufliste</h1>
+        <div className="p-4 pb-0">
+          <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
         </div>
 
         {/* Metrics Dashboard */}
