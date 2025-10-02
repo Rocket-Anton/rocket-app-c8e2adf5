@@ -468,7 +468,7 @@ export const LauflistenContent = () => {
         </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto" ref={scrollRef} style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+      <div className="flex-1 overflow-y-auto" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
         <div>
           <div
             ref={filterRef}
@@ -502,7 +502,7 @@ export const LauflistenContent = () => {
                   />
                   {searchOpen && searchTerm.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
-                      <div className="max-h-60 overflow-y-auto">
+                      <div className="max-h-60 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                         {filteredAddresses.length > 0 ? (
                           filteredAddresses.slice(0, 5).map((address) => (
                             <div
@@ -590,7 +590,7 @@ export const LauflistenContent = () => {
                     </div>
 
                     {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto overscroll-contain p-4 space-y-3" style={{ WebkitOverflowScrolling: 'touch', touchAction: 'pan-y' }}>
+                    <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
                         {/* Status Filter */}
                         <div className="space-y-1 relative">
                           <label className="text-sm font-medium">Status</label>
@@ -616,7 +616,7 @@ export const LauflistenContent = () => {
                               style={{ width: 'var(--radix-popover-trigger-width)' }}
                             >
                               <Command className="bg-background">
-                                <CommandList style={{ maxHeight: 'min(var(--radix-popper-available-height, 40vh), 40vh)' }} className="overflow-y-auto">
+                                <CommandList style={{ maxHeight: 'min(var(--radix-popper-available-height, 40vh), 40vh)', overscrollBehavior: 'none' }} className="overflow-y-auto">
                                   <CommandGroup>
                                     {statusOptions.map((option) => (
                                       <CommandItem
@@ -671,7 +671,7 @@ export const LauflistenContent = () => {
                             <SelectTrigger className="bg-background h-9">
                               <SelectValue placeholder="Sortierung wählen" />
                             </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
+                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                               <SelectItem value="alle">Alle</SelectItem>
                               <SelectItem value="gerade">Gerade</SelectItem>
                               <SelectItem value="ungerade">Ungerade</SelectItem>
@@ -708,7 +708,7 @@ export const LauflistenContent = () => {
                               </button>
                             )}
                             {showStreetSuggestions && streetSuggestions.length > 0 && (
-                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                 {streetSuggestions.map((street) => (
                                   <div
                                     key={street}
@@ -740,7 +740,7 @@ export const LauflistenContent = () => {
                               <SelectTrigger className="bg-background h-9">
                                 <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
                               </SelectTrigger>
-                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                 <SelectItem value="alle">Alle</SelectItem>
                                 {availableHouseNumbers.map((num) => (
                                   <SelectItem key={num} value={num}>
@@ -787,7 +787,7 @@ export const LauflistenContent = () => {
                               </button>
                             )}
                             {showPostalCodeSuggestions && postalCodeSuggestions.length > 0 && (
-                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                 {postalCodeSuggestions.map((plz) => (
                                   <div
                                     key={plz}
@@ -833,7 +833,7 @@ export const LauflistenContent = () => {
                               </button>
                             )}
                             {showCitySuggestions && citySuggestions.length > 0 && (
-                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto">
+                              <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                 {citySuggestions.map((city) => (
                                   <div
                                     key={city}
