@@ -429,8 +429,22 @@ export const LauflistenContent = () => {
                 {/* Filter Icon for all screen sizes */}
                 <Popover open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                   <PopoverTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10">
+                    <Button variant="outline" size="icon" className="h-10 w-10 relative">
                       <Filter className="h-4 w-4" />
+                      {(() => {
+                        const activeFilterCount = 
+                          statusFilter.length + 
+                          (streetFilter ? 1 : 0) + 
+                          (cityFilter ? 1 : 0) + 
+                          (postalCodeFilter ? 1 : 0) + 
+                          (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                          (lastModifiedDate ? 1 : 0);
+                        return activeFilterCount > 0 ? (
+                          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
+                            {activeFilterCount}
+                          </span>
+                        ) : null;
+                      })()}
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent
