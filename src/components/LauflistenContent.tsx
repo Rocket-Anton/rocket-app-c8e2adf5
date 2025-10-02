@@ -163,11 +163,17 @@ export const LauflistenContent = () => {
     const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
     const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
     
+    // Sortierung: gerade/ungerade Hausnummern
+    const houseNumberInt = parseInt(address.houseNumber, 10);
+    const matchesSortierung = sortierung === "alle" || 
+      (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
+      (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
+    
     // For now, we don't have lastModified data in mock, so we'll always match
     // In real implementation, you would check: address.lastModified >= lastModifiedDate
     const matchesLastModified = true;
 
-    return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesLastModified;
+    return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
   });
 
   const displayedAddresses = filteredAddresses;
