@@ -488,7 +488,7 @@ export const LauflistenContent = () => {
                                 <ChevronDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                               </Button>
                             </PopoverTrigger>
-                            <PopoverContent className="w-full p-0 bg-background" align="start" style={{ maxHeight: 'min(var(--radix-popper-available-height, 60vh), 60vh)' }}>
+                            <PopoverContent className="w-full p-0 bg-background z-[10001]" align="start" side="bottom" avoidCollisions={false} style={{ maxHeight: 'min(var(--radix-popper-available-height, 60vh), 60vh)' }}>
                               <Command className="bg-background">
                                 <CommandList className="max-h-[300px] overflow-y-auto">
                                   <CommandGroup>
