@@ -74,7 +74,6 @@ const SelectContent = React.forwardRef<
         position={position}
         {...props}
       >
-      <SelectScrollUpButton />
       <SelectPrimitive.Viewport
       className={cn(
         "p-1 max-h-[60vh] overflow-y-auto overscroll-contain touch-pan-y",
@@ -84,7 +83,6 @@ const SelectContent = React.forwardRef<
     >
         {children}
       </SelectPrimitive.Viewport>
-      <SelectScrollDownButton />
     </SelectPrimitive.Content>
   </SelectPrimitive.Portal>
 ));
