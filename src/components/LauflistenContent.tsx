@@ -374,7 +374,7 @@ export const LauflistenContent = () => {
                     <div className="p-4 border-b border-border bg-background">
                       <h3 className="text-lg font-semibold">Filter</h3>
                     </div>
-                    <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background overscroll-contain touch-pan-y">
+                    <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 bg-background overscroll-contain touch-pan-y" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
