@@ -66,6 +66,12 @@ export const LauflistenContent = () => {
   const [cityFilter, setCityFilter] = useState("");
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
+  
+  // Temporary input values (nur für Anzeige während der Eingabe)
+  const [streetInput, setStreetInput] = useState("");
+  const [cityInput, setCityInput] = useState("");
+  const [postalCodeInput, setPostalCodeInput] = useState("");
+  
   const [lastModifiedDate, setLastModifiedDate] = useState<Date | undefined>(undefined);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [streetSuggestions, setStreetSuggestions] = useState<string[]>([]);
@@ -91,48 +97,48 @@ export const LauflistenContent = () => {
 
   // Update suggestions when user types
   useEffect(() => {
-    if (streetFilter) {
+    if (streetInput) {
       const filtered = uniqueStreets.filter(s => 
-        s.toLowerCase().includes(streetFilter.toLowerCase())
+        s.toLowerCase().includes(streetInput.toLowerCase())
       );
       setStreetSuggestions(filtered);
     } else {
       setStreetSuggestions([]);
     }
-  }, [streetFilter]);
+  }, [streetInput]);
 
   useEffect(() => {
-    if (cityFilter) {
+    if (cityInput) {
       const filtered = uniqueCities.filter(c => 
-        c.toLowerCase().includes(cityFilter.toLowerCase())
+        c.toLowerCase().includes(cityInput.toLowerCase())
       );
       setCitySuggestions(filtered);
     } else {
       setCitySuggestions([]);
     }
-  }, [cityFilter]);
+  }, [cityInput]);
 
   useEffect(() => {
-    if (postalCodeFilter) {
+    if (postalCodeInput) {
       const filtered = uniquePostalCodes.filter(p => 
-        p.includes(postalCodeFilter)
+        p.includes(postalCodeInput)
       );
       setPostalCodeSuggestions(filtered);
     } else {
       setPostalCodeSuggestions([]);
     }
-  }, [postalCodeFilter]);
+  }, [postalCodeInput]);
 
   const statusOptions = [
-    { value: "offen", label: "Offen" },
-    { value: "nicht-angetroffen", label: "Nicht angetroffen" },
-    { value: "potenzial", label: "Potenzial" },
-    { value: "neukunde", label: "Neukunde" },
-    { value: "bestandskunde", label: "Bestandskunde" },
-    { value: "kein-interesse", label: "Kein Interesse" },
-    { value: "termin", label: "Termin" },
-    { value: "nicht-vorhanden", label: "Nicht vorhanden" },
-    { value: "gewerbe", label: "Gewerbe" },
+    { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
+    { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+    { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
+    { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
+    { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
+    { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
+    { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
+    { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
+    { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" },
   ];
 
   // Filter addresses based on all criteria
@@ -451,7 +457,9 @@ export const LauflistenContent = () => {
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto overscroll-contain">
                               {statusOptions.map((option) => (
                                 <SelectItem key={option.value} value={option.value}>
-                                  {option.label}
+                                  <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                    {option.label}
+                                  </div>
                                 </SelectItem>
                               ))}
                             </SelectContent>
@@ -479,14 +487,12 @@ export const LauflistenContent = () => {
                           <div className="relative">
                             <Input
                               placeholder="Straße eingeben"
-                              value={streetFilter}
+                              value={streetInput}
                               onChange={(e) => {
-                                setStreetFilter(e.target.value);
+                                setStreetInput(e.target.value);
                                 setShowStreetSuggestions(true);
-                                // Reset house number when street changes
-                                setHouseNumberFilter("");
                               }}
-                              onFocus={() => streetFilter && setShowStreetSuggestions(true)}
+                              onFocus={() => streetInput && setShowStreetSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
                               autoFocus={false}
                               className="bg-background"
@@ -498,8 +504,10 @@ export const LauflistenContent = () => {
                                     key={street}
                                     className="p-2 hover:bg-muted cursor-pointer text-sm"
                                     onClick={() => {
+                                      setStreetInput(street);
                                       setStreetFilter(street);
                                       setShowStreetSuggestions(false);
+                                      setHouseNumberFilter(""); // Reset house number
                                     }}
                                   >
                                     {street}
@@ -538,12 +546,12 @@ export const LauflistenContent = () => {
                           <div className="relative">
                             <Input
                               placeholder="PLZ eingeben"
-                              value={postalCodeFilter}
+                              value={postalCodeInput}
                               onChange={(e) => {
-                                setPostalCodeFilter(e.target.value);
+                                setPostalCodeInput(e.target.value);
                                 setShowPostalCodeSuggestions(true);
                               }}
-                              onFocus={() => postalCodeFilter && setShowPostalCodeSuggestions(true)}
+                              onFocus={() => postalCodeInput && setShowPostalCodeSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
                               className="bg-background"
                             />
@@ -554,6 +562,7 @@ export const LauflistenContent = () => {
                                     key={plz}
                                     className="p-2 hover:bg-muted cursor-pointer text-sm"
                                     onClick={() => {
+                                      setPostalCodeInput(plz);
                                       setPostalCodeFilter(plz);
                                       setShowPostalCodeSuggestions(false);
                                     }}
@@ -572,12 +581,12 @@ export const LauflistenContent = () => {
                           <div className="relative">
                             <Input
                               placeholder="Ort eingeben"
-                              value={cityFilter}
+                              value={cityInput}
                               onChange={(e) => {
-                                setCityFilter(e.target.value);
+                                setCityInput(e.target.value);
                                 setShowCitySuggestions(true);
                               }}
-                              onFocus={() => cityFilter && setShowCitySuggestions(true)}
+                              onFocus={() => cityInput && setShowCitySuggestions(true)}
                               onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
                               className="bg-background"
                             />
@@ -588,6 +597,7 @@ export const LauflistenContent = () => {
                                     key={city}
                                     className="p-2 hover:bg-muted cursor-pointer text-sm"
                                     onClick={() => {
+                                      setCityInput(city);
                                       setCityFilter(city);
                                       setShowCitySuggestions(false);
                                     }}
