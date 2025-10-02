@@ -150,7 +150,7 @@ export const LauflistenContent = () => {
     const matchesStreet = streetFilter === "" || address.street === streetFilter;
     const matchesCity = cityFilter === "" || address.city === cityFilter;
     const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
-    const matchesHouseNumber = houseNumberFilter === "" || address.houseNumber === houseNumberFilter;
+    const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
     
     // For now, we don't have lastModified data in mock, so we'll always match
     // In real implementation, you would check: address.lastModified >= lastModifiedDate
