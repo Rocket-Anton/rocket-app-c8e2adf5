@@ -657,9 +657,9 @@ export const LauflistenContent = () => {
                                 e.stopPropagation();
                                 setStatusFilter([]);
                               }}
-                              className="absolute right-8 top-[26px] text-muted-foreground hover:text-foreground z-10"
+                              className="absolute right-9 top-[26px] text-muted-foreground hover:text-foreground z-10"
                             >
-                              <X className="w-4 h-4" />
+                              <X className="w-3.5 h-3.5" />
                             </button>
                           )}
                         </div>
