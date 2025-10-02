@@ -493,7 +493,7 @@ export const LauflistenContent = () => {
                 )}
                 <div className="flex flex-col items-center justify-center text-center mt-2">
                   <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{metric.value}</div>
-                  {!isMobile && <div className="text-sm text-muted-foreground">{metric.title}</div>}
+                  <div className="text-sm text-muted-foreground">{metric.title}</div>
                 </div>
               </Card>
               );
@@ -520,7 +520,7 @@ export const LauflistenContent = () => {
               </div>
               <div className="flex flex-col items-center justify-center text-center mt-2">
                 <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>6,5%</div>
-                {!isMobile && <div className="text-sm text-muted-foreground">Conversion</div>}
+                <div className="text-sm text-muted-foreground">Conversion</div>
               </div>
             </Card>
           </div>
