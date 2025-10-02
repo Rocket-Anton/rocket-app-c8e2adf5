@@ -43,6 +43,7 @@ import { Calendar } from "./ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
+import rocketLogoWhite from "@/assets/rocket-logo-white.png";
 
 const mockAddresses = [
   { 
@@ -380,6 +381,33 @@ export const LauflistenContent = () => {
   return (
     <TooltipProvider>
       <div className="flex flex-col h-dvh">
+        {/* Mobile Header - nur auf kleinen Bildschirmen */}
+        <div className="md:hidden bg-blue-600 h-14 flex items-center justify-between px-4">
+          <img src={rocketLogoWhite} alt="Rocket Logo" className="h-8" />
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="text-white">
+                <div className="space-y-1">
+                  <div className="w-6 h-0.5 bg-white"></div>
+                  <div className="w-6 h-0.5 bg-white"></div>
+                  <div className="w-6 h-0.5 bg-white"></div>
+                </div>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+              <SheetHeader>
+                <SheetTitle>Menü</SheetTitle>
+              </SheetHeader>
+              <div className="py-4">
+                <nav className="space-y-2">
+                  <a href="/" className="block px-4 py-2 hover:bg-muted rounded-md">Home</a>
+                  <a href="/" className="block px-4 py-2 hover:bg-muted rounded-md font-medium">Laufliste</a>
+                </nav>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
+        
         {/* Header */}
         <div className="p-6 pb-0">
           <h1 className="text-2xl font-semibold text-foreground">Laufliste</h1>
