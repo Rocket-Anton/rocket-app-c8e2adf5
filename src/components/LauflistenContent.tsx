@@ -503,11 +503,12 @@ export const LauflistenContent = () => {
                               </Button>
                             </PopoverTrigger>
                             <PopoverContent 
-                              className="w-full p-0 bg-background z-[10001]" 
+                              className="p-0 bg-background z-[10001]" 
                               align="start" 
                               side="bottom" 
                               avoidCollisions={false}
                               collisionPadding={8}
+                              style={{ width: 'var(--radix-popover-trigger-width)' }}
                             >
                               <Command className="bg-background">
                                 <CommandList style={{ maxHeight: 'min(var(--radix-popper-available-height, 40vh), 40vh)' }} className="overflow-y-auto">
