@@ -365,16 +365,16 @@ export const LauflistenContent = () => {
                     </Button>
                   </PopoverTrigger>
                   <PopoverContent 
-                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50 flex flex-col overflow-hidden min-h-0`}
+                    className={`${isMobile ? 'w-screen max-w-[calc(100vw-2rem)]' : 'w-96'} p-0 border shadow-lg bg-background z-50 overflow-y-auto`}
                     align={isMobile ? "center" : "end"}
                     side="bottom"
                     sideOffset={8}
                     style={{ maxHeight: '85vh', WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
                   >
-                    <div className="p-4 border-b border-border bg-background">
+                    <div className="sticky top-0 z-10 p-4 border-b border-border bg-background">
                       <h3 className="text-lg font-semibold">Filter</h3>
                     </div>
-                    <div className="flex-1 min-h-0 overflow-y-auto p-4 space-y-4 bg-background overscroll-contain touch-pan-y" style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}>
+                    <div className="p-4 space-y-4 bg-background">
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
