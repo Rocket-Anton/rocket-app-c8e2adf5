@@ -472,10 +472,10 @@ export const LauflistenContent = () => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
               <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
-                <div className="absolute top-2 right-2">
+                <div className="absolute top-1 right-1">
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button className="p-1 hover:bg-muted rounded-full transition-colors">
+                      <button className="p-0.5 hover:bg-muted rounded-full transition-colors">
                         <Info className="w-3 h-3 text-green-600 cursor-pointer" />
                       </button>
                     </PopoverTrigger>
@@ -501,10 +501,10 @@ export const LauflistenContent = () => {
             
             {/* Gauge Chart Card */}
             <Card className="relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50">
-              <div className="absolute top-2 right-2">
+              <div className="absolute top-1 right-1">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button className="p-1 hover:bg-muted rounded-full transition-colors">
+                    <button className="p-0.5 hover:bg-muted rounded-full transition-colors">
                       <Info className="w-3 h-3 text-green-600 cursor-pointer" />
                     </button>
                   </PopoverTrigger>
