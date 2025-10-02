@@ -445,8 +445,8 @@ export const LauflistenContent = () => {
                           (cityFilter ? 1 : 0) + 
                           (postalCodeFilter ? 1 : 0) + 
                           (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                          (sortierung !== "alle" ? 1 : 0) +
                           (lastModifiedDate ? 1 : 0);
-                        // Sortierung wird nicht gezählt, da "alle" der Standard ist
                         return activeFilterCount > 0 ? (
                           <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
                             {activeFilterCount}
