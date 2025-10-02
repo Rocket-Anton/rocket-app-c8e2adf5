@@ -397,7 +397,7 @@ export const LauflistenContent = () => {
                     </div>
 
                     {/* Scrollable Content with native scrolling */}
-                    <div className="max-h-[calc(var(--popover-max-h)-65px)] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
+                    <div className="h-[calc(var(--popover-max-h)-65px)] min-h-[200px] overflow-y-auto overscroll-contain [touch-action:pan-y] [-webkit-overflow-scrolling:touch] p-4 space-y-4">
                       {/* Status Filter */}
                       <div className="space-y-2">
                         <label className="text-sm font-medium">Status</label>
