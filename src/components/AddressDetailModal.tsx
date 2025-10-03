@@ -129,14 +129,14 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Left Panel */}
-          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 space-y-4 sm:space-y-6 ${wohneinheiten === 1 ? 'py-2' : 'py-4'}`}>
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 sm:space-y-6">
             {/* Unit Cards */}
             <div className="space-y-4">
               {displayUnits.length > 0 ? (
                 displayUnits.map((unit) => (
                   <div key={unit.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg space-y-3 sm:space-y-4">
-                    <div className="space-y-3">
-                      {wohneinheiten > 1 && (
+                    <div className={wohneinheiten === 1 ? 'space-y-3' : 'space-y-3'}>
+                      {wohneinheiten > 1 ? (
                         <>
                           <Select defaultValue={unit.floor}>
                             <SelectTrigger className="w-full border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
@@ -161,9 +161,9 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                             </SelectContent>
                           </Select>
                         </>
-                      )}
+                      ) : null}
 
-                      <div className="flex items-center gap-3">
+                      <div className={`flex items-center gap-3 ${wohneinheiten === 1 ? '' : ''}`}>
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
