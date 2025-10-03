@@ -9,6 +9,11 @@ import {
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "./ui/popover";
 
 interface Address {
   id: number;
@@ -30,6 +35,11 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   // Use filteredUnits if available (from status filter), otherwise use all units
   const displayUnits = address.filteredUnits || address.units || [];
   const wohneinheiten = displayUnits.length;
+  
+  // State for each unit's current status
+  const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>(
+    displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status }), {})
+  );
 
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
@@ -47,6 +57,27 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   const showStatusUpdateButton = (status: string) => {
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
   };
+
+  const statusHistory = [
+    {
+      id: 1,
+      status: "Potenzial",
+      changedBy: "Abdullah Kater",
+      changedAt: "16.07.25 18:41"
+    },
+    {
+      id: 2,
+      status: "Nicht angetroffen",
+      changedBy: "Max Mustermann",
+      changedAt: "15.07.25 14:30"
+    },
+    {
+      id: 3,
+      status: "Offen",
+      changedBy: "System",
+      changedAt: "10.07.25 09:00"
+    }
+  ];
 
   const notes = [
     {
@@ -126,7 +157,10 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       )}
 
                       <div className="flex items-center gap-3">
-                        <Select defaultValue={unit.status}>
+                        <Select 
+                          value={unitStatuses[unit.id] || unit.status}
+                          onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
+                        >
                           <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
                             <SelectValue />
                           </SelectTrigger>
@@ -142,13 +176,35 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                               ))}
                           </SelectContent>
                         </Select>
-                        <button className="p-2 text-muted-foreground hover:text-foreground">
-                          <RotateCcw className="w-4 h-4" />
-                        </button>
+                        <Popover>
+                          <PopoverTrigger asChild>
+                            <button className="p-2 text-muted-foreground hover:text-foreground">
+                              <RotateCcw className="w-4 h-4" />
+                            </button>
+                          </PopoverTrigger>
+                          <PopoverContent className="w-80 p-0" align="end">
+                            <div className="p-4">
+                              <h3 className="font-medium mb-3">Status Historie</h3>
+                              <div className="space-y-3">
+                                {statusHistory.map((history) => (
+                                  <div key={history.id} className="pb-3 border-b last:border-0 last:pb-0">
+                                    <div className="flex items-start justify-between mb-1">
+                                      <span className="font-medium text-sm">{history.status}</span>
+                                      <span className="text-xs text-muted-foreground">{history.changedAt}</span>
+                                    </div>
+                                    <div className="text-xs text-muted-foreground">
+                                      Geändert von: {history.changedBy}
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </PopoverContent>
+                        </Popover>
                       </div>
                     </div>
 
-                    {showStatusUpdateButton(unit.status) && (
+                    {showStatusUpdateButton(unitStatuses[unit.id] || unit.status) && (
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
                         <RotateCcw className="w-4 h-4 mr-2" />
                         Status updaten
