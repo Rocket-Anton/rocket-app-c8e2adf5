@@ -169,7 +169,17 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
                         >
                           <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
-                            <SelectValue />
+                            <SelectValue>
+                              {(() => {
+                                const currentStatus = unitStatuses[unit.id] || "offen";
+                                const statusOption = statusOptions.find(s => s.value === currentStatus);
+                                return statusOption ? (
+                                  <div className={`px-2 py-1 text-xs font-medium rounded ${statusOption.color}`}>
+                                    {statusOption.label}
+                                  </div>
+                                ) : null;
+                              })()}
+                            </SelectValue>
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions
