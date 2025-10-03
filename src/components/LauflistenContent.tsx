@@ -466,12 +466,12 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Metrics Dashboard */}
-        <div className={`${isMobile ? '' : 'px-6'}`}>
-          <div className={`md:grid md:grid-cols-4 md:gap-4 flex gap-3 pb-3 ${isMobile ? 'overflow-x-scroll snap-x snap-mandatory px-4 scrollbar-hide -mx-4' : ''}`} style={isMobile ? { WebkitOverflowScrolling: 'touch' } : {}}>
+        <div className="px-4 md:px-6">
+          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none">
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start snap-always ${isMobile ? 'w-[160px]' : 'w-auto'} ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start snap-always w-[160px] md:w-auto ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
                 <div className="absolute -top-0.5 right-0.5">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -500,7 +500,7 @@ export const LauflistenContent = () => {
             })}
             
             {/* Gauge Chart Card */}
-            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start snap-always ${isMobile ? 'w-[160px]' : 'w-auto'}`}>
+            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start snap-always w-[160px] md:w-auto`}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
