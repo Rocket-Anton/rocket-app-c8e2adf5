@@ -131,13 +131,15 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                             <SelectValue />
                           </SelectTrigger>
                           <SelectContent>
-                            {statusOptions.map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                                  {status.label}
-                                </div>
-                              </SelectItem>
-                            ))}
+                            {statusOptions
+                              .filter(status => status.value !== "offen")
+                              .map((status) => (
+                                <SelectItem key={status.value} value={status.value}>
+                                  <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                                    {status.label}
+                                  </div>
+                                </SelectItem>
+                              ))}
                           </SelectContent>
                         </Select>
                         <button className="p-2 text-muted-foreground hover:text-foreground">
