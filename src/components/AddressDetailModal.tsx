@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock } from "lucide-react";
 import {
   Dialog,
@@ -37,9 +37,16 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   const wohneinheiten = displayUnits.length;
   
   // State for each unit's current status
-  const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>(
-    displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status }), {})
-  );
+  const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
+  
+  // Reset unit statuses when address changes or modal opens
+  useEffect(() => {
+    if (open) {
+      setUnitStatuses(
+        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status }), {})
+      );
+    }
+  }, [open, address.id]);
 
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
