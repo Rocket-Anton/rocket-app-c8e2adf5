@@ -132,7 +132,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </SelectTrigger>
                           <SelectContent>
                             {statusOptions
-                              .filter(status => status.value !== "offen" && status.value !== "neukunde")
+                              .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                               .map((status) => (
                                 <SelectItem key={status.value} value={status.value}>
                                   <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
