@@ -104,7 +104,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh]">
-          <DialogHeader className={`px-4 sm:px-6 py-4 border-b flex-shrink-0 ${wohneinheiten === 1 ? 'pb-2' : ''}`}>
+          <DialogHeader className={`px-4 sm:px-6 py-4 border-b flex-shrink-0 ${wohneinheiten === 1 ? 'pb-0' : ''}`}>
           <DialogTitle className="text-lg sm:text-xl font-semibold">
             {address.street} {address.houseNumber}
           </DialogTitle>
@@ -112,7 +112,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
             {address.postalCode} {address.city}
           </p>
           
-          <div className={`flex items-center justify-between w-full ${wohneinheiten === 1 ? 'pt-2' : 'pt-4 sm:pt-6'}`}>
+          <div className={`flex items-center justify-between w-full ${wohneinheiten === 1 ? 'pt-1 pb-1' : 'pt-4 sm:pt-6'}`}>
             <div className="flex items-center gap-2">
               <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
               <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
@@ -129,12 +129,12 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Left Panel */}
-          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 space-y-4 sm:space-y-6 ${wohneinheiten === 1 ? 'pt-0' : 'py-4'}`}>
+          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 ${wohneinheiten === 1 ? '-mt-2 pt-2' : 'py-4 space-y-4 sm:space-y-6'}`}>
             {/* Unit Cards */}
-            <div className="space-y-4">
+            <div className={wohneinheiten === 1 ? '' : 'space-y-4'}>
               {displayUnits.length > 0 ? (
                 displayUnits.map((unit) => (
-                  <div key={unit.id} className={`bg-muted/30 rounded-lg ${wohneinheiten === 1 ? 'p-2' : 'p-3 sm:p-4'} space-y-3 sm:space-y-4`}>
+                  <div key={unit.id} className={`bg-muted/30 rounded-lg ${wohneinheiten === 1 ? 'p-2 mt-0' : 'p-3 sm:p-4'} space-y-3 sm:space-y-4`}>
                     <div className={wohneinheiten === 1 ? 'space-y-3' : 'space-y-3'}>
                       {wohneinheiten > 1 ? (
                         <>
