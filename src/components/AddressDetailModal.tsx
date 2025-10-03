@@ -34,6 +34,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
     { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+    { value: "karte-eingeworfen", label: "Karte eingeworfen", color: "bg-amber-500 text-white" },
     { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
     { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
     { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
@@ -42,6 +43,10 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
     { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
     { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" }
   ];
+
+  const showStatusUpdateButton = (status: string) => {
+    return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
+  };
 
   const notes = [
     {
@@ -141,10 +146,12 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </div>
                     </div>
 
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
-                      <RotateCcw className="w-4 h-4 mr-2" />
-                      Status updaten
-                    </Button>
+                    {showStatusUpdateButton(unit.status) && (
+                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Status updaten
+                      </Button>
+                    )}
 
                     <p className="text-sm text-muted-foreground">
                       Aktualisiert: 16.07.2025 16:41
