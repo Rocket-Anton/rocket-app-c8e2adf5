@@ -466,8 +466,8 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Metrics Dashboard */}
-        <div className="px-6">
-          <div className="md:grid md:grid-cols-4 md:gap-4 flex overflow-x-auto gap-3 w-full pb-3 md:overflow-visible snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div className="px-6 -mx-6 md:mx-0">
+          <div className={`md:grid md:grid-cols-4 md:gap-4 flex gap-3 pb-3 md:px-6 ${isMobile ? 'overflow-x-scroll snap-x snap-mandatory px-6 scrollbar-hide' : ''}`} style={isMobile ? { WebkitOverflowScrolling: 'touch' } : {}}>
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (

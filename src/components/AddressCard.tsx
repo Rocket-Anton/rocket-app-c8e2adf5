@@ -31,27 +31,45 @@ export const AddressCard = ({ address }: AddressCardProps) => {
         className="p-4 hover:shadow-md transition-shadow cursor-pointer" 
         onClick={() => setModalOpen(true)}
       >
-        <div className="flex items-center justify-between">
-          <div className="space-y-1 flex-1">
+        <div className="flex items-center justify-between gap-2">
+          <div className="space-y-1 flex-1 min-w-0">
             <h3 className="font-medium text-foreground">{address.street} {address.houseNumber}</h3>
             <p className="text-sm text-muted-foreground">
               {address.postalCode} {address.city}
             </p>
           </div>
           
-          <div className="flex items-center gap-3 flex-shrink-0">
-            <div className="flex flex-col items-center gap-2">
-              <div className="flex items-center gap-1">
-                <Home className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-muted-foreground flex-shrink-0`} />
-                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>{address.wohneinheiten || 0}</span>
+          {!isMobile && (
+            <div className="flex items-center gap-3 flex-shrink-0">
+              <div className="flex flex-col items-center gap-2">
+                <div className="flex items-center gap-1">
+                  <Home className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm font-medium">{address.wohneinheiten || 0}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-green-600">{address.potentiale || 0}</span>
+                </div>
               </div>
-              <div className="flex items-center gap-1">
-                <Users className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-green-600 flex-shrink-0`} />
-                <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-green-600`}>{address.potentiale || 0}</span>
-              </div>
+              <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
             </div>
-            <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-4 h-4'} text-muted-foreground flex-shrink-0`} />
-          </div>
+          )}
+          
+          {isMobile && (
+            <div className="flex items-center gap-2 flex-shrink-0">
+              <div className="flex flex-col items-center gap-1.5">
+                <div className="flex items-center gap-1">
+                  <Home className="w-4 h-4 text-muted-foreground flex-shrink-0" />
+                  <span className="text-sm font-medium">{address.wohneinheiten || 0}</span>
+                </div>
+                <div className="flex items-center gap-1">
+                  <Users className="w-4 h-4 text-green-600 flex-shrink-0" />
+                  <span className="text-sm font-medium text-green-600">{address.potentiale || 0}</span>
+                </div>
+              </div>
+              <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
+            </div>
+          )}
         </div>
       </Card>
       
