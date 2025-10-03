@@ -380,7 +380,7 @@ export const LauflistenContent = () => {
 
   return (
     <TooltipProvider>
-      <div className="flex flex-col h-dvh">
+      <div className="flex flex-col h-dvh max-w-[100vw] overflow-x-hidden">
         {/* Mobile Header - nur auf kleinen Bildschirmen */}
         <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4 relative z-50">
           <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16 mt-1 -ml-1" />
@@ -467,7 +467,7 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-4 md:px-6">
-          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none">
+          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem' }}>
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
@@ -542,7 +542,7 @@ export const LauflistenContent = () => {
         </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
         <div>
           <div
             ref={filterRef}
