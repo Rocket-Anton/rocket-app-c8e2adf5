@@ -60,37 +60,38 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-[50vw] sm:w-full h-[85vh] sm:h-[80vh] overflow-hidden p-0">
-        <DialogHeader className="px-6 py-4 border-b">
-          <DialogTitle className="text-xl font-semibold">
+      <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh]">
+        <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
+          <DialogTitle className="text-lg sm:text-xl font-semibold">
             {address.street} {address.houseNumber}
           </DialogTitle>
           <p className="text-sm text-muted-foreground">
             {address.postalCode} {address.city}
           </p>
           
-          <div className="flex items-center justify-between w-full pt-6">
+          <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
             <div className="flex items-center gap-2">
-              <span className="text-base font-medium">Wohneinheiten</span>
+              <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
               <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
                 {wohneinheiten}
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-blue-600">
+            <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm">
               <Plus className="w-4 h-4 mr-1" />
-              Hinzufügen
+              <span className="hidden sm:inline">Hinzufügen</span>
+              <span className="sm:hidden">+</span>
             </Button>
           </div>
         </DialogHeader>
 
-        <div className="flex flex-col sm:flex-row h-full overflow-hidden">
+        <div className="flex flex-col h-full overflow-hidden">
           {/* Left Panel */}
-          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-6">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 space-y-4 sm:space-y-6">
             {/* Unit Cards */}
             <div className="space-y-4">
               {displayUnits.length > 0 ? (
                 displayUnits.map((unit) => (
-                  <div key={unit.id} className="p-4 bg-muted/30 rounded-lg space-y-4">
+                  <div key={unit.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg space-y-3 sm:space-y-4">
                     <div className="space-y-3">
                       <select className="w-full p-2 border border-gray-300 rounded-lg bg-background text-muted-foreground" defaultValue={unit.floor}>
                         <option>Stockwerk</option>
@@ -128,7 +129,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </div>
                     </div>
 
-                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
                       <RotateCcw className="w-4 h-4 mr-2" />
                       Status updaten
                     </Button>
@@ -137,12 +138,12 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       Aktualisiert: 16.07.2025 16:41
                     </p>
 
-                    <Button className="w-full bg-black hover:bg-gray-800 text-white">
+                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm">
                       <FileText className="w-4 h-4 mr-2" />
                       Auftrag
                     </Button>
 
-                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80">
+                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm">
                       <Info className="w-4 h-4 mr-2" />
                       Mehr
                     </Button>
@@ -156,8 +157,8 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
             </div>
           </div>
 
-          {/* Right Panel */}
-          <div className="w-full sm:w-80 border-t sm:border-t-0 sm:border-l bg-muted/30 overflow-y-auto">
+          {/* Right Panel - Hidden on mobile */}
+          <div className="hidden sm:block sm:w-80 border-l bg-muted/30 overflow-y-auto">
             {/* Notes Section */}
             <div className="p-4 border-b">
               <h3 className="font-medium mb-3">Notizen</h3>
