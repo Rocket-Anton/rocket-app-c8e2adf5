@@ -43,7 +43,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   useEffect(() => {
     if (open) {
       setUnitStatuses(
-        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status }), {})
+        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
       );
     }
   }, [open, address.id]);
@@ -165,7 +165,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                       <div className="flex items-center gap-3">
                         <Select 
-                          value={unitStatuses[unit.id] || unit.status}
+                          value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
                         >
                           <SelectTrigger className="flex-1 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
@@ -189,21 +189,26 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-80 p-0" align="end">
-                            <div className="p-4">
-                              <h3 className="font-medium mb-3">Status Historie</h3>
-                              <div className="space-y-3">
-                                {statusHistory.map((history) => (
-                                  <div key={history.id} className="pb-3 border-b last:border-0 last:pb-0">
-                                    <div className="flex items-start justify-between mb-1">
-                                      <span className="font-medium text-sm">{history.status}</span>
-                                      <span className="text-xs text-muted-foreground">{history.changedAt}</span>
+                          <PopoverContent className="w-64 p-0 max-h-[400px] overflow-y-auto" side="bottom" align="start">
+                            <div className="p-3">
+                              <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
+                              <div className="space-y-2">
+                                {statusHistory.map((history) => {
+                                  const statusOption = statusOptions.find(s => s.label === history.status);
+                                  return (
+                                    <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                      <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                        {history.status}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {history.changedBy}
+                                      </div>
+                                      <div className="text-xs text-muted-foreground">
+                                        {history.changedAt}
+                                      </div>
                                     </div>
-                                    <div className="text-xs text-muted-foreground">
-                                      Geändert von: {history.changedBy}
-                                    </div>
-                                  </div>
-                                ))}
+                                  );
+                                })}
                               </div>
                             </div>
                           </PopoverContent>
@@ -211,7 +216,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </div>
                     </div>
 
-                    {showStatusUpdateButton(unitStatuses[unit.id] || unit.status) && (
+                    {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
                       <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
                         <RotateCcw className="w-4 h-4 mr-2" />
                         Status updaten
