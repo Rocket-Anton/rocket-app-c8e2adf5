@@ -467,11 +467,11 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-4 md:px-6">
-          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-mandatory scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem' }}>
+          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start snap-always w-[160px] md:w-auto ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
                 <div className="absolute -top-0.5 right-0.5">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -500,7 +500,7 @@ export const LauflistenContent = () => {
             })}
             
             {/* Gauge Chart Card */}
-            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start snap-always w-[160px] md:w-auto`}>
+            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px] md:w-auto`}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
