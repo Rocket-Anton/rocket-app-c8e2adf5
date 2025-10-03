@@ -39,18 +39,18 @@ export const AddressCard = ({ address }: AddressCardProps) => {
             </p>
           </div>
           
-          <div className="flex items-center gap-4">
-            <div className={`flex flex-col items-center gap-2`}>
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <div className="flex flex-col items-center gap-2">
               <div className="flex items-center gap-1">
-                <Home className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-muted-foreground`} />
+                <Home className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-muted-foreground flex-shrink-0`} />
                 <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium`}>{address.wohneinheiten || 0}</span>
               </div>
               <div className="flex items-center gap-1">
-                <Users className={`${isMobile ? 'w-3 h-3' : 'w-4 h-4'} text-green-600`} />
+                <Users className={`${isMobile ? 'w-3.5 h-3.5' : 'w-4 h-4'} text-green-600 flex-shrink-0`} />
                 <span className={`${isMobile ? 'text-xs' : 'text-sm'} font-medium text-green-600`}>{address.potentiale || 0}</span>
               </div>
             </div>
-            <ChevronRight className="w-4 h-4 text-muted-foreground" />
+            <ChevronRight className={`${isMobile ? 'w-4 h-4' : 'w-4 h-4'} text-muted-foreground flex-shrink-0`} />
           </div>
         </div>
       </Card>

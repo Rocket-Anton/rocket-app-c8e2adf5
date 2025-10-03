@@ -382,7 +382,7 @@ export const LauflistenContent = () => {
     <TooltipProvider>
       <div className="flex flex-col h-dvh">
         {/* Mobile Header - nur auf kleinen Bildschirmen */}
-        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4">
+        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4 relative z-50">
           <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16 mt-1 -ml-1" />
           <Sheet>
             <SheetTrigger asChild>
@@ -467,11 +467,11 @@ export const LauflistenContent = () => {
 
         {/* Metrics Dashboard */}
         <div className="px-6">
-          <div className="md:grid md:grid-cols-4 md:gap-4 flex overflow-x-auto gap-4 w-full pb-3 md:overflow-visible scrollbar-hide overscroll-x-contain touch-pan-x snap-x snap-mandatory">
+          <div className="md:grid md:grid-cols-4 md:gap-4 flex overflow-x-auto gap-3 w-full pb-3 md:overflow-visible snap-x snap-mandatory" style={{ WebkitOverflowScrolling: 'touch' }}>
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start ${isMobile ? 'min-w-[180px]' : 'w-auto'} ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start snap-always ${isMobile ? 'w-[160px]' : 'w-auto'} ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
                 <div className="absolute -top-0.5 right-0.5">
                   <Popover>
                     <PopoverTrigger asChild>
@@ -500,7 +500,7 @@ export const LauflistenContent = () => {
             })}
             
             {/* Gauge Chart Card */}
-            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start ${isMobile ? 'min-w-[180px]' : 'w-auto'}`}>
+            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start snap-always ${isMobile ? 'w-[160px]' : 'w-auto'}`}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
