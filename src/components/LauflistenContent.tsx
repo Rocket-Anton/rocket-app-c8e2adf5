@@ -461,13 +461,13 @@ export const LauflistenContent = () => {
         </div>
         
         {/* Header */}
-        <div className="px-6 pt-4 pb-0">
+        <div className={`pt-4 pb-0 ${isMobile ? 'px-4' : 'px-6'}`}>
           <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
         </div>
 
         {/* Metrics Dashboard */}
-        <div className="px-6 -mx-6 md:mx-0">
-          <div className={`md:grid md:grid-cols-4 md:gap-4 flex gap-3 pb-3 md:px-6 ${isMobile ? 'overflow-x-scroll snap-x snap-mandatory px-6 scrollbar-hide' : ''}`} style={isMobile ? { WebkitOverflowScrolling: 'touch' } : {}}>
+        <div className={`${isMobile ? '' : 'px-6'}`}>
+          <div className={`md:grid md:grid-cols-4 md:gap-4 flex gap-3 pb-3 ${isMobile ? 'overflow-x-scroll snap-x snap-mandatory px-4 scrollbar-hide -mx-4' : ''}`} style={isMobile ? { WebkitOverflowScrolling: 'touch' } : {}}>
             {metricsData.map((metric, index) => {
               const isGreenCard = metric.title === "Aufträge heute";
               return (
@@ -527,12 +527,12 @@ export const LauflistenContent = () => {
         </div>
 
         {/* Divider between Dashboard and Filter */}
-        <div className="px-6 py-2">
+        <div className={`py-2 ${isMobile ? 'px-4' : 'px-6'}`}>
           <div className="h-px bg-border"></div>
         </div>
 
         {/* Header */}
-        <div className="app-header px-6 pb-2 relative z-20 bg-background">
+        <div className={`app-header pb-2 relative z-20 bg-background ${isMobile ? 'px-4' : 'px-6'}`}>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div>
@@ -548,7 +548,7 @@ export const LauflistenContent = () => {
             ref={filterRef}
             className="sticky top-0 z-10"
           >
-            <div className={`bg-background pt-2 pb-3 px-6 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background pt-2 pb-3 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'} ${isMobile ? 'px-4' : 'px-6'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -938,7 +938,7 @@ export const LauflistenContent = () => {
           </div>
 
           {/* Address Cards */}
-          <div className="px-6 pb-20">
+          <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
             <div className="space-y-4">
               {displayedAddresses.map((address) => (
                 <AddressCard key={address.id} address={address} />
