@@ -93,28 +93,32 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                 displayUnits.map((unit) => (
                   <div key={unit.id} className="p-3 sm:p-4 bg-muted/30 rounded-lg space-y-3 sm:space-y-4">
                     <div className="space-y-3">
-                      <Select defaultValue={unit.floor}>
-                        <SelectTrigger className="w-full border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
-                          <SelectValue placeholder="Stockwerk" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="EG">EG</SelectItem>
-                          <SelectItem value="1. OG">1. OG</SelectItem>
-                          <SelectItem value="2. OG">2. OG</SelectItem>
-                          <SelectItem value="3. OG">3. OG</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      {wohneinheiten > 1 && (
+                        <>
+                          <Select defaultValue={unit.floor}>
+                            <SelectTrigger className="w-full border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                              <SelectValue placeholder="Stockwerk" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="EG">EG</SelectItem>
+                              <SelectItem value="1. OG">1. OG</SelectItem>
+                              <SelectItem value="2. OG">2. OG</SelectItem>
+                              <SelectItem value="3. OG">3. OG</SelectItem>
+                            </SelectContent>
+                          </Select>
 
-                      <Select defaultValue={unit.position}>
-                        <SelectTrigger className="w-full border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
-                          <SelectValue placeholder="Lage" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="Links">Links</SelectItem>
-                          <SelectItem value="Rechts">Rechts</SelectItem>
-                          <SelectItem value="Mitte">Mitte</SelectItem>
-                        </SelectContent>
-                      </Select>
+                          <Select defaultValue={unit.position}>
+                            <SelectTrigger className="w-full border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                              <SelectValue placeholder="Lage" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Links">Links</SelectItem>
+                              <SelectItem value="Rechts">Rechts</SelectItem>
+                              <SelectItem value="Mitte">Mitte</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </>
+                      )}
 
                       <div className="flex items-center gap-3">
                         <Select defaultValue={unit.status}>
