@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -125,7 +125,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   ];
 
   // Popover-Inhalt, der die Höhe an die Unterkante der Modal begrenzt und nie nach oben flippt
-  const BoundedPopoverContent = ({ modalRef, className, children, sideOffset = 8, align = "end" }: any) => {
+  const BoundedPopoverContent = forwardRef<HTMLDivElement, any>(({ modalRef, className, children, sideOffset = 8, align = "end" }, forwardedRef) => {
     const contentRef = useRef<HTMLDivElement | null>(null);
     const [maxH, setMaxH] = useState<number | undefined>();
 
@@ -152,7 +152,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     return (
       <PopoverContent
-        ref={contentRef as any}
+        ref={contentRef}
         side="bottom"
         align={align}
         sideOffset={sideOffset}
@@ -163,7 +163,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {children}
       </PopoverContent>
     );
-  };
+  });
 
   const showStatusUpdateButton = (status: string) => {
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
