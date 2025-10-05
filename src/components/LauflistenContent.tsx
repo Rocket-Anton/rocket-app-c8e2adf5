@@ -619,68 +619,58 @@ export const LauflistenContent = () => {
                   )}
                 </div>
 
-                {/* Filter Icon for all screen sizes */}
-                <Popover open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
-                  <PopoverTrigger asChild>
-                    <Button variant="outline" size="icon" className="h-10 w-10 relative">
-                      <Filter className="h-4 w-4" />
-                      {(() => {
-                        const activeFilterCount = 
-                          statusFilter.length + 
-                          (streetFilter ? 1 : 0) + 
-                          (cityFilter ? 1 : 0) + 
-                          (postalCodeFilter ? 1 : 0) + 
-                          (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
-                          (sortierung !== "alle" ? 1 : 0) +
-                          (lastModifiedDate ? 1 : 0);
-                        return activeFilterCount > 0 ? (
-                          <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
-                            {activeFilterCount}
-                          </span>
-                        ) : null;
-                      })()}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent
-                    className={cn(
-                      "p-0 border shadow-lg bg-background z-[9999] rounded-lg flex flex-col",
-                      isMobile ? 'w-[75vw] max-w-[calc(100vw-2rem)]' : 'w-80'
-                    )}
-                    style={{ maxHeight: 'min(var(--radix-popper-available-height, 80dvh), 85dvh)' }}
-                    align={isMobile ? "center" : "end"}
-                    side="bottom"
-                    sideOffset={8}
-                    collisionPadding={8}
-                  >
-                    {/* Fixed Header */}
-                    <div className="flex-shrink-0 p-4 border-b border-border bg-background flex items-center justify-between">
-                      <h3 className="text-lg font-semibold">Filter</h3>
-                      {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
-                        <Button 
-                          variant="ghost" 
-                          size="sm"
-                          onClick={() => {
-                            setStatusFilter([]);
-                            setSortierung("alle");
-                            setStreetFilter("");
-                            setStreetInput("");
-                            setCityFilter("");
-                            setCityInput("");
-                            setPostalCodeFilter("");
-                            setPostalCodeInput("");
-                            setHouseNumberFilter("");
-                            setLastModifiedDate(undefined);
-                          }}
-                          className="h-8 text-xs"
-                        >
-                          <X className="w-3 h-3 mr-1" />
-                          Zurücksetzen
-                        </Button>
-                      )}
-                    </div>
-
-                    {/* Scrollable Content */}
-                    <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+                {/* Filter Icon - Mobile uses Sheet, Desktop uses Popover */}
+                {isMobile ? (
+                  <Sheet open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                    <SheetTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-10 w-10 relative">
+                        <Filter className="h-4 w-4" />
+                        {(() => {
+                          const activeFilterCount = 
+                            statusFilter.length + 
+                            (streetFilter ? 1 : 0) + 
+                            (cityFilter ? 1 : 0) + 
+                            (postalCodeFilter ? 1 : 0) + 
+                            (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                            (sortierung !== "alle" ? 1 : 0) +
+                            (lastModifiedDate ? 1 : 0);
+                          return activeFilterCount > 0 ? (
+                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
+                              {activeFilterCount}
+                            </span>
+                          ) : null;
+                        })()}
+                      </Button>
+                    </SheetTrigger>
+                    <SheetContent side="bottom" className="h-[85vh] flex flex-col p-0">
+                      <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
+                        <div className="flex items-center justify-between">
+                          <SheetTitle>Filter</SheetTitle>
+                          {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                            <Button 
+                              variant="ghost" 
+                              size="sm"
+                              onClick={() => {
+                                setStatusFilter([]);
+                                setSortierung("alle");
+                                setStreetFilter("");
+                                setStreetInput("");
+                                setCityFilter("");
+                                setCityInput("");
+                                setPostalCodeFilter("");
+                                setPostalCodeInput("");
+                                setHouseNumberFilter("");
+                                setLastModifiedDate(undefined);
+                              }}
+                              className="h-8 text-xs"
+                            >
+                              <X className="w-3 h-3 mr-1" />
+                              Zurücksetzen
+                            </Button>
+                          )}
+                        </div>
+                      </SheetHeader>
+                      <div className="flex-1 overflow-y-auto p-4 space-y-4">
                         {/* Status Filter */}
                         <div className="space-y-1">
                           <label className="text-sm font-medium">Status</label>
@@ -947,8 +937,336 @@ export const LauflistenContent = () => {
                           </div>
                         </div>
                       </div>
-                  </PopoverContent>
-                </Popover>
+                    </SheetContent>
+                  </Sheet>
+                ) : (
+                  <Popover open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" size="icon" className="h-10 w-10 relative">
+                        <Filter className="h-4 w-4" />
+                        {(() => {
+                          const activeFilterCount = 
+                            statusFilter.length + 
+                            (streetFilter ? 1 : 0) + 
+                            (cityFilter ? 1 : 0) + 
+                            (postalCodeFilter ? 1 : 0) + 
+                            (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                            (sortierung !== "alle" ? 1 : 0) +
+                            (lastModifiedDate ? 1 : 0);
+                          return activeFilterCount > 0 ? (
+                            <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
+                              {activeFilterCount}
+                            </span>
+                          ) : null;
+                        })()}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent
+                      className="p-0 border shadow-lg bg-background z-[9999] rounded-lg flex flex-col w-80"
+                      style={{ maxHeight: 'min(var(--radix-popper-available-height, 80dvh), 85dvh)' }}
+                      align="end"
+                      side="bottom"
+                      sideOffset={8}
+                      collisionPadding={8}
+                    >
+                      {/* Fixed Header */}
+                      <div className="flex-shrink-0 p-4 border-b border-border bg-background flex items-center justify-between">
+                        <h3 className="text-lg font-semibold">Filter</h3>
+                        {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                          <Button 
+                            variant="ghost" 
+                            size="sm"
+                            onClick={() => {
+                              setStatusFilter([]);
+                              setSortierung("alle");
+                              setStreetFilter("");
+                              setStreetInput("");
+                              setCityFilter("");
+                              setCityInput("");
+                              setPostalCodeFilter("");
+                              setPostalCodeInput("");
+                              setHouseNumberFilter("");
+                              setLastModifiedDate(undefined);
+                            }}
+                            className="h-8 text-xs"
+                          >
+                            <X className="w-3 h-3 mr-1" />
+                            Zurücksetzen
+                          </Button>
+                        )}
+                      </div>
+
+                      {/* Scrollable Content */}
+                      <div className="flex-1 overflow-y-auto p-4 space-y-3" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+                          {/* Status Filter */}
+                          <div className="space-y-1">
+                            <label className="text-sm font-medium">Status</label>
+                            <div className="relative">
+                              <Popover open={statusOpen} onOpenChange={setStatusOpen}>
+                                <PopoverTrigger asChild>
+                                  <Button
+                                    variant="outline"
+                                    role="combobox"
+                                    className="w-full justify-start h-9 bg-background font-normal pr-16"
+                                  >
+                                    {statusFilter.length > 0
+                                      ? `${statusFilter.length} ausgewählt`
+                                      : "Status wählen"}
+                                  </Button>
+                                </PopoverTrigger>
+                                <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1 pointer-events-none">
+                                  {statusFilter.length > 0 && (
+                                    <button
+                                      onClick={(e) => {
+                                        e.preventDefault();
+                                        e.stopPropagation();
+                                        setStatusFilter([]);
+                                      }}
+                                      className="text-muted-foreground hover:text-foreground pointer-events-auto"
+                                    >
+                                      <X className="w-4 h-4" />
+                                    </button>
+                                  )}
+                                  <ChevronDown className="h-4 w-4 opacity-50" />
+                                </div>
+                                <PopoverContent 
+                                  className="p-0 bg-background z-[10001]" 
+                                  align="start" 
+                                  side="bottom" 
+                                  avoidCollisions={false}
+                                  collisionPadding={8}
+                                  style={{ width: 'var(--radix-popover-trigger-width)' }}
+                                >
+                                  <Command className="bg-background">
+                                    <CommandList style={{ maxHeight: 'min(var(--radix-popper-available-height, 40vh), 40vh)', overscrollBehavior: 'none' }} className="overflow-y-auto">
+                                      <CommandGroup>
+                                        {statusOptions.map((option) => (
+                                          <CommandItem
+                                            key={option.value}
+                                            onSelect={() => {
+                                              setStatusFilter(
+                                                statusFilter.includes(option.value)
+                                                  ? statusFilter.filter((s) => s !== option.value)
+                                                  : [...statusFilter, option.value]
+                                              );
+                                            }}
+                                            className="cursor-pointer"
+                                          >
+                                            <div className="flex items-center gap-2 w-full">
+                                              <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
+                                                statusFilter.includes(option.value)
+                                                  ? 'border-green-500 bg-white'
+                                                  : 'border-input bg-white'
+                                              } flex items-center justify-center`}>
+                                                {statusFilter.includes(option.value) && (
+                                                  <Check className="w-3 h-3 text-green-500 stroke-[3]" />
+                                                )}
+                                              </div>
+                                              <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                                {option.label}
+                                              </div>
+                                            </div>
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
+                                </PopoverContent>
+                              </Popover>
+                            </div>
+                          </div>
+
+                          {/* Sortierung Filter */}
+                          <div className="space-y-1">
+                            <label className="text-sm font-medium">Sortierung</label>
+                            <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
+                              <SelectTrigger className="bg-background h-9">
+                                <SelectValue placeholder="Sortierung wählen" />
+                              </SelectTrigger>
+                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                <SelectItem value="alle">Alle</SelectItem>
+                                <SelectItem value="gerade">Gerade</SelectItem>
+                                <SelectItem value="ungerade">Ungerade</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {/* Street Filter */}
+                          <div className="space-y-1 relative">
+                            <label className="text-sm font-medium">Straße</label>
+                            <div className="relative">
+                              <Input
+                                placeholder="Straße eingeben"
+                                value={streetInput}
+                                onChange={(e) => {
+                                  setStreetInput(e.target.value);
+                                  setShowStreetSuggestions(true);
+                                }}
+                                onFocus={() => streetInput && setShowStreetSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
+                                autoFocus={false}
+                                className="bg-background h-9 pr-8"
+                              />
+                              {streetInput && (
+                                <button
+                                  onClick={() => {
+                                    setStreetInput("");
+                                    setStreetFilter("");
+                                    setHouseNumberFilter("");
+                                  }}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              {showStreetSuggestions && streetSuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                  {streetSuggestions.map((street) => (
+                                    <div
+                                      key={street}
+                                      className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                      onClick={() => {
+                                        setStreetInput(street);
+                                        setStreetFilter(street);
+                                        setShowStreetSuggestions(false);
+                                        setHouseNumberFilter(""); // Reset house number
+                                      }}
+                                    >
+                                      {street}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Hausnummer Filter */}
+                          <div className="space-y-1">
+                            <label className="text-sm font-medium">Hausnummer</label>
+                            <div className="relative">
+                              <Select 
+                                value={houseNumberFilter} 
+                                onValueChange={setHouseNumberFilter}
+                                disabled={!streetFilter}
+                              >
+                                <SelectTrigger className="bg-background h-9">
+                                  <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
+                                </SelectTrigger>
+                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                  <SelectItem value="alle">Alle</SelectItem>
+                                  {availableHouseNumbers.map((num) => (
+                                    <SelectItem key={num} value={num}>
+                                      {num}
+                                    </SelectItem>
+                                  ))}
+                                </SelectContent>
+                              </Select>
+                              {houseNumberFilter && houseNumberFilter !== "alle" && (
+                                <button
+                                  onClick={() => setHouseNumberFilter("")}
+                                  className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* PLZ Filter */}
+                          <div className="space-y-1 relative">
+                            <label className="text-sm font-medium">PLZ</label>
+                            <div className="relative">
+                              <Input
+                                placeholder="PLZ eingeben"
+                                value={postalCodeInput}
+                                onChange={(e) => {
+                                  setPostalCodeInput(e.target.value);
+                                  setShowPostalCodeSuggestions(true);
+                                }}
+                                onFocus={() => postalCodeInput && setShowPostalCodeSuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
+                                className="bg-background h-9 pr-8"
+                              />
+                              {postalCodeInput && (
+                                <button
+                                  onClick={() => {
+                                    setPostalCodeInput("");
+                                    setPostalCodeFilter("");
+                                  }}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              {showPostalCodeSuggestions && postalCodeSuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                  {postalCodeSuggestions.map((plz) => (
+                                    <div
+                                      key={plz}
+                                      className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                      onClick={() => {
+                                        setPostalCodeInput(plz);
+                                        setPostalCodeFilter(plz);
+                                        setShowPostalCodeSuggestions(false);
+                                      }}
+                                    >
+                                      {plz}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Ort Filter */}
+                          <div className="space-y-1 relative">
+                            <label className="text-sm font-medium">Ort</label>
+                            <div className="relative">
+                              <Input
+                                placeholder="Ort eingeben"
+                                value={cityInput}
+                                onChange={(e) => {
+                                  setCityInput(e.target.value);
+                                  setShowCitySuggestions(true);
+                                }}
+                                onFocus={() => cityInput && setShowCitySuggestions(true)}
+                                onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
+                                className="bg-background h-9 pr-8"
+                              />
+                              {cityInput && (
+                                <button
+                                  onClick={() => {
+                                    setCityInput("");
+                                    setCityFilter("");
+                                  }}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                                >
+                                  <X className="w-4 h-4" />
+                                </button>
+                              )}
+                              {showCitySuggestions && citySuggestions.length > 0 && (
+                                <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-[10001] max-h-[150px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                  {citySuggestions.map((city) => (
+                                    <div
+                                      key={city}
+                                      className="p-2 hover:bg-muted cursor-pointer text-sm"
+                                      onClick={() => {
+                                        setCityInput(city);
+                                        setCityFilter(city);
+                                        setShowCitySuggestions(false);
+                                      }}
+                                    >
+                                      {city}
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                    </PopoverContent>
+                  </Popover>
+                )}
               </div>
             </div>
           </div>
