@@ -26,7 +26,7 @@ const SwipeAddressCard = ({ address, children, onSwipeLeft, onSwipeRight }: Prop
       swipeRequirementType="position"
       swipeThreshold={120}
     >
-      <div className="relative w-full h-full select-none">
+      <div className="relative h-full mr-20 select-none">
         {/* Badge-Hinweise für Swipe-Richtung */}
         <div className="swipe-indicator-left pointer-events-none absolute left-3 top-3 z-10 rounded-md px-3 py-1.5 text-sm font-semibold bg-green-500/90 text-white opacity-0 transition-opacity">
           Potenzial

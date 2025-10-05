@@ -74,7 +74,7 @@ const SwipeDeck = ({
         ) : (
           deck.slice(0, initialCount).map((address, i) => {
             const offsetY = i * 70;
-            const offsetX = i * 15;
+            const offsetX = i * 24; // mehr Horizontalversatz für sichtbare Trennung rechts
             const scale = 1 - i * 0.06;
             const opacity = 1 - i * 0.15;
             const isTop = i === 0;
