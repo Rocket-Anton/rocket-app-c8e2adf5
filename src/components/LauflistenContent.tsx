@@ -703,64 +703,48 @@ export const LauflistenContent = () => {
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
                               <PopoverContent 
-                                className="p-0 bg-background z-[10001] pointer-events-auto" 
+                                className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
                                 align="start" 
                                 side="bottom" 
                                 sideOffset={8}
                                 avoidCollisions={false}
                                 collisionPadding={8}
                                 style={{ width: 'var(--radix-popover-trigger-width)' }}
-                                onWheelCapture={(e) => e.stopPropagation()}
-                                onTouchStart={(e) => e.stopPropagation()}
-                                onTouchMoveCapture={(e) => e.stopPropagation()}
                               >
-                                {/* Eigene Scroll-Area für die Liste */}
-                                <div
-                                  className="max-h-[min(60vh,var(--radix-popper-available-height,60vh))] overflow-y-auto overscroll-contain touch-pan-y"
-                                  onWheelCapture={(e) => e.stopPropagation()}
-                                  onWheel={(e) => e.stopPropagation()}
-                                  onScroll={(e) => e.stopPropagation()}
-                                  onTouchStart={(e) => e.stopPropagation()}
-                                  onTouchMoveCapture={(e) => e.stopPropagation()}
-                                  onTouchMove={(e) => e.stopPropagation()}
-                                  onTouchEnd={(e) => e.stopPropagation()}
-                                  style={{ WebkitOverflowScrolling: 'touch' }}
-                                >
-                                  <Command className="bg-background">
-                                    <CommandList className="overflow-visible">
-                                      <CommandGroup>
-                                        {statusOptions.map((option) => (
-                                          <CommandItem
-                                            key={option.value}
-                                            onSelect={() => {
-                                              setStatusFilter(
-                                                statusFilter.includes(option.value)
-                                                  ? statusFilter.filter((s) => s !== option.value)
-                                                  : [...statusFilter, option.value]
-                                              );
-                                            }}
-                                            className="cursor-pointer"
-                                          >
-                                            <div className="flex items-center gap-2 w-full">
-                                              <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
-                                                statusFilter.includes(option.value)
-                                                  ? 'border-green-500 bg-white'
-                                                  : 'border-input bg-white'
-                                              } flex items-center justify-center`}>
-                                                {statusFilter.includes(option.value) && (
-                                                  <Check className="w-3 h-3 text-green-500 stroke-[3]" />
-                                                )}
-                                              </div>
-                                              <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                                {option.label}
-                                              </div>
+                                <Command className="bg-background">
+                                  <CommandList className="overflow-visible">
+                                    <CommandGroup>
+                                      {statusOptions.map((option) => (
+                                        <CommandItem
+                                          key={option.value}
+                                          onSelect={() => {
+                                            setStatusFilter(
+                                              statusFilter.includes(option.value)
+                                                ? statusFilter.filter((s) => s !== option.value)
+                                                : [...statusFilter, option.value]
+                                            );
+                                          }}
+                                          className="cursor-pointer"
+                                        >
+                                          <div className="flex items-center gap-2 w-full">
+                                            <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
+                                              statusFilter.includes(option.value)
+                                                ? 'border-green-500 bg-white'
+                                                : 'border-input bg-white'
+                                            } flex items-center justify-center`}>
+                                              {statusFilter.includes(option.value) && (
+                                                <Check className="w-3 h-3 text-green-500 stroke-[3]" />
+                                              )}
                                             </div>
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </div>
+                                            <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                              {option.label}
+                                            </div>
+                                          </div>
+                                        </CommandItem>
+                                      ))}
+                                    </CommandGroup>
+                                  </CommandList>
+                                </Command>
                               </PopoverContent>
                             </Popover>
                           </div>
@@ -1047,64 +1031,48 @@ export const LauflistenContent = () => {
                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                 </div>
                                 <PopoverContent 
-                                  className="p-0 bg-background z-[10001] pointer-events-auto" 
+                                  className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
                                   avoidCollisions={false}
                                   collisionPadding={8}
                                   style={{ width: 'var(--radix-popover-trigger-width)' }}
-                                  onWheelCapture={(e) => e.stopPropagation()}
-                                  onTouchStart={(e) => e.stopPropagation()}
-                                  onTouchMoveCapture={(e) => e.stopPropagation()}
                                 >
-                                  {/* Eigene Scroll-Area für die Liste */}
-                                  <div
-                                    className="max-h-[min(60vh,var(--radix-popper-available-height,60vh))] overflow-y-auto overscroll-contain touch-pan-y"
-                                    onWheelCapture={(e) => e.stopPropagation()}
-                                    onWheel={(e) => e.stopPropagation()}
-                                    onScroll={(e) => e.stopPropagation()}
-                                    onTouchStart={(e) => e.stopPropagation()}
-                                    onTouchMoveCapture={(e) => e.stopPropagation()}
-                                    onTouchMove={(e) => e.stopPropagation()}
-                                    onTouchEnd={(e) => e.stopPropagation()}
-                                    style={{ WebkitOverflowScrolling: 'touch' }}
-                                  >
-                                    <Command className="bg-background">
-                                      <CommandList className="overflow-visible">
-                                        <CommandGroup>
-                                          {statusOptions.map((option) => (
-                                            <CommandItem
-                                              key={option.value}
-                                              onSelect={() => {
-                                                setStatusFilter(
-                                                  statusFilter.includes(option.value)
-                                                    ? statusFilter.filter((s) => s !== option.value)
-                                                    : [...statusFilter, option.value]
-                                                );
-                                              }}
-                                              className="cursor-pointer"
-                                            >
-                                              <div className="flex items-center gap-2 w-full">
-                                                <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
-                                                  statusFilter.includes(option.value)
-                                                    ? 'border-green-500 bg-white'
-                                                    : 'border-input bg-white'
-                                                } flex items-center justify-center`}>
-                                                  {statusFilter.includes(option.value) && (
-                                                    <Check className="w-3 h-3 text-green-500 stroke-[3]" />
-                                                  )}
-                                                </div>
-                                                <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                                  {option.label}
-                                                </div>
+                                  <Command className="bg-background">
+                                    <CommandList className="overflow-visible">
+                                      <CommandGroup>
+                                        {statusOptions.map((option) => (
+                                          <CommandItem
+                                            key={option.value}
+                                            onSelect={() => {
+                                              setStatusFilter(
+                                                statusFilter.includes(option.value)
+                                                  ? statusFilter.filter((s) => s !== option.value)
+                                                  : [...statusFilter, option.value]
+                                              );
+                                            }}
+                                            className="cursor-pointer"
+                                          >
+                                            <div className="flex items-center gap-2 w-full">
+                                              <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
+                                                statusFilter.includes(option.value)
+                                                  ? 'border-green-500 bg-white'
+                                                  : 'border-input bg-white'
+                                              } flex items-center justify-center`}>
+                                                {statusFilter.includes(option.value) && (
+                                                  <Check className="w-3 h-3 text-green-500 stroke-[3]" />
+                                                )}
                                               </div>
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
-                                  </div>
+                                              <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                                {option.label}
+                                              </div>
+                                            </div>
+                                          </CommandItem>
+                                        ))}
+                                      </CommandGroup>
+                                    </CommandList>
+                                  </Command>
                                 </PopoverContent>
                               </Popover>
                             </div>
