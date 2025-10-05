@@ -45,12 +45,9 @@ export default function HorizontalModalPager<T extends Item>({
       ref={emblaRef}
       className="h-full overflow-hidden touch-pan-y"
       style={{
-        position: 'relative',
-        left: '50%',
-        right: '50%',
-        marginLeft: 'calc(-50vw + 50%)',
-        marginRight: 'calc(-50vw + 50%)',
         width: '100vw',
+        marginLeft: 'calc(50% - 50vw)',
+        marginRight: 'calc(50% - 50vw)'
       }}
     >
       <div className="flex h-full will-change-transform">
