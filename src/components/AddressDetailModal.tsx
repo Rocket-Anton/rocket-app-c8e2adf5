@@ -140,13 +140,13 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
             <div className={wohneinheiten === 1 ? '' : 'space-y-4'}>
               {displayUnits.length > 0 ? (
                 displayUnits.map((unit) => (
-                  <div key={unit.id} className="space-y-3">
+                  <div key={unit.id} className="space-y-4">
                     {/* Gray Container for Fields */}
                     <div className="bg-muted/70 rounded-lg p-4 space-y-3">
                       {wohneinheiten > 1 ? (
                         <div className="flex gap-3">
                           <div className="flex-1">
-                            <label className="text-xs text-muted-foreground mb-1 block">Stockwerk</label>
+                            <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
                             <Select defaultValue={unit.floor}>
                               <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                                 <SelectValue placeholder="Stockwerk" />
@@ -161,7 +161,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </div>
 
                           <div className="flex-1">
-                            <label className="text-xs text-muted-foreground mb-1 block">Lage</label>
+                            <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
                             <Select defaultValue={unit.position}>
                               <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                                 <SelectValue placeholder="Lage" />
@@ -177,7 +177,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       ) : null}
 
                       <div>
-                        <label className="text-xs text-muted-foreground mb-1 block">Status</label>
+                        <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
                         <div className="flex items-center gap-3">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
