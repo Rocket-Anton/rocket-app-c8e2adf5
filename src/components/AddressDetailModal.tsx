@@ -4,7 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
-import ModalSwipeDeck from "./modal/ModalSwipeDeck";
+import HorizontalModalPager from "./modal/HorizontalModalPager";
 import {
   Dialog,
   DialogContent,
@@ -941,19 +941,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogContent 
             hideClose 
-            className="p-0 overflow-visible rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
+            className="p-0 overflow-hidden rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
           >
-            <ModalSwipeDeck
-              addresses={allAddresses}
+            <HorizontalModalPager
+              items={allAddresses}
               startIndex={initialIndex}
-              renderCard={renderCompleteCard}
-              onSwiped={(addr, dir) => {
-                console.log(`Swiped ${dir}:`, addr);
-                // Optional: Hier Status setzen basierend auf Swipe-Richtung
-                // if (dir === 'right') { /* Potenzial */ }
-                // if (dir === 'left') { /* Kein Interesse */ }
+              render={renderCompleteCard}
+              onIndexChange={(idx) => {
+                setCurrentIndex(idx);
               }}
-              onClose={() => handleDialogChange(false)}
             />
           </DialogContent>
         </Dialog>
