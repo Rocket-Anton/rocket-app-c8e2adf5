@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -156,6 +156,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   ]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const currentAddressCoordsRef = useRef<[number, number]>([13.404954 + (Math.random() - 0.5) * 0.05, 52.520008 + (Math.random() - 0.5) * 0.05]);
+
+  // Memoize current address for map to prevent unnecessary re-renders
+  const mapCurrentAddress = useMemo(() => ({
+    street: currentAddress.street,
+    houseNumber: currentAddress.houseNumber,
+    postalCode: currentAddress.postalCode,
+    city: currentAddress.city,
+    coordinates: currentAddressCoordsRef.current
+  }), [currentAddress.street, currentAddress.houseNumber, currentAddress.postalCode, currentAddress.city]);
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -1153,13 +1163,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <AppointmentMap 
                   appointments={appointments}
                   selectedDate={showAllAppointments ? undefined : mapDisplayDate}
-                  currentAddress={{
-                    street: currentAddress.street,
-                    houseNumber: currentAddress.houseNumber,
-                    postalCode: currentAddress.postalCode,
-                    city: currentAddress.city,
-                    coordinates: [13.404954 + (Math.random() - 0.5) * 0.05, 52.520008 + (Math.random() - 0.5) * 0.05]
-                  }}
+                  currentAddress={mapCurrentAddress}
                 />
               </div>
               
