@@ -41,13 +41,19 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress, sel
   useEffect(() => {
     if (!mapContainer.current) return;
 
-    // Filter appointments for selected date
-    const filteredAppointments = selectedDate
-      ? appointments.filter((apt) => {
-          const selDate = selectedDate.toLocaleDateString("de-DE");
-          return apt.date === selDate;
-        })
-      : appointments;
+    // Filter appointments based on selection
+    let filteredAppointments = appointments;
+    
+    // If an appointment is selected, only show that one
+    if (selectedAppointmentId) {
+      filteredAppointments = appointments.filter(apt => apt.id === selectedAppointmentId);
+    } else if (selectedDate) {
+      // Otherwise filter by date
+      filteredAppointments = appointments.filter((apt) => {
+        const selDate = selectedDate.toLocaleDateString("de-DE");
+        return apt.date === selDate;
+      });
+    }
 
     // Save current view if map exists
     if (mapInstance.current) {
