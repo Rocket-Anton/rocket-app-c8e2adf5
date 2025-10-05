@@ -144,9 +144,9 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                     {/* Gray Container for Fields */}
                     <div className="bg-muted/70 rounded-lg p-4 space-y-3">
                       {wohneinheiten > 1 ? (
-                        <>
+                        <div className="flex gap-3">
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
+                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,7 +158,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </Select>
 
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
+                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -167,7 +167,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                               <SelectItem value="Mitte">Mitte</SelectItem>
                             </SelectContent>
                           </Select>
-                        </>
+                        </div>
                       ) : null}
 
                       <div className="flex items-center gap-3">
