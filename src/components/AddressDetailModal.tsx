@@ -142,11 +142,11 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                 displayUnits.map((unit) => (
                   <div key={unit.id} className="space-y-3">
                     {/* Gray Container for Fields */}
-                    <div className="bg-muted/50 rounded-xl p-4 space-y-3">
+                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
                       {wohneinheiten > 1 ? (
                         <>
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-lg shadow-none bg-background">
+                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,7 +158,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </Select>
 
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-lg shadow-none bg-background">
+                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -175,7 +175,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
                         >
-                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-lg shadow-none bg-background">
+                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
@@ -233,7 +233,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </div>
 
                       {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl">
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
                           <RotateCcw className="w-4 h-4 mr-2" />
                           Status updaten
                         </Button>
@@ -246,7 +246,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                     {/* Collapsible Notizen Section */}
                     <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-xl p-4 hover:bg-muted/70 transition-colors">
+                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-lg p-4 hover:bg-muted/70 transition-colors">
                         <span className="font-medium text-sm">Notizen</span>
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
@@ -271,7 +271,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                     {/* Collapsible Termine Section */}
                     <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
-                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-xl p-4 hover:bg-muted/70 transition-colors">
+                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-lg p-4 hover:bg-muted/70 transition-colors">
                         <span className="font-medium text-sm">Termine</span>
                         <div className="flex items-center gap-2">
                           <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
@@ -288,13 +288,13 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                     </Collapsible>
 
                     {/* Auftrag Button */}
-                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-xl">
+                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
                       <FileText className="w-4 h-4 mr-2" />
                       Auftrag
                     </Button>
 
                     {/* Mehr Button */}
-                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm rounded-xl">
+                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm rounded-md">
                       <Info className="w-4 h-4 mr-2" />
                       Mehr
                     </Button>
