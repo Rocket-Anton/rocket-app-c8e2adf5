@@ -58,6 +58,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
+  const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   
@@ -91,6 +92,20 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       setUnitStatuses(
         displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
       );
+      // Initialize status histories for each unit
+      setStatusHistories(
+        displayUnits.reduce((acc, unit) => ({ 
+          ...acc, 
+          [unit.id]: [
+            {
+              id: 1,
+              status: statusOptions.find(s => s.value === (unit.status || "offen"))?.label || "Offen",
+              changedBy: "System",
+              changedAt: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+            }
+          ]
+        }), {})
+      );
     }
   }, [open, currentAddress.id]);
 
@@ -111,26 +126,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
   };
 
-  const statusHistory = [
-    {
-      id: 1,
-      status: "Potenzial",
-      changedBy: "Abdullah Kater",
-      changedAt: "16.07.25 18:41"
-    },
-    {
-      id: 2,
-      status: "Nicht angetroffen",
-      changedBy: "Max Mustermann",
-      changedAt: "15.07.25 14:30"
-    },
-    {
-      id: 3,
-      status: "Offen",
-      changedBy: "System",
-      changedAt: "10.07.25 09:00"
-    }
-  ];
+  const handleStatusChange = (unitId: number, newStatus: string) => {
+    // Update the status
+    setUnitStatuses(prev => ({ ...prev, [unitId]: newStatus }));
+    
+    // Add to history
+    const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [unitId]: [
+        {
+          id: Date.now(),
+          status: statusLabel,
+          changedBy: "Abdullah Kater", // This should come from the current user
+          changedAt: timestamp
+        },
+        ...(prev[unitId] || [])
+      ]
+    }));
+  };
 
   const notes = [
     {
@@ -208,7 +224,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <div className="flex items-center gap-3 min-w-0">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
-                          onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
+                          onValueChange={(value) => handleStatusChange(unit.id, value)}
                         >
                           <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                             <SelectValue>
@@ -253,7 +269,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <div className="p-3">
                                 <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
                                 <div className="space-y-2">
-                                  {statusHistory.map((history) => {
+                                  {(statusHistories[unit.id] || []).map((history) => {
                                     const statusOption = statusOptions.find(s => s.label === history.status);
                                     return (
                                       <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
