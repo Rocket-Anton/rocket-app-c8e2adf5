@@ -1162,12 +1162,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                 </div>
               </div>
-              
-              <div className="pt-4 border-t">
-                <p className="text-xs text-muted-foreground">
-                  💡 Tipp: Plane deine Termine so, dass du genug Zeit für die Fahrt zwischen den Adressen hast.
-                </p>
-              </div>
             </div>
           </div>
 
