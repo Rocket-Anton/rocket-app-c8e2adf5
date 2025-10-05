@@ -269,16 +269,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPopoverKey(0);
   }, [open, currentIndex, allAddresses, initializeAddressStates]);
   
-  // Reset unit statuses when modal opens (initial load)
-  useEffect(() => {
-    if (open) {
-      const initialTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-      
-      setUnitStatuses({});
-      setStatusHistories({});
-      setLastUpdated({});
-    }
-  }, [open]);
 
   // Close all status popovers when scrolling in the main container
   useEffect(() => {
