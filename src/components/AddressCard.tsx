@@ -25,12 +25,26 @@ interface AddressCardProps {
 
 export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: AddressCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
+  const [justClosed, setJustClosed] = useState(false);
   const isMobile = useIsMobile();
+
+  const handleModalClose = (open: boolean) => {
+    setModalOpen(open);
+    if (!open) {
+      // Trigger highlight animation when modal closes
+      setJustClosed(true);
+      setTimeout(() => setJustClosed(false), 1500);
+    }
+  };
 
   return (
     <>
       <Card 
-        className="p-4 hover:shadow-md transition-shadow cursor-pointer" 
+        className={`p-4 hover:shadow-md transition-all cursor-pointer ${
+          justClosed 
+            ? 'bg-blue-100 dark:bg-blue-900/30 ring-2 ring-blue-500 scale-[1.02] shadow-lg' 
+            : ''
+        }`}
         onClick={() => setModalOpen(true)}
       >
         <div className="flex items-center justify-between gap-2">
@@ -80,7 +94,7 @@ export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: Ad
         allAddresses={allAddresses}
         initialIndex={currentIndex}
         open={modalOpen}
-        onOpenChange={setModalOpen}
+        onOpenChange={handleModalClose}
       />
     </>
   );
