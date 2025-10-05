@@ -703,7 +703,7 @@ export const LauflistenContent = () => {
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
                               <PopoverContent 
-                                className="p-0 bg-background z-[10001]" 
+                                className="p-0 bg-background z-[10001] pointer-events-auto" 
                                 align="start" 
                                 side="bottom" 
                                 sideOffset={8}
@@ -713,7 +713,7 @@ export const LauflistenContent = () => {
                               >
                                 {/* Eigene Scroll-Area für die Liste */}
                                 <div
-                                  className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-y-contain touch-pan-y"
+                                  className="max-h-[min(60vh,var(--radix-popper-available-height,60vh))] overflow-y-auto overscroll-contain touch-pan-y"
                                   onWheelCapture={(e) => e.stopPropagation()}
                                   onWheel={(e) => e.stopPropagation()}
                                   onScroll={(e) => e.stopPropagation()}
@@ -1044,7 +1044,7 @@ export const LauflistenContent = () => {
                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                 </div>
                                 <PopoverContent 
-                                  className="p-0 bg-background z-[10001]" 
+                                  className="p-0 bg-background z-[10001] pointer-events-auto" 
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
@@ -1054,7 +1054,7 @@ export const LauflistenContent = () => {
                                 >
                                   {/* Eigene Scroll-Area für die Liste */}
                                   <div
-                                    className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-y-contain touch-pan-y"
+                                    className="max-h-[min(60vh,var(--radix-popper-available-height,60vh))] overflow-y-auto overscroll-contain touch-pan-y"
                                     onWheelCapture={(e) => e.stopPropagation()}
                                     onWheel={(e) => e.stopPropagation()}
                                     onScroll={(e) => e.stopPropagation()}
