@@ -1,4 +1,5 @@
 import TinderCard from 'react-tinder-card';
+import '@react-spring/web';
 import { ReactNode, useMemo } from 'react';
 
 type Props = {
