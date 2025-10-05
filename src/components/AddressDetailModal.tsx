@@ -1065,6 +1065,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <AppointmentMap 
                   appointments={appointments}
                   selectedDate={appointmentDate}
+                  currentAddress={{
+                    street: currentAddress.street,
+                    houseNumber: currentAddress.houseNumber,
+                    postalCode: currentAddress.postalCode,
+                    city: currentAddress.city,
+                    coordinates: [13.404954 + (Math.random() - 0.5) * 0.05, 52.520008 + (Math.random() - 0.5) * 0.05]
+                  }}
                 />
               )}
               

@@ -22,9 +22,16 @@ interface Appointment {
 interface AppointmentMapProps {
   appointments: Appointment[];
   selectedDate?: Date;
+  currentAddress?: {
+    street: string;
+    houseNumber: string;
+    postalCode: string;
+    city: string;
+    coordinates: [number, number];
+  };
 }
 
-export const AppointmentMap = ({ appointments, selectedDate }: AppointmentMapProps) => {
+export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: AppointmentMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
 
@@ -59,8 +66,49 @@ export const AppointmentMap = ({ appointments, selectedDate }: AppointmentMapPro
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    // Add green marker for current address
+    if (currentAddress) {
+      const greenIcon = L.divIcon({
+        className: "current-address-marker",
+        html: `
+          <div style="
+            background: #22c55e;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
+            white-space: nowrap;
+            border: 3px solid white;
+          ">
+            ${currentAddress.street} ${currentAddress.houseNumber}
+          </div>
+        `,
+        iconSize: [120, 36],
+        iconAnchor: [60, 18],
+      });
+
+      const currentMarker = L.marker([currentAddress.coordinates[1], currentAddress.coordinates[0]], { 
+        icon: greenIcon 
+      }).addTo(map);
+
+      currentMarker.bindPopup(`
+        <div style="padding: 4px; font-size: 12px;">
+          <div style="font-weight: 600; margin-bottom: 4px; color: #22c55e;">Aktuelle Adresse</div>
+          <div style="color: #666;">${currentAddress.street} ${currentAddress.houseNumber}</div>
+          <div style="color: #666;">${currentAddress.postalCode} ${currentAddress.city}</div>
+        </div>
+      `);
+    }
+
     // Add markers for each appointment
     const bounds = L.latLngBounds([]);
+    
+    // Add current address to bounds if it exists
+    if (currentAddress) {
+      bounds.extend([currentAddress.coordinates[1], currentAddress.coordinates[0]]);
+    }
     
     filteredAppointments.forEach((apt) => {
       const customIcon = L.divIcon({
@@ -110,7 +158,7 @@ export const AppointmentMap = ({ appointments, selectedDate }: AppointmentMapPro
         mapInstance.current = null;
       }
     };
-  }, [appointments, selectedDate]);
+  }, [appointments, selectedDate, currentAddress]);
 
   // Filter appointments for selected date
   const filteredAppointments = selectedDate
