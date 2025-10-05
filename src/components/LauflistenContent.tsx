@@ -644,7 +644,7 @@ export const LauflistenContent = () => {
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[85vh] flex flex-col p-0">
                       <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
-                        <div className="flex items-center justify-start gap-24">
+                        <div className="flex items-center justify-start gap-32">
                           <SheetTitle>Filter</SheetTitle>
                           {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
                             <Button 
@@ -664,7 +664,7 @@ export const LauflistenContent = () => {
                               }}
                               className="h-8 text-xs"
                             >
-                              <X className="w-3 h-3 mr-1" />
+                              <X className="w-3 h-3 mr-0.5" />
                               Zurücksetzen
                             </Button>
                           )}
