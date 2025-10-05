@@ -1092,7 +1092,7 @@ export const LauflistenContent = () => {
                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                 </div>
                                 <PopoverContent 
-                                  className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto" 
+                                  className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto overscroll-contain touch-pan-y" 
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
@@ -1100,6 +1100,12 @@ export const LauflistenContent = () => {
                                   avoidCollisions={false}
                                   collisionPadding={8}
                                   style={{ width: 'var(--radix-popover-trigger-width)', maxHeight: 'min(50vh, var(--radix-popper-available-height, 50vh))', WebkitOverflowScrolling: 'touch' }}
+                                  onWheelCapture={(e) => e.stopPropagation()}
+                                  onWheel={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                  onTouchMoveCapture={(e) => e.stopPropagation()}
+                                  onTouchMove={(e) => e.stopPropagation()}
+                                  onTouchEnd={(e) => e.stopPropagation()}
                                 >
                                   <Command className="bg-background">
                                     <CommandList className="overflow-visible">
