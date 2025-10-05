@@ -758,17 +758,18 @@ export const LauflistenContent = () => {
                                   align="start"
                                   sideOffset={8}
                                   className="p-0 bg-background z-[10001]"
+                                  style={{ width: 'var(--radix-popover-trigger-width)' }}
                                 >
                                   <div
-                                    className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-contain touch-pan-y"
-                                    onWheelCapture={(e) => e.stopPropagation()}
-                                    onWheel={(e) => e.stopPropagation()}
-                                    onScroll={(e) => e.stopPropagation()}
+                                    className="overflow-y-auto overscroll-contain"
                                     onTouchStart={(e) => e.stopPropagation()}
-                                    onTouchMoveCapture={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
                                     onTouchEnd={(e) => e.stopPropagation()}
-                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                    style={{ 
+                                      maxHeight: '300px',
+                                      WebkitOverflowScrolling: 'touch',
+                                      touchAction: 'pan-y'
+                                    }}
                                   >
                                     <Command className="bg-background">
                                       <CommandList className="overflow-visible">
