@@ -848,19 +848,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Möchtest du den gleichen Status erneut setzen?
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogAction 
-                onClick={confirmSameStatusUpdate}
-                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-              >
-                <Check className="w-4 h-4 mr-2" />
-                Bestätigen
-              </AlertDialogAction>
-              <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
-                <X className="w-4 h-4 mr-2" />
-                Abbrechen
-              </AlertDialogCancel>
-            </AlertDialogFooter>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmSameStatusUpdate}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+            >
+              Bestätigen
+            </AlertDialogAction>
+          </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
       </>
@@ -925,17 +923,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogAction 
-              onClick={confirmSameStatusUpdate}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Bestätigen
-            </AlertDialogAction>
-            <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
-              <X className="w-4 h-4 mr-2" />
+            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
               Abbrechen
             </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmSameStatusUpdate}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+            >
+              Bestätigen
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
@@ -953,21 +949,20 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           />
           <div className="flex gap-3">
             <Button
-              onClick={handleAddNote}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Bestätigen
-            </Button>
-            <Button
               variant="outline"
               onClick={() => {
                 setAddNoteDialogOpen(false);
                 setNewNoteText("");
               }}
-              className="flex-1"
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
             >
               Abbrechen
+            </Button>
+            <Button
+              onClick={handleAddNote}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+            >
+              Bestätigen
             </Button>
           </div>
         </DialogContent>
@@ -1167,15 +1162,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </div>
           </div>
 
-          <div className="flex gap-3 mt-4">
-            <Button
-              onClick={saveAppointment}
-              disabled={!appointmentDate || !appointmentTime}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white disabled:opacity-50"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Speichern
-            </Button>
+          <div className="flex gap-3 mt-6">
             <Button
               variant="outline"
               onClick={() => {
@@ -1188,9 +1175,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 setAppointmentNotes("");
                 setPendingAppointmentUnitId(null);
               }}
-              className="flex-1"
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
             >
               Abbrechen
+            </Button>
+            <Button
+              onClick={saveAppointment}
+              disabled={!appointmentDate || !appointmentTime}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50"
+            >
+              Bestätigen
             </Button>
           </div>
         </DialogContent>
@@ -1205,17 +1199,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogAction 
-              onClick={confirmDeleteNote}
-              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
-            >
-              <Check className="w-4 h-4 mr-2" />
-              Bestätigen
-            </AlertDialogAction>
-            <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
-              <X className="w-4 h-4 mr-2" />
+            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
               Abbrechen
             </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmDeleteNote}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+            >
+              Bestätigen
+            </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
