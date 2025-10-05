@@ -17,7 +17,7 @@ export default function HorizontalModalPager<T extends Item>({
 }: Props<T>) {
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
-    align: 'start',
+    align: 'center',
     containScroll: false,
     dragFree: false,
     skipSnaps: false,
