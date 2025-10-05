@@ -214,7 +214,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-64 p-0 max-h-[400px] overflow-y-auto" side="bottom" align="end" avoidCollisions={true}>
+                          <PopoverContent className="w-64 p-0 max-h-[400px] overflow-y-auto" side="bottom" align="end" avoidCollisions={false} sideOffset={8}>
                             <div className="p-3">
                               <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
                               <div className="space-y-2">
