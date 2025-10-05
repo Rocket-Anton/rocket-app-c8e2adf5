@@ -187,19 +187,6 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
     : appointments;
 
   return (
-    <div className="space-y-2">
-      <div className="text-sm font-medium">
-        {selectedDate
-          ? `Termine am ${selectedDate.toLocaleDateString("de-DE")}`
-          : "Alle Termine"}
-        {filteredAppointments.length > 0 && (
-          <span className="ml-2 text-muted-foreground">({filteredAppointments.length})</span>
-        )}
-      </div>
-      <div
-        ref={mapContainer}
-        className="w-full h-[300px] rounded-lg border border-border overflow-hidden"
-      />
-    </div>
+    <div className="w-full h-[300px] rounded-lg border border-border overflow-hidden" ref={mapContainer} />
   );
 };

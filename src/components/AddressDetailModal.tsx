@@ -89,6 +89,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
+  const [mapDisplayDate, setMapDisplayDate] = useState<Date | undefined>(undefined);
+  const [showAllAppointments, setShowAllAppointments] = useState(true);
   const [appointmentTime, setAppointmentTime] = useState("");
   const [appointmentHour, setAppointmentHour] = useState("");
   const [appointmentMinute, setAppointmentMinute] = useState("");
@@ -1061,10 +1063,75 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
             {/* Right Column - Map and Appointments */}
             <div className="space-y-4">
-              {appointmentDate && (
+              <div className="space-y-3">
+                <div className="flex items-center justify-between gap-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (showAllAppointments) {
+                        setMapDisplayDate(new Date());
+                        setShowAllAppointments(false);
+                      } else if (mapDisplayDate) {
+                        const prevDay = new Date(mapDisplayDate);
+                        prevDay.setDate(prevDay.getDate() - 1);
+                        const today = new Date();
+                        today.setHours(0, 0, 0, 0);
+                        if (prevDay >= today) {
+                          setMapDisplayDate(prevDay);
+                        }
+                      }
+                    }}
+                    disabled={!showAllAppointments && mapDisplayDate && mapDisplayDate <= new Date(new Date().setHours(0, 0, 0, 0))}
+                    className="h-8"
+                  >
+                    ←
+                  </Button>
+                  
+                  <div className="flex-1 text-center">
+                    <Button
+                      variant={showAllAppointments ? "default" : "outline"}
+                      size="sm"
+                      onClick={() => {
+                        setShowAllAppointments(true);
+                        setMapDisplayDate(undefined);
+                      }}
+                      className="h-8 text-xs"
+                    >
+                      {showAllAppointments ? (
+                        `Alle Termine (${appointments.length})`
+                      ) : mapDisplayDate ? (
+                        `Termine am ${mapDisplayDate.toLocaleDateString('de-DE')} (${appointments.filter(apt => apt.date === mapDisplayDate.toLocaleDateString('de-DE')).length})`
+                      ) : (
+                        "Alle Termine"
+                      )}
+                    </Button>
+                  </div>
+                  
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => {
+                      if (showAllAppointments) {
+                        setMapDisplayDate(new Date());
+                        setShowAllAppointments(false);
+                      } else if (mapDisplayDate) {
+                        const nextDay = new Date(mapDisplayDate);
+                        nextDay.setDate(nextDay.getDate() + 1);
+                        setMapDisplayDate(nextDay);
+                      } else {
+                        setMapDisplayDate(new Date());
+                      }
+                    }}
+                    className="h-8"
+                  >
+                    →
+                  </Button>
+                </div>
+                
                 <AppointmentMap 
                   appointments={appointments}
-                  selectedDate={appointmentDate}
+                  selectedDate={showAllAppointments ? undefined : mapDisplayDate}
                   currentAddress={{
                     street: currentAddress.street,
                     houseNumber: currentAddress.houseNumber,
@@ -1073,7 +1140,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     coordinates: [13.404954 + (Math.random() - 0.5) * 0.05, 52.520008 + (Math.random() - 0.5) * 0.05]
                   }}
                 />
-              )}
+              </div>
               
               <div>
                 <h3 className="text-sm font-medium mb-3">Deine Termine</h3>
