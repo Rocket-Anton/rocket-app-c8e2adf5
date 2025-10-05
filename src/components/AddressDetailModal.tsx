@@ -667,22 +667,28 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 </div>
                                 <div className="p-3 pt-2">
                                   <div className="space-y-2">
-                                    {(statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
-                                      const statusOption = statusOptions.find(s => s.label === history.status);
-                                      return (
-                                        <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
-                                          <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
-                                            {history.status}
+                                    {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
+                                      (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
+                                        const statusOption = statusOptions.find(s => s.label === history.status);
+                                        return (
+                                          <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                            <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                              {history.status}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                              {history.changedBy}
+                                            </div>
+                                            <div className="text-xs text-muted-foreground">
+                                              {history.changedAt}
+                                            </div>
                                           </div>
-                                          <div className="text-xs text-muted-foreground">
-                                            {history.changedBy}
-                                          </div>
-                                          <div className="text-xs text-muted-foreground">
-                                            {history.changedAt}
-                                          </div>
-                                        </div>
-                                      );
-                                    })}
+                                        );
+                                      })
+                                    ) : (
+                                      <div className="text-sm text-muted-foreground text-center py-4">
+                                        Kein Update vorhanden
+                                      </div>
+                                    )}
                                   </div>
                                 </div>
                               </div>
