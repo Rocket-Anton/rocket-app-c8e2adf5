@@ -752,23 +752,20 @@ export const LauflistenContent = () => {
                                 )}
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
-                              <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
-                                <BoundedPopoverContent 
-                                  containerRef={mobileSheetRef}
+                              <PopoverPrimitive.Portal>
+                                <PopoverPrimitive.Content
                                   align="start"
                                   sideOffset={8}
-                                  className="p-0 bg-background z-[10001]"
+                                  className="p-0 bg-background border border-border rounded-md shadow-md z-[10001] pointer-events-auto"
                                   style={{ width: 'var(--radix-popover-trigger-width)' }}
                                 >
                                   <div
-                                    className="overflow-y-auto overscroll-contain"
-                                    onTouchStart={(e) => e.stopPropagation()}
-                                    onTouchMove={(e) => e.stopPropagation()}
-                                    onTouchEnd={(e) => e.stopPropagation()}
+                                    className="overflow-y-scroll overscroll-contain"
                                     style={{ 
                                       maxHeight: '300px',
                                       WebkitOverflowScrolling: 'touch',
-                                      touchAction: 'pan-y'
+                                      touchAction: 'pan-y',
+                                      overscrollBehavior: 'contain'
                                     }}
                                   >
                                     <Command className="bg-background">
@@ -806,7 +803,7 @@ export const LauflistenContent = () => {
                                       </CommandList>
                                     </Command>
                                   </div>
-                                </BoundedPopoverContent>
+                                </PopoverPrimitive.Content>
                               </PopoverPrimitive.Portal>
                             </Popover>
                           </div>
