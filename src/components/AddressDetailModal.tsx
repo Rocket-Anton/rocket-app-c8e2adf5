@@ -437,14 +437,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <h3 className="font-semibold text-base mb-2">Wohneinheit {index + 1}</h3>
                   )}
                   {/* Gray Container for Fields */}
-                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
+                    <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
-                          <Select defaultValue={unit.floor}>
+                          <Select defaultValue={(unitStatuses[unit.id] || "offen") === "offen" ? undefined : unit.floor}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Stockwerk" />
+                              <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="EG">EG</SelectItem>
@@ -457,9 +457,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
-                          <Select defaultValue={unit.position}>
+                          <Select defaultValue={(unitStatuses[unit.id] || "offen") === "offen" ? undefined : unit.position}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Lage" />
+                              <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
                             <SelectContent>
                               <SelectItem value="Links">Links</SelectItem>
