@@ -703,7 +703,7 @@ export const LauflistenContent = () => {
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
                               <PopoverContent 
-                                className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
+                                className="w-full p-0 bg-background z-[10001] max-h-[300px] overflow-y-scroll" 
                                 align="start" 
                                 side="bottom" 
                                 sideOffset={8}
@@ -712,7 +712,7 @@ export const LauflistenContent = () => {
                                 style={{ width: 'var(--radix-popover-trigger-width)' }}
                               >
                                 <Command className="bg-background">
-                                  <CommandList className="overflow-visible">
+                                  <CommandList className="max-h-none overflow-visible">
                                     <CommandGroup>
                                       {statusOptions.map((option) => (
                                         <CommandItem
@@ -1031,7 +1031,7 @@ export const LauflistenContent = () => {
                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                 </div>
                                 <PopoverContent 
-                                  className="p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
+                                  className="w-full p-0 bg-background z-[10001] max-h-[300px] overflow-y-scroll" 
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
@@ -1040,7 +1040,7 @@ export const LauflistenContent = () => {
                                   style={{ width: 'var(--radix-popover-trigger-width)' }}
                                 >
                                   <Command className="bg-background">
-                                    <CommandList className="overflow-visible">
+                                    <CommandList className="max-h-none overflow-visible">
                                       <CommandGroup>
                                         {statusOptions.map((option) => (
                                           <CommandItem
