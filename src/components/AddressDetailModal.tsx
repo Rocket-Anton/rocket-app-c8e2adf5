@@ -239,9 +239,11 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                         </Button>
                       )}
 
-                      <p className="text-sm text-muted-foreground">
-                        Aktualisiert: 16.07.2025 16:41
-                      </p>
+                      {unitStatuses[unit.id] && unitStatuses[unit.id] !== "offen" && (
+                        <p className="text-xs text-muted-foreground">
+                          Aktualisiert: 16.07.2025 16:41
+                        </p>
+                      )}
 
                       {/* Combined Notizen & Termine Container */}
                       <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
