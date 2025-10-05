@@ -713,10 +713,14 @@ export const LauflistenContent = () => {
                               >
                                 {/* Eigene Scroll-Area für die Liste */}
                                 <div
-                                  className="max-h-[min(45dvh,var(--radix-popper-available-height,45dvh))] overflow-y-auto overscroll-contain touch-pan-y"
+                                  className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-y-contain touch-pan-y"
+                                  onWheelCapture={(e) => e.stopPropagation()}
                                   onWheel={(e) => e.stopPropagation()}
+                                  onScroll={(e) => e.stopPropagation()}
                                   onTouchStart={(e) => e.stopPropagation()}
+                                  onTouchMoveCapture={(e) => e.stopPropagation()}
                                   onTouchMove={(e) => e.stopPropagation()}
+                                  onTouchEnd={(e) => e.stopPropagation()}
                                   style={{ WebkitOverflowScrolling: 'touch' }}
                                 >
                                   <Command className="bg-background">
@@ -1050,10 +1054,14 @@ export const LauflistenContent = () => {
                                 >
                                   {/* Eigene Scroll-Area für die Liste */}
                                   <div
-                                    className="max-h-[min(45dvh,var(--radix-popper-available-height,45dvh))] overflow-y-auto overscroll-contain touch-pan-y"
+                                    className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-y-contain touch-pan-y"
+                                    onWheelCapture={(e) => e.stopPropagation()}
                                     onWheel={(e) => e.stopPropagation()}
+                                    onScroll={(e) => e.stopPropagation()}
                                     onTouchStart={(e) => e.stopPropagation()}
+                                    onTouchMoveCapture={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
+                                    onTouchEnd={(e) => e.stopPropagation()}
                                     style={{ WebkitOverflowScrolling: 'touch' }}
                                   >
                                     <Command className="bg-background">
