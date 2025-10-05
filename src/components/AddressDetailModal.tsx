@@ -558,13 +558,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => handleStatusChange(unit.id, value)}
                         >
-                          <SelectTrigger className="flex-1 h-12 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                          <SelectTrigger className="flex-1 h-14 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
                                 const statusOption = statusOptions.find(s => s.value === currentStatus);
                                 return statusOption ? (
-                                  <div className={`px-2 py-1 text-xs font-medium rounded ${statusOption.color}`}>
+                                  <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
                                     {statusOption.label}
                                   </div>
                                 ) : null;
@@ -588,7 +588,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="h-12 px-3 gap-2 text-xs font-medium shrink-0 relative"
+                              className="h-14 px-3 gap-2 text-xs font-medium shrink-0 relative"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
                               Historie
