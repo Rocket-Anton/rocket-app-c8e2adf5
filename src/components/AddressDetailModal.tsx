@@ -1045,12 +1045,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[95vw] max-w-4xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+          <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
             <DialogHeader>
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="grid md:grid-cols-2 gap-6">
+            <div className="grid lg:grid-cols-2 gap-6">
               {/* Left Column - Form */}
               <div className="space-y-4">
                 <div>
@@ -1161,7 +1161,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* Right Column - Map (nur Desktop) */}
-              <div className="hidden md:block space-y-4">
+              <div className="hidden lg:block space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Button
@@ -1433,12 +1433,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-4xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+        <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="grid md:grid-cols-2 gap-6">
+          <div className="grid lg:grid-cols-2 gap-6">
             {/* Left Column - Form */}
             <div className="space-y-4">
               <div>
