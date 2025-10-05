@@ -88,6 +88,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
   const [appointmentTime, setAppointmentTime] = useState("");
+  const [appointmentHour, setAppointmentHour] = useState("");
+  const [appointmentMinute, setAppointmentMinute] = useState("");
   const [appointmentCustomer, setAppointmentCustomer] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
   const [appointmentType, setAppointmentType] = useState<"geschaeftlich" | "privat">("geschaeftlich");
@@ -411,6 +413,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     // Reset form
     setAppointmentDate(undefined);
     setAppointmentTime("");
+    setAppointmentHour("");
+    setAppointmentMinute("");
     setAppointmentCustomer("");
     setAppointmentNotes("");
     setAppointmentType("geschaeftlich");
@@ -942,23 +946,48 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-                <Select value={appointmentTime} onValueChange={setAppointmentTime}>
-                  <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
-                    <SelectValue placeholder="Uhrzeit wählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
-                      <>
-                        <SelectItem key={`${hour}:00`} value={`${hour.toString().padStart(2, '0')}:00`}>
-                          {`${hour.toString().padStart(2, '0')}:00`}
+                <div className="flex gap-2">
+                  <Select 
+                    value={appointmentHour} 
+                    onValueChange={(value) => {
+                      setAppointmentHour(value);
+                      if (value && appointmentMinute) {
+                        setAppointmentTime(`${value}:${appointmentMinute}`);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                      <SelectValue placeholder="Stunde" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
+                        <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
+                          {hour.toString().padStart(2, '0')}
                         </SelectItem>
-                        <SelectItem key={`${hour}:30`} value={`${hour.toString().padStart(2, '0')}:30`}>
-                          {`${hour.toString().padStart(2, '0')}:30`}
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select 
+                    value={appointmentMinute} 
+                    onValueChange={(value) => {
+                      setAppointmentMinute(value);
+                      if (appointmentHour && value) {
+                        setAppointmentTime(`${appointmentHour}:${value}`);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                      <SelectValue placeholder="Minute" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                        <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
+                          {minute.toString().padStart(2, '0')}
                         </SelectItem>
-                      </>
-                    ))}
-                  </SelectContent>
-                </Select>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
               </div>
 
               <div>
