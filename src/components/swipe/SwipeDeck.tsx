@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useEffect } from 'react';
 import SwipeAddressCard from './SwipeAddressCard';
 import { Button } from '../ui/button';
 import { ChevronLeft, ChevronRight, Undo2 } from 'lucide-react';
@@ -29,6 +29,11 @@ export default function SwipeDeck({
 }: Props) {
   const [deck, setDeck] = useState(addresses);
   const [history, setHistory] = useState<Array<{ address: Address; direction: 'left' | 'right' }>>([]);
+
+  // Update deck when addresses change
+  useEffect(() => {
+    setDeck(addresses);
+  }, [addresses]);
 
   const handleLeft = useCallback((id: number) => {
     const match = deck.find(d => d.id === id);
