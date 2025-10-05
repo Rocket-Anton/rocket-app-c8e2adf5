@@ -294,14 +294,13 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </CollapsibleContent>
                         </Collapsible>
                       </div>
+
+                      {/* Auftrag Button */}
+                      <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
+                        <FileText className="w-4 h-4 mr-2" />
+                        Auftrag
+                      </Button>
                     </div>
-
-                    {/* Auftrag Button */}
-                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
-                      <FileText className="w-4 h-4 mr-2" />
-                      Auftrag
-                    </Button>
-
                     {/* Mehr Button */}
                     <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm rounded-md">
                       <Info className="w-4 h-4 mr-2" />
