@@ -1168,7 +1168,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
               
               <div>
-                <h3 className="text-sm font-medium mb-3">Deine Termine</h3>
+                <h3 className="text-sm font-medium mb-3">
+                  Deine Termine ({appointments.length})
+                </h3>
                 <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
                   {appointments.length > 0 ? (
                     appointments.map((apt) => (
