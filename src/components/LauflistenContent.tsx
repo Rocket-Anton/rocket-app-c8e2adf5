@@ -710,6 +710,9 @@ export const LauflistenContent = () => {
                                 avoidCollisions={false}
                                 collisionPadding={8}
                                 style={{ width: 'var(--radix-popover-trigger-width)' }}
+                                onWheelCapture={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                onTouchMoveCapture={(e) => e.stopPropagation()}
                               >
                                 {/* Eigene Scroll-Area für die Liste */}
                                 <div
@@ -1051,6 +1054,9 @@ export const LauflistenContent = () => {
                                   avoidCollisions={false}
                                   collisionPadding={8}
                                   style={{ width: 'var(--radix-popover-trigger-width)' }}
+                                  onWheelCapture={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                  onTouchMoveCapture={(e) => e.stopPropagation()}
                                 >
                                   {/* Eigene Scroll-Area für die Liste */}
                                   <div
