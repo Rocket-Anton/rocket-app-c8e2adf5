@@ -257,15 +257,21 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent 
-                            className="w-64 p-0 z-[60] overflow-hidden max-h-[var(--radix-popper-available-height)]" 
-                            side="bottom" 
-                            align="end" 
-                            avoidCollisions={false}
+                          <PopoverContent
+                            side="bottom"
+                            align="end"
                             sideOffset={8}
-                            collisionPadding={{ right: 20, left: 20, top: 20, bottom: 100 }}
+                            collisionPadding={8}
+                            avoidCollisions
+                            className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
                           >
-                            <div className="max-h-[var(--radix-popper-available-height)] overflow-y-auto overscroll-contain touch-pan-y pr-1">
+                            <div
+                              className="\n        max-h-[min(60vh,var(--radix-popover-content-available-height,60vh))]\n        overflow-y-auto overscroll-contain touch-pan-y pr-1\n      "
+                              onWheel={(e) => e.stopPropagation()}
+                              onPointerDown={(e) => e.stopPropagation()}
+                              onTouchStart={(e) => e.stopPropagation()}
+                              style={{ WebkitOverflowScrolling: 'touch' }}
+                            >
                               <div className="p-3">
                                 <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
                                 <div className="space-y-2">
