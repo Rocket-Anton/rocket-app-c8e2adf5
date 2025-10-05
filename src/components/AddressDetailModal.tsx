@@ -33,6 +33,7 @@ import {
   CollapsibleContent,
   CollapsibleTrigger,
 } from "./ui/collapsible";
+import { Textarea } from "./ui/textarea";
 
 interface Address {
   id: number;
@@ -78,6 +79,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<number | null>(null);
   const [popoverKey, setPopoverKey] = useState(0);
+  const [addNoteDialogOpen, setAddNoteDialogOpen] = useState(false);
+  const [newNoteText, setNewNoteText] = useState("");
+  const [notes, setNotes] = useState([
+    {
+      id: 1,
+      author: "Abdullah Kater",
+      timestamp: "16.07.25 18:41",
+      content: "Möchte Nix."
+    },
+    {
+      id: 2,
+      author: "Abdullah Kater", 
+      timestamp: "16.07.25 18:41",
+      content: ""
+    }
+  ]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
@@ -297,20 +314,28 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPendingStatusUpdate(null);
   };
 
-  const notes = [
-    {
-      id: 1,
+  const handleAddNote = () => {
+    if (newNoteText.trim() === "") return;
+    
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    const newNote = {
+      id: Date.now(),
       author: "Abdullah Kater",
-      timestamp: "16.07.25 18:41",
-      content: "Möchte Nix."
-    },
-    {
-      id: 2,
-      author: "Abdullah Kater", 
-      timestamp: "16.07.25 18:41",
-      content: ""
-    }
-  ];
+      timestamp: timestamp,
+      content: newNoteText.trim()
+    };
+    
+    setNotes(prev => [newNote, ...prev]);
+    setNewNoteText("");
+    setAddNoteDialogOpen(false);
+    
+    // Show toast notification
+    toast({
+      title: "✓ Notiz hinzugefügt",
+      className: "bg-green-400/80 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+    });
+  };
 
   const renderAddressContent = (addr: Address, isCurrentSlide: boolean = true) => {
     const units = addr.filteredUnits || addr.units || [];
@@ -484,7 +509,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Add note functionality
+                                setAddNoteDialogOpen(true);
                               }}
                               className="p-1 hover:bg-muted rounded transition-colors"
                             >
@@ -719,6 +744,39 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+
+      <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Notiz hinzufügen</DialogTitle>
+          </DialogHeader>
+          <Textarea
+            placeholder="Notiz eingeben..."
+            value={newNoteText}
+            onChange={(e) => setNewNoteText(e.target.value)}
+            className="min-h-[120px] resize-none"
+          />
+          <div className="flex gap-3">
+            <Button
+              onClick={handleAddNote}
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Bestätigen
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddNoteDialogOpen(false);
+                setNewNoteText("");
+              }}
+              className="flex-1"
+            >
+              Abbrechen
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
