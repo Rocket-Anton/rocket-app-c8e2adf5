@@ -72,6 +72,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
   const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
+  const [lastUpdated, setLastUpdated] = useState<Record<number, string>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
@@ -107,6 +108,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Reset unit statuses when address changes or modal opens
   useEffect(() => {
     if (open) {
+      const initialTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+      
       setUnitStatuses(
         displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
       );
@@ -119,10 +122,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               id: 1,
               status: statusOptions.find(s => s.value === (unit.status || "offen"))?.label || "Offen",
               changedBy: "System",
-              changedAt: new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' })
+              changedAt: initialTimestamp
             }
           ]
         }), {})
+      );
+      // Initialize last updated timestamps
+      setLastUpdated(
+        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: initialTimestamp }), {})
       );
       setPopoverKey(0);
     }
@@ -227,7 +234,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     // Add to history
     const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
-    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Update last updated time
+    setLastUpdated(prev => ({ ...prev, [unitId]: timestamp }));
     
     setStatusHistories(prev => ({
       ...prev,
@@ -259,7 +269,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     const currentStatus = unitStatuses[pendingStatusUpdate] || "offen";
     const statusLabel = statusOptions.find(s => s.value === currentStatus)?.label || currentStatus;
-    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Update last updated time
+    setLastUpdated(prev => ({ ...prev, [pendingStatusUpdate]: timestamp }));
     
     setStatusHistories(prev => ({
       ...prev,
@@ -453,7 +466,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     )}
 
                     <p className="text-xs text-muted-foreground">
-                      Aktualisiert: 16.07.2025 16:41
+                      Aktualisiert: {lastUpdated[unit.id] || "Noch nicht aktualisiert"}
                     </p>
 
                     {/* Combined Notizen & Termine Container */}
