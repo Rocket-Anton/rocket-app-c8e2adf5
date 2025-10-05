@@ -271,15 +271,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
                       <Button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
                         <RotateCcw className="w-4 h-4 mr-2" />
-                        Status updaten
+                        Gleicher Status
                       </Button>
                     )}
 
-                    {unitStatuses[unit.id] && unitStatuses[unit.id] !== "offen" && (
-                      <p className="text-xs text-muted-foreground">
-                        Aktualisiert: 16.07.2025 16:41
-                      </p>
-                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Aktualisiert: 16.07.2025 16:41
+                    </p>
 
                     {/* Combined Notizen & Termine Container */}
                     <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
