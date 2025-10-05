@@ -910,9 +910,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <p className="text-sm text-muted-foreground">
               {addr.postalCode} {addr.city}
             </p>
-            <div className="text-xs text-muted-foreground mt-2">
-              {index + 1} / {total}
-            </div>
             
             <div className="flex items-center justify-between w-full pt-4">
               <div className="flex items-center gap-2">
