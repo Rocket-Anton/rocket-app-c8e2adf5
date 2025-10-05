@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef }
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
+import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   Dialog,
@@ -92,9 +93,50 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentMinute, setAppointmentMinute] = useState("");
   const [appointmentCustomer, setAppointmentCustomer] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
-  const [appointmentType, setAppointmentType] = useState<"geschaeftlich" | "privat">("geschaeftlich");
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
-  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, type: "geschaeftlich" | "privat", address: string}>>([]);
+  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
+    // Dummy-Termine
+    {
+      id: 1,
+      unitId: 1,
+      date: new Date().toLocaleDateString('de-DE'),
+      time: "10:00",
+      customer: "Max Mustermann",
+      notes: "Erstbesichtigung",
+      address: "Hauptstraße 12, 10115 Berlin",
+      coordinates: [13.3888, 52.5170]
+    },
+    {
+      id: 2,
+      unitId: 2,
+      date: new Date().toLocaleDateString('de-DE'),
+      time: "14:30",
+      customer: "Anna Schmidt",
+      notes: "Nachbesprechung",
+      address: "Lindenstraße 45, 10969 Berlin",
+      coordinates: [13.3982, 52.5035]
+    },
+    {
+      id: 3,
+      unitId: 3,
+      date: new Date(Date.now() + 86400000).toLocaleDateString('de-DE'), // Tomorrow
+      time: "09:00",
+      customer: "Peter Müller",
+      notes: "",
+      address: "Kastanienallee 78, 10435 Berlin",
+      coordinates: [13.4050, 52.5407]
+    },
+    {
+      id: 4,
+      unitId: 4,
+      date: new Date(Date.now() + 86400000).toLocaleDateString('de-DE'), // Tomorrow
+      time: "16:00",
+      customer: "Lisa Weber",
+      notes: "Vertragsübergabe",
+      address: "Bergmannstraße 23, 10961 Berlin",
+      coordinates: [13.3927, 52.4905]
+    }
+  ]);
   const [notes, setNotes] = useState([
     {
       id: 1,
@@ -390,6 +432,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const saveAppointment = () => {
     if (!appointmentDate || !appointmentTime || pendingAppointmentUnitId === null) return;
 
+    // Generate random coordinates around Berlin for demo
+    const baseCoords: [number, number] = [13.404954, 52.520008];
+    const randomOffset = () => (Math.random() - 0.5) * 0.1;
+    const coordinates: [number, number] = [
+      baseCoords[0] + randomOffset(),
+      baseCoords[1] + randomOffset()
+    ];
+
     const newAppointment = {
       id: Date.now(),
       unitId: pendingAppointmentUnitId,
@@ -397,8 +447,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: appointmentTime,
       customer: appointmentCustomer,
       notes: appointmentNotes,
-      type: appointmentType,
-      address: `${currentAddress.street} ${currentAddress.houseNumber}, ${currentAddress.postalCode} ${currentAddress.city}`
+      address: `${currentAddress.street} ${currentAddress.houseNumber}, ${currentAddress.postalCode} ${currentAddress.city}`,
+      coordinates
     };
 
     setAppointments(prev => [...prev, newAppointment].sort((a, b) => {
@@ -417,7 +467,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setAppointmentMinute("");
     setAppointmentCustomer("");
     setAppointmentNotes("");
-    setAppointmentType("geschaeftlich");
     setAddAppointmentDialogOpen(false);
     setPendingAppointmentUnitId(null);
 
@@ -667,23 +716,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
                               <div className="space-y-2">
                                 {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
-                                  <div key={appointment.id} className={`rounded-lg p-3 border ${appointment.type === "geschaeftlich" ? "bg-blue-50 border-blue-200" : "bg-purple-50 border-purple-200"}`}>
-                                    <div className="flex items-start justify-between gap-2 mb-2">
-                                      <div className="flex items-start gap-2 flex-1">
-                                        <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                        <div className="flex-1 min-w-0">
-                                          <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
-                                          {appointment.customer && (
-                                            <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
-                                          )}
-                                          {appointment.notes && (
-                                            <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
-                                          )}
-                                        </div>
+                                  <div key={appointment.id} className="rounded-lg p-3 border bg-blue-50 border-blue-200">
+                                    <div className="flex items-start gap-2 mb-2">
+                                      <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
+                                        {appointment.customer && (
+                                          <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
+                                        )}
+                                        {appointment.notes && (
+                                          <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
+                                        )}
                                       </div>
-                                      <Badge variant="outline" className={`text-[10px] shrink-0 ${appointment.type === "geschaeftlich" ? "bg-blue-100" : "bg-purple-100"}`}>
-                                        {appointment.type === "geschaeftlich" ? "Geschäftlich" : "Privat"}
-                                      </Badge>
                                     </div>
                                   </div>
                                 ))}
@@ -991,19 +1035,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-2 block">Termin-Typ *</label>
-                <Select value={appointmentType} onValueChange={(value: "geschaeftlich" | "privat") => setAppointmentType(value)}>
-                  <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
-                    <SelectValue />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="geschaeftlich">Geschäftlich</SelectItem>
-                    <SelectItem value="privat">Privat</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-
-              <div>
                 <label className="text-sm font-medium mb-2 block">Kundenname</label>
                 <Input
                   placeholder="Optional"
@@ -1024,20 +1055,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
 
-            {/* Right Column - All Appointments Overview */}
+            {/* Right Column - Map and Appointments */}
             <div className="space-y-4">
+              {appointmentDate && (
+                <AppointmentMap 
+                  appointments={appointments}
+                  selectedDate={appointmentDate}
+                />
+              )}
+              
               <div>
                 <h3 className="text-sm font-medium mb-3">Deine Termine</h3>
-                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
                   {appointments.length > 0 ? (
                     appointments.map((apt) => (
-                      <div key={apt.id} className={`p-3 rounded-lg border text-xs ${apt.type === "geschaeftlich" ? "bg-blue-50 border-blue-200" : "bg-purple-50 border-purple-200"}`}>
-                        <div className="flex items-start justify-between mb-1">
-                          <div className="font-medium">{apt.date} - {apt.time}</div>
-                          <Badge variant="outline" className={`text-[10px] ${apt.type === "geschaeftlich" ? "bg-blue-100" : "bg-purple-100"}`}>
-                            {apt.type === "geschaeftlich" ? "Geschäftlich" : "Privat"}
-                          </Badge>
-                        </div>
+                      <div key={apt.id} className="p-3 rounded-lg border bg-blue-50 border-blue-200 text-xs">
+                        <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
                         <div className="text-muted-foreground">{apt.address}</div>
                         {apt.customer && (
                           <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
@@ -1051,7 +1084,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                 </div>
               </div>
-
+              
               <div className="pt-4 border-t">
                 <p className="text-xs text-muted-foreground">
                   💡 Tipp: Plane deine Termine so, dass du genug Zeit für die Fahrt zwischen den Adressen hast.
@@ -1075,9 +1108,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 setAddAppointmentDialogOpen(false);
                 setAppointmentDate(undefined);
                 setAppointmentTime("");
+                setAppointmentHour("");
+                setAppointmentMinute("");
                 setAppointmentCustomer("");
                 setAppointmentNotes("");
-                setAppointmentType("geschaeftlich");
                 setPendingAppointmentUnitId(null);
               }}
               className="flex-1"
