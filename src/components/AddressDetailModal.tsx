@@ -22,6 +22,7 @@ import {
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
+import { useToast } from "@/hooks/use-toast";
 import {
   Popover,
   PopoverContent,
@@ -53,7 +54,8 @@ interface AddressDetailModalProps {
 
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
-  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+  const { toast } = useToast();
+  const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     skipSnaps: false,
     startIndex: initialIndex,
@@ -239,6 +241,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         ...(prev[unitId] || [])
       ]
     }));
+
+    // Show toast notification
+    toast({
+      title: "Status geändert",
+      description: `Status wurde auf "${statusLabel}" gesetzt.`,
+    });
   };
 
   const handleSameStatusUpdate = (unitId: number) => {
@@ -265,6 +273,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         ...(prev[pendingStatusUpdate] || [])
       ]
     }));
+
+    // Show toast notification
+    toast({
+      title: "Status aktualisiert",
+      description: `Status "${statusLabel}" wurde erneut gesetzt.`,
+    });
     
     setConfirmStatusUpdateOpen(false);
     setPendingStatusUpdate(null);
