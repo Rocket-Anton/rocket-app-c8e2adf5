@@ -72,21 +72,16 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
         className: "current-address-marker",
         html: `
           <div style="
+            width: 20px;
+            height: 20px;
             background: #22c55e;
-            color: white;
-            padding: 8px 12px;
-            border-radius: 20px;
-            font-size: 12px;
-            font-weight: 600;
-            box-shadow: 0 3px 8px rgba(0,0,0,0.3);
-            white-space: nowrap;
+            border-radius: 50%;
             border: 3px solid white;
-          ">
-            ${currentAddress.street} ${currentAddress.houseNumber}
-          </div>
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          "></div>
         `,
-        iconSize: [120, 36],
-        iconAnchor: [60, 18],
+        iconSize: [20, 20],
+        iconAnchor: [10, 10],
       });
 
       const currentMarker = L.marker([currentAddress.coordinates[1], currentAddress.coordinates[0]], { 
