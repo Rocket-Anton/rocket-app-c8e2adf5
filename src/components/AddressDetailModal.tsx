@@ -888,9 +888,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 return (
                   <div 
                     key={addr.id} 
-                    className="embla__slide h-full"
+                    className="embla__slide flex-shrink-0 flex-grow-0 basis-full h-full"
                   >
-                    <div className="w-full h-full flex flex-col">
                        <DialogHeader className="px-4 py-4 border-b flex-shrink-0 bg-background">
                         <DialogTitle className="text-lg font-semibold">
                           {addr.street} {addr.houseNumber}
@@ -914,7 +913,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </DialogHeader>
 
                       {renderAddressContent(addr, index === currentIndex)}
-                    </div>
                   </div>
                 );
               })}
