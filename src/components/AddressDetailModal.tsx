@@ -142,7 +142,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                 displayUnits.map((unit) => (
                   <div key={unit.id} className="space-y-3">
                     {/* Gray Container for Fields */}
-                    <div className="bg-muted/50 rounded-lg p-4 space-y-3">
+                    <div className="bg-muted/70 rounded-lg p-4 space-y-3">
                       {wohneinheiten > 1 ? (
                         <>
                           <Select defaultValue={unit.floor}>
