@@ -146,7 +146,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       {wohneinheiten > 1 ? (
                         <div className="flex gap-3">
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
+                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -158,7 +158,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </Select>
 
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
+                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -175,7 +175,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
                         >
-                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background">
+                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
