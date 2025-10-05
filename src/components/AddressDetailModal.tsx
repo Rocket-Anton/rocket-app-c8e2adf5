@@ -85,13 +85,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const wohneinheiten = displayUnits.length;
   
   // State for each unit's current status
-  const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
-  const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
-  const [lastUpdated, setLastUpdated] = useState<Record<number, string>>({});
+  const [unitStatuses, setUnitStatuses] = useState<Record<string, string>>({});
+  const [statusHistories, setStatusHistories] = useState<Record<string, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
+  const [lastUpdated, setLastUpdated] = useState<Record<string, string>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
-  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<number | null>(null);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
   const [popoverKey, setPopoverKey] = useState(0);
   const [addNoteDialogOpen, setAddNoteDialogOpen] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
@@ -368,31 +368,28 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
   };
 
-  const handleStatusChange = (unitId: number, newStatus: string) => {
-    // Update the status
-    setUnitStatuses(prev => ({ ...prev, [unitId]: newStatus }));
-    
-    // Add to history
+  const handleStatusChange = (addressId: number, unitId: number, newStatus: string) => {
+    const k = `${addressId}:${unitId}`;
+    setUnitStatuses(prev => ({ ...prev, [k]: newStatus }));
+
     const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
-    
-    // Update last updated time
-    setLastUpdated(prev => ({ ...prev, [unitId]: timestamp }));
-    
+
+    setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
+
     setStatusHistories(prev => ({
       ...prev,
-      [unitId]: [
+      [k]: [
         {
           id: Date.now(),
           status: statusLabel,
-          changedBy: "Abdullah Kater", // This should come from the current user
+          changedBy: "Abdullah Kater",
           changedAt: timestamp
         },
-        ...(prev[unitId] || [])
+        ...(prev[k] || [])
       ]
     }));
 
-    // Show toast notification
     toast({
       title: "✓ Status geändert",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
@@ -400,8 +397,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
 
-  const handleSameStatusUpdate = (unitId: number) => {
-    setPendingStatusUpdate(unitId);
+  const handleSameStatusUpdate = (addressId: number, unitId: number) => {
+    const k = `${addressId}:${unitId}`;
+    setPendingStatusUpdate(k);
     setConfirmStatusUpdateOpen(true);
   };
 
@@ -522,7 +520,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
     
     // Set status to "termin"
-    handleStatusChange(pendingAppointmentUnitId, "termin");
+    handleStatusChange(currentAddress.id, pendingAppointmentUnitId, "termin");
 
     // Reset form
     setAppointmentDate(undefined);
@@ -568,7 +566,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
-                          <Select defaultValue={(unitStatuses[unit.id] || "offen") === "offen" ? undefined : unit.floor}>
+                          <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.floor}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
@@ -583,7 +581,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
-                          <Select defaultValue={(unitStatuses[unit.id] || "offen") === "offen" ? undefined : unit.position}>
+                          <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.position}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
@@ -601,8 +599,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
                       <div className="flex items-center gap-3 min-w-0">
                         <Select 
-                          value={unitStatuses[unit.id] || "offen"}
-                          onValueChange={(value) => handleStatusChange(unit.id, value)}
+                          value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
+                          onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
                         >
                           <SelectTrigger className="flex-1 h-11 md:h-12 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
                             <SelectValue>
