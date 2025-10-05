@@ -334,9 +334,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </Select>
                         <Popover open={statusPopoverOpen[unit.id]} onOpenChange={(open) => setStatusPopoverOpen(prev => ({ ...prev, [unit.id]: open }))}>
                           <PopoverTrigger asChild>
-                            <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
-                              <RotateCcw className="w-4 h-4" />
-                            </button>
+                            <Button 
+                              variant="outline" 
+                              size="sm"
+                              className="h-9 px-3 gap-2 text-xs font-medium shrink-0"
+                            >
+                              <RotateCcw className="w-3.5 h-3.5" />
+                              Historie
+                            </Button>
                           </PopoverTrigger>
                           <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
                             <BoundedPopoverContent
