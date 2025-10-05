@@ -87,6 +87,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [deleteNoteDialogOpen, setDeleteNoteDialogOpen] = useState(false);
   const [pendingDeleteNoteId, setPendingDeleteNoteId] = useState<number | null>(null);
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
+  const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
   const [appointmentTime, setAppointmentTime] = useState("");
   const [appointmentHour, setAppointmentHour] = useState("");
@@ -965,7 +966,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
-                <Popover>
+                <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                   <PopoverTrigger asChild>
                     <Button
                       variant="outline"
@@ -979,7 +980,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <Calendar
                       mode="single"
                       selected={appointmentDate}
-                      onSelect={setAppointmentDate}
+                      onSelect={(date) => {
+                        setAppointmentDate(date);
+                        setDatePopoverOpen(false);
+                      }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
                       className="p-3 pointer-events-auto"
