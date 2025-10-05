@@ -362,7 +362,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         sideOffset={sideOffset}
         avoidCollisions={false}
         className={className}
-        style={{ maxHeight: maxH }}
+        style={{ maxHeight: maxH, ["--bounded-max-h" as any]: `${maxH ?? 0}px` }}
       >
         {children}
       </PopoverContent>
@@ -655,13 +655,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               sideOffset={8}
                               className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
                             >
-                              <div
-                                className="overflow-y-auto overscroll-contain touch-pan-y"
-                                onWheel={(e) => e.stopPropagation()}
-                                onPointerDown={(e) => e.stopPropagation()}
-                                onTouchStart={(e) => e.stopPropagation()}
-                                style={{ WebkitOverflowScrolling: 'touch' }}
-                              >
+                               <div
+                                 className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
+                                 onWheel={(e) => e.stopPropagation()}
+                                 onPointerDown={(e) => e.stopPropagation()}
+                                 onTouchStart={(e) => e.stopPropagation()}
+                                 style={{ WebkitOverflowScrolling: 'touch' }}
+                               >
                                 <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
                                   <h3 className="font-medium text-sm">Status Historie</h3>
                                 </div>
