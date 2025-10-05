@@ -1045,7 +1045,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+          <DialogContent className="w-[95vw] max-w-4xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
             <DialogHeader>
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
@@ -1433,7 +1433,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+        <DialogContent className="w-[95vw] max-w-4xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
