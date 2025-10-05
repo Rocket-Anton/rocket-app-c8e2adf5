@@ -1045,7 +1045,226 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </DialogHeader>
             
             <div className="grid md:grid-cols-2 gap-6">
-...
+              {/* Left Column - Form */}
+              <div className="space-y-4">
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Datum *</label>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={appointmentDate}
+                        onSelect={(date) => {
+                          setAppointmentDate(date);
+                          setDatePopoverOpen(false);
+                          if (date) {
+                            setMapDisplayDate(date);
+                            setShowAllAppointments(false);
+                          }
+                        }}
+                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                        initialFocus
+                        className="p-3 pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+
+                <div>
+                  <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
+                  <div className="flex gap-2">
+                    <Select 
+                      value={appointmentHour} 
+                      onValueChange={(value) => {
+                        setAppointmentHour(value);
+                        if (value && appointmentMinute) {
+                          setAppointmentTime(`${value}:${appointmentMinute}`);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                        <SelectValue placeholder="Stunde" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
+                          <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
+                            {hour.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <Select 
+                      value={appointmentMinute} 
+                      onValueChange={(value) => {
+                        setAppointmentMinute(value);
+                        if (appointmentHour && value) {
+                          setAppointmentTime(`${appointmentHour}:${value}`);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                        <SelectValue placeholder="Minute" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {[0, 10, 20, 30, 40, 50].map((minute) => (
+                          <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
+                            {minute.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <Collapsible>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
+                    <span className="text-sm font-medium">Weitere Infos</span>
+                    <ChevronDown className="w-4 h-4 transition-transform ui-expanded:rotate-180" />
+                  </CollapsibleTrigger>
+                  <CollapsibleContent className="mt-3 space-y-4">
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Kundenname</label>
+                      <Input
+                        placeholder="Optional"
+                        value={appointmentCustomer}
+                        onChange={(e) => setAppointmentCustomer(e.target.value)}
+                        className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="text-sm font-medium mb-2 block">Notizen</label>
+                      <Textarea
+                        placeholder="Optional"
+                        value={appointmentNotes}
+                        onChange={(e) => setAppointmentNotes(e.target.value)}
+                        className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                      />
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
+
+              {/* Right Column - Map */}
+              <div className="hidden md:block space-y-4">
+                <div className="flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (showAllAppointments) {
+                          setMapDisplayDate(new Date());
+                          setShowAllAppointments(false);
+                        } else if (mapDisplayDate) {
+                          const prevDay = new Date(mapDisplayDate);
+                          prevDay.setDate(prevDay.getDate() - 1);
+                          setMapDisplayDate(prevDay);
+                        }
+                      }}
+                      className="h-8 w-8 p-0"
+                    >
+                      ←
+                    </Button>
+                    <span className="text-sm font-medium min-w-[100px] text-center">
+                      {showAllAppointments 
+                        ? 'Alle Termine' 
+                        : mapDisplayDate?.toLocaleDateString('de-DE')}
+                    </span>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (showAllAppointments) {
+                          setMapDisplayDate(new Date());
+                          setShowAllAppointments(false);
+                        } else if (mapDisplayDate) {
+                          const nextDay = new Date(mapDisplayDate);
+                          nextDay.setDate(nextDay.getDate() + 1);
+                          setMapDisplayDate(nextDay);
+                        } else {
+                          setMapDisplayDate(new Date());
+                        }
+                      }}
+                      className="h-8 w-8 p-0"
+                    >
+                      →
+                    </Button>
+                  </div>
+                  
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm whitespace-nowrap cursor-pointer flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={showAllAppointments}
+                        onChange={(e) => {
+                          setShowAllAppointments(e.target.checked);
+                          if (e.target.checked) {
+                            setMapDisplayDate(undefined);
+                          } else {
+                            setMapDisplayDate(appointmentDate || new Date());
+                          }
+                        }}
+                        className="cursor-pointer"
+                      />
+                      <span>Alle</span>
+                    </label>
+                  </div>
+                </div>
+                
+                <AppointmentMap 
+                  appointments={appointments}
+                  selectedDate={showAllAppointments ? undefined : mapDisplayDate}
+                  currentAddress={mapCurrentAddress}
+                  selectedAppointmentId={selectedAppointmentId}
+                />
+              </div>
+              
+              <div>
+                <h3 className="text-sm font-medium mb-3">
+                  Deine Termine ({appointments.length})
+                </h3>
+                <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
+                  {appointments.length > 0 ? (
+                    appointments.map((apt) => (
+                      <div 
+                        key={apt.id} 
+                        onClick={() => {
+                          if (selectedAppointmentId === apt.id) {
+                            setSelectedAppointmentId(null);
+                          } else {
+                            setSelectedAppointmentId(apt.id);
+                          }
+                        }}
+                        className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
+                          selectedAppointmentId === apt.id 
+                            ? 'bg-blue-100 border-blue-400 shadow-md' 
+                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                        }`}
+                      >
+                        <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
+                        <div className="text-muted-foreground">{apt.address}</div>
+                        {apt.customer && (
+                          <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center py-8">
+                      Noch keine Termine vorhanden
+                    </div>
+                  )}
+                </div>
+              </div>
             </div>
 
             <div className="flex gap-3 mt-6">
