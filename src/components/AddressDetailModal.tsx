@@ -261,8 +261,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             side="bottom"
                             align="end"
                             sideOffset={8}
-                            collisionPadding={8}
-                            avoidCollisions={false}
+                            collisionPadding={{ top: 20, bottom: 20, left: 8, right: 8 }}
+                            avoidCollisions={true}
+                            sticky="always"
                             className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
                           >
                             <div
