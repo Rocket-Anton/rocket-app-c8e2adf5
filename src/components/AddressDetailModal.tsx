@@ -160,6 +160,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             {units.length > 0 ? (
               units.map((unit, index) => (
                 <div key={unit.id} className="space-y-4 w-full">
+                  {/* Trennlinie zwischen Wohneinheiten (nicht vor der ersten) */}
+                  {unitCount > 1 && index > 0 && (
+                    <div className="border-t border-muted-foreground/20 -mt-2 mb-4" />
+                  )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
                     <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
