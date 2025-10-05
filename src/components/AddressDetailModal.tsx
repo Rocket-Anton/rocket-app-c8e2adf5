@@ -90,8 +90,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentTime, setAppointmentTime] = useState("");
   const [appointmentCustomer, setAppointmentCustomer] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
+  const [appointmentType, setAppointmentType] = useState<"geschaeftlich" | "privat">("geschaeftlich");
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
-  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string}>>([]);
+  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, type: "geschaeftlich" | "privat", address: string}>>([]);
   const [notes, setNotes] = useState([
     {
       id: 1,
@@ -393,10 +394,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       date: appointmentDate.toLocaleDateString('de-DE'),
       time: appointmentTime,
       customer: appointmentCustomer,
-      notes: appointmentNotes
+      notes: appointmentNotes,
+      type: appointmentType,
+      address: `${currentAddress.street} ${currentAddress.houseNumber}, ${currentAddress.postalCode} ${currentAddress.city}`
     };
 
-    setAppointments(prev => [...prev, newAppointment]);
+    setAppointments(prev => [...prev, newAppointment].sort((a, b) => {
+      const dateA = new Date(`${a.date.split('.').reverse().join('-')} ${a.time}`);
+      const dateB = new Date(`${b.date.split('.').reverse().join('-')} ${b.time}`);
+      return dateA.getTime() - dateB.getTime();
+    }));
     
     // Set status to "termin"
     handleStatusChange(pendingAppointmentUnitId, "termin");
@@ -406,6 +413,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setAppointmentTime("");
     setAppointmentCustomer("");
     setAppointmentNotes("");
+    setAppointmentType("geschaeftlich");
     setAddAppointmentDialogOpen(false);
     setPendingAppointmentUnitId(null);
 
@@ -655,18 +663,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
                               <div className="space-y-2">
                                 {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
-                                  <div key={appointment.id} className="bg-muted/30 rounded-lg p-3 border">
-                                    <div className="flex items-start gap-2 mb-2">
-                                      <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5" />
-                                      <div>
-                                        <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
-                                        {appointment.customer && (
-                                          <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
-                                        )}
-                                        {appointment.notes && (
-                                          <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
-                                        )}
+                                  <div key={appointment.id} className={`rounded-lg p-3 border ${appointment.type === "geschaeftlich" ? "bg-blue-50 border-blue-200" : "bg-purple-50 border-purple-200"}`}>
+                                    <div className="flex items-start justify-between gap-2 mb-2">
+                                      <div className="flex items-start gap-2 flex-1">
+                                        <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                        <div className="flex-1 min-w-0">
+                                          <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
+                                          {appointment.customer && (
+                                            <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
+                                          )}
+                                          {appointment.notes && (
+                                            <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
+                                          )}
+                                        </div>
                                       </div>
+                                      <Badge variant="outline" className={`text-[10px] shrink-0 ${appointment.type === "geschaeftlich" ? "bg-blue-100" : "bg-purple-100"}`}>
+                                        {appointment.type === "geschaeftlich" ? "Geschäftlich" : "Privat"}
+                                      </Badge>
                                     </div>
                                   </div>
                                 ))}
@@ -894,76 +907,127 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl max-h-[85vh] overflow-y-auto">
+        <DialogContent className="w-[90vw] max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-2 block">Datum *</label>
-              <Popover>
-                <PopoverTrigger asChild>
-                  <Button
-                    variant="outline"
-                    className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
-                  >
-                    <CalendarIcon className="mr-2 h-4 w-4" />
-                    {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
-                  </Button>
-                </PopoverTrigger>
-                <PopoverContent className="w-auto p-0" align="start">
-                  <Calendar
-                    mode="single"
-                    selected={appointmentDate}
-                    onSelect={setAppointmentDate}
-                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                    initialFocus
-                    className="p-3 pointer-events-auto"
-                  />
-                </PopoverContent>
-              </Popover>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Left Column - Form */}
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Datum *</label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={appointmentDate}
+                      onSelect={setAppointmentDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
+                <Select value={appointmentTime} onValueChange={setAppointmentTime}>
+                  <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
+                    <SelectValue placeholder="Uhrzeit wählen" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
+                      <>
+                        <SelectItem key={`${hour}:00`} value={`${hour.toString().padStart(2, '0')}:00`}>
+                          {`${hour.toString().padStart(2, '0')}:00`}
+                        </SelectItem>
+                        <SelectItem key={`${hour}:30`} value={`${hour.toString().padStart(2, '0')}:30`}>
+                          {`${hour.toString().padStart(2, '0')}:30`}
+                        </SelectItem>
+                      </>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Termin-Typ *</label>
+                <Select value={appointmentType} onValueChange={(value: "geschaeftlich" | "privat") => setAppointmentType(value)}>
+                  <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="geschaeftlich">Geschäftlich</SelectItem>
+                    <SelectItem value="privat">Privat</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Kundenname</label>
+                <Input
+                  placeholder="Optional"
+                  value={appointmentCustomer}
+                  onChange={(e) => setAppointmentCustomer(e.target.value)}
+                  className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Notizen</label>
+                <Textarea
+                  placeholder="Optional"
+                  value={appointmentNotes}
+                  onChange={(e) => setAppointmentNotes(e.target.value)}
+                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
             </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-              <Select value={appointmentTime} onValueChange={setAppointmentTime}>
-                <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
-                  <SelectValue placeholder="Uhrzeit wählen" />
-                </SelectTrigger>
-                <SelectContent>
-                  {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
-                    <>
-                      <SelectItem key={`${hour}:00`} value={`${hour.toString().padStart(2, '0')}:00`}>
-                        {`${hour.toString().padStart(2, '0')}:00`}
-                      </SelectItem>
-                      <SelectItem key={`${hour}:30`} value={`${hour.toString().padStart(2, '0')}:30`}>
-                        {`${hour.toString().padStart(2, '0')}:30`}
-                      </SelectItem>
-                    </>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
+            {/* Right Column - All Appointments Overview */}
+            <div className="space-y-4">
+              <div>
+                <h3 className="text-sm font-medium mb-3">Deine Termine</h3>
+                <div className="space-y-2 max-h-[400px] overflow-y-auto pr-2">
+                  {appointments.length > 0 ? (
+                    appointments.map((apt) => (
+                      <div key={apt.id} className={`p-3 rounded-lg border text-xs ${apt.type === "geschaeftlich" ? "bg-blue-50 border-blue-200" : "bg-purple-50 border-purple-200"}`}>
+                        <div className="flex items-start justify-between mb-1">
+                          <div className="font-medium">{apt.date} - {apt.time}</div>
+                          <Badge variant="outline" className={`text-[10px] ${apt.type === "geschaeftlich" ? "bg-blue-100" : "bg-purple-100"}`}>
+                            {apt.type === "geschaeftlich" ? "Geschäftlich" : "Privat"}
+                          </Badge>
+                        </div>
+                        <div className="text-muted-foreground">{apt.address}</div>
+                        {apt.customer && (
+                          <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
+                        )}
+                      </div>
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center py-8">
+                      Noch keine Termine vorhanden
+                    </div>
+                  )}
+                </div>
+              </div>
 
-            <div>
-              <label className="text-sm font-medium mb-2 block">Kundenname</label>
-              <Input
-                placeholder="Optional"
-                value={appointmentCustomer}
-                onChange={(e) => setAppointmentCustomer(e.target.value)}
-                className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
-            </div>
-
-            <div>
-              <label className="text-sm font-medium mb-2 block">Notizen</label>
-              <Textarea
-                placeholder="Optional"
-                value={appointmentNotes}
-                onChange={(e) => setAppointmentNotes(e.target.value)}
-                className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
+              <div className="pt-4 border-t">
+                <p className="text-xs text-muted-foreground">
+                  💡 Tipp: Plane deine Termine so, dass du genug Zeit für die Fahrt zwischen den Adressen hast.
+                </p>
+              </div>
             </div>
           </div>
 
@@ -984,6 +1048,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 setAppointmentTime("");
                 setAppointmentCustomer("");
                 setAppointmentNotes("");
+                setAppointmentType("geschaeftlich");
                 setPendingAppointmentUnitId(null);
               }}
               className="flex-1"
