@@ -73,17 +73,20 @@ const SwipeDeck = ({
           </div>
         ) : (
           deck.slice(0, initialCount).map((address, i) => {
-            const offset = i * 8;
-            const scale = 1 - i * 0.03;
+            const offsetY = i * 12;
+            const offsetX = i * 4;
+            const scale = 1 - i * 0.05;
+            const opacity = 1 - i * 0.15;
             const isTop = i === 0;
 
             return (
               <div
                 key={address.id}
-                className="absolute inset-0 transition-all duration-200"
+                className="absolute inset-0 transition-all duration-300 ease-out"
                 style={{ 
-                  transform: `translateY(${offset}px) scale(${scale})`, 
+                  transform: `translateY(${offsetY}px) translateX(${offsetX}px) scale(${scale})`, 
                   zIndex: 100 - i,
+                  opacity: opacity,
                   pointerEvents: isTop ? 'auto' : 'none'
                 }}
               >
