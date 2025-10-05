@@ -210,19 +210,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     setUnitStatuses(prev => ({
       ...prev,
-      ...units.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
+      ...units.reduce((acc, unit) => {
+        const key = `${addr.id}:${unit.id}`;
+        return { ...acc, [key]: unit.status || "offen" };
+      }, {})
     }));
     
     setStatusHistories(prev => ({
       ...prev,
       ...units.reduce((acc, unit) => {
         const status = unit.status || "offen";
+        const key = `${addr.id}:${unit.id}`;
         if (status === "offen") {
-          return { ...acc, [unit.id]: [] };
+          return { ...acc, [key]: [] };
         }
         return { 
           ...acc, 
-          [unit.id]: [
+          [key]: [
             {
               id: 1,
               status: statusOptions.find(s => s.value === status)?.label || "Offen",
@@ -238,10 +242,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       ...prev,
       ...units.reduce((acc, unit) => {
         const status = unit.status || "offen";
+        const key = `${addr.id}:${unit.id}`;
         if (status === "offen") {
-          return { ...acc, [unit.id]: "" };
+          return { ...acc, [key]: "" };
         }
-        return { ...acc, [unit.id]: initialTimestamp };
+        return { ...acc, [key]: initialTimestamp };
       }, {})
     }));
   }, []);
@@ -605,7 +610,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <SelectTrigger className="flex-1 h-11 md:h-12 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
                             <SelectValue>
                               {(() => {
-                                const currentStatus = unitStatuses[unit.id] || "offen";
+                                const currentStatus = unitStatuses[`${addr.id}:${unit.id}`] || "offen";
                                 const statusOption = statusOptions.find(s => s.value === currentStatus);
                                 return statusOption ? (
                                   <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
@@ -636,9 +641,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
                               Historie
-                              {statusHistories[unit.id] && statusHistories[unit.id].length > 0 && (
+                              {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
                                 <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                                  {statusHistories[unit.id].length}
+                                  {statusHistories[`${addr.id}:${unit.id}`].length}
                                 </span>
                               )}
                             </Button>
@@ -662,7 +667,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 </div>
                                 <div className="p-3 pt-2">
                                   <div className="space-y-2">
-                                    {(statusHistories[unit.id] || []).map((history) => {
+                                    {(statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
                                       const statusOption = statusOptions.find(s => s.label === history.status);
                                       return (
                                         <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
@@ -687,9 +692,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </div>
                     </div>
 
-                    {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
+                    {showStatusUpdateButton(unitStatuses[`${addr.id}:${unit.id}`] || "offen") && (
                       <Button 
-                        onClick={() => handleSameStatusUpdate(unit.id)}
+                        onClick={() => handleSameStatusUpdate(addr.id, unit.id)}
                         className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md"
                       >
                         <RotateCcw className="w-4 h-4 mr-2" />
@@ -697,9 +702,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </Button>
                     )}
 
-                    {lastUpdated[unit.id] && (
+                    {lastUpdated[`${addr.id}:${unit.id}`] && (
                       <p className="text-xs text-muted-foreground">
-                        Aktualisiert: {lastUpdated[unit.id]}
+                        Aktualisiert: {lastUpdated[`${addr.id}:${unit.id}`]}
                       </p>
                     )}
 
