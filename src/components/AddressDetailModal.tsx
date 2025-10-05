@@ -214,26 +214,35 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent className="w-64 p-0 max-h-[400px] overflow-y-auto" side="bottom" align="end" avoidCollisions={false} sideOffset={8}>
-                            <div className="p-3">
-                              <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
-                              <div className="space-y-2">
-                                {statusHistory.map((history) => {
-                                  const statusOption = statusOptions.find(s => s.label === history.status);
-                                  return (
-                                    <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
-                                      <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
-                                        {history.status}
+                          <PopoverContent 
+                            className="w-64 p-0 overflow-hidden" 
+                            side="bottom" 
+                            align="end" 
+                            avoidCollisions={true}
+                            sideOffset={8}
+                            collisionPadding={{ right: 20, left: 20, top: 20, bottom: 20 }}
+                          >
+                            <div className="max-h-[300px] overflow-y-auto">
+                              <div className="p-3">
+                                <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
+                                <div className="space-y-2">
+                                  {statusHistory.map((history) => {
+                                    const statusOption = statusOptions.find(s => s.label === history.status);
+                                    return (
+                                      <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                        <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                          {history.status}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {history.changedBy}
+                                        </div>
+                                        <div className="text-xs text-muted-foreground">
+                                          {history.changedAt}
+                                        </div>
                                       </div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {history.changedBy}
-                                      </div>
-                                      <div className="text-xs text-muted-foreground">
-                                        {history.changedAt}
-                                      </div>
-                                    </div>
-                                  );
-                                })}
+                                    );
+                                  })}
+                                </div>
                               </div>
                             </div>
                           </PopoverContent>
