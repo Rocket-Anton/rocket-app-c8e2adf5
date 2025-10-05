@@ -1050,7 +1050,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="grid lg:grid-cols-2 gap-6">
+            <div className="grid md:grid-cols-2 gap-6">
               {/* Left Column - Form */}
               <div className="space-y-4">
                 <div>
@@ -1161,7 +1161,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* Right Column - Map (nur Desktop) */}
-              <div className="hidden lg:block space-y-4">
+              <div className="hidden md:block space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
                     <Button
@@ -1438,7 +1438,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="grid lg:grid-cols-2 gap-6">
+          <div className="grid md:grid-cols-2 gap-6">
             {/* Left Column - Form */}
             <div className="space-y-4">
               <div>
