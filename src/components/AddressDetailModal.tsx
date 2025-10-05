@@ -74,9 +74,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<number | null>(null);
+  const [popoverKey, setPopoverKey] = useState(0);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const [statusPopoverOpen, setStatusPopoverOpen] = useState<Record<number, boolean>>({});
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -122,7 +122,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           ]
         }), {})
       );
-      setStatusPopoverOpen({});
+      setPopoverKey(0);
     }
   }, [open, currentAddress.id]);
 
@@ -132,7 +132,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (!scrollEl) return;
 
     const handleScroll = () => {
-      setStatusPopoverOpen({});
+      // Force re-render of all popovers to close them
+      setPopoverKey(prev => prev + 1);
     };
 
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
@@ -372,10 +373,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               ))}
                           </SelectContent>
                         </Select>
-                        <Popover 
-                          open={!!statusPopoverOpen[unit.id]}
-                          onOpenChange={(isOpen) => setStatusPopoverOpen(prev => ({ ...prev, [unit.id]: isOpen }))}
-                        >
+                        <Popover key={`popover-${unit.id}-${popoverKey}`}>
                           <PopoverTrigger asChild>
                             <Button 
                               variant="outline" 
