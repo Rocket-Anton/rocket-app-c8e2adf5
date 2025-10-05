@@ -145,32 +145,40 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                     <div className="bg-muted/70 rounded-lg p-4 space-y-3">
                       {wohneinheiten > 1 ? (
                         <div className="flex gap-3">
-                          <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Stockwerk" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="EG">EG</SelectItem>
-                              <SelectItem value="1. OG">1. OG</SelectItem>
-                              <SelectItem value="2. OG">2. OG</SelectItem>
-                              <SelectItem value="3. OG">3. OG</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Stockwerk</label>
+                            <Select defaultValue={unit.floor}>
+                              <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                <SelectValue placeholder="Stockwerk" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="EG">EG</SelectItem>
+                                <SelectItem value="1. OG">1. OG</SelectItem>
+                                <SelectItem value="2. OG">2. OG</SelectItem>
+                                <SelectItem value="3. OG">3. OG</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
 
-                          <Select defaultValue={unit.position}>
-                            <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Lage" />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="Links">Links</SelectItem>
-                              <SelectItem value="Rechts">Rechts</SelectItem>
-                              <SelectItem value="Mitte">Mitte</SelectItem>
-                            </SelectContent>
-                          </Select>
+                          <div className="flex-1">
+                            <label className="text-xs text-muted-foreground mb-1 block">Lage</label>
+                            <Select defaultValue={unit.position}>
+                              <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                <SelectValue placeholder="Lage" />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="Links">Links</SelectItem>
+                                <SelectItem value="Rechts">Rechts</SelectItem>
+                                <SelectItem value="Mitte">Mitte</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
                         </div>
                       ) : null}
 
-                      <div className="flex items-center gap-3">
+                      <div>
+                        <label className="text-xs text-muted-foreground mb-1 block">Status</label>
+                        <div className="flex items-center gap-3">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
@@ -230,6 +238,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                             </div>
                           </PopoverContent>
                         </Popover>
+                        </div>
                       </div>
 
                       {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
