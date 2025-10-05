@@ -941,12 +941,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogContent 
             hideClose 
-            className="p-0 overflow-hidden rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
+            className="p-0 overflow-visible rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
           >
             <HorizontalModalPager
               items={allAddresses}
               startIndex={initialIndex}
-              render={renderCompleteCard}
+              renderCard={renderCompleteCard}
               onIndexChange={(idx) => {
                 setCurrentIndex(idx);
               }}

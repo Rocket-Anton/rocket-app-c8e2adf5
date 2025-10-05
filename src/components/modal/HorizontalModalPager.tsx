@@ -5,20 +5,20 @@ type Item = { id: number };
 type Props<T extends Item> = {
   items: T[];
   startIndex?: number;
-  render: (item: T, index: number, total: number) => React.ReactNode;
+  renderCard: (item: T, index: number, total: number) => React.ReactNode;
   onIndexChange?: (index: number) => void;
 };
 
 export default function HorizontalModalPager<T extends Item>({
   items,
   startIndex = 0,
-  render,
+  renderCard,
   onIndexChange,
 }: Props<T>) {
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
     align: 'start',
-    containScroll: 'trimSnaps',
+    containScroll: false,
     dragFree: false,
     skipSnaps: false,
   });
@@ -35,16 +35,31 @@ export default function HorizontalModalPager<T extends Item>({
   useEffect(() => {
     if (!embla) return;
     embla.on('select', onSelect);
-    return () => { embla.off('select', onSelect); };
+    return () => {
+      embla.off('select', onSelect);
+    };
   }, [embla, onSelect]);
 
   return (
-    <div ref={emblaRef} className="h-full overflow-hidden touch-pan-y">
-      <div className="flex h-full -mr-3">
+    <div
+      ref={emblaRef}
+      className="h-full overflow-hidden touch-pan-y"
+      style={{
+        position: 'relative',
+        left: '50%',
+        right: '50%',
+        marginLeft: 'calc(-50vw + 50%)',
+        marginRight: 'calc(-50vw + 50%)',
+        width: '100vw',
+      }}
+    >
+      <div className="flex h-full will-change-transform">
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] min-w-0 h-full pr-3">
-            <div className="h-full w-full rounded-xl bg-background border shadow-xl flex flex-col overflow-hidden">
-              {render(it, idx, items.length)}
+          <div key={it.id} className="flex-[0_0_100%] h-full">
+            <div className="h-full w-full flex items-start justify-center">
+              <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden">
+                {renderCard(it, idx, items.length)}
+              </div>
             </div>
           </div>
         ))}
