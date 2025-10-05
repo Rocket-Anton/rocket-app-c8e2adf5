@@ -81,6 +81,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [popoverKey, setPopoverKey] = useState(0);
   const [addNoteDialogOpen, setAddNoteDialogOpen] = useState(false);
   const [newNoteText, setNewNoteText] = useState("");
+  const [deleteNoteDialogOpen, setDeleteNoteDialogOpen] = useState(false);
+  const [pendingDeleteNoteId, setPendingDeleteNoteId] = useState<number | null>(null);
   const [notes, setNotes] = useState([
     {
       id: 1,
@@ -337,6 +339,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
 
+  const handleDeleteNote = (noteId: number) => {
+    setPendingDeleteNoteId(noteId);
+    setDeleteNoteDialogOpen(true);
+  };
+
+  const confirmDeleteNote = () => {
+    if (pendingDeleteNoteId === null) return;
+    
+    setNotes(prev => prev.filter(note => note.id !== pendingDeleteNoteId));
+    setDeleteNoteDialogOpen(false);
+    setPendingDeleteNoteId(null);
+    
+    // Show toast notification
+    toast({
+      title: "✓ Notiz gelöscht",
+      className: "bg-green-400/80 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+    });
+  };
+
   const renderAddressContent = (addr: Address, isCurrentSlide: boolean = true) => {
     const units = addr.filteredUnits || addr.units || [];
     const unitCount = units.length;
@@ -527,7 +548,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <div className="p-3 space-y-2">
                             {notes.map((note) => (
                               <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
-                                <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
+                                <button 
+                                  onClick={() => handleDeleteNote(note.id)}
+                                  className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground"
+                                >
                                   <X className="w-4 h-4" />
                                 </button>
                                 <div className="font-medium text-sm">{note.author}</div>
@@ -782,6 +806,30 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
         </DialogContent>
       </Dialog>
+
+      <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchtest du diese Notiz wirklich löschen?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogAction 
+              onClick={confirmDeleteNote}
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Bestätigen
+            </AlertDialogAction>
+            <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
+              <X className="w-4 h-4 mr-2" />
+              Abbrechen
+            </AlertDialogCancel>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </>
   );
 };
