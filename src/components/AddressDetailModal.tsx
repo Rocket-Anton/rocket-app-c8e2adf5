@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -61,7 +61,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
-  
+  const modalContentRef = useRef<HTMLDivElement | null>(null);
+
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
     if (!emblaApi) return;
@@ -121,6 +122,48 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
     { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" }
   ];
+
+  // Popover-Inhalt, der die Höhe an die Unterkante der Modal begrenzt und nie nach oben flippt
+  const BoundedPopoverContent = ({ modalRef, className, children, sideOffset = 8, align = "end" }: any) => {
+    const contentRef = useRef<HTMLDivElement | null>(null);
+    const [maxH, setMaxH] = useState<number | undefined>();
+
+    const update = useCallback(() => {
+      const modalEl = modalRef?.current as HTMLElement | null;
+      const contentEl = contentRef.current as HTMLElement | null;
+      if (!modalEl || !contentEl) return;
+      const modalRect = modalEl.getBoundingClientRect();
+      const contentRect = contentEl.getBoundingClientRect();
+      const available = Math.max(120, Math.floor(modalRect.bottom - contentRect.top - 8));
+      setMaxH(available);
+    }, [modalRef]);
+
+    useLayoutEffect(() => {
+      // initial + on resize/scroll (capture to catch inner scrollables)
+      update();
+      const onScroll = () => update();
+      window.addEventListener("resize", update);
+      window.addEventListener("scroll", onScroll, true);
+      return () => {
+        window.removeEventListener("resize", update);
+        window.removeEventListener("scroll", onScroll, true);
+      };
+    }, [update]);
+
+    return (
+      <PopoverContent
+        ref={contentRef as any}
+        side="bottom"
+        align={align}
+        sideOffset={sideOffset}
+        avoidCollisions={false}
+        className={className}
+        style={{ maxHeight: maxH }}
+      >
+        {children}
+      </PopoverContent>
+    );
+  };
 
   const showStatusUpdateButton = (status: string) => {
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
@@ -434,7 +477,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   if (!isMobile || allAddresses.length <= 1) {
     return (
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
+        <DialogContent ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
           <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
             <DialogTitle className="text-lg sm:text-xl font-semibold">
               {currentAddress.street} {currentAddress.houseNumber}
@@ -466,7 +509,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Mobile/Tablet Carousel mode
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+      <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
         <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
           <div className="embla__container h-full flex">
             {allAddresses.map((addr, index) => {
