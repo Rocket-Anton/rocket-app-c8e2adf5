@@ -711,7 +711,7 @@ export const LauflistenContent = () => {
                                 style={{ width: 'var(--radix-popover-trigger-width)' }}
                               >
                                 <Command className="bg-background">
-                                  <CommandList style={{ maxHeight: 'min(var(--radix-popper-available-height, 40vh), 40vh)', overscrollBehavior: 'none' }} className="overflow-y-auto">
+                                  <CommandList style={{ maxHeight: '200px', overscrollBehavior: 'none' }} className="overflow-y-auto">
                                     <CommandGroup>
                                       {statusOptions.map((option) => (
                                         <CommandItem
