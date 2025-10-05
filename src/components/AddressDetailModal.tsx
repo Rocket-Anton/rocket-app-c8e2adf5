@@ -244,8 +244,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     // Show toast notification
     toast({
-      title: "Status geändert",
-      className: "bg-green-500 text-white border-0",
+      title: "✓ Status geändert",
+      className: "bg-green-400/60 text-white border-0 w-auto max-w-[250px]",
     });
   };
 
@@ -276,8 +276,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     // Show toast notification
     toast({
-      title: "Status aktualisiert",
-      className: "bg-green-500 text-white border-0",
+      title: "✓ Status aktualisiert",
+      className: "bg-green-400/60 text-white border-0 w-auto max-w-[250px]",
     });
     
     setConfirmStatusUpdateOpen(false);
