@@ -878,9 +878,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl touch-pan-y">
-          <div className="embla h-full w-full overflow-hidden touch-pan-y" ref={emblaRef}>
-            <div className="embla__container h-full flex touch-pan-y">
+        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+          <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
+            <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
                 const addrUnits = addr.filteredUnits || addr.units || [];
                 const addrUnitCount = addrUnits.length;
@@ -888,10 +888,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 return (
                   <div 
                     key={addr.id} 
-                    className="embla__slide flex-[0_0_100%] min-w-0 h-full"
+                    className="embla__slide h-full"
                   >
-                    <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
-                       <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
+                    <div className="w-full h-full flex flex-col">
+                       <DialogHeader className="px-4 py-4 border-b flex-shrink-0 bg-background">
                         <DialogTitle className="text-lg font-semibold">
                           {addr.street} {addr.houseNumber}
                         </DialogTitle>
