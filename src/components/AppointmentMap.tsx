@@ -113,41 +113,41 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
             position: relative;
             background: #3b82f6;
             color: white;
-            padding: 6px 12px;
-            border-radius: 12px;
-            font-size: 11px;
+            padding: 4px 8px;
+            border-radius: 8px;
+            font-size: 10px;
             font-weight: 600;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
             white-space: nowrap;
             border: 2px solid white;
           ">
             ${apt.time}
             <div style="
               position: absolute;
-              bottom: -6px;
-              left: 50%;
-              transform: translateX(-50%);
-              width: 0;
-              height: 0;
-              border-left: 6px solid transparent;
-              border-right: 6px solid transparent;
-              border-top: 6px solid white;
-            "></div>
-            <div style="
-              position: absolute;
-              bottom: -4px;
+              bottom: -5px;
               left: 50%;
               transform: translateX(-50%);
               width: 0;
               height: 0;
               border-left: 5px solid transparent;
               border-right: 5px solid transparent;
-              border-top: 5px solid #3b82f6;
+              border-top: 5px solid white;
+            "></div>
+            <div style="
+              position: absolute;
+              bottom: -3px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0;
+              height: 0;
+              border-left: 4px solid transparent;
+              border-right: 4px solid transparent;
+              border-top: 4px solid #3b82f6;
             "></div>
           </div>
         `,
-        iconSize: [70, 36],
-        iconAnchor: [35, 36],
+        iconSize: [50, 28],
+        iconAnchor: [25, 28],
       });
 
       const marker = L.marker([apt.coordinates[1], apt.coordinates[0]], { icon: customIcon }).addTo(map);
