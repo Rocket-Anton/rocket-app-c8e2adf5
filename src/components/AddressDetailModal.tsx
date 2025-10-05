@@ -1160,7 +1160,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </Collapsible>
               </div>
 
-              {/* Right Column - Map */}
+              {/* Right Column - Map (nur Desktop) */}
               <div className="hidden md:block space-y-4">
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2">
@@ -1233,43 +1233,44 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   currentAddress={mapCurrentAddress}
                   selectedAppointmentId={selectedAppointmentId}
                 />
-                
-                <div>
-                  <h3 className="text-sm font-medium mb-3">
-                    Deine Termine ({appointments.length})
-                  </h3>
-                  <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
-                    {appointments.length > 0 ? (
-                      appointments.map((apt) => (
-                        <div 
-                          key={apt.id} 
-                          onClick={() => {
-                            if (selectedAppointmentId === apt.id) {
-                              setSelectedAppointmentId(null);
-                            } else {
-                              setSelectedAppointmentId(apt.id);
-                            }
-                          }}
-                          className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
-                            selectedAppointmentId === apt.id 
-                              ? 'bg-blue-100 border-blue-400 shadow-md' 
-                              : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                          }`}
-                        >
-                          <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
-                          <div className="text-muted-foreground">{apt.address}</div>
-                          {apt.customer && (
-                            <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
-                          )}
-                        </div>
-                      ))
-                    ) : (
-                      <div className="text-sm text-muted-foreground text-center py-8">
-                        Noch keine Termine vorhanden
-                      </div>
-                    )}
+              </div>
+            </div>
+            
+            {/* Termine Liste - immer sichtbar (Mobile + Desktop) */}
+            <div className="mt-6">
+              <h3 className="text-sm font-medium mb-3">
+                Deine Termine ({appointments.length})
+              </h3>
+              <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
+                {appointments.length > 0 ? (
+                  appointments.map((apt) => (
+                    <div 
+                      key={apt.id} 
+                      onClick={() => {
+                        if (selectedAppointmentId === apt.id) {
+                          setSelectedAppointmentId(null);
+                        } else {
+                          setSelectedAppointmentId(apt.id);
+                        }
+                      }}
+                      className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
+                        selectedAppointmentId === apt.id 
+                          ? 'bg-blue-100 border-blue-400 shadow-md' 
+                          : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                      }`}
+                    >
+                      <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
+                      <div className="text-muted-foreground">{apt.address}</div>
+                      {apt.customer && (
+                        <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
+                      )}
+                    </div>
+                  ))
+                ) : (
+                  <div className="text-sm text-muted-foreground text-center py-8">
+                    Noch keine Termine vorhanden
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
