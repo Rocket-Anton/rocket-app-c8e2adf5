@@ -644,7 +644,7 @@ export const LauflistenContent = () => {
                     </SheetTrigger>
                     <SheetContent side="bottom" className="h-[85vh] flex flex-col p-0">
                       <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
-                        <div className="flex items-center justify-start gap-4">
+                        <div className="flex items-center justify-start gap-8">
                           <SheetTitle>Filter</SheetTitle>
                           {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
                             <Button 
