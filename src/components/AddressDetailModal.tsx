@@ -419,7 +419,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   {wohneinheiten}
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1">
+              <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1 border-0">
                 <Plus className="w-4 h-4" />
                 Hinzufügen
               </Button>
@@ -463,7 +463,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             {addrUnitCount}
                           </div>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1">
+                        <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
                           <Plus className="w-4 h-4" />
                           Hinzufügen
                         </Button>
