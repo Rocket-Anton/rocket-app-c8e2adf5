@@ -511,7 +511,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
 
-  const renderAddressContent = (addr: Address, isCurrentSlide: boolean = true) => {
+  const renderAddressContent = (addr: Address) => {
     const units = addr.filteredUnits || addr.units || [];
     const unitCount = units.length;
     
@@ -929,8 +929,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
 
           {/* Card Content */}
-          <div className="flex-1 overflow-y-auto">
-            {renderAddressContent(addr, true)}
+          <div className="flex-1 overflow-y-auto touch-pan-y overscroll-contain">
+            {renderAddressContent(addr)}
           </div>
         </div>
       );
@@ -1113,7 +1113,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
                       </DialogHeader>
 
-                      {renderAddressContent(addr, index === currentIndex)}
+                      {renderAddressContent(addr)}
                   </div>
                 );
               })}

@@ -17,7 +17,7 @@ export default function HorizontalModalPager<T extends Item>({
 }: Props<T>) {
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
-    align: 'center',
+    align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
     skipSnaps: false,
@@ -40,10 +40,10 @@ export default function HorizontalModalPager<T extends Item>({
 
   return (
     <div ref={emblaRef} className="h-full overflow-hidden touch-pan-y">
-      <div className="flex h-full">
+      <div className="flex h-full -mr-3">
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] min-w-0 h-full">
-            <div className="h-full w-full flex flex-col overflow-hidden">
+          <div key={it.id} className="flex-[0_0_100%] min-w-0 h-full pr-3">
+            <div className="h-full w-full rounded-xl bg-background border shadow-xl flex flex-col overflow-hidden">
               {render(it, idx, items.length)}
             </div>
           </div>
