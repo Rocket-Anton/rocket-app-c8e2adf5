@@ -940,8 +940,13 @@ export const LauflistenContent = () => {
           {/* Address Cards */}
           <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
             <div className="space-y-4">
-              {displayedAddresses.map((address) => (
-                <AddressCard key={address.id} address={address} />
+              {displayedAddresses.map((address, index) => (
+                <AddressCard 
+                  key={address.id} 
+                  address={address}
+                  allAddresses={displayedAddresses}
+                  currentIndex={index}
+                />
               ))}
             </div>
           </div>

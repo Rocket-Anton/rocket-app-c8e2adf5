@@ -19,9 +19,11 @@ interface Address {
 
 interface AddressCardProps {
   address: Address;
+  allAddresses?: Address[];
+  currentIndex?: number;
 }
 
-export const AddressCard = ({ address }: AddressCardProps) => {
+export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: AddressCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const isMobile = useIsMobile();
 
@@ -75,6 +77,8 @@ export const AddressCard = ({ address }: AddressCardProps) => {
       
       <AddressDetailModal 
         address={address}
+        allAddresses={allAddresses}
+        initialIndex={currentIndex}
         open={modalOpen}
         onOpenChange={setModalOpen}
       />

@@ -1,5 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
+import useEmblaCarousel from 'embla-carousel-react';
+import { useIsMobile } from "@/hooks/use-mobile";
 import {
   Dialog,
   DialogContent,
@@ -32,19 +34,55 @@ interface Address {
 
 interface AddressDetailModalProps {
   address: Address;
+  allAddresses?: Address[];
+  initialIndex?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetailModalProps) => {
+export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange }: AddressDetailModalProps) => {
+  const isMobile = useIsMobile();
+  const [emblaRef, emblaApi] = useEmblaCarousel({ 
+    loop: false,
+    skipSnaps: false,
+    startIndex: initialIndex,
+  });
+  
+  const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const currentAddress = allAddresses.length > 0 ? allAddresses[currentIndex] : address;
+  
   // Use filteredUnits if available (from status filter), otherwise use all units
-  const displayUnits = address.filteredUnits || address.units || [];
+  const displayUnits = currentAddress.filteredUnits || currentAddress.units || [];
   const wohneinheiten = displayUnits.length;
   
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
+  
+  // Update currentIndex when embla scrolls
+  const onSelect = useCallback(() => {
+    if (!emblaApi) return;
+    setCurrentIndex(emblaApi.selectedScrollSnap());
+  }, [emblaApi]);
+
+  useEffect(() => {
+    if (!emblaApi) return;
+    emblaApi.on('select', onSelect);
+    onSelect();
+    
+    return () => {
+      emblaApi.off('select', onSelect);
+    };
+  }, [emblaApi, onSelect]);
+  
+  // Reset embla to initial index when modal opens
+  useEffect(() => {
+    if (open && emblaApi) {
+      emblaApi.scrollTo(initialIndex, true);
+      setCurrentIndex(initialIndex);
+    }
+  }, [open, initialIndex, emblaApi]);
   
   // Reset unit statuses when address changes or modal opens
   useEffect(() => {
@@ -53,7 +91,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
         displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
       );
     }
-  }, [open, address.id]);
+  }, [open, currentAddress.id]);
 
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
@@ -108,77 +146,57 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
     }
   ];
 
-  return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
-        <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
-          <DialogTitle className="text-lg sm:text-xl font-semibold">
-            {address.street} {address.houseNumber}
-          </DialogTitle>
-          <p className="text-sm text-muted-foreground">
-            {address.postalCode} {address.city}
-          </p>
-          
-          <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
-            <div className="flex items-center gap-2">
-              <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
-              <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                {wohneinheiten}
-              </div>
-            </div>
-            <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1">
-              <Plus className="w-4 h-4" />
-              Hinzufügen
-            </Button>
-          </div>
-        </DialogHeader>
-
-        <div className="flex flex-col h-full overflow-hidden">
-          {/* Left Panel */}
-          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 pt-0 ${wohneinheiten > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
-            {/* Unit Cards */}
-            <div className={wohneinheiten === 1 ? '' : 'space-y-4'}>
-              {displayUnits.length > 0 ? (
-                displayUnits.map((unit) => (
-                  <div key={unit.id} className="space-y-4">
-                    {/* Gray Container for Fields */}
-                    <div className="bg-muted/70 rounded-lg p-4 space-y-3">
-                      {wohneinheiten > 1 ? (
-                        <div className="flex gap-3">
-                          <div className="flex-1">
-                            <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
-                            <Select defaultValue={unit.floor}>
-                              <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                                <SelectValue placeholder="Stockwerk" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="EG">EG</SelectItem>
-                                <SelectItem value="1. OG">1. OG</SelectItem>
-                                <SelectItem value="2. OG">2. OG</SelectItem>
-                                <SelectItem value="3. OG">3. OG</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          <div className="flex-1">
-                            <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
-                            <Select defaultValue={unit.position}>
-                              <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                                <SelectValue placeholder="Lage" />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="Links">Links</SelectItem>
-                                <SelectItem value="Rechts">Rechts</SelectItem>
-                                <SelectItem value="Mitte">Mitte</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
+  const renderAddressContent = (addr: Address, isCurrentSlide: boolean = true) => {
+    const units = addr.filteredUnits || addr.units || [];
+    const unitCount = units.length;
+    
+    return (
+      <div className="flex flex-col h-full overflow-hidden">
+        {/* Left Panel */}
+        <div className={`flex-1 overflow-y-auto px-4 sm:px-6 pt-0 ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+          {/* Unit Cards */}
+          <div className={unitCount === 1 ? '' : 'space-y-4'}>
+            {units.length > 0 ? (
+              units.map((unit) => (
+                <div key={unit.id} className="space-y-4">
+                  {/* Gray Container for Fields */}
+                  <div className="bg-muted/70 rounded-lg p-4 space-y-3">
+                    {unitCount > 1 ? (
+                      <div className="flex gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
+                          <Select defaultValue={unit.floor}>
+                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                              <SelectValue placeholder="Stockwerk" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="EG">EG</SelectItem>
+                              <SelectItem value="1. OG">1. OG</SelectItem>
+                              <SelectItem value="2. OG">2. OG</SelectItem>
+                              <SelectItem value="3. OG">3. OG</SelectItem>
+                            </SelectContent>
+                          </Select>
                         </div>
-                      ) : null}
 
-                      <div>
-                        <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
-                        <div className="flex items-center gap-3">
+                        <div className="flex-1">
+                          <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
+                          <Select defaultValue={unit.position}>
+                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                              <SelectValue placeholder="Lage" />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="Links">Links</SelectItem>
+                              <SelectItem value="Rechts">Rechts</SelectItem>
+                              <SelectItem value="Mitte">Mitte</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+                    ) : null}
+
+                    <div>
+                      <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
+                      <div className="flex items-center gap-3">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
@@ -247,136 +265,217 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                             </div>
                           </PopoverContent>
                         </Popover>
-                        </div>
                       </div>
-
-                      {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
-                        <Button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
-                          <RotateCcw className="w-4 h-4 mr-2" />
-                          Status updaten
-                        </Button>
-                      )}
-
-                      {unitStatuses[unit.id] && unitStatuses[unit.id] !== "offen" && (
-                        <p className="text-xs text-muted-foreground">
-                          Aktualisiert: 16.07.2025 16:41
-                        </p>
-                      )}
-
-                      {/* Combined Notizen & Termine Container */}
-                      <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
-                        {/* Collapsible Notizen Section */}
-                        <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-                          <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
-                              <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
-                                {notes.length}
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // TODO: Add note functionality
-                                }}
-                                className="p-1 hover:bg-muted rounded transition-colors"
-                              >
-                                <Plus className="w-4 h-4 text-blue-600" />
-                              </button>
-                              <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
-                            </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent className="border-b border-gray-200">
-                            <div className="p-3 space-y-2">
-                              {notes.map((note) => (
-                                <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
-                                  <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                  <div className="font-medium text-sm">{note.author}</div>
-                                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                                  <div className="text-sm">{note.content}</div>
-                                </div>
-                              ))}
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-
-                        {/* Collapsible Termine Section */}
-                        <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
-                          <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
-                              <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
-                                0
-                              </div>
-                            </div>
-                            <div className="flex items-center gap-2">
-                              <button 
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  // TODO: Add appointment functionality
-                                }}
-                                className="p-1 hover:bg-muted rounded transition-colors"
-                              >
-                                <Plus className="w-4 h-4 text-blue-600" />
-                              </button>
-                              <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
-                            </div>
-                          </CollapsibleTrigger>
-                          <CollapsibleContent>
-                            <div className="p-3">
-                              <div className="bg-muted/30 rounded-lg p-3 text-center text-muted-foreground border">
-                                Keine Termine
-                              </div>
-                            </div>
-                          </CollapsibleContent>
-                        </Collapsible>
-                      </div>
-
-                      {/* Auftrag Button */}
-                      <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
-                        <FileText className="w-4 h-4 mr-2" />
-                        Auftrag
-                      </Button>
                     </div>
+
+                    {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
+                      <Button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
+                        <RotateCcw className="w-4 h-4 mr-2" />
+                        Status updaten
+                      </Button>
+                    )}
+
+                    {unitStatuses[unit.id] && unitStatuses[unit.id] !== "offen" && (
+                      <p className="text-xs text-muted-foreground">
+                        Aktualisiert: 16.07.2025 16:41
+                      </p>
+                    )}
+
+                    {/* Combined Notizen & Termine Container */}
+                    <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
+                      {/* Collapsible Notizen Section */}
+                      <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+                        <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
+                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                              {notes.length}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // TODO: Add note functionality
+                              }}
+                              className="p-1 hover:bg-muted rounded transition-colors"
+                            >
+                              <Plus className="w-4 h-4 text-blue-600" />
+                            </button>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="border-b border-gray-200">
+                          <div className="p-3 space-y-2">
+                            {notes.map((note) => (
+                              <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
+                                <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
+                                  <X className="w-4 h-4" />
+                                </button>
+                                <div className="font-medium text-sm">{note.author}</div>
+                                <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                                <div className="text-sm">{note.content}</div>
+                              </div>
+                            ))}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+
+                      {/* Collapsible Termine Section */}
+                      <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
+                        <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
+                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                              0
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                // TODO: Add appointment functionality
+                              }}
+                              className="p-1 hover:bg-muted rounded transition-colors"
+                            >
+                              <Plus className="w-4 h-4 text-blue-600" />
+                            </button>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="p-3">
+                            <div className="bg-muted/30 rounded-lg p-3 text-center text-muted-foreground border">
+                              Keine Termine
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
+
+                    {/* Auftrag Button */}
+                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
+                      <FileText className="w-4 h-4 mr-2" />
+                      Auftrag
+                    </Button>
                   </div>
-                ))
-              ) : (
-                <div className="p-4 bg-muted/30 rounded-lg text-center text-muted-foreground">
-                  Keine Wohneinheiten vorhanden
                 </div>
-              )}
+              ))
+            ) : (
+              <div className="p-4 bg-muted/30 rounded-lg text-center text-muted-foreground">
+                Keine Wohneinheiten vorhanden
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Right Panel - Hidden on mobile */}
+        <div className="hidden sm:block sm:w-80 border-l bg-muted/30 overflow-y-auto">
+          {/* Notes Section */}
+          <div className="p-4 border-b">
+            <h3 className="font-medium mb-3">Notizen</h3>
+            <div className="space-y-3">
+              {notes.map((note) => (
+                <div key={note.id} className="bg-background rounded-lg p-3 relative">
+                  <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
+                    <X className="w-4 h-4" />
+                  </button>
+                  <div className="font-medium text-sm">{note.author}</div>
+                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                  <div className="text-sm">{note.content}</div>
+                </div>
+              ))}
             </div>
           </div>
 
-          {/* Right Panel - Hidden on mobile */}
-          <div className="hidden sm:block sm:w-80 border-l bg-muted/30 overflow-y-auto">
-            {/* Notes Section */}
-            <div className="p-4 border-b">
-              <h3 className="font-medium mb-3">Notizen</h3>
-              <div className="space-y-3">
-                {notes.map((note) => (
-                  <div key={note.id} className="bg-background rounded-lg p-3 relative">
-                    <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
-                      <X className="w-4 h-4" />
-                    </button>
-                    <div className="font-medium text-sm">{note.author}</div>
-                    <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                    <div className="text-sm">{note.content}</div>
-                  </div>
-                ))}
-              </div>
+          {/* Appointments Section */}
+          <div className="p-4">
+            <h3 className="font-medium mb-3">Termine</h3>
+            <div className="bg-background rounded-lg p-3 text-center text-muted-foreground">
+              Keine Termine
             </div>
+          </div>
+        </div>
+      </div>
+    );
+  };
 
-            {/* Appointments Section */}
-            <div className="p-4">
-              <h3 className="font-medium mb-3">Termine</h3>
-              <div className="bg-background rounded-lg p-3 text-center text-muted-foreground">
-                Keine Termine
+  // Desktop or no carousel mode
+  if (!isMobile || allAddresses.length <= 1) {
+    return (
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
+          <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
+            <DialogTitle className="text-lg sm:text-xl font-semibold">
+              {currentAddress.street} {currentAddress.houseNumber}
+            </DialogTitle>
+            <p className="text-sm text-muted-foreground">
+              {currentAddress.postalCode} {currentAddress.city}
+            </p>
+            
+            <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
+              <div className="flex items-center gap-2">
+                <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
+                <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                  {wohneinheiten}
+                </div>
               </div>
+              <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1">
+                <Plus className="w-4 h-4" />
+                Hinzufügen
+              </Button>
             </div>
+          </DialogHeader>
+
+          {renderAddressContent(currentAddress)}
+        </DialogContent>
+      </Dialog>
+    );
+  }
+
+  // Mobile/Tablet Carousel mode
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-full w-screen h-screen overflow-hidden p-0 m-0 rounded-none border-0">
+        <div className="embla h-full" ref={emblaRef}>
+          <div className="embla__container h-full flex">
+            {allAddresses.map((addr, index) => {
+              const addrUnits = addr.filteredUnits || addr.units || [];
+              const addrUnitCount = addrUnits.length;
+              
+              return (
+                <div 
+                  key={addr.id} 
+                  className="embla__slide flex-[0_0_90%] min-w-0 mr-4 ml-2 first:ml-[5%] last:mr-[5%]"
+                >
+                  <div className="bg-background h-full rounded-xl overflow-hidden shadow-lg flex flex-col">
+                    <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
+                      <DialogTitle className="text-lg font-semibold">
+                        {addr.street} {addr.houseNumber}
+                      </DialogTitle>
+                      <p className="text-sm text-muted-foreground">
+                        {addr.postalCode} {addr.city}
+                      </p>
+                      
+                      <div className="flex items-center justify-between w-full pt-4">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium">Wohneinheiten</span>
+                          <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                            {addrUnitCount}
+                          </div>
+                        </div>
+                        <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1">
+                          <Plus className="w-4 h-4" />
+                          Hinzufügen
+                        </Button>
+                      </div>
+                    </DialogHeader>
+
+                    {renderAddressContent(addr, index === currentIndex)}
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </DialogContent>
