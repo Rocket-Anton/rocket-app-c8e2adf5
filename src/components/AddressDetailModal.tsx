@@ -140,13 +140,32 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [modalRef]);
 
     useLayoutEffect(() => {
-      update();
+      // Wait for Radix/Popper to finish positioning, then measure (2x RAF avoids race)
+      let raf1 = 0;
+      let raf2 = 0;
+      const rafUpdate = () => update();
+      raf1 = requestAnimationFrame(() => {
+        raf2 = requestAnimationFrame(rafUpdate);
+      });
+
       const onScroll = () => update();
       window.addEventListener("resize", update);
       window.addEventListener("scroll", onScroll, true);
+
+      // Observe attribute/style changes on the popover content (position updates)
+      const el = contentRef.current;
+      let mo: MutationObserver | undefined;
+      if (el) {
+        mo = new MutationObserver(() => update());
+        mo.observe(el, { attributes: true, attributeFilter: ["style", "data-state", "data-side"] });
+      }
+
       return () => {
+        cancelAnimationFrame(raf1);
+        cancelAnimationFrame(raf2);
         window.removeEventListener("resize", update);
         window.removeEventListener("scroll", onScroll, true);
+        mo?.disconnect();
       };
     }, [update]);
 
