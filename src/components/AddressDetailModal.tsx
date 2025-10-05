@@ -242,14 +242,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </button>
                           </PopoverTrigger>
                           <PopoverContent 
-                            className="w-64 p-0 overflow-hidden max-h-[200px]" 
+                            className="w-64 p-0 overflow-hidden" 
                             side="bottom" 
                             align="end" 
                             avoidCollisions={true}
                             sideOffset={8}
                             collisionPadding={{ right: 20, left: 20, top: 20, bottom: 100 }}
                           >
-                            <div className="max-h-[300px] overflow-y-auto">
+                            <div className="max-h-[200px] overflow-y-auto">
                               <div className="p-3">
                                 <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
                                 <div className="space-y-2">
