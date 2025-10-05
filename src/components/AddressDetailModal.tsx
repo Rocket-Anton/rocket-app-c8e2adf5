@@ -1046,7 +1046,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectValue placeholder="Minute" />
                     </SelectTrigger>
                     <SelectContent>
-                      {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
+                      {[0, 10, 20, 30, 40, 50].map((minute) => (
                         <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                           {minute.toString().padStart(2, '0')}
                         </SelectItem>
@@ -1056,25 +1056,33 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </div>
               </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Kundenname</label>
-                <Input
-                  placeholder="Optional"
-                  value={appointmentCustomer}
-                  onChange={(e) => setAppointmentCustomer(e.target.value)}
-                  className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
+              <Collapsible>
+                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
+                  <span className="text-sm font-medium">Weitere Infos</span>
+                  <ChevronDown className="w-4 h-4 transition-transform ui-expanded:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Kundenname</label>
+                    <Input
+                      placeholder="Optional"
+                      value={appointmentCustomer}
+                      onChange={(e) => setAppointmentCustomer(e.target.value)}
+                      className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Notizen</label>
-                <Textarea
-                  placeholder="Optional"
-                  value={appointmentNotes}
-                  onChange={(e) => setAppointmentNotes(e.target.value)}
-                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              </div>
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Notizen</label>
+                    <Textarea
+                      placeholder="Optional"
+                      value={appointmentNotes}
+                      onChange={(e) => setAppointmentNotes(e.target.value)}
+                      className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
             {/* Right Column - Map and Appointments */}
