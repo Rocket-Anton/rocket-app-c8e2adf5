@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import ModalSwipeDeck from "./modal/ModalSwipeDeck";
 import {
   Dialog,
   DialogContent,
@@ -885,6 +886,196 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   }
 
   // Carousel mode - Always enabled when multiple addresses exist
+  // On mobile, use swipe deck; on desktop, use embla carousel
+  if (isMobile) {
+    // Mobile: Use ModalSwipeDeck for Tinder-style swiping
+    const renderCompleteCard = (addr: Address, index: number, total: number) => {
+      const addrUnits = addr.filteredUnits || addr.units || [];
+      const addrUnitCount = addrUnits.length;
+      
+      return (
+        <div className="flex flex-col h-full">
+          {/* Card Header */}
+          <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
+            <DialogClose 
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50"
+              onClick={() => handleDialogChange(false)}
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Close</span>
+            </DialogClose>
+            <div className="text-lg font-semibold">
+              {addr.street} {addr.houseNumber}
+            </div>
+            <p className="text-sm text-muted-foreground">
+              {addr.postalCode} {addr.city}
+            </p>
+            <div className="text-xs text-muted-foreground mt-2">
+              {index + 1} / {total}
+            </div>
+            
+            <div className="flex items-center justify-between w-full pt-4">
+              <div className="flex items-center gap-2">
+                <span className="text-sm font-medium">Wohneinheiten</span>
+                <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                  {addrUnitCount}
+                </div>
+              </div>
+              <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
+                <Plus className="w-4 h-4" />
+                Hinzufügen
+              </Button>
+            </div>
+          </div>
+
+          {/* Card Content */}
+          <div className="flex-1 overflow-y-auto">
+            {renderAddressContent(addr, true)}
+          </div>
+        </div>
+      );
+    };
+
+    return (
+      <>
+        <Dialog open={open} onOpenChange={handleDialogChange}>
+          <DialogContent 
+            hideClose 
+            className="p-0 overflow-visible rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
+          >
+            <ModalSwipeDeck
+              addresses={allAddresses}
+              startIndex={initialIndex}
+              renderCard={renderCompleteCard}
+              onSwiped={(addr, dir) => {
+                console.log(`Swiped ${dir}:`, addr);
+                // Optional: Hier Status setzen basierend auf Swipe-Richtung
+                // if (dir === 'right') { /* Potenzial */ }
+                // if (dir === 'left') { /* Kein Interesse */ }
+              }}
+              onClose={() => handleDialogChange(false)}
+            />
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchtest du den gleichen Status erneut setzen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmSameStatusUpdate}
+                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+              >
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Notiz hinzufügen</DialogTitle>
+            </DialogHeader>
+            <Textarea
+              placeholder="Notiz eingeben..."
+              value={newNoteText}
+              onChange={(e) => setNewNoteText(e.target.value)}
+              className="min-h-[120px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+            />
+            <div className="flex gap-3">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAddNoteDialogOpen(false);
+                  setNewNoteText("");
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleAddNote}
+                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
+          <DialogContent className="w-[90vw] max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+            <DialogHeader>
+              <DialogTitle>Termin hinzufügen</DialogTitle>
+            </DialogHeader>
+            
+            <div className="grid md:grid-cols-2 gap-6">
+...
+            </div>
+
+            <div className="flex gap-3 mt-6">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAddAppointmentDialogOpen(false);
+                  setAppointmentDate(undefined);
+                  setAppointmentTime("");
+                  setAppointmentHour("");
+                  setAppointmentMinute("");
+                  setAppointmentCustomer("");
+                  setAppointmentNotes("");
+                  setPendingAppointmentUnitId(null);
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={saveAppointment}
+                disabled={!appointmentDate || !appointmentTime}
+                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchtest du diese Notiz wirklich löschen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmDeleteNote}
+                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+              >
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
+    );
+  }
+
+  // Desktop: Use Embla Carousel
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
