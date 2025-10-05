@@ -196,14 +196,22 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
         zoom: map.getZoom()
       };
     } else if (filteredAppointments.length === 1) {
-      map.setView([filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]], 13);
+      map.setView([filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]], 15);
       // Save new view
       lastViewRef.current = {
         center: [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]],
-        zoom: 13
+        zoom: 15
+      };
+    } else if (filteredAppointments.length === 0 && currentAddress) {
+      // No appointments - center on current address
+      map.setView([currentAddress.coordinates[1], currentAddress.coordinates[0]], 16);
+      // Save new view
+      lastViewRef.current = {
+        center: [currentAddress.coordinates[1], currentAddress.coordinates[0]],
+        zoom: 16
       };
     }
-    // If no appointments, keep the current view (already set above)
+    // If no appointments and no current address, keep the current view (already set above)
 
     return () => {
       if (mapInstance.current) {
