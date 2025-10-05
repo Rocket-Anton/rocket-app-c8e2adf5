@@ -624,7 +624,10 @@ export const LauflistenContent = () => {
                   <Button 
                     variant={swipeMode ? "default" : "outline"} 
                     size="icon" 
-                    className="h-10 w-10"
+                    className={cn(
+                      "h-10 w-10",
+                      swipeMode && "bg-blue-600 hover:bg-blue-700"
+                    )}
                     onClick={() => setSwipeMode(!swipeMode)}
                   >
                     <Layers className="h-4 w-4" />
@@ -968,6 +971,11 @@ export const LauflistenContent = () => {
           {/* Swipe Deck or Address Cards */}
           {swipeMode && isMobile ? (
             <div className="pb-20">
+              <div className="text-center py-4 px-4">
+                <p className="text-sm text-muted-foreground">
+                  Swipe-Modus aktiv • Wische Karten nach links oder rechts
+                </p>
+              </div>
               <SwipeDeck
                 addresses={displayedAddresses}
                 onLeft={(address) => {
