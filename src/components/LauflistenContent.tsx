@@ -703,13 +703,13 @@ export const LauflistenContent = () => {
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
                               <PopoverContent 
-                                className="w-full p-0 bg-background z-[10001] max-h-[300px] overflow-y-scroll" 
+                                className="w-full p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto overscroll-contain touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
                                 align="start" 
                                 side="bottom" 
                                 sideOffset={8}
-                                avoidCollisions={false}
+                                avoidCollisions={true}
                                 collisionPadding={8}
-                                style={{ width: 'var(--radix-popover-trigger-width)' }}
+                                style={{ width: 'var(--radix-popover-trigger-width)', WebkitOverflowScrolling: 'touch' }}
                               >
                                 <Command className="bg-background">
                                   <CommandList className="max-h-none overflow-visible">
@@ -1031,13 +1031,13 @@ export const LauflistenContent = () => {
                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                 </div>
                                 <PopoverContent 
-                                  className="w-full p-0 bg-background z-[10001] max-h-[300px] overflow-y-scroll" 
+                                  className="w-full p-0 bg-background z-[10001] pointer-events-auto overflow-y-auto overscroll-contain touch-pan-y max-h-[min(60vh,var(--radix-popper-available-height,60vh))]" 
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
-                                  avoidCollisions={false}
+                                  avoidCollisions={true}
                                   collisionPadding={8}
-                                  style={{ width: 'var(--radix-popover-trigger-width)' }}
+                                  style={{ width: 'var(--radix-popover-trigger-width)', WebkitOverflowScrolling: 'touch' }}
                                 >
                                   <Command className="bg-background">
                                     <CommandList className="max-h-none overflow-visible">
