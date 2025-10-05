@@ -8,7 +8,7 @@ type Props = {
   onSwipeRight: (addressId: number) => void;
 };
 
-export default function SwipeAddressCard({ address, children, onSwipeLeft, onSwipeRight }: Props) {
+const SwipeAddressCard = ({ address, children, onSwipeLeft, onSwipeRight }: Props) => {
   const preventSwipe = useMemo(() => ['up', 'down'] as const, []);
 
   const handleSwipe = (dir: string) => {
@@ -41,4 +41,6 @@ export default function SwipeAddressCard({ address, children, onSwipeLeft, onSwi
       </div>
     </TinderCard>
   );
-}
+};
+
+export default SwipeAddressCard;

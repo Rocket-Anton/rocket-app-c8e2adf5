@@ -20,13 +20,13 @@ type Props = {
   renderCard?: (address: Address) => React.ReactNode;
 };
 
-export default function SwipeDeck({ 
+const SwipeDeck = ({ 
   addresses, 
   onLeft, 
   onRight, 
   initialCount = 3,
   renderCard 
-}: Props) {
+}: Props) => {
   const [deck, setDeck] = useState(addresses);
   const [history, setHistory] = useState<Array<{ address: Address; direction: 'left' | 'right' }>>([]);
 
@@ -156,4 +156,6 @@ export default function SwipeDeck({
       </div>
     </div>
   );
-}
+};
+
+export default SwipeDeck;
