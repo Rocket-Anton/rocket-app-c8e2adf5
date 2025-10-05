@@ -97,6 +97,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentCustomer, setAppointmentCustomer] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
+  const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
   const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
     // Dummy-Termine in Alt-Lindenau
     {
@@ -968,7 +969,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-2xl rounded-2xl max-h-[90vh] overflow-y-auto">
+        <DialogContent className="w-[90vw] max-w-xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
@@ -1159,6 +1160,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   appointments={appointments}
                   selectedDate={showAllAppointments ? undefined : mapDisplayDate}
                   currentAddress={mapCurrentAddress}
+                  selectedAppointmentId={selectedAppointmentId}
                 />
               </div>
               
@@ -1169,7 +1171,21 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
                   {appointments.length > 0 ? (
                     appointments.map((apt) => (
-                      <div key={apt.id} className="p-3 rounded-lg border bg-blue-50 border-blue-200 text-xs">
+                      <div 
+                        key={apt.id} 
+                        onClick={() => {
+                          if (selectedAppointmentId === apt.id) {
+                            setSelectedAppointmentId(null);
+                          } else {
+                            setSelectedAppointmentId(apt.id);
+                          }
+                        }}
+                        className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
+                          selectedAppointmentId === apt.id 
+                            ? 'bg-blue-100 border-blue-400 shadow-md' 
+                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
+                        }`}
+                      >
                         <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
                         <div className="text-muted-foreground">{apt.address}</div>
                         {apt.customer && (

@@ -29,12 +29,14 @@ interface AppointmentMapProps {
     city: string;
     coordinates: [number, number];
   };
+  selectedAppointmentId?: number | null;
 }
 
-export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: AppointmentMapProps) => {
+export const AppointmentMap = ({ appointments, selectedDate, currentAddress, selectedAppointmentId }: AppointmentMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
   const lastViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
+  const originalViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -186,30 +188,63 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
       bounds.extend([apt.coordinates[1], apt.coordinates[0]]);
     });
 
-    // Fit bounds to show all markers (only if there are appointments)
-    if (filteredAppointments.length > 1) {
-      map.fitBounds(bounds, { padding: [50, 50] });
-      // Save new view
-      const center = map.getCenter();
-      lastViewRef.current = {
-        center: [center.lat, center.lng],
-        zoom: map.getZoom()
-      };
-    } else if (filteredAppointments.length === 1) {
-      map.setView([filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]], 15);
-      // Save new view
-      lastViewRef.current = {
-        center: [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]],
-        zoom: 15
-      };
-    } else if (filteredAppointments.length === 0 && currentAddress) {
-      // No appointments - center on current address
-      map.setView([currentAddress.coordinates[1], currentAddress.coordinates[0]], 16);
-      // Save new view
-      lastViewRef.current = {
-        center: [currentAddress.coordinates[1], currentAddress.coordinates[0]],
-        zoom: 16
-      };
+    // Handle selected appointment
+    if (selectedAppointmentId) {
+      const selectedApt = appointments.find(apt => apt.id === selectedAppointmentId);
+      if (selectedApt && currentAddress) {
+        // Save original view if not already saved
+        if (!originalViewRef.current && lastViewRef.current) {
+          originalViewRef.current = lastViewRef.current;
+        }
+        
+        // Create bounds that include both the selected appointment and current address
+        const aptBounds = L.latLngBounds([
+          [selectedApt.coordinates[1], selectedApt.coordinates[0]],
+          [currentAddress.coordinates[1], currentAddress.coordinates[0]]
+        ]);
+        
+        map.fitBounds(aptBounds, { padding: [80, 80] });
+        
+        // Save new view
+        const center = map.getCenter();
+        lastViewRef.current = {
+          center: [center.lat, center.lng],
+          zoom: map.getZoom()
+        };
+      }
+    } else {
+      // No appointment selected - restore original view if available
+      if (originalViewRef.current) {
+        map.setView(originalViewRef.current.center, originalViewRef.current.zoom);
+        lastViewRef.current = originalViewRef.current;
+        originalViewRef.current = null;
+      } else {
+        // Fit bounds to show all markers (only if there are appointments)
+        if (filteredAppointments.length > 1) {
+          map.fitBounds(bounds, { padding: [50, 50] });
+          // Save new view
+          const center = map.getCenter();
+          lastViewRef.current = {
+            center: [center.lat, center.lng],
+            zoom: map.getZoom()
+          };
+        } else if (filteredAppointments.length === 1) {
+          map.setView([filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]], 15);
+          // Save new view
+          lastViewRef.current = {
+            center: [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]],
+            zoom: 15
+          };
+        } else if (filteredAppointments.length === 0 && currentAddress) {
+          // No appointments - center on current address
+          map.setView([currentAddress.coordinates[1], currentAddress.coordinates[0]], 16);
+          // Save new view
+          lastViewRef.current = {
+            center: [currentAddress.coordinates[1], currentAddress.coordinates[0]],
+            zoom: 16
+          };
+        }
+      }
     }
     // If no appointments and no current address, keep the current view (already set above)
 
@@ -219,7 +254,7 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
         mapInstance.current = null;
       }
     };
-  }, [appointments, selectedDate, currentAddress]);
+  }, [appointments, selectedDate, currentAddress, selectedAppointmentId]);
 
   // Filter appointments for selected date
   const filteredAppointments = selectedDate
