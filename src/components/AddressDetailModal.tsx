@@ -430,10 +430,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="h-9 px-3 gap-2 text-xs font-medium shrink-0"
+                              className="h-9 px-3 gap-2 text-xs font-medium shrink-0 relative"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
                               Historie
+                              {statusHistories[unit.id] && statusHistories[unit.id].length > 0 && (
+                                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                  {statusHistories[unit.id].length}
+                                </span>
+                              )}
                             </Button>
                           </PopoverTrigger>
                           <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
