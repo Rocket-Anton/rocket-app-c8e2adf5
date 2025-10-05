@@ -594,7 +594,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -670,7 +670,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-        <AlertDialogContent className="px-8">
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md">
           <AlertDialogHeader>
             <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
             <AlertDialogDescription>
