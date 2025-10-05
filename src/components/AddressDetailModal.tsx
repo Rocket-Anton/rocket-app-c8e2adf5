@@ -62,7 +62,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
+  const [statusPopoverOpen, setStatusPopoverOpen] = useState<Record<number, boolean>>({});
   const modalContentRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -108,8 +110,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           ]
         }), {})
       );
+      // Reset popover states
+      setStatusPopoverOpen({});
     }
   }, [open, currentAddress.id]);
+
+  // Close all status popovers when scrolling in the main container
+  useEffect(() => {
+    const scrollEl = scrollContainerRef.current;
+    if (!scrollEl) return;
+
+    const handleScroll = () => {
+      setStatusPopoverOpen({});
+    };
+
+    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+    return () => {
+      scrollEl.removeEventListener('scroll', handleScroll);
+    };
+  }, []);
 
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
@@ -232,7 +251,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div ref={scrollContainerRef} className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -313,7 +332,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               ))}
                           </SelectContent>
                         </Select>
-                        <Popover>
+                        <Popover open={statusPopoverOpen[unit.id]} onOpenChange={(open) => setStatusPopoverOpen(prev => ({ ...prev, [unit.id]: open }))}>
                           <PopoverTrigger asChild>
                             <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                               <RotateCcw className="w-4 h-4" />
