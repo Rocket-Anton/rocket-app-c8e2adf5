@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -14,6 +14,11 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
+import {
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from "./ui/collapsible";
 
 interface Address {
   id: number;
@@ -38,6 +43,8 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
   
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<number, string>>({});
+  const [notesOpen, setNotesOpen] = useState(false);
+  const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   
   // Reset unit statuses when address changes or modal opens
   useEffect(() => {
@@ -119,10 +126,9 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                 {wohneinheiten}
               </div>
             </div>
-            <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm">
-              <Plus className="w-4 h-4 mr-1" />
-              <span className="hidden sm:inline">Hinzufügen</span>
-              <span className="sm:hidden">+</span>
+            <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1">
+              <Plus className="w-4 h-4" />
+              Hinzufügen
             </Button>
           </div>
         </DialogHeader>
@@ -134,12 +140,13 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
             <div className={wohneinheiten === 1 ? '' : 'space-y-4'}>
               {displayUnits.length > 0 ? (
                 displayUnits.map((unit) => (
-                  <div key={unit.id} className={`bg-muted/30 rounded-lg ${wohneinheiten === 1 ? 'p-2' : 'p-3 sm:p-4'} ${wohneinheiten === 1 ? 'space-y-2' : 'space-y-3 sm:space-y-4'}`}>
-                    <div className={wohneinheiten === 1 ? 'space-y-3' : 'space-y-3'}>
+                  <div key={unit.id} className="space-y-3">
+                    {/* Gray Container for Fields */}
+                    <div className="bg-muted/50 rounded-xl p-4 space-y-3">
                       {wohneinheiten > 1 ? (
                         <>
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                            <SelectTrigger className="w-full h-9 sm:h-10 border-0 rounded-xl shadow-none bg-background">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -151,7 +158,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </Select>
 
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                            <SelectTrigger className="w-full h-9 sm:h-10 border-0 rounded-xl shadow-none bg-background">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -163,12 +170,12 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                         </>
                       ) : null}
 
-                      <div className={`flex items-center gap-3 ${wohneinheiten === 1 ? '' : ''}`}>
+                      <div className="flex items-center gap-3">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
                         >
-                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-300 shadow-none bg-background focus:border-gray-300 focus:ring-0">
+                          <SelectTrigger className="flex-1 h-9 sm:h-10 border-0 rounded-xl shadow-none bg-background">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
@@ -195,7 +202,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                         </Select>
                         <Popover>
                           <PopoverTrigger asChild>
-                            <button className="p-2 text-muted-foreground hover:text-foreground">
+                            <button className="p-2 rounded-full hover:bg-muted text-muted-foreground hover:text-foreground transition-colors">
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
@@ -224,25 +231,70 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                           </PopoverContent>
                         </Popover>
                       </div>
+
+                      {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
+                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-xl">
+                          <RotateCcw className="w-4 h-4 mr-2" />
+                          Status updaten
+                        </Button>
+                      )}
+
+                      <p className="text-sm text-muted-foreground">
+                        Aktualisiert: 16.07.2025 16:41
+                      </p>
                     </div>
 
-                    {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
-                      <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm">
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        Status updaten
-                      </Button>
-                    )}
+                    {/* Collapsible Notizen Section */}
+                    <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-xl p-4 hover:bg-muted/70 transition-colors">
+                        <span className="font-medium text-sm">Notizen</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
+                            {notes.length}
+                          </div>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2 space-y-2">
+                        {notes.map((note) => (
+                          <div key={note.id} className="bg-background rounded-lg p-3 relative border">
+                            <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
+                              <X className="w-4 h-4" />
+                            </button>
+                            <div className="font-medium text-sm">{note.author}</div>
+                            <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                            <div className="text-sm">{note.content}</div>
+                          </div>
+                        ))}
+                      </CollapsibleContent>
+                    </Collapsible>
 
-                    <p className="text-sm text-muted-foreground">
-                      Aktualisiert: 16.07.2025 16:41
-                    </p>
+                    {/* Collapsible Termine Section */}
+                    <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
+                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-xl p-4 hover:bg-muted/70 transition-colors">
+                        <span className="font-medium text-sm">Termine</span>
+                        <div className="flex items-center gap-2">
+                          <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
+                            0
+                          </div>
+                          <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
+                        </div>
+                      </CollapsibleTrigger>
+                      <CollapsibleContent className="mt-2">
+                        <div className="bg-background rounded-lg p-3 text-center text-muted-foreground border">
+                          Keine Termine
+                        </div>
+                      </CollapsibleContent>
+                    </Collapsible>
 
-                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm">
+                    {/* Auftrag Button */}
+                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-xl">
                       <FileText className="w-4 h-4 mr-2" />
                       Auftrag
                     </Button>
 
-                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm">
+                    {/* Mehr Button */}
+                    <Button variant="secondary" className="w-full bg-muted hover:bg-muted/80 text-sm rounded-xl">
                       <Info className="w-4 h-4 mr-2" />
                       Mehr
                     </Button>
