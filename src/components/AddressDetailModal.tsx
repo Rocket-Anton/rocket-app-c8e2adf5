@@ -3,6 +3,7 @@ import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
+import { TimePicker } from "./TimePicker";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   Dialog,
@@ -1016,48 +1017,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
               <div>
                 <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-                <div className="flex gap-2">
-                  <Select 
-                    value={appointmentHour} 
-                    onValueChange={(value) => {
-                      setAppointmentHour(value);
-                      if (value && appointmentMinute) {
-                        setAppointmentTime(`${value}:${appointmentMinute}`);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                      <SelectValue placeholder="Stunde" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
-                        <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
-                          {hour.toString().padStart(2, '0')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select 
-                    value={appointmentMinute} 
-                    onValueChange={(value) => {
-                      setAppointmentMinute(value);
-                      if (appointmentHour && value) {
-                        setAppointmentTime(`${appointmentHour}:${value}`);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                      <SelectValue placeholder="Minute" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      {Array.from({ length: 60 }, (_, i) => i).map((minute) => (
-                        <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
-                          {minute.toString().padStart(2, '0')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
+                <TimePicker
+                  hour={appointmentHour}
+                  minute={appointmentMinute}
+                  onHourChange={(value) => {
+                    setAppointmentHour(value);
+                    if (value && appointmentMinute) {
+                      setAppointmentTime(`${value}:${appointmentMinute}`);
+                    }
+                  }}
+                  onMinuteChange={(value) => {
+                    setAppointmentMinute(value);
+                    if (appointmentHour && value) {
+                      setAppointmentTime(`${appointmentHour}:${value}`);
+                    }
+                  }}
+                />
               </div>
 
               <div>
