@@ -1,7 +1,8 @@
 import { useState, useEffect, useRef } from "react";
-import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User } from "lucide-react";
+import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
+import SwipeDeck from "./swipe/SwipeDeck";
 import {
   Select,
   SelectContent,
@@ -146,6 +147,7 @@ export const LauflistenContent = () => {
   const [cityFilter, setCityFilter] = useState("");
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
+  const [swipeMode, setSwipeMode] = useState(false);
   
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -617,6 +619,18 @@ export const LauflistenContent = () => {
                   )}
                 </div>
 
+                {/* Swipe Mode Toggle - nur auf Mobile */}
+                {isMobile && (
+                  <Button 
+                    variant={swipeMode ? "default" : "outline"} 
+                    size="icon" 
+                    className="h-10 w-10"
+                    onClick={() => setSwipeMode(!swipeMode)}
+                  >
+                    <Layers className="h-4 w-4" />
+                  </Button>
+                )}
+
                 {/* Filter Icon for all screen sizes */}
                 <Popover open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                   <PopoverTrigger asChild>
@@ -951,24 +965,70 @@ export const LauflistenContent = () => {
             </div>
           </div>
 
-          {/* Address Cards */}
-          <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
-            <div className="space-y-4">
-              {displayedAddresses.map((address, index) => (
-                <div 
-                  key={address.id} 
-                  ref={(el) => addressCardRefs.current[index] = el}
-                >
-                  <AddressCard 
-                    address={address}
-                    allAddresses={displayedAddresses}
-                    currentIndex={index}
-                    onModalClose={handleModalClose}
-                  />
-                </div>
-              ))}
+          {/* Swipe Deck or Address Cards */}
+          {swipeMode && isMobile ? (
+            <div className="pb-20">
+              <SwipeDeck
+                addresses={displayedAddresses}
+                onLeft={(address) => {
+                  console.log('Swipe left:', address);
+                  // TODO: Status auf "kein-interesse" setzen
+                }}
+                onRight={(address) => {
+                  console.log('Swipe right:', address);
+                  // TODO: Status auf "potenzial" setzen
+                }}
+                renderCard={(address) => (
+                  <div className="p-6 h-full overflow-y-auto">
+                    <div className="text-xl font-semibold mb-2">
+                      {address.street} {address.houseNumber}
+                    </div>
+                    <div className="text-muted-foreground mb-4">
+                      {address.postalCode} {address.city}
+                    </div>
+                    {address.units && address.units.length > 0 && (
+                      <div className="space-y-2">
+                        <div className="text-sm font-medium border-b pb-2">
+                          Wohneinheiten: {address.units.length}
+                        </div>
+                        {address.units.map((unit: any) => (
+                          <div key={unit.id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                            <div className="text-sm">
+                              <span className="font-medium">{unit.floor}</span>
+                              {unit.position && <span className="text-muted-foreground ml-2">• {unit.position}</span>}
+                            </div>
+                            <div className={`text-xs px-2 py-1 rounded-full ${
+                              statusOptions.find(s => s.value === unit.status)?.color || 'bg-gray-500 text-white'
+                            }`}>
+                              {statusOptions.find(s => s.value === unit.status)?.label || unit.status}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                )}
+              />
             </div>
-          </div>
+          ) : (
+            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
+              <div className="space-y-4">
+                {displayedAddresses.map((address, index) => (
+                  <div 
+                    key={address.id} 
+                    ref={(el) => addressCardRefs.current[index] = el}
+                  >
+                    <AddressCard 
+                      address={address}
+                      allAddresses={displayedAddresses}
+                      currentIndex={index}
+                      onModalClose={handleModalClose}
+                    />
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </div>
     </div>
