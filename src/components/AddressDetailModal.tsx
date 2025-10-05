@@ -327,14 +327,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
                             >
                               <div
-                                className="overflow-y-auto overscroll-contain touch-pan-y pr-1"
+                                className="overflow-y-auto overscroll-contain touch-pan-y"
                                 onWheel={(e) => e.stopPropagation()}
                                 onPointerDown={(e) => e.stopPropagation()}
                                 onTouchStart={(e) => e.stopPropagation()}
                                 style={{ WebkitOverflowScrolling: 'touch' }}
                               >
-                                <div className="p-3">
-                                  <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
+                                <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
+                                  <h3 className="font-medium text-sm">Status Historie</h3>
+                                </div>
+                                <div className="p-3 pt-2">
                                   <div className="space-y-2">
                                     {(statusHistories[unit.id] || []).map((history) => {
                                       const statusOption = statusOptions.find(s => s.label === history.status);
