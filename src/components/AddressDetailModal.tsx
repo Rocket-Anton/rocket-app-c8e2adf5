@@ -154,14 +154,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full overflow-hidden">
         {/* Left Panel */}
-        <div className={`flex-1 overflow-y-auto px-4 sm:px-6 pt-0 ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div className={`flex-1 overflow-y-auto px-3 sm:px-6 pt-0 ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={unitCount === 1 ? '' : 'space-y-4'}>
             {units.length > 0 ? (
               units.map((unit) => (
                 <div key={unit.id} className="space-y-4">
                   {/* Gray Container for Fields */}
-                  <div className="bg-muted/70 rounded-lg p-4 space-y-3">
+                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3">
                     {unitCount > 1 ? (
                       <div className="flex gap-3">
                         <div className="flex-1">
