@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
@@ -23,6 +23,8 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
 import { useToast } from "@/hooks/use-toast";
+import { Calendar } from "./ui/calendar";
+import { Input } from "./ui/input";
 import {
   Popover,
   PopoverContent,
@@ -83,6 +85,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [newNoteText, setNewNoteText] = useState("");
   const [deleteNoteDialogOpen, setDeleteNoteDialogOpen] = useState(false);
   const [pendingDeleteNoteId, setPendingDeleteNoteId] = useState<number | null>(null);
+  const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
+  const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
+  const [appointmentTime, setAppointmentTime] = useState("");
+  const [appointmentCustomer, setAppointmentCustomer] = useState("");
+  const [appointmentNotes, setAppointmentNotes] = useState("");
+  const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
+  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string}>>([]);
   const [notes, setNotes] = useState([
     {
       id: 1,
@@ -370,6 +379,42 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
 
+  const handleAddAppointment = (unitId: number) => {
+    setPendingAppointmentUnitId(unitId);
+    setAddAppointmentDialogOpen(true);
+  };
+
+  const saveAppointment = () => {
+    if (!appointmentDate || !appointmentTime || pendingAppointmentUnitId === null) return;
+
+    const newAppointment = {
+      id: Date.now(),
+      unitId: pendingAppointmentUnitId,
+      date: appointmentDate.toLocaleDateString('de-DE'),
+      time: appointmentTime,
+      customer: appointmentCustomer,
+      notes: appointmentNotes
+    };
+
+    setAppointments(prev => [...prev, newAppointment]);
+    
+    // Set status to "termin"
+    handleStatusChange(pendingAppointmentUnitId, "termin");
+
+    // Reset form
+    setAppointmentDate(undefined);
+    setAppointmentTime("");
+    setAppointmentCustomer("");
+    setAppointmentNotes("");
+    setAddAppointmentDialogOpen(false);
+    setPendingAppointmentUnitId(null);
+
+    toast({
+      title: "✓ Termin hinzugefügt",
+      className: "bg-green-400/80 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+    });
+  };
+
   const renderAddressContent = (addr: Address, isCurrentSlide: boolean = true) => {
     const units = addr.filteredUnits || addr.units || [];
     const unitCount = units.length;
@@ -589,14 +634,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
                             <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
-                              0
+                              {appointments.filter(apt => apt.unitId === unit.id).length}
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
                             <button 
                               onClick={(e) => {
                                 e.stopPropagation();
-                                // TODO: Add appointment functionality
+                                handleAddAppointment(unit.id);
                               }}
                               className="p-1 hover:bg-muted rounded transition-colors"
                             >
@@ -607,9 +652,30 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <div className="p-3">
-                            <div className="text-sm text-muted-foreground text-center py-4">
-                              Keine Termine vorhanden
-                            </div>
+                            {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
+                              <div className="space-y-2">
+                                {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
+                                  <div key={appointment.id} className="bg-muted/30 rounded-lg p-3 border">
+                                    <div className="flex items-start gap-2 mb-2">
+                                      <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5" />
+                                      <div>
+                                        <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
+                                        {appointment.customer && (
+                                          <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
+                                        )}
+                                        {appointment.notes && (
+                                          <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground text-center py-4">
+                                Keine Termine vorhanden
+                              </div>
+                            )}
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
@@ -818,6 +884,95 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               onClick={() => {
                 setAddNoteDialogOpen(false);
                 setNewNoteText("");
+              }}
+              className="flex-1"
+            >
+              Abbrechen
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
+
+      <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl max-h-[85vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Termin hinzufügen</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-2 block">Datum *</label>
+              <Popover>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
+                  >
+                    <CalendarIcon className="mr-2 h-4 w-4" />
+                    {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={appointmentDate}
+                    onSelect={setAppointmentDate}
+                    initialFocus
+                    className="p-3 pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
+              <Input
+                type="time"
+                value={appointmentTime}
+                onChange={(e) => setAppointmentTime(e.target.value)}
+                className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Kundenname</label>
+              <Input
+                placeholder="Optional"
+                value={appointmentCustomer}
+                onChange={(e) => setAppointmentCustomer(e.target.value)}
+                className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium mb-2 block">Notizen</label>
+              <Textarea
+                placeholder="Optional"
+                value={appointmentNotes}
+                onChange={(e) => setAppointmentNotes(e.target.value)}
+                className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+            </div>
+          </div>
+
+          <div className="flex gap-3 mt-4">
+            <Button
+              onClick={saveAppointment}
+              disabled={!appointmentDate || !appointmentTime}
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white disabled:opacity-50"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Speichern
+            </Button>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddAppointmentDialogOpen(false);
+                setAppointmentDate(undefined);
+                setAppointmentTime("");
+                setAppointmentCustomer("");
+                setAppointmentNotes("");
+                setPendingAppointmentUnitId(null);
               }}
               className="flex-1"
             >
