@@ -445,9 +445,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               return (
                 <div 
                   key={addr.id} 
-                  className="embla__slide flex-[0_0_100%] min-w-0"
+                  className="embla__slide flex-[0_0_100%] min-w-0 h-full"
                 >
-                  <div className="bg-background h-full rounded-xl overflow-hidden shadow-lg flex flex-col">
+                  <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col">
                     <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
                       <DialogTitle className="text-lg font-semibold">
                         {addr.street} {addr.houseNumber}
