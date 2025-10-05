@@ -707,7 +707,8 @@ export const LauflistenContent = () => {
                                 align="start" 
                                 side="bottom" 
                                 sideOffset={8}
-                                avoidCollisions={true}
+                                avoidCollisions={false}
+                                sticky="always"
                                 collisionPadding={8}
                                 style={{ width: 'var(--radix-popover-trigger-width)', WebkitOverflowScrolling: 'touch' }}
                               >
@@ -1035,7 +1036,8 @@ export const LauflistenContent = () => {
                                   align="start" 
                                   side="bottom" 
                                   sideOffset={8}
-                                  avoidCollisions={true}
+                                  avoidCollisions={false}
+                                  sticky="always"
                                   collisionPadding={8}
                                   style={{ width: 'var(--radix-popover-trigger-width)', WebkitOverflowScrolling: 'touch' }}
                                 >
