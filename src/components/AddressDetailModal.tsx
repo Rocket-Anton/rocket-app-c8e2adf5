@@ -558,7 +558,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => handleStatusChange(unit.id, value)}
                         >
-                          <SelectTrigger className="flex-1 h-14 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
+                          <SelectTrigger className="flex-1 h-11 md:h-12 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
@@ -588,7 +588,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <Button 
                               variant="outline" 
                               size="sm"
-                              className="h-14 px-3 gap-2 text-xs font-medium shrink-0 relative"
+                              className="h-11 md:h-12 px-3 gap-2 text-xs font-medium shrink-0 relative"
                             >
                               <RotateCcw className="w-3.5 h-3.5" />
                               Historie
@@ -663,7 +663,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <div className="bg-background border border-border rounded-md overflow-hidden box-border max-w-full w-full">
                       {/* Collapsible Notizen Section */}
                       <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-                        <CollapsibleTrigger className="w-full h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
+                        <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
                             <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
@@ -676,9 +676,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 e.stopPropagation();
                                 setAddNoteDialogOpen(true);
                               }}
-                              className="p-2 hover:bg-muted rounded transition-colors"
+                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
                             >
-                              <Plus className="w-5 h-5 text-blue-600" />
+                              <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
                             </button>
                             <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
                           </div>
@@ -710,7 +710,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                       {/* Collapsible Termine Section */}
                       <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
-                        <CollapsibleTrigger className="w-full h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
+                        <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
                             <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
@@ -723,9 +723,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 e.stopPropagation();
                                 handleAddAppointment(unit.id);
                               }}
-                              className="p-2 hover:bg-muted rounded transition-colors"
+                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
                             >
-                              <Plus className="w-5 h-5 text-blue-600" />
+                              <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
                             </button>
                             <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
                           </div>
