@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect } from "react
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   Dialog,
   DialogContent,
@@ -134,12 +135,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       if (!modalEl || !contentEl) return;
       const modalRect = modalEl.getBoundingClientRect();
       const contentRect = contentEl.getBoundingClientRect();
-      const available = Math.max(120, Math.floor(modalRect.bottom - contentRect.top - 8));
+      const available = Math.max(160, Math.floor(modalRect.bottom - contentRect.top - 8));
       setMaxH(available);
     }, [modalRef]);
 
     useLayoutEffect(() => {
-      // initial + on resize/scroll (capture to catch inner scrollables)
       update();
       const onScroll = () => update();
       window.addEventListener("resize", update);
@@ -300,45 +300,44 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <RotateCcw className="w-4 h-4" />
                             </button>
                           </PopoverTrigger>
-                          <PopoverContent
-                            side="bottom"
-                            align="end"
-                            sideOffset={8}
-                            collisionPadding={{ top: 20, bottom: 20, left: 8, right: 8 }}
-                            avoidCollisions={true}
-                            sticky="always"
-                            className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
-                          >
-                            <div
-                              className="\n        max-h-[min(60vh,var(--radix-popover-content-available-height,60vh))]\n        overflow-y-auto overscroll-contain touch-pan-y pr-1\n      "
-                              onWheel={(e) => e.stopPropagation()}
-                              onPointerDown={(e) => e.stopPropagation()}
-                              onTouchStart={(e) => e.stopPropagation()}
-                              style={{ WebkitOverflowScrolling: 'touch' }}
+                          <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
+                            <BoundedPopoverContent
+                              modalRef={modalContentRef}
+                              align="end"
+                              sideOffset={8}
+                              className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
                             >
-                              <div className="p-3">
-                                <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
-                                <div className="space-y-2">
-                                  {(statusHistories[unit.id] || []).map((history) => {
-                                    const statusOption = statusOptions.find(s => s.label === history.status);
-                                    return (
-                                      <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
-                                        <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
-                                          {history.status}
+                              <div
+                                className="overflow-y-auto overscroll-contain touch-pan-y pr-1"
+                                onWheel={(e) => e.stopPropagation()}
+                                onPointerDown={(e) => e.stopPropagation()}
+                                onTouchStart={(e) => e.stopPropagation()}
+                                style={{ WebkitOverflowScrolling: 'touch' }}
+                              >
+                                <div className="p-3">
+                                  <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
+                                  <div className="space-y-2">
+                                    {(statusHistories[unit.id] || []).map((history) => {
+                                      const statusOption = statusOptions.find(s => s.label === history.status);
+                                      return (
+                                        <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                          <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                            {history.status}
+                                          </div>
+                                          <div className="text-xs text-muted-foreground">
+                                            {history.changedBy}
+                                          </div>
+                                          <div className="text-xs text-muted-foreground">
+                                            {history.changedAt}
+                                          </div>
                                         </div>
-                                        <div className="text-xs text-muted-foreground">
-                                          {history.changedBy}
-                                        </div>
-                                        <div className="text-xs text-muted-foreground">
-                                          {history.changedAt}
-                                        </div>
-                                      </div>
-                                    );
-                                  })}
+                                      );
+                                    })}
+                                  </div>
                                 </div>
                               </div>
-                            </div>
-                          </PopoverContent>
+                            </BoundedPopoverContent>
+                          </PopoverPrimitive.Portal>
                         </Popover>
                       </div>
                     </div>
