@@ -110,10 +110,11 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
         className: "custom-marker",
         html: `
           <div style="
+            position: relative;
             background: #3b82f6;
             color: white;
-            padding: 6px 10px;
-            border-radius: 16px;
+            padding: 6px 12px;
+            border-radius: 12px;
             font-size: 11px;
             font-weight: 600;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
@@ -121,10 +122,32 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
             border: 2px solid white;
           ">
             ${apt.time}
+            <div style="
+              position: absolute;
+              bottom: -6px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0;
+              height: 0;
+              border-left: 6px solid transparent;
+              border-right: 6px solid transparent;
+              border-top: 6px solid white;
+            "></div>
+            <div style="
+              position: absolute;
+              bottom: -4px;
+              left: 50%;
+              transform: translateX(-50%);
+              width: 0;
+              height: 0;
+              border-left: 5px solid transparent;
+              border-right: 5px solid transparent;
+              border-top: 5px solid #3b82f6;
+            "></div>
           </div>
         `,
-        iconSize: [60, 30],
-        iconAnchor: [30, 15],
+        iconSize: [70, 36],
+        iconAnchor: [35, 36],
       });
 
       const marker = L.marker([apt.coordinates[1], apt.coordinates[0]], { icon: customIcon }).addTo(map);
