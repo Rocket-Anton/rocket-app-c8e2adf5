@@ -152,9 +152,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full overflow-hidden">
+      <div className="flex flex-col h-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div className={`flex-1 overflow-y-auto px-3 sm:px-6 pt-0 ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div className={`flex-1 overflow-y-auto px-3 sm:px-6 pt-0 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={unitCount === 1 ? '' : 'space-y-4'}>
             {units.length > 0 ? (
@@ -436,8 +436,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-full w-full h-[95vh] overflow-hidden p-0 rounded-xl sm:max-w-2xl sm:w-[95vw] sm:h-[80vh]">
-        <div className="embla h-full" ref={emblaRef}>
-          <div className="embla__container h-full flex">
+        <div className="embla h-full touch-pan-y" ref={emblaRef}>
+          <div className="embla__container h-full flex touch-pan-y">
             {allAddresses.map((addr, index) => {
               const addrUnits = addr.filteredUnits || addr.units || [];
               const addrUnitCount = addrUnits.length;
