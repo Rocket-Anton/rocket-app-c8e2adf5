@@ -244,48 +244,55 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </p>
                     </div>
 
-                    {/* Collapsible Notizen Section */}
-                    <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-lg p-4 hover:bg-muted/70 transition-colors">
-                        <span className="font-medium text-sm">Notizen</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
-                            {notes.length}
+                    {/* Combined Notizen & Termine Container */}
+                    <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
+                      {/* Collapsible Notizen Section */}
+                      <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border-b border-gray-200">
+                          <span className="font-medium text-sm">Notizen</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
+                              {notes.length}
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
                           </div>
-                          <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
-                        </div>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2 space-y-2">
-                        {notes.map((note) => (
-                          <div key={note.id} className="bg-background rounded-lg p-3 relative border">
-                            <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
-                              <X className="w-4 h-4" />
-                            </button>
-                            <div className="font-medium text-sm">{note.author}</div>
-                            <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                            <div className="text-sm">{note.content}</div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="border-b border-gray-200">
+                          <div className="p-3 space-y-2">
+                            {notes.map((note) => (
+                              <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
+                                <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
+                                  <X className="w-4 h-4" />
+                                </button>
+                                <div className="font-medium text-sm">{note.author}</div>
+                                <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                                <div className="text-sm">{note.content}</div>
+                              </div>
+                            ))}
                           </div>
-                        ))}
-                      </CollapsibleContent>
-                    </Collapsible>
+                        </CollapsibleContent>
+                      </Collapsible>
 
-                    {/* Collapsible Termine Section */}
-                    <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
-                      <CollapsibleTrigger className="w-full flex items-center justify-between bg-muted/50 rounded-lg p-4 hover:bg-muted/70 transition-colors">
-                        <span className="font-medium text-sm">Termine</span>
-                        <div className="flex items-center gap-2">
-                          <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
-                            0
+                      {/* Collapsible Termine Section */}
+                      <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
+                          <span className="font-medium text-sm">Termine</span>
+                          <div className="flex items-center gap-2">
+                            <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
+                              0
+                            </div>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
                           </div>
-                          <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
-                        </div>
-                      </CollapsibleTrigger>
-                      <CollapsibleContent className="mt-2">
-                        <div className="bg-background rounded-lg p-3 text-center text-muted-foreground border">
-                          Keine Termine
-                        </div>
-                      </CollapsibleContent>
-                    </Collapsible>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="p-3">
+                            <div className="bg-muted/30 rounded-lg p-3 text-center text-muted-foreground border">
+                              Keine Termine
+                            </div>
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
 
                     {/* Auftrag Button */}
                     <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
