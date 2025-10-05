@@ -46,6 +46,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     loop: false,
     skipSnaps: false,
     startIndex: initialIndex,
+    align: 'start',
+    containScroll: 'trimSnaps',
   });
   
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
@@ -444,7 +446,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               return (
                 <div 
                   key={addr.id} 
-                  className="embla__slide flex-[0_0_90%] min-w-0 mr-4 ml-2 first:ml-[5%] last:mr-[5%]"
+                  className="embla__slide flex-[0_0_85%] min-w-0 px-2 first:pl-4"
                 >
                   <div className="bg-background h-full rounded-xl overflow-hidden shadow-lg flex flex-col">
                     <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
