@@ -752,21 +752,20 @@ export const LauflistenContent = () => {
                                 )}
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
-                              <PopoverPrimitive.Portal>
-                                <PopoverPrimitive.Content
+                              <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
+                                <BoundedPopoverContent
+                                  containerRef={mobileSheetRef}
                                   align="start"
                                   sideOffset={8}
                                   className="p-0 bg-background border border-border rounded-md shadow-md z-[10001] pointer-events-auto"
                                   style={{ width: 'var(--radix-popover-trigger-width)' }}
                                 >
                                   <div
-                                    className="overflow-y-scroll overscroll-contain"
-                                    style={{ 
-                                      maxHeight: '300px',
-                                      WebkitOverflowScrolling: 'touch',
-                                      touchAction: 'pan-y',
-                                      overscrollBehavior: 'contain'
-                                    }}
+                                    className="max-h-[min(60dvh,var(--radix-popper-available-height,60dvh))] overflow-y-auto overscroll-contain touch-pan-y"
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    onTouchEnd={(e) => e.stopPropagation()}
+                                    style={{ WebkitOverflowScrolling: 'touch' }}
                                   >
                                     <Command className="bg-background">
                                       <CommandList className="overflow-visible">
@@ -803,7 +802,7 @@ export const LauflistenContent = () => {
                                       </CommandList>
                                     </Command>
                                   </div>
-                                </PopoverPrimitive.Content>
+                                </BoundedPopoverContent>
                               </PopoverPrimitive.Portal>
                             </Popover>
                           </div>
