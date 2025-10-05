@@ -9,6 +9,7 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
+  DialogClose,
 } from "./ui/dialog";
 import {
   AlertDialog,
@@ -822,8 +823,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <>
         <Dialog open={open} onOpenChange={handleDialogChange}>
-          <DialogContent ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
-            <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
+          <DialogContent ref={modalContentRef} hideClose className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
+            <DialogHeader className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
+              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                <X className="h-4 w-4" />
+                <span className="sr-only">Close</span>
+              </DialogClose>
               <DialogTitle className="text-lg sm:text-xl font-semibold">
                 {currentAddress.street} {currentAddress.houseNumber}
               </DialogTitle>
@@ -878,7 +883,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
           <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
@@ -890,7 +895,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     key={addr.id} 
                     className="embla__slide flex-shrink-0 flex-grow-0 basis-full h-full"
                   >
-                       <DialogHeader className="px-4 py-4 border-b flex-shrink-0 bg-background">
+                       <DialogHeader className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
+                        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+                          <X className="h-4 w-4" />
+                          <span className="sr-only">Close</span>
+                        </DialogClose>
                         <DialogTitle className="text-lg font-semibold">
                           {addr.street} {addr.houseNumber}
                         </DialogTitle>
