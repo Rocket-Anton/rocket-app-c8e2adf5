@@ -135,7 +135,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
         <div className="flex flex-col h-full overflow-hidden">
           {/* Left Panel */}
-          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 ${wohneinheiten === 1 ? 'pt-1' : 'pt-1'} ${wohneinheiten > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+          <div className={`flex-1 overflow-y-auto px-4 sm:px-6 pt-0 ${wohneinheiten > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
             {/* Unit Cards */}
             <div className={wohneinheiten === 1 ? '' : 'space-y-4'}>
               {displayUnits.length > 0 ? (
