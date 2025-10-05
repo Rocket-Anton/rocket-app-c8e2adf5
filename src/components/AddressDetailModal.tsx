@@ -941,7 +941,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogContent 
             hideClose 
-            className="p-0 overflow-visible rounded-xl w-[92vw] max-w-[92vw] h-[85vh]"
+            className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh]"
           >
             <HorizontalModalPager
               items={allAddresses}
