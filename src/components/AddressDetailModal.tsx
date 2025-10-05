@@ -596,11 +596,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent>
+          <AlertDialogContent className="px-8">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
-                Möchten Sie den gleichen Status erneut setzen? Dies zeigt an, dass der Kunde erneut besucht wurde.
+                Möchtest du den gleichen Status erneut setzen?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>
@@ -672,11 +672,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-        <AlertDialogContent>
+        <AlertDialogContent className="px-8">
           <AlertDialogHeader>
             <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
             <AlertDialogDescription>
-              Möchten Sie den gleichen Status erneut setzen? Dies zeigt an, dass der Kunde erneut besucht wurde.
+              Möchtest du den gleichen Status erneut setzen?
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
