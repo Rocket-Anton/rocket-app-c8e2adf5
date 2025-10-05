@@ -233,7 +233,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                       </div>
 
                       {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
-                        <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
+                        <Button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
                           <RotateCcw className="w-4 h-4 mr-2" />
                           Status updaten
                         </Button>
