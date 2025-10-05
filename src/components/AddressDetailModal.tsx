@@ -258,14 +258,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </button>
                           </PopoverTrigger>
                           <PopoverContent 
-                            className="w-64 p-0 overflow-visible z-[60]" 
+                            className="w-64 p-0 z-[60] overflow-hidden max-h-[var(--radix-popper-available-height)]" 
                             side="bottom" 
                             align="end" 
-                            avoidCollisions={true}
+                            avoidCollisions={false}
                             sideOffset={8}
                             collisionPadding={{ right: 20, left: 20, top: 20, bottom: 100 }}
                           >
-                            <div className="max-h-[300px] overflow-y-auto overscroll-contain touch-pan-y pr-1">
+                            <div className="max-h-[var(--radix-popper-available-height)] overflow-y-auto overscroll-contain touch-pan-y pr-1">
                               <div className="p-3">
                                 <h3 className="font-medium mb-3 text-sm">Status Historie</h3>
                                 <div className="space-y-2">
