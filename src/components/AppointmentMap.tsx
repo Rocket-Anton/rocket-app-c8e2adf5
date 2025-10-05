@@ -34,6 +34,7 @@ interface AppointmentMapProps {
 export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: AppointmentMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const lastViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -46,19 +47,37 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
         })
       : appointments;
 
-    // Destroy existing map if it exists
+    // Save current view if map exists
     if (mapInstance.current) {
+      const center = mapInstance.current.getCenter();
+      const zoom = mapInstance.current.getZoom();
+      lastViewRef.current = {
+        center: [center.lat, center.lng],
+        zoom: zoom
+      };
       mapInstance.current.remove();
       mapInstance.current = null;
     }
 
-    const defaultCenter: [number, number] =
-      filteredAppointments.length > 0
-        ? [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]]
-        : [52.520008, 13.404954]; // Berlin as default
+    // Determine center and zoom
+    let defaultCenter: [number, number];
+    let defaultZoom: number;
+    
+    if (filteredAppointments.length > 0) {
+      defaultCenter = [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]];
+      defaultZoom = 12;
+    } else if (lastViewRef.current) {
+      // Keep last view if no appointments
+      defaultCenter = lastViewRef.current.center;
+      defaultZoom = lastViewRef.current.zoom;
+    } else {
+      // Default to Berlin
+      defaultCenter = [52.520008, 13.404954];
+      defaultZoom = 12;
+    }
 
     // Initialize map
-    const map = L.map(mapContainer.current).setView(defaultCenter, 12);
+    const map = L.map(mapContainer.current).setView(defaultCenter, defaultZoom);
     mapInstance.current = map;
 
     // Add tile layer
@@ -163,12 +182,24 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
       bounds.extend([apt.coordinates[1], apt.coordinates[0]]);
     });
 
-    // Fit bounds to show all markers
+    // Fit bounds to show all markers (only if there are appointments)
     if (filteredAppointments.length > 1) {
       map.fitBounds(bounds, { padding: [50, 50] });
+      // Save new view
+      const center = map.getCenter();
+      lastViewRef.current = {
+        center: [center.lat, center.lng],
+        zoom: map.getZoom()
+      };
     } else if (filteredAppointments.length === 1) {
       map.setView([filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]], 13);
+      // Save new view
+      lastViewRef.current = {
+        center: [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]],
+        zoom: 13
+      };
     }
+    // If no appointments, keep the current view (already set above)
 
     return () => {
       if (mapInstance.current) {
