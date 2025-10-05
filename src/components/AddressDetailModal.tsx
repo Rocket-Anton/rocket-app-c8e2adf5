@@ -759,7 +759,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             placeholder="Notiz eingeben..."
             value={newNoteText}
             onChange={(e) => setNewNoteText(e.target.value)}
-            className="min-h-[120px] resize-none border-border"
+            className="min-h-[120px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
           />
           <div className="flex gap-3">
             <Button
