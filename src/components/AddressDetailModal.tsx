@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
@@ -9,6 +9,16 @@ import {
   DialogHeader,
   DialogTitle,
 } from "./ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Badge } from "./ui/badge";
@@ -62,6 +72,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
+  const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
+  const [pendingStatusUpdate, setPendingStatusUpdate] = useState<number | null>(null);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const [statusPopoverOpen, setStatusPopoverOpen] = useState<Record<number, boolean>>({});
@@ -228,6 +240,35 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
   };
 
+  const handleSameStatusUpdate = (unitId: number) => {
+    setPendingStatusUpdate(unitId);
+    setConfirmStatusUpdateOpen(true);
+  };
+
+  const confirmSameStatusUpdate = () => {
+    if (pendingStatusUpdate === null) return;
+    
+    const currentStatus = unitStatuses[pendingStatusUpdate] || "offen";
+    const statusLabel = statusOptions.find(s => s.value === currentStatus)?.label || currentStatus;
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [pendingStatusUpdate]: [
+        {
+          id: Date.now(),
+          status: statusLabel,
+          changedBy: "Abdullah Kater",
+          changedAt: timestamp
+        },
+        ...(prev[pendingStatusUpdate] || [])
+      ]
+    }));
+    
+    setConfirmStatusUpdateOpen(false);
+    setPendingStatusUpdate(null);
+  };
+
   const notes = [
     {
       id: 1,
@@ -390,7 +431,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     </div>
 
                     {showStatusUpdateButton(unitStatuses[unit.id] || "offen") && (
-                      <Button className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md">
+                      <Button 
+                        onClick={() => handleSameStatusUpdate(unit.id)}
+                        className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md"
+                      >
                         <RotateCcw className="w-4 h-4 mr-2" />
                         Gleicher Status
                       </Button>
@@ -522,82 +566,134 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Desktop or no carousel mode
   if (!isMobile || allAddresses.length <= 1) {
     return (
-      <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
-          <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
-            <DialogTitle className="text-lg sm:text-xl font-semibold">
-              {currentAddress.street} {currentAddress.houseNumber}
-            </DialogTitle>
-            <p className="text-sm text-muted-foreground">
-              {currentAddress.postalCode} {currentAddress.city}
-            </p>
-            
-            <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
-              <div className="flex items-center gap-2">
-                <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
-                <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                  {wohneinheiten}
+      <>
+        <Dialog open={open} onOpenChange={onOpenChange}>
+          <DialogContent ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
+            <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
+              <DialogTitle className="text-lg sm:text-xl font-semibold">
+                {currentAddress.street} {currentAddress.houseNumber}
+              </DialogTitle>
+              <p className="text-sm text-muted-foreground">
+                {currentAddress.postalCode} {currentAddress.city}
+              </p>
+              
+              <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
+                  <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                    {wohneinheiten}
+                  </div>
                 </div>
+                <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1 border-0">
+                  <Plus className="w-4 h-4" />
+                  Hinzufügen
+                </Button>
               </div>
-              <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1 border-0">
-                <Plus className="w-4 h-4" />
-                Hinzufügen
-              </Button>
-            </div>
-          </DialogHeader>
+            </DialogHeader>
 
-          {renderAddressContent(currentAddress)}
-        </DialogContent>
-      </Dialog>
+            {renderAddressContent(currentAddress)}
+          </DialogContent>
+        </Dialog>
+
+        <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
+          <AlertDialogContent>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
+              <AlertDialogDescription>
+                Möchten Sie den gleichen Status erneut setzen? Dies zeigt an, dass der Kunde erneut besucht wurde.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter>
+              <AlertDialogCancel className="bg-red-500 hover:bg-red-600 text-white border-0">
+                <X className="w-4 h-4 mr-2" />
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmSameStatusUpdate}
+                className="bg-green-500 hover:bg-green-600 text-white"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+      </>
     );
   }
 
   // Mobile/Tablet Carousel mode
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
-        <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
-          <div className="embla__container h-full flex">
-            {allAddresses.map((addr, index) => {
-              const addrUnits = addr.filteredUnits || addr.units || [];
-              const addrUnitCount = addrUnits.length;
-              
-              return (
-                <div 
-                  key={addr.id} 
-                  className="embla__slide flex-[0_0_100%] min-w-0 h-full"
-                >
-                  <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
-                    <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
-                      <DialogTitle className="text-lg font-semibold">
-                        {addr.street} {addr.houseNumber}
-                      </DialogTitle>
-                      <p className="text-sm text-muted-foreground">
-                        {addr.postalCode} {addr.city}
-                      </p>
-                      
-                      <div className="flex items-center justify-between w-full pt-4">
-                        <div className="flex items-center gap-2">
-                          <span className="text-sm font-medium">Wohneinheiten</span>
-                          <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                            {addrUnitCount}
+    <>
+      <Dialog open={open} onOpenChange={onOpenChange}>
+        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+          <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
+            <div className="embla__container h-full flex">
+              {allAddresses.map((addr, index) => {
+                const addrUnits = addr.filteredUnits || addr.units || [];
+                const addrUnitCount = addrUnits.length;
+                
+                return (
+                  <div 
+                    key={addr.id} 
+                    className="embla__slide flex-[0_0_100%] min-w-0 h-full"
+                  >
+                    <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
+                      <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
+                        <DialogTitle className="text-lg font-semibold">
+                          {addr.street} {addr.houseNumber}
+                        </DialogTitle>
+                        <p className="text-sm text-muted-foreground">
+                          {addr.postalCode} {addr.city}
+                        </p>
+                        
+                        <div className="flex items-center justify-between w-full pt-4">
+                          <div className="flex items-center gap-2">
+                            <span className="text-sm font-medium">Wohneinheiten</span>
+                            <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                              {addrUnitCount}
+                            </div>
                           </div>
+                          <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
+                            <Plus className="w-4 h-4" />
+                            Hinzufügen
+                          </Button>
                         </div>
-                        <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
-                          <Plus className="w-4 h-4" />
-                          Hinzufügen
-                        </Button>
-                      </div>
-                    </DialogHeader>
+                      </DialogHeader>
 
-                    {renderAddressContent(addr, index === currentIndex)}
+                      {renderAddressContent(addr, index === currentIndex)}
+                    </div>
                   </div>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+
+      <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
+            <AlertDialogDescription>
+              Möchten Sie den gleichen Status erneut setzen? Dies zeigt an, dass der Kunde erneut besucht wurde.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel className="bg-red-500 hover:bg-red-600 text-white border-0">
+              <X className="w-4 h-4 mr-2" />
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmSameStatusUpdate}
+              className="bg-green-500 hover:bg-green-600 text-white"
+            >
+              <Check className="w-4 h-4 mr-2" />
+              Bestätigen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+    </>
   );
 };
