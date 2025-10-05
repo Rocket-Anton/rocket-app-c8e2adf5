@@ -65,15 +65,19 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress }: A
     
     if (filteredAppointments.length > 0) {
       defaultCenter = [filteredAppointments[0].coordinates[1], filteredAppointments[0].coordinates[0]];
-      defaultZoom = 12;
+      defaultZoom = 15;
     } else if (lastViewRef.current) {
       // Keep last view if no appointments
       defaultCenter = lastViewRef.current.center;
       defaultZoom = lastViewRef.current.zoom;
+    } else if (currentAddress) {
+      // Center on current address if no appointments and no saved view
+      defaultCenter = [currentAddress.coordinates[1], currentAddress.coordinates[0]];
+      defaultZoom = 15;
     } else {
-      // Default to Berlin
-      defaultCenter = [52.520008, 13.404954];
-      defaultZoom = 12;
+      // Default to Lindenau
+      defaultCenter = [47.5580, 10.0310];
+      defaultZoom = 15;
     }
 
     // Initialize map

@@ -98,7 +98,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentNotes, setAppointmentNotes] = useState("");
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
   const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
-    // Dummy-Termine
+    // Dummy-Termine in Alt-Lindenau
     {
       id: 1,
       unitId: 1,
@@ -106,8 +106,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "10:00",
       customer: "Max Mustermann",
       notes: "Erstbesichtigung",
-      address: "Hauptstraße 12, 10115 Berlin",
-      coordinates: [13.3888, 52.5170]
+      address: "Alt-Lindenau 12, 88175 Lindenau",
+      coordinates: [10.0315, 47.5585]
     },
     {
       id: 2,
@@ -116,8 +116,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "14:30",
       customer: "Anna Schmidt",
       notes: "Nachbesprechung",
-      address: "Lindenstraße 45, 10969 Berlin",
-      coordinates: [13.3982, 52.5035]
+      address: "Alt-Lindenau 15, 88175 Lindenau",
+      coordinates: [10.0320, 47.5590]
     },
     {
       id: 3,
@@ -126,8 +126,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "09:00",
       customer: "Peter Müller",
       notes: "",
-      address: "Kastanienallee 78, 10435 Berlin",
-      coordinates: [13.4050, 52.5407]
+      address: "Alt-Lindenau 20, 88175 Lindenau",
+      coordinates: [10.0325, 47.5595]
     },
     {
       id: 4,
@@ -136,8 +136,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "16:00",
       customer: "Lisa Weber",
       notes: "Vertragsübergabe",
-      address: "Bergmannstraße 23, 10961 Berlin",
-      coordinates: [13.3927, 52.4905]
+      address: "Alt-Lindenau 25, 88175 Lindenau",
+      coordinates: [10.0330, 47.5600]
     }
   ]);
   const [notes, setNotes] = useState([
@@ -156,7 +156,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   ]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const currentAddressCoordsRef = useRef<[number, number]>([13.404954 + (Math.random() - 0.5) * 0.05, 52.520008 + (Math.random() - 0.5) * 0.05]);
+  const currentAddressCoordsRef = useRef<[number, number]>([10.0310, 47.5580]); // Koordinaten für Lindenau
 
   // Memoize current address for map to prevent unnecessary re-renders
   const mapCurrentAddress = useMemo(() => ({
@@ -450,9 +450,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const saveAppointment = () => {
     if (!appointmentDate || !appointmentTime || pendingAppointmentUnitId === null) return;
 
-    // Generate random coordinates around Berlin for demo
-    const baseCoords: [number, number] = [13.404954, 52.520008];
-    const randomOffset = () => (Math.random() - 0.5) * 0.1;
+    // Generate coordinates around Lindenau for demo
+    const baseCoords: [number, number] = [10.0310, 47.5580];
+    const randomOffset = () => (Math.random() - 0.5) * 0.005;
     const coordinates: [number, number] = [
       baseCoords[0] + randomOffset(),
       baseCoords[1] + randomOffset()
