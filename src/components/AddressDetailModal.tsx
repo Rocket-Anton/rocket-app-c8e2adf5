@@ -1078,7 +1078,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   <div className="flex items-center gap-2 flex-1">
                     <div className="text-sm font-medium whitespace-nowrap">
                       {showAllAppointments ? (
-                        "Heute"
+                        "Alle"
                       ) : mapDisplayDate ? (
                         mapDisplayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
                       ) : (
