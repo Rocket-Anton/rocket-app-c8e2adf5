@@ -917,6 +917,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     mode="single"
                     selected={appointmentDate}
                     onSelect={setAppointmentDate}
+                    disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                     initialFocus
                     className="p-3 pointer-events-auto"
                   />
@@ -926,12 +927,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
             <div>
               <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-              <Input
-                type="time"
-                value={appointmentTime}
-                onChange={(e) => setAppointmentTime(e.target.value)}
-                className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-              />
+              <Select value={appointmentTime} onValueChange={setAppointmentTime}>
+                <SelectTrigger className="w-full border-border focus:ring-0 focus:outline-none">
+                  <SelectValue placeholder="Uhrzeit wählen" />
+                </SelectTrigger>
+                <SelectContent>
+                  {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
+                    <>
+                      <SelectItem key={`${hour}:00`} value={`${hour.toString().padStart(2, '0')}:00`}>
+                        {`${hour.toString().padStart(2, '0')}:00`}
+                      </SelectItem>
+                      <SelectItem key={`${hour}:30`} value={`${hour.toString().padStart(2, '0')}:30`}>
+                        {`${hour.toString().padStart(2, '0')}:30`}
+                      </SelectItem>
+                    </>
+                  ))}
+                </SelectContent>
+              </Select>
             </div>
 
             <div>
