@@ -594,25 +594,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
                 Möchtest du den gleichen Status erneut setzen?
               </AlertDialogDescription>
             </AlertDialogHeader>
-            <AlertDialogFooter>
-              <AlertDialogCancel className="bg-red-500 hover:bg-red-600 text-white border-0">
-                <X className="w-4 h-4 mr-2" />
-                Abbrechen
-              </AlertDialogCancel>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
               <AlertDialogAction 
                 onClick={confirmSameStatusUpdate}
-                className="bg-green-500 hover:bg-green-600 text-white"
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white"
               >
                 <Check className="w-4 h-4 mr-2" />
                 Bestätigen
               </AlertDialogAction>
+              <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
+                <X className="w-4 h-4 mr-2" />
+                Abbrechen
+              </AlertDialogCancel>
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
@@ -670,25 +670,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md">
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
             <AlertDialogDescription>
               Möchtest du den gleichen Status erneut setzen?
             </AlertDialogDescription>
           </AlertDialogHeader>
-          <AlertDialogFooter>
-            <AlertDialogCancel className="bg-red-500 hover:bg-red-600 text-white border-0">
-              <X className="w-4 h-4 mr-2" />
-              Abbrechen
-            </AlertDialogCancel>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
             <AlertDialogAction 
               onClick={confirmSameStatusUpdate}
-              className="bg-green-500 hover:bg-green-600 text-white"
+              className="flex-1 bg-green-500 hover:bg-green-600 text-white"
             >
               <Check className="w-4 h-4 mr-2" />
               Bestätigen
             </AlertDialogAction>
+            <AlertDialogCancel className="flex-1 bg-red-500 hover:bg-red-600 text-white border-0 m-0">
+              <X className="w-4 h-4 mr-2" />
+              Abbrechen
+            </AlertDialogCancel>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
