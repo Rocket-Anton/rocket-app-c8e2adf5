@@ -73,10 +73,10 @@ const SwipeDeck = ({
           </div>
         ) : (
           deck.slice(0, initialCount).map((address, i) => {
-            const offsetY = i * 12;
-            const offsetX = i * 4;
-            const scale = 1 - i * 0.05;
-            const opacity = 1 - i * 0.15;
+            const offsetY = i * 40;
+            const offsetX = i * 8;
+            const scale = 1 - i * 0.08;
+            const opacity = 1 - i * 0.2;
             const isTop = i === 0;
 
             return (
