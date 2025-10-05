@@ -248,7 +248,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
                     <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
                       {/* Collapsible Notizen Section */}
                       <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
-                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border-b border-gray-200">
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
                           <span className="font-medium text-sm">Notizen</span>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
@@ -275,7 +275,7 @@ export const AddressDetailModal = ({ address, open, onOpenChange }: AddressDetai
 
                       {/* Collapsible Termine Section */}
                       <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
-                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors">
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
                           <span className="font-medium text-sm">Termine</span>
                           <div className="flex items-center gap-2">
                             <div className="w-6 h-6 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs">
