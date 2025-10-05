@@ -664,7 +664,6 @@ export const LauflistenContent = () => {
                               }}
                               className="h-8 text-xs"
                             >
-                              <X className="w-3 h-3 mr-1" />
                               Zurücksetzen
                             </Button>
                           )}
