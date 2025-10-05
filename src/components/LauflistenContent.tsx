@@ -147,6 +147,9 @@ export const LauflistenContent = () => {
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
   
+  // Refs for address cards to enable scrolling
+  const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
   // Temporary input values (nur für Anzeige während der Eingabe)
   const [streetInput, setStreetInput] = useState("");
   const [cityInput, setCityInput] = useState("");
@@ -162,6 +165,17 @@ export const LauflistenContent = () => {
   const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
   const isMobile = useIsMobile();
+
+  // Handle modal close and scroll to the address
+  const handleModalClose = (finalIndex: number) => {
+    const cardRef = addressCardRefs.current[finalIndex];
+    if (cardRef) {
+      cardRef.scrollIntoView({ 
+        behavior: 'smooth', 
+        block: 'center'
+      });
+    }
+  };
 
   // Get unique streets, cities, and postal codes for autocomplete
   const uniqueStreets = Array.from(new Set(mockAddresses.map(a => a.street)));
@@ -941,12 +955,17 @@ export const LauflistenContent = () => {
           <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
             <div className="space-y-4">
               {displayedAddresses.map((address, index) => (
-                <AddressCard 
+                <div 
                   key={address.id} 
-                  address={address}
-                  allAddresses={displayedAddresses}
-                  currentIndex={index}
-                />
+                  ref={(el) => addressCardRefs.current[index] = el}
+                >
+                  <AddressCard 
+                    address={address}
+                    allAddresses={displayedAddresses}
+                    currentIndex={index}
+                    onModalClose={handleModalClose}
+                  />
+                </div>
               ))}
             </div>
           </div>

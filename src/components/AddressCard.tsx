@@ -21,9 +21,10 @@ interface AddressCardProps {
   address: Address;
   allAddresses?: Address[];
   currentIndex?: number;
+  onModalClose?: (finalIndex: number) => void;
 }
 
-export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: AddressCardProps) => {
+export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onModalClose }: AddressCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [justClosed, setJustClosed] = useState(false);
   const isMobile = useIsMobile();
@@ -34,6 +35,12 @@ export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: Ad
       // Trigger highlight animation when modal closes
       setJustClosed(true);
       setTimeout(() => setJustClosed(false), 1500);
+    }
+  };
+
+  const handleAddressChange = (finalIndex: number) => {
+    if (onModalClose) {
+      onModalClose(finalIndex);
     }
   };
 
@@ -95,6 +102,7 @@ export const AddressCard = ({ address, allAddresses = [], currentIndex = 0 }: Ad
         initialIndex={currentIndex}
         open={modalOpen}
         onOpenChange={handleModalClose}
+        onClose={handleAddressChange}
       />
     </>
   );

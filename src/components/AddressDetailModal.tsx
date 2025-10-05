@@ -54,9 +54,10 @@ interface AddressDetailModalProps {
   initialIndex?: number;
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  onClose?: (finalIndex: number) => void;
 }
 
-export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange }: AddressDetailModalProps) => {
+export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -68,6 +69,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const currentAddress = allAddresses.length > 0 ? allAddresses[currentIndex] : address;
+  
+  // Handle dialog close and notify parent with final index
+  const handleDialogChange = (open: boolean) => {
+    if (!open && onClose) {
+      onClose(currentIndex);
+    }
+    onOpenChange(open);
+  };
   
   // Use filteredUnits if available (from status filter), otherwise use all units
   const displayUnits = currentAddress.filteredUnits || currentAddress.units || [];
@@ -812,7 +821,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   if (allAddresses.length <= 1) {
     return (
       <>
-        <Dialog open={open} onOpenChange={onOpenChange}>
+        <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogContent ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
             <DialogHeader className="px-4 sm:px-6 py-4 border-b flex-shrink-0">
               <DialogTitle className="text-lg sm:text-xl font-semibold">
@@ -868,7 +877,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Carousel mode - Always enabled when multiple addresses exist
   return (
     <>
-      <Dialog open={open} onOpenChange={onOpenChange}>
+      <Dialog open={open} onOpenChange={handleDialogChange}>
         <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl touch-pan-y">
           <div className="embla h-full w-full overflow-hidden touch-pan-y" ref={emblaRef}>
             <div className="embla__container h-full flex touch-pan-y">
@@ -883,33 +892,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   >
                     <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
                        <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
-                        <div className="flex items-center justify-between mb-2">
-                          <DialogTitle className="text-lg font-semibold">
-                            {addr.street} {addr.houseNumber}
-                          </DialogTitle>
-                          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
-                            {index + 1} / {allAddresses.length}
-                          </div>
-                        </div>
+                        <DialogTitle className="text-lg font-semibold">
+                          {addr.street} {addr.houseNumber}
+                        </DialogTitle>
                         <p className="text-sm text-muted-foreground">
                           {addr.postalCode} {addr.city}
                         </p>
-                        
-                        {/* Swipe Indicator Dots */}
-                        {allAddresses.length > 1 && (
-                          <div className="flex items-center justify-center gap-1.5 pt-3">
-                            {allAddresses.map((_, dotIndex) => (
-                              <div
-                                key={dotIndex}
-                                className={`h-1.5 rounded-full transition-all duration-300 ${
-                                  dotIndex === currentIndex 
-                                    ? 'w-6 bg-blue-600' 
-                                    : 'w-1.5 bg-muted-foreground/30'
-                                }`}
-                              />
-                            ))}
-                          </div>
-                        )}
                         
                         <div className="flex items-center justify-between w-full pt-4">
                           <div className="flex items-center gap-2">
