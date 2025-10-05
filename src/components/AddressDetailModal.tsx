@@ -429,6 +429,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   const handleAddAppointment = (unitId: number) => {
     setPendingAppointmentUnitId(unitId);
+    // Set map to show appointments for selected date when dialog opens
+    if (appointmentDate) {
+      setMapDisplayDate(appointmentDate);
+      setShowAllAppointments(false);
+    }
     setAddAppointmentDialogOpen(true);
   };
 
@@ -985,6 +990,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       onSelect={(date) => {
                         setAppointmentDate(date);
                         setDatePopoverOpen(false);
+                        // Update map to show selected date
+                        if (date) {
+                          setMapDisplayDate(date);
+                          setShowAllAppointments(false);
+                        }
                       }}
                       disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
                       initialFocus
@@ -1064,69 +1074,80 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             {/* Right Column - Map and Appointments */}
             <div className="space-y-4">
               <div className="space-y-3">
-                <div className="flex items-center justify-between gap-2">
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (showAllAppointments) {
-                        setMapDisplayDate(new Date());
-                        setShowAllAppointments(false);
-                      } else if (mapDisplayDate) {
-                        const prevDay = new Date(mapDisplayDate);
-                        prevDay.setDate(prevDay.getDate() - 1);
-                        const today = new Date();
-                        today.setHours(0, 0, 0, 0);
-                        if (prevDay >= today) {
-                          setMapDisplayDate(prevDay);
-                        }
-                      }
-                    }}
-                    disabled={!showAllAppointments && mapDisplayDate && mapDisplayDate <= new Date(new Date().setHours(0, 0, 0, 0))}
-                    className="h-8"
-                  >
-                    ←
-                  </Button>
-                  
-                  <div className="flex-1 text-center">
+                <div className="flex items-center gap-2">
+                  <div className="flex items-center gap-2 flex-1">
+                    <div className="text-sm font-medium whitespace-nowrap">
+                      {showAllAppointments ? (
+                        "Heute"
+                      ) : mapDisplayDate ? (
+                        mapDisplayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                      ) : (
+                        "Heute"
+                      )}
+                    </div>
+                    
                     <Button
-                      variant={showAllAppointments ? "default" : "outline"}
+                      variant="outline"
                       size="sm"
                       onClick={() => {
-                        setShowAllAppointments(true);
-                        setMapDisplayDate(undefined);
+                        if (showAllAppointments) {
+                          setMapDisplayDate(new Date());
+                          setShowAllAppointments(false);
+                        } else if (mapDisplayDate) {
+                          const prevDay = new Date(mapDisplayDate);
+                          prevDay.setDate(prevDay.getDate() - 1);
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          if (prevDay >= today) {
+                            setMapDisplayDate(prevDay);
+                          }
+                        }
                       }}
-                      className="h-8 text-xs"
+                      disabled={!showAllAppointments && mapDisplayDate && mapDisplayDate <= new Date(new Date().setHours(0, 0, 0, 0))}
+                      className="h-8 w-8 p-0"
                     >
-                      {showAllAppointments ? (
-                        `Alle Termine (${appointments.length})`
-                      ) : mapDisplayDate ? (
-                        `Termine am ${mapDisplayDate.toLocaleDateString('de-DE')} (${appointments.filter(apt => apt.date === mapDisplayDate.toLocaleDateString('de-DE')).length})`
-                      ) : (
-                        "Alle Termine"
-                      )}
+                      ←
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => {
+                        if (showAllAppointments) {
+                          setMapDisplayDate(new Date());
+                          setShowAllAppointments(false);
+                        } else if (mapDisplayDate) {
+                          const nextDay = new Date(mapDisplayDate);
+                          nextDay.setDate(nextDay.getDate() + 1);
+                          setMapDisplayDate(nextDay);
+                        } else {
+                          setMapDisplayDate(new Date());
+                        }
+                      }}
+                      className="h-8 w-8 p-0"
+                    >
+                      →
                     </Button>
                   </div>
                   
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    onClick={() => {
-                      if (showAllAppointments) {
-                        setMapDisplayDate(new Date());
-                        setShowAllAppointments(false);
-                      } else if (mapDisplayDate) {
-                        const nextDay = new Date(mapDisplayDate);
-                        nextDay.setDate(nextDay.getDate() + 1);
-                        setMapDisplayDate(nextDay);
-                      } else {
-                        setMapDisplayDate(new Date());
-                      }
-                    }}
-                    className="h-8"
-                  >
-                    →
-                  </Button>
+                  <div className="flex items-center gap-2">
+                    <label className="text-sm whitespace-nowrap cursor-pointer flex items-center gap-2">
+                      <input
+                        type="checkbox"
+                        checked={showAllAppointments}
+                        onChange={(e) => {
+                          setShowAllAppointments(e.target.checked);
+                          if (e.target.checked) {
+                            setMapDisplayDate(undefined);
+                          } else {
+                            setMapDisplayDate(appointmentDate || new Date());
+                          }
+                        }}
+                        className="cursor-pointer"
+                      />
+                      <span>Alle</span>
+                    </label>
+                  </div>
                 </div>
                 
                 <AppointmentMap 
