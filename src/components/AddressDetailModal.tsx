@@ -3,7 +3,7 @@ import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
-import { TimePicker } from "./TimePicker";
+import { DateTimePicker } from "./DateTimePicker";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import {
   Dialog,
@@ -974,62 +974,36 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Column - Form */}
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Datum *</label>
-                <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
-                    <Calendar
-                      mode="single"
-                      selected={appointmentDate}
-                      onSelect={(date) => {
-                        setAppointmentDate(date);
-                        setDatePopoverOpen(false);
-                        // Update map to show selected date
-                        if (date) {
-                          setMapDisplayDate(date);
-                          setShowAllAppointments(false);
-                        }
-                      }}
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
+          <div className="space-y-6">
+            {/* Date and Time Picker */}
+            <div>
+              <DateTimePicker
+                date={appointmentDate}
+                hour={appointmentHour}
+                minute={appointmentMinute}
+                onDateChange={(date) => {
+                  setAppointmentDate(date);
+                  // Update map to show selected date
+                  setMapDisplayDate(date);
+                  setShowAllAppointments(false);
+                }}
+                onHourChange={(value) => {
+                  setAppointmentHour(value);
+                  if (value && appointmentMinute) {
+                    setAppointmentTime(`${value}:${appointmentMinute}`);
+                  }
+                }}
+                onMinuteChange={(value) => {
+                  setAppointmentMinute(value);
+                  if (appointmentHour && value) {
+                    setAppointmentTime(`${appointmentHour}:${value}`);
+                  }
+                }}
+              />
+            </div>
 
-              <div>
-                <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-                <TimePicker
-                  hour={appointmentHour}
-                  minute={appointmentMinute}
-                  onHourChange={(value) => {
-                    setAppointmentHour(value);
-                    if (value && appointmentMinute) {
-                      setAppointmentTime(`${value}:${appointmentMinute}`);
-                    }
-                  }}
-                  onMinuteChange={(value) => {
-                    setAppointmentMinute(value);
-                    if (appointmentHour && value) {
-                      setAppointmentTime(`${appointmentHour}:${value}`);
-                    }
-                  }}
-                />
-              </div>
-
+            {/* Customer Name and Notes */}
+            <div className="grid md:grid-cols-2 gap-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Kundenname</label>
                 <Input
@@ -1051,7 +1025,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
 
-            {/* Right Column - Map and Appointments */}
+            {/* Map and Appointments */}
             <div className="space-y-4">
               <div className="space-y-3">
                 <div className="flex items-center gap-2">
