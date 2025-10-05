@@ -365,6 +365,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     toast({
       title: "✓ Status geändert",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 2000,
     });
   };
 
@@ -400,6 +401,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     toast({
       title: "✓ Status aktualisiert",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 2000,
     });
     
     setConfirmStatusUpdateOpen(false);
@@ -426,6 +428,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     toast({
       title: "✓ Notiz hinzugefügt",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 2000,
     });
   };
 
@@ -445,6 +448,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     toast({
       title: "✓ Notiz gelöscht",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 2000,
     });
   };
 
@@ -502,6 +506,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     toast({
       title: "✓ Termin hinzugefügt",
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 2000,
     });
   };
 
