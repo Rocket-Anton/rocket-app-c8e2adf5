@@ -64,7 +64,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
-  const popoverCloseCallbacksRef = useRef<Set<() => void>>(new Set());
+  const [statusPopoverOpen, setStatusPopoverOpen] = useState<Record<number, boolean>>({});
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -110,6 +110,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           ]
         }), {})
       );
+      setStatusPopoverOpen({});
     }
   }, [open, currentAddress.id]);
 
@@ -119,8 +120,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (!scrollEl) return;
 
     const handleScroll = () => {
-      // Call all registered close callbacks
-      popoverCloseCallbacksRef.current.forEach(callback => callback());
+      setStatusPopoverOpen({});
     };
 
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
@@ -271,7 +271,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -286,7 +286,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -306,7 +306,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => handleStatusChange(unit.id, value)}
                         >
-                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                          <SelectTrigger className="flex-1 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                             <SelectValue>
                               {(() => {
                                 const currentStatus = unitStatuses[unit.id] || "offen";
@@ -332,20 +332,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </SelectContent>
                         </Select>
                         <Popover 
-                          onOpenChange={(isOpen) => {
-                            if (isOpen) {
-                              // Register a close callback
-                              const closeCallback = () => {
-                                // Trigger close by simulating escape key
-                                const escEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
-                                document.dispatchEvent(escEvent);
-                              };
-                              popoverCloseCallbacksRef.current.add(closeCallback);
-                            } else {
-                              // Clean up callback when popover closes
-                              popoverCloseCallbacksRef.current.clear();
-                            }
-                          }}
+                          open={!!statusPopoverOpen[unit.id]}
+                          onOpenChange={(isOpen) => setStatusPopoverOpen(prev => ({ ...prev, [unit.id]: isOpen }))}
                         >
                           <PopoverTrigger asChild>
                             <Button 
@@ -413,7 +401,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     </p>
 
                     {/* Combined Notizen & Termine Container */}
-                    <div className="bg-background border border-gray-400 rounded-md overflow-hidden box-border max-w-full w-full">
+                    <div className="bg-background border border-border rounded-md overflow-hidden box-border max-w-full w-full">
                       {/* Collapsible Notizen Section */}
                       <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
                         <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
