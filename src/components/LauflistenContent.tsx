@@ -619,21 +619,6 @@ export const LauflistenContent = () => {
                   )}
                 </div>
 
-                {/* Swipe Mode Toggle - nur auf Mobile */}
-                {isMobile && (
-                  <Button 
-                    variant={swipeMode ? "default" : "outline"} 
-                    size="icon" 
-                    className={cn(
-                      "h-10 w-10",
-                      swipeMode && "bg-blue-600 hover:bg-blue-700"
-                    )}
-                    onClick={() => setSwipeMode(!swipeMode)}
-                  >
-                    <Layers className="h-4 w-4" />
-                  </Button>
-                )}
-
                 {/* Filter Icon for all screen sizes */}
                 <Popover open={mobileFiltersOpen} onOpenChange={setMobileFiltersOpen}>
                   <PopoverTrigger asChild>
