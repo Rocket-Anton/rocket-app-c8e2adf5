@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
@@ -15,7 +15,7 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "./ui/popover";
-
+import * as PopoverPrimitive from "@radix-ui/react-popover";
 import { Button } from "./ui/button";
 import {
   Command,
@@ -237,6 +237,55 @@ export const LauflistenContent = () => {
     { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" },
   ];
 
+  // Popover-Inhalt, der die Höhe an die Unterkante des Sheet begrenzt
+  const BoundedPopoverContent = ({ containerRef, className = "", children, sideOffset = 8, align = "start" }: any) => {
+    const contentRef = useRef<HTMLDivElement | null>(null);
+    const [maxH, setMaxH] = useState<number | undefined>();
+
+    const update = useCallback(() => {
+      const containerEl = containerRef?.current as HTMLElement | null;
+      const contentEl = contentRef.current as HTMLElement | null;
+      if (!containerEl || !contentEl) return;
+      const cr = containerEl.getBoundingClientRect();
+      const pr = contentEl.getBoundingClientRect();
+      const available = Math.max(160, Math.floor(cr.bottom - pr.top - 8));
+      setMaxH(available);
+    }, [containerRef]);
+
+    useLayoutEffect(() => {
+      let raf1 = 0, raf2 = 0;
+      raf1 = requestAnimationFrame(() => { raf2 = requestAnimationFrame(update); });
+      const onScroll = () => update();
+      window.addEventListener("resize", update);
+      window.addEventListener("scroll", onScroll, true);
+      const el = contentRef.current;
+      let mo: MutationObserver | undefined;
+      if (el) {
+        mo = new MutationObserver(() => update());
+        mo.observe(el, { attributes: true, attributeFilter: ["style", "data-state", "data-side"] });
+      }
+      return () => {
+        cancelAnimationFrame(raf1); cancelAnimationFrame(raf2);
+        window.removeEventListener("resize", update);
+        window.removeEventListener("scroll", onScroll, true);
+        mo?.disconnect();
+      };
+    }, [update]);
+
+    return (
+      <PopoverContent
+        ref={contentRef as any}
+        side="bottom"
+        align={align}
+        sideOffset={sideOffset}
+        avoidCollisions={false}
+        className={className}
+        style={{ maxHeight: maxH }}
+      >
+        {children}
+      </PopoverContent>
+    );
+  };
   // Filter addresses based on all criteria
   const filteredAddresses = mockAddresses.filter(address => {
     // Search term filter
@@ -355,6 +404,7 @@ export const LauflistenContent = () => {
   // Single filter bar that scrolls with content and overlays the addresses
   const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
+  const mobileSheetRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);
   const [showFilter, setShowFilter] = useState(true);
   const lastScrollTop = useRef(0);
@@ -642,7 +692,7 @@ export const LauflistenContent = () => {
                         })()}
                       </Button>
                     </SheetTrigger>
-                    <SheetContent side="bottom" className="h-[85vh] flex flex-col p-0">
+                    <SheetContent ref={mobileSheetRef} side="bottom" className="h-[85vh] flex flex-col p-0">
                       <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
                         <div className="flex items-center justify-start gap-32">
                           <SheetTitle>Filter</SheetTitle>
@@ -702,64 +752,61 @@ export const LauflistenContent = () => {
                                 )}
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                               </div>
-                              <PopoverContent 
-                                className="p-0 bg-background z-[10001] pointer-events-auto" 
-                                align="start" 
-                                side="bottom" 
-                                sideOffset={8}
-                                sticky="always"
-                                avoidCollisions={true}
-                                collisionPadding={8}
-                                style={{ width: 'var(--radix-popover-trigger-width)' }}
-                              >
-                                {/* Eigene Scroll-Area für die Liste */}
-                                <div
-                                  className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-contain touch-pan-y"
-                                  onWheelCapture={(e) => e.stopPropagation()}
-                                  onWheel={(e) => e.stopPropagation()}
-                                  onScroll={(e) => e.stopPropagation()}
-                                  onTouchStart={(e) => e.stopPropagation()}
-                                  onTouchMoveCapture={(e) => e.stopPropagation()}
-                                  onTouchMove={(e) => e.stopPropagation()}
-                                  onTouchEnd={(e) => e.stopPropagation()}
-                                  style={{ WebkitOverflowScrolling: 'touch' }}
+                              <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
+                                <BoundedPopoverContent 
+                                  containerRef={mobileSheetRef}
+                                  align="start"
+                                  sideOffset={8}
+                                  className="p-0 bg-background z-[10001]"
                                 >
-                                  <Command className="bg-background">
-                                    <CommandList className="overflow-visible">
-                                      <CommandGroup>
-                                        {statusOptions.map((option) => (
-                                          <CommandItem
-                                            key={option.value}
-                                            onSelect={() => {
-                                              setStatusFilter(
-                                                statusFilter.includes(option.value)
-                                                  ? statusFilter.filter((s) => s !== option.value)
-                                                  : [...statusFilter, option.value]
-                                              );
-                                            }}
-                                            className="cursor-pointer"
-                                          >
-                                            <div className="flex items-center gap-2 w-full">
-                                              <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
-                                                statusFilter.includes(option.value)
-                                                  ? 'border-green-500 bg-white'
-                                                  : 'border-input bg-white'
-                                              } flex items-center justify-center`}>
-                                                {statusFilter.includes(option.value) && (
-                                                  <Check className="w-3 h-3 text-green-500 stroke-[3]" />
-                                                )}
+                                  <div
+                                    className="max-h-[min(50dvh,var(--radix-popper-available-height,50dvh))] overflow-y-auto overscroll-contain touch-pan-y"
+                                    onWheelCapture={(e) => e.stopPropagation()}
+                                    onWheel={(e) => e.stopPropagation()}
+                                    onScroll={(e) => e.stopPropagation()}
+                                    onTouchStart={(e) => e.stopPropagation()}
+                                    onTouchMoveCapture={(e) => e.stopPropagation()}
+                                    onTouchMove={(e) => e.stopPropagation()}
+                                    onTouchEnd={(e) => e.stopPropagation()}
+                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                  >
+                                    <Command className="bg-background">
+                                      <CommandList className="overflow-visible">
+                                        <CommandGroup>
+                                          {statusOptions.map((option) => (
+                                            <CommandItem
+                                              key={option.value}
+                                              onSelect={() => {
+                                                setStatusFilter(
+                                                  statusFilter.includes(option.value)
+                                                    ? statusFilter.filter((s) => s !== option.value)
+                                                    : [...statusFilter, option.value]
+                                                );
+                                              }}
+                                              className="cursor-pointer"
+                                            >
+                                              <div className="flex items-center gap-2 w-full">
+                                                <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
+                                                  statusFilter.includes(option.value)
+                                                    ? 'border-green-500 bg-white'
+                                                    : 'border-input bg-white'
+                                                } flex items-center justify-center`}>
+                                                  {statusFilter.includes(option.value) && (
+                                                    <Check className="w-3 h-3 text-green-500 stroke-[3]" />
+                                                  )}
+                                                </div>
+                                                <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                                  {option.label}
+                                                </div>
                                               </div>
-                                              <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                                {option.label}
-                                              </div>
-                                            </div>
-                                          </CommandItem>
-                                        ))}
-                                      </CommandGroup>
-                                    </CommandList>
-                                  </Command>
-                                </div>
-                              </PopoverContent>
+                                            </CommandItem>
+                                          ))}
+                                        </CommandGroup>
+                                      </CommandList>
+                                    </Command>
+                                  </div>
+                                </BoundedPopoverContent>
+                              </PopoverPrimitive.Portal>
                             </Popover>
                           </div>
                         </div>
