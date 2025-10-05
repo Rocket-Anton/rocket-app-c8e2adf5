@@ -1097,7 +1097,7 @@ export const LauflistenContent = () => {
                                   side="bottom" 
                                   sideOffset={8}
                                   sticky="always"
-                                  avoidCollisions={true}
+                                  avoidCollisions={false}
                                   collisionPadding={8}
                                   style={{ width: 'var(--radix-popover-trigger-width)', maxHeight: 'min(50vh, var(--radix-popper-available-height, 50vh))', WebkitOverflowScrolling: 'touch' }}
                                 >
