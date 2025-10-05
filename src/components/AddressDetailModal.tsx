@@ -242,8 +242,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </button>
                           </PopoverTrigger>
                           <PopoverContent 
-                            className="w-64 p-0 overflow-hidden" 
-                            side="top" 
+                            className="w-64 p-0 overflow-hidden max-h-[200px]" 
+                            side="bottom" 
                             align="end" 
                             avoidCollisions={true}
                             sideOffset={8}
