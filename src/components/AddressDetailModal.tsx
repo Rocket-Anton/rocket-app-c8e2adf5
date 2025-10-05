@@ -808,8 +808,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   };
 
-  // Desktop or no carousel mode
-  if (!isMobile || allAddresses.length <= 1) {
+  // Desktop or no carousel mode - REMOVED: Now we always use carousel when there are multiple addresses
+  if (allAddresses.length <= 1) {
     return (
       <>
         <Dialog open={open} onOpenChange={onOpenChange}>
@@ -865,13 +865,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   }
 
-  // Mobile/Tablet Carousel mode
+  // Carousel mode - Always enabled when multiple addresses exist
   return (
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
-        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
-          <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
-            <div className="embla__container h-full flex">
+        <DialogContent ref={modalContentRef} className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl touch-pan-y">
+          <div className="embla h-full w-full overflow-hidden touch-pan-y" ref={emblaRef}>
+            <div className="embla__container h-full flex touch-pan-y">
               {allAddresses.map((addr, index) => {
                 const addrUnits = addr.filteredUnits || addr.units || [];
                 const addrUnitCount = addrUnits.length;
@@ -882,13 +882,34 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     className="embla__slide flex-[0_0_100%] min-w-0 h-full"
                   >
                     <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
-                      <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
-                        <DialogTitle className="text-lg font-semibold">
-                          {addr.street} {addr.houseNumber}
-                        </DialogTitle>
+                       <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
+                        <div className="flex items-center justify-between mb-2">
+                          <DialogTitle className="text-lg font-semibold">
+                            {addr.street} {addr.houseNumber}
+                          </DialogTitle>
+                          <div className="text-xs text-muted-foreground bg-muted px-2 py-1 rounded-full">
+                            {index + 1} / {allAddresses.length}
+                          </div>
+                        </div>
                         <p className="text-sm text-muted-foreground">
                           {addr.postalCode} {addr.city}
                         </p>
+                        
+                        {/* Swipe Indicator Dots */}
+                        {allAddresses.length > 1 && (
+                          <div className="flex items-center justify-center gap-1.5 pt-3">
+                            {allAddresses.map((_, dotIndex) => (
+                              <div
+                                key={dotIndex}
+                                className={`h-1.5 rounded-full transition-all duration-300 ${
+                                  dotIndex === currentIndex 
+                                    ? 'w-6 bg-blue-600' 
+                                    : 'w-1.5 bg-muted-foreground/30'
+                                }`}
+                              />
+                            ))}
+                          </div>
+                        )}
                         
                         <div className="flex items-center justify-between w-full pt-4">
                           <div className="flex items-center gap-2">

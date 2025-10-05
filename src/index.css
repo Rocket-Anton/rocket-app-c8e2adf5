@@ -158,4 +158,20 @@ All colors MUST be HSL.
   .scrollbar-hide::-webkit-scrollbar {
     display: none;
   }
+
+  /* Embla Carousel - Enable smooth swiping */
+  .embla {
+    overflow: hidden;
+  }
+  
+  .embla__container {
+    display: flex;
+    touch-action: pan-y pinch-zoom;
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  .embla__slide {
+    flex: 0 0 100%;
+    min-width: 0;
+  }
 }
