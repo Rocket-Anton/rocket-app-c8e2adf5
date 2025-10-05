@@ -546,19 +546,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </CollapsibleTrigger>
                         <CollapsibleContent className="border-b border-gray-200">
                           <div className="p-3 space-y-2">
-                            {notes.map((note) => (
-                              <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
-                                <button 
-                                  onClick={() => handleDeleteNote(note.id)}
-                                  className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground"
-                                >
-                                  <X className="w-4 h-4" />
-                                </button>
-                                <div className="font-medium text-sm">{note.author}</div>
-                                <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                                <div className="text-sm">{note.content}</div>
+                            {notes.length > 0 ? (
+                              notes.map((note) => (
+                                <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
+                                  <button 
+                                    onClick={() => handleDeleteNote(note.id)}
+                                    className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <div className="font-medium text-sm">{note.author}</div>
+                                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                                  <div className="text-sm">{note.content}</div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-muted-foreground text-center py-4">
+                                Keine Notizen vorhanden
                               </div>
-                            ))}
+                            )}
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
@@ -587,8 +593,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </CollapsibleTrigger>
                         <CollapsibleContent>
                           <div className="p-3">
-                            <div className="bg-muted/30 rounded-lg p-3 text-center text-muted-foreground border">
-                              Keine Termine
+                            <div className="text-sm text-muted-foreground text-center py-4">
+                              Keine Termine vorhanden
                             </div>
                           </div>
                         </CollapsibleContent>
