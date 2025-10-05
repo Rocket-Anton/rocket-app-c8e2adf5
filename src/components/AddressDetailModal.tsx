@@ -154,20 +154,20 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div className={`flex-1 w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-0 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-0 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
               units.map((unit) => (
                 <div key={unit.id} className="space-y-4 w-full">
                   {/* Gray Container for Fields */}
-                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full">
+                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
                     {unitCount > 1 ? (
-                      <div className="flex gap-3">
-                        <div className="flex-1">
+                      <div className="flex gap-3 min-w-0">
+                        <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
                           <Select defaultValue={unit.floor}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent>
@@ -179,10 +179,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </Select>
                         </div>
 
-                        <div className="flex-1">
+                        <div className="flex-1 min-w-0">
                           <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
                           <Select defaultValue={unit.position}>
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-gray-400 rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent>
@@ -197,7 +197,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                     <div>
                       <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
-                      <div className="flex items-center gap-3">
+                      <div className="flex items-center gap-3 min-w-0">
                         <Select 
                           value={unitStatuses[unit.id] || "offen"}
                           onValueChange={(value) => setUnitStatuses(prev => ({ ...prev, [unit.id]: value }))}
@@ -281,7 +281,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     </p>
 
                     {/* Combined Notizen & Termine Container */}
-                    <div className="bg-background border border-gray-400 rounded-md overflow-hidden">
+                    <div className="bg-background border border-gray-400 rounded-md overflow-hidden box-border max-w-full w-full">
                       {/* Collapsible Notizen Section */}
                       <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
                         <CollapsibleTrigger className="w-full h-9 sm:h-10 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
