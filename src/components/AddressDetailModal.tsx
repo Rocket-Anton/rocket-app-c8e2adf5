@@ -152,16 +152,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full overflow-hidden touch-pan-y">
+      <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div className={`flex-1 overflow-y-auto px-3 sm:px-6 pt-0 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div className={`flex-1 w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-0 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
-          <div className={unitCount === 1 ? '' : 'space-y-4'}>
+          <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
               units.map((unit) => (
-                <div key={unit.id} className="space-y-4">
+                <div key={unit.id} className="space-y-4 w-full">
                   {/* Gray Container for Fields */}
-                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3">
+                  <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full">
                     {unitCount > 1 ? (
                       <div className="flex gap-3">
                         <div className="flex-1">
