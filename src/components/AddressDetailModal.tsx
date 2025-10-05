@@ -159,14 +159,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
               units.map((unit, index) => (
-                <div key={unit.id} className="space-y-4 w-full">
+                <div key={unit.id} className="space-y-2 w-full">
                   {/* Trennlinie zwischen Wohneinheiten (nicht vor der ersten) */}
                   {unitCount > 1 && index > 0 && (
                     <div className="border-t border-muted-foreground/20 mt-1 mb-4" />
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
+                    <h3 className="font-semibold text-base mb-2">Wohneinheit {index + 1}</h3>
                   )}
                   {/* Gray Container for Fields */}
                   <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
