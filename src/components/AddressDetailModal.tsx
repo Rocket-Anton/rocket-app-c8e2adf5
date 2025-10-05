@@ -435,9 +435,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Mobile/Tablet Carousel mode
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-[90vw] w-[90vw] h-[85vh] overflow-hidden p-0 rounded-xl sm:max-w-2xl sm:w-[95vw] sm:h-[80vh]">
-        <div className="embla h-full touch-pan-y px-2" ref={emblaRef}>
-          <div className="embla__container h-full flex items-stretch">
+      <DialogContent className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+        <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
+          <div className="embla__container h-full flex">
             {allAddresses.map((addr, index) => {
               const addrUnits = addr.filteredUnits || addr.units || [];
               const addrUnitCount = addrUnits.length;
@@ -445,7 +445,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               return (
                 <div 
                   key={addr.id} 
-                  className="embla__slide flex-[0_0_94%] min-w-0 h-full"
+                  className="embla__slide flex-[0_0_100%] min-w-0 h-full"
                 >
                   <div className="bg-background w-full h-full rounded-xl overflow-hidden shadow-lg flex flex-col box-border">
                     <DialogHeader className="px-4 py-4 border-b flex-shrink-0">
