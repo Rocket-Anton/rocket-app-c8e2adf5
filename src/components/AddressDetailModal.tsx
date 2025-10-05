@@ -132,23 +132,35 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       setUnitStatuses(
         displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
       );
-      // Initialize status histories for each unit
+      // Initialize status histories for each unit - don't add entry for "offen"
       setStatusHistories(
-        displayUnits.reduce((acc, unit) => ({ 
-          ...acc, 
-          [unit.id]: [
-            {
-              id: 1,
-              status: statusOptions.find(s => s.value === (unit.status || "offen"))?.label || "Offen",
-              changedBy: "System",
-              changedAt: initialTimestamp
-            }
-          ]
-        }), {})
+        displayUnits.reduce((acc, unit) => {
+          const status = unit.status || "offen";
+          if (status === "offen") {
+            return { ...acc, [unit.id]: [] };
+          }
+          return { 
+            ...acc, 
+            [unit.id]: [
+              {
+                id: 1,
+                status: statusOptions.find(s => s.value === status)?.label || "Offen",
+                changedBy: "System",
+                changedAt: initialTimestamp
+              }
+            ]
+          };
+        }, {})
       );
-      // Initialize last updated timestamps
+      // Initialize last updated timestamps - only if not "offen"
       setLastUpdated(
-        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: initialTimestamp }), {})
+        displayUnits.reduce((acc, unit) => {
+          const status = unit.status || "offen";
+          if (status === "offen") {
+            return { ...acc, [unit.id]: "" };
+          }
+          return { ...acc, [unit.id]: initialTimestamp };
+        }, {})
       );
       setPopoverKey(0);
     }
@@ -516,9 +528,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </Button>
                     )}
 
-                    <p className="text-xs text-muted-foreground">
-                      Aktualisiert: {lastUpdated[unit.id] || "Noch nicht aktualisiert"}
-                    </p>
+                    {lastUpdated[unit.id] && (
+                      <p className="text-xs text-muted-foreground">
+                        Aktualisiert: {lastUpdated[unit.id]}
+                      </p>
+                    )}
 
                     {/* Combined Notizen & Termine Container */}
                     <div className="bg-background border border-border rounded-md overflow-hidden box-border max-w-full w-full">
