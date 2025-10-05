@@ -62,9 +62,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [statusHistories, setStatusHistories] = useState<Record<number, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [notesOpen, setNotesOpen] = useState(false);
   const [appointmentsOpen, setAppointmentsOpen] = useState(false);
-  const [statusPopoverOpen, setStatusPopoverOpen] = useState<Record<number, boolean>>({});
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const popoverCloseCallbacksRef = useRef<Set<() => void>>(new Set());
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -110,8 +110,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           ]
         }), {})
       );
-      // Reset popover states
-      setStatusPopoverOpen({});
     }
   }, [open, currentAddress.id]);
 
@@ -121,7 +119,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (!scrollEl) return;
 
     const handleScroll = () => {
-      setStatusPopoverOpen({});
+      // Call all registered close callbacks
+      popoverCloseCallbacksRef.current.forEach(callback => callback());
     };
 
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
@@ -332,7 +331,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               ))}
                           </SelectContent>
                         </Select>
-                        <Popover open={statusPopoverOpen[unit.id]} onOpenChange={(open) => setStatusPopoverOpen(prev => ({ ...prev, [unit.id]: open }))}>
+                        <Popover 
+                          onOpenChange={(isOpen) => {
+                            if (isOpen) {
+                              // Register a close callback
+                              const closeCallback = () => {
+                                // Trigger close by simulating escape key
+                                const escEvent = new KeyboardEvent('keydown', { key: 'Escape', bubbles: true });
+                                document.dispatchEvent(escEvent);
+                              };
+                              popoverCloseCallbacksRef.current.add(closeCallback);
+                            } else {
+                              // Clean up callback when popover closes
+                              popoverCloseCallbacksRef.current.clear();
+                            }
+                          }}
+                        >
                           <PopoverTrigger asChild>
                             <Button 
                               variant="outline" 
