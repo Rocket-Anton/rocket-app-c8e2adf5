@@ -202,22 +202,24 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${
+                  <SidebarMenuButton asChild className={`text-sidebar-foreground rounded-lg ${
                     state === "collapsed" 
                       ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
-                    {state === "collapsed" ? (
-                      <Switch className="scale-75" />
-                    ) : (
-                      <>
-                        <div className="flex items-center gap-2 min-w-0">
-                          <Moon className="!w-5 !h-5 flex-shrink-0" />
-                          <span className="whitespace-nowrap">Dark mode</span>
-                        </div>
-                        <Switch className="ml-auto scale-90" />
-                      </>
-                    )}
+                    <div className="w-full flex items-center justify-between">
+                      {state === "collapsed" ? (
+                        <Switch className="scale-75" />
+                      ) : (
+                        <>
+                          <div className="flex items-center gap-2 min-w-0">
+                            <Moon className="!w-5 !h-5 flex-shrink-0" />
+                            <span className="whitespace-nowrap">Dark mode</span>
+                          </div>
+                          <Switch className="ml-auto scale-90" />
+                        </>
+                      )}
+                    </div>
                   </SidebarMenuButton>
                 </SidebarMenuItem>
               </SidebarMenu>
