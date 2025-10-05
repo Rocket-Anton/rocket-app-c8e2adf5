@@ -203,47 +203,77 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }
   }, [open, initialIndex, emblaApi]);
   
-  // Reset unit statuses when address changes or modal opens
+  // Helper function to initialize states for an address
+  const initializeAddressStates = useCallback((addr: Address) => {
+    const units = addr.filteredUnits || addr.units || [];
+    const initialTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    setUnitStatuses(prev => ({
+      ...prev,
+      ...units.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
+    }));
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      ...units.reduce((acc, unit) => {
+        const status = unit.status || "offen";
+        if (status === "offen") {
+          return { ...acc, [unit.id]: [] };
+        }
+        return { 
+          ...acc, 
+          [unit.id]: [
+            {
+              id: 1,
+              status: statusOptions.find(s => s.value === status)?.label || "Offen",
+              changedBy: "System",
+              changedAt: initialTimestamp
+            }
+          ]
+        };
+      }, {})
+    }));
+    
+    setLastUpdated(prev => ({
+      ...prev,
+      ...units.reduce((acc, unit) => {
+        const status = unit.status || "offen";
+        if (status === "offen") {
+          return { ...acc, [unit.id]: "" };
+        }
+        return { ...acc, [unit.id]: initialTimestamp };
+      }, {})
+    }));
+  }, []);
+  
+  // Prefetch states for current and neighbor addresses
+  useEffect(() => {
+    if (!open || allAddresses.length === 0) return;
+    
+    // Initialize current and neighbors (left and right)
+    const indicesToPrefetch = [
+      currentIndex - 1,
+      currentIndex,
+      currentIndex + 1
+    ].filter(i => i >= 0 && i < allAddresses.length);
+    
+    indicesToPrefetch.forEach(idx => {
+      initializeAddressStates(allAddresses[idx]);
+    });
+    
+    setPopoverKey(0);
+  }, [open, currentIndex, allAddresses, initializeAddressStates]);
+  
+  // Reset unit statuses when modal opens (initial load)
   useEffect(() => {
     if (open) {
       const initialTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
       
-      setUnitStatuses(
-        displayUnits.reduce((acc, unit) => ({ ...acc, [unit.id]: unit.status || "offen" }), {})
-      );
-      // Initialize status histories for each unit - don't add entry for "offen"
-      setStatusHistories(
-        displayUnits.reduce((acc, unit) => {
-          const status = unit.status || "offen";
-          if (status === "offen") {
-            return { ...acc, [unit.id]: [] };
-          }
-          return { 
-            ...acc, 
-            [unit.id]: [
-              {
-                id: 1,
-                status: statusOptions.find(s => s.value === status)?.label || "Offen",
-                changedBy: "System",
-                changedAt: initialTimestamp
-              }
-            ]
-          };
-        }, {})
-      );
-      // Initialize last updated timestamps - only if not "offen"
-      setLastUpdated(
-        displayUnits.reduce((acc, unit) => {
-          const status = unit.status || "offen";
-          if (status === "offen") {
-            return { ...acc, [unit.id]: "" };
-          }
-          return { ...acc, [unit.id]: initialTimestamp };
-        }, {})
-      );
-      setPopoverKey(0);
+      setUnitStatuses({});
+      setStatusHistories({});
+      setLastUpdated({});
     }
-  }, [open, currentAddress.id]);
+  }, [open]);
 
   // Close all status popovers when scrolling in the main container
   useEffect(() => {
