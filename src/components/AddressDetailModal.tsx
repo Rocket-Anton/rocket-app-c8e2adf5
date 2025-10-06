@@ -1154,25 +1154,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="space-y-3">
-              {["Zu alt", "Kein Besuch mehr erwünscht", "Ziehen bald weg", "Anderer Grund"].map((reason) => (
-                <label key={reason} className="flex items-center gap-3 cursor-pointer p-3 border rounded-md hover:bg-muted/50">
-                  <input
-                    type="radio"
-                    name="keinInteresseReason"
-                    value={reason}
-                    checked={keinInteresseReason === reason}
-                    onChange={(e) => setKeinInteresseReason(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">{reason}</span>
-                </label>
-              ))}
+              <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
+                <SelectTrigger className="w-full h-10 border border-border rounded-md bg-background">
+                  <SelectValue placeholder="Grund auswählen..." />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-[10000]">
+                  <SelectItem value="Zu alt">Zu alt</SelectItem>
+                  <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
+                  <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
+                  <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
+                </SelectContent>
+              </Select>
               {keinInteresseReason === "Anderer Grund" && (
                 <Textarea
                   placeholder="Grund eingeben..."
                   value={keinInteresseCustomText}
                   onChange={(e) => setKeinInteresseCustomText(e.target.value)}
-                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 mt-3"
+                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               )}
             </div>
