@@ -193,6 +193,7 @@ All colors MUST be HSL.
 
 .animate-shimmer-silver {
   animation: shimmer 2.5s infinite;
+  background: linear-gradient(90deg, transparent, rgba(192, 192, 192, 0.5), rgba(255, 255, 255, 0.8), rgba(192, 192, 192, 0.5), transparent);
 }
 
 .animate-shimmer-gold {

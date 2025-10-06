@@ -390,10 +390,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
       };
     } else if (orderCount < 10) {
       return {
-        borderColor: "border-gray-400",
-        bgColor: "bg-gradient-to-br from-gray-100 to-gray-200",
+        borderColor: "border-gray-300",
+        bgColor: "bg-gradient-to-br from-gray-50 via-slate-100 to-gray-50",
         textColor: "text-gray-700",
-        iconBg: "bg-gray-500",
+        iconBg: "bg-gray-400",
         shimmer: true,
         shimmerColor: "silver",
         emoji: "🤩"
@@ -621,13 +621,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   <div
                     className={`absolute inset-0 ${
                       metric.shimmerColor === "gold"
-                        ? "bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent"
-                        : "bg-gradient-to-r from-transparent via-gray-300/30 to-transparent"
+                        ? "bg-gradient-to-r from-transparent via-yellow-300/40 to-transparent"
+                        : "animate-shimmer-silver"
                     }`}
                     style={{
                       animation: metric.shimmerColor === "gold" 
                         ? "shimmer 2s infinite" 
-                        : "shimmer 2.5s infinite"
+                        : undefined
                     }}
                   />
                 )}
