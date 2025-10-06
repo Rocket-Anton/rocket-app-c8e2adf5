@@ -112,6 +112,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [pendingPotenzial, setPendingPotenzial] = useState<{addressId: number, unitId: number} | null>(null);
   const [potenzialRating, setPotenzialRating] = useState<number>(0);
   const [potenzialHoverRating, setPotenzialHoverRating] = useState<number>(0);
+  
+  // Add Units Dialog States
+  const [addUnitsDialogOpen, setAddUnitsDialogOpen] = useState(false);
+  const [addUnitsCount, setAddUnitsCount] = useState<number>(1);
+  const [pendingAddressId, setPendingAddressId] = useState<number | null>(null);
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
@@ -725,6 +730,64 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPotenzialHoverRating(0);
   };
 
+  const handleAddUnitsClick = (addressId: number) => {
+    setPendingAddressId(addressId);
+    setAddUnitsCount(1);
+    setAddUnitsDialogOpen(true);
+  };
+
+  const confirmAddUnits = () => {
+    if (pendingAddressId === null || addUnitsCount < 1 || addUnitsCount > 3) return;
+
+    const targetAddress = allAddresses.length > 0 
+      ? allAddresses.find(addr => addr.id === pendingAddressId) 
+      : (currentAddress.id === pendingAddressId ? currentAddress : null);
+    
+    if (!targetAddress || !targetAddress.units) return;
+
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Create new units with status "offen"
+    const highestId = Math.max(...targetAddress.units.map(u => u.id), 0);
+    const newUnits = Array.from({ length: addUnitsCount }, (_, i) => ({
+      id: highestId + i + 1,
+      floor: "EG",
+      position: "Links",
+      status: "offen"
+    }));
+
+    // Add units to the address
+    targetAddress.units.push(...newUnits);
+
+    // Set status and history for each new unit
+    newUnits.forEach(unit => {
+      const k = `${pendingAddressId}:${unit.id}`;
+      setUnitStatuses(prev => ({ ...prev, [k]: "offen" }));
+      setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
+      
+      // Add note for the new unit
+      const note = {
+        id: Date.now() + unit.id,
+        author: "Abdullah Kater",
+        timestamp: timestamp,
+        content: `Wohneinheit hinzugefügt`,
+        permanent: true
+      };
+      setNotes(prev => [note, ...prev]);
+    });
+
+    toast({
+      title: `✓ ${addUnitsCount} Wohneinheit${addUnitsCount > 1 ? 'en' : ''} hinzugefügt`,
+      className: "bg-green-400 text-white border-0 w-auto max-w-[300px] p-3 py-2",
+      duration: 1500,
+    });
+
+    // Close dialog and reset
+    setAddUnitsDialogOpen(false);
+    setPendingAddressId(null);
+    setAddUnitsCount(1);
+  };
+
   const handleAddAppointment = (unitId: number) => {
     setPendingAppointmentUnitId(unitId);
     // Set map to show appointments for selected date when dialog opens
@@ -1132,7 +1195,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     {wohneinheiten}
                   </div>
                 </div>
-                <Button variant="ghost" size="sm" className="text-blue-600 text-xs sm:text-sm gap-1 border-0">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className="text-blue-600 text-xs sm:text-sm gap-1 border-0"
+                  onClick={() => handleAddUnitsClick(currentAddress.id)}
+                >
                   <Plus className="w-4 h-4" />
                   Hinzufügen
                 </Button>
@@ -1293,7 +1361,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   {addrUnitCount}
                 </div>
               </div>
-              <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-blue-600 text-xs gap-1 border-0"
+                onClick={() => handleAddUnitsClick(addr.id)}
+              >
                 <Plus className="w-4 h-4" />
                 Hinzufügen
               </Button>
@@ -1812,7 +1885,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               {addrUnitCount}
                             </div>
                           </div>
-                          <Button variant="ghost" size="sm" className="text-blue-600 text-xs gap-1 border-0">
+                          <Button 
+                            variant="ghost" 
+                            size="sm" 
+                            className="text-blue-600 text-xs gap-1 border-0"
+                            onClick={() => handleAddUnitsClick(addr.id)}
+                          >
                             <Plus className="w-4 h-4" />
                             Hinzufügen
                           </Button>
@@ -2298,6 +2376,71 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
             >
               Bestätigen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Add Units Dialog */}
+      <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <button
+            onClick={() => setAddUnitsDialogOpen(false)}
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Schließen</span>
+          </button>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="py-4">
+            <div className="flex items-center justify-center gap-4">
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
+                disabled={addUnitsCount <= 1}
+                className="h-10 w-10 rounded-full"
+              >
+                -
+              </Button>
+              <div className="w-20 text-center">
+                <Input
+                  type="number"
+                  min="1"
+                  max="3"
+                  value={addUnitsCount}
+                  onChange={(e) => {
+                    const val = parseInt(e.target.value) || 1;
+                    setAddUnitsCount(Math.min(3, Math.max(1, val)));
+                  }}
+                  className="text-center text-xl font-semibold h-12"
+                />
+              </div>
+              <Button
+                variant="outline"
+                size="icon"
+                onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
+                disabled={addUnitsCount >= 3}
+                className="h-10 w-10 rounded-full"
+              >
+                +
+              </Button>
+            </div>
+          </div>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmAddUnits}
+              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+            >
+              Hinzufügen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
