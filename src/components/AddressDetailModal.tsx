@@ -49,8 +49,28 @@ interface Address {
   postalCode: string;
   city: string;
   coordinates?: [number, number];
-  units?: { id: number; floor: string; position: string; status: string; addedBy?: string; addedAt?: string }[];
-  filteredUnits?: { id: number; floor: string; position: string; status: string; addedBy?: string; addedAt?: string }[];
+  units?: { 
+    id: number; 
+    floor: string; 
+    position: string; 
+    status: string; 
+    addedBy?: string; 
+    addedAt?: string;
+    deleted?: boolean;
+    deletedBy?: string;
+    deletedAt?: string;
+  }[];
+  filteredUnits?: { 
+    id: number; 
+    floor: string; 
+    position: string; 
+    status: string; 
+    addedBy?: string; 
+    addedAt?: string;
+    deleted?: boolean;
+    deletedBy?: string;
+    deletedAt?: string;
+  }[];
 }
 
 interface AddressDetailModalProps {
@@ -84,7 +104,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   };
   
   // Use filteredUnits if available (from status filter), otherwise use all units
-  const displayUnits = currentAddress.filteredUnits || currentAddress.units || [];
+  // ALWAYS filter out deleted units
+  const allUnits = currentAddress.filteredUnits || currentAddress.units || [];
+  const displayUnits = allUnits.filter(unit => !unit.deleted);
   const wohneinheiten = displayUnits.length;
   
   // State for each unit's current status
@@ -232,7 +254,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   // Helper function to initialize states for an address
   const initializeAddressStates = useCallback((addr: Address) => {
-    const units = addr.filteredUnits || addr.units || [];
+    const allUnits = addr.filteredUnits || addr.units || [];
+    const units = allUnits.filter(unit => !unit.deleted);
     const initialTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     
     setUnitStatuses(prev => ({
@@ -802,26 +825,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     if (!targetAddress || !targetAddress.units) return;
 
-    // Remove the unit from the address
-    targetAddress.units = targetAddress.units.filter(u => u.id !== unitId);
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
 
-    // Clean up status and history
-    const k = `${addressId}:${unitId}`;
-    setUnitStatuses(prev => {
-      const newStatuses = { ...prev };
-      delete newStatuses[k];
-      return newStatuses;
-    });
-    setLastUpdated(prev => {
-      const newUpdated = { ...prev };
-      delete newUpdated[k];
-      return newUpdated;
-    });
-    setStatusHistories(prev => {
-      const newHistories = { ...prev };
-      delete newHistories[k];
-      return newHistories;
-    });
+    // Soft delete: Mark as deleted instead of removing
+    const unit = targetAddress.units.find(u => u.id === unitId);
+    if (unit) {
+      unit.deleted = true;
+      unit.deletedBy = "Abdullah Kater";
+      unit.deletedAt = timestamp;
+    }
 
     toast({
       title: "✓ Wohneinheit gelöscht",
@@ -895,7 +907,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   };
 
   const renderAddressContent = (addr: Address) => {
-    const units = addr.filteredUnits || addr.units || [];
+    const allUnits = addr.filteredUnits || addr.units || [];
+    const units = allUnits.filter(unit => !unit.deleted);
     const unitCount = units.length;
     
     return (
@@ -1486,7 +1499,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   if (isMobile) {
     // Mobile: Use ModalSwipeDeck for Tinder-style swiping
     const renderCompleteCard = (addr: Address, index: number, total: number) => {
-      const addrUnits = addr.filteredUnits || addr.units || [];
+      const allAddrUnits = addr.filteredUnits || addr.units || [];
+      const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
       const addrUnitCount = addrUnits.length;
       
       return (
@@ -2101,7 +2115,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
-                const addrUnits = addr.filteredUnits || addr.units || [];
+                const allAddrUnits = addr.filteredUnits || addr.units || [];
+                const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
                 const addrUnitCount = addrUnits.length;
                 
                 return (
