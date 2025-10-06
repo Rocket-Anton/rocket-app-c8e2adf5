@@ -84,7 +84,7 @@ const renderActiveShape = (props: any) => {
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-foreground text-background px-3 py-1.5 rounded-md shadow-lg text-sm font-medium flex items-center gap-2">
+      <div className="bg-foreground text-background px-3 py-1.5 rounded-md shadow-lg text-sm font-medium flex items-center gap-2 relative z-[2000]">
         <div 
           className="w-2 h-2 rounded-full flex-shrink-0" 
           style={{ backgroundColor: payload[0].payload.color }}
