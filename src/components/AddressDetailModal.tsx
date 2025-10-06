@@ -1574,7 +1574,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         placeholder="Optional"
                         value={appointmentCustomer}
                         onChange={(e) => setAppointmentCustomer(e.target.value)}
-                        className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="h-10 border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                       />
                     </div>
 
@@ -1584,7 +1584,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         placeholder="Optional"
                         value={appointmentNotes}
                         onChange={(e) => setAppointmentNotes(e.target.value)}
-                        className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                        className="min-h-[40px] h-10 resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                       />
                     </div>
                   </CollapsibleContent>
@@ -2091,7 +2091,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       placeholder="Optional"
                       value={appointmentCustomer}
                       onChange={(e) => setAppointmentCustomer(e.target.value)}
-                      className="border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className="h-10 border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </div>
 
@@ -2101,7 +2101,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       placeholder="Optional"
                       value={appointmentNotes}
                       onChange={(e) => setAppointmentNotes(e.target.value)}
-                      className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                      className="min-h-[40px] h-10 resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                     />
                   </div>
                 </CollapsibleContent>
