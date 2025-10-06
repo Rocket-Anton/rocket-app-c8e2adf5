@@ -1040,42 +1040,45 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                                <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
                                  <PopoverContent 
-                                   className="w-[90vw] max-w-[400px] p-0 bg-background z-[10002] rounded-2xl shadow-2xl" 
+                                   className="w-[90vw] max-w-[400px] p-0 bg-background z-[10002] rounded-2xl shadow-2xl border-0" 
                                    align="center"
-                                   side="top"
+                                   side="bottom"
                                    sideOffset={20}
+                                   onOpenAutoFocus={(e) => e.preventDefault()}
                                  >
                                    <div className="p-4 space-y-4">
-                                     {/* Quick Select Buttons */}
-                                     <div className="grid grid-cols-3 gap-2">
-                                       {[
-                                         { label: "7 Tage", value: "7", days: 7 },
-                                         { label: "14 Tage", value: "14", days: 14 },
-                                         { label: "30 Tage", value: "30", days: 30 },
-                                       ].map((option) => (
-                                         <Button
-                                           key={option.value}
-                                           type="button"
-                                           variant="outline"
-                                           size="sm"
-                                           className={cn(
-                                             "h-10 text-sm font-medium",
-                                             quickDateOption === option.value
-                                               ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
-                                               : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
-                                           )}
-                                           onClick={() => {
-                                             const date = new Date();
-                                             date.setDate(date.getDate() - option.days);
-                                             setLastModifiedDate(date);
-                                             setQuickDateOption(option.value);
-                                             setDateFilterType("quick");
-                                           }}
-                                         >
-                                           {option.label}
-                                         </Button>
-                                       ))}
-                                     </div>
+                                     {/* Quick Select Buttons - nur bei "Vor" */}
+                                     {dateFilterMode === "vor" && (
+                                       <div className="grid grid-cols-3 gap-2">
+                                         {[
+                                           { label: "7 Tage", value: "7", days: 7 },
+                                           { label: "14 Tage", value: "14", days: 14 },
+                                           { label: "30 Tage", value: "30", days: 30 },
+                                         ].map((option) => (
+                                           <Button
+                                             key={option.value}
+                                             type="button"
+                                             variant="outline"
+                                             size="sm"
+                                             className={cn(
+                                               "h-10 text-sm font-medium",
+                                               quickDateOption === option.value
+                                                 ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                                                 : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                                             )}
+                                             onClick={() => {
+                                               const date = new Date();
+                                               date.setDate(date.getDate() - option.days);
+                                               setLastModifiedDate(date);
+                                               setQuickDateOption(option.value);
+                                               setDateFilterType("quick");
+                                             }}
+                                           >
+                                             {option.label}
+                                           </Button>
+                                         ))}
+                                       </div>
+                                     )}
 
                                      {/* Calendar */}
                                      <Calendar
