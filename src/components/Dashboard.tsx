@@ -42,9 +42,12 @@ export const Dashboard = () => {
   return (
     <SidebarProvider>
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden" style={{ ['--sidebar-width-icon' as any]: '5.5rem' }}>
-        <DashboardSidebar orderCount={todayOrderCount} />
+        <DashboardSidebar />
         <SidebarInset>
-          <LauflistenContent onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} />
+          <LauflistenContent 
+            onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} 
+            orderCount={todayOrderCount}
+          />
         </SidebarInset>
       </div>
     </SidebarProvider>

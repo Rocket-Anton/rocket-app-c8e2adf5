@@ -19,11 +19,7 @@ import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 
-interface DashboardSidebarProps {
-  orderCount: number;
-}
-
-export const DashboardSidebar = ({ orderCount }: DashboardSidebarProps) => {
+export const DashboardSidebar = () => {
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(true);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 

@@ -132,7 +132,12 @@ const mockAddresses = [
   },
 ];
 
-export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => void }) => {
+interface LauflistenContentProps {
+  onOrderCreated?: () => void;
+  orderCount?: number;
+}
+
+export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: LauflistenContentProps) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [sortierung, setSortierung] = useState("alle");
@@ -336,6 +341,60 @@ export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => v
 
   const displayedAddresses = filteredAddresses;
 
+  // Dynamische Styles für Aufträge heute basierend auf Count
+  const getOrderCardStyle = () => {
+    if (orderCount === 0) {
+      return {
+        borderColor: "border-red-500",
+        bgColor: "bg-red-50",
+        textColor: "text-red-600",
+        iconBg: "bg-red-500",
+        shimmer: false,
+        emoji: null
+      };
+    } else if (orderCount <= 2) {
+      return {
+        borderColor: "border-yellow-500",
+        bgColor: "bg-yellow-50",
+        textColor: "text-yellow-600",
+        iconBg: "bg-yellow-500",
+        shimmer: false,
+        emoji: null
+      };
+    } else if (orderCount <= 5) {
+      return {
+        borderColor: "border-green-500",
+        bgColor: "bg-green-50",
+        textColor: "text-green-600",
+        iconBg: "bg-green-500",
+        shimmer: false,
+        emoji: null
+      };
+    } else if (orderCount < 10) {
+      return {
+        borderColor: "border-gray-400",
+        bgColor: "bg-gradient-to-br from-gray-100 to-gray-200",
+        textColor: "text-gray-700",
+        iconBg: "bg-gray-500",
+        shimmer: true,
+        shimmerColor: "silver",
+        emoji: "🤩"
+      };
+    } else {
+      return {
+        borderColor: "border-yellow-600",
+        bgColor: "bg-gradient-to-br from-yellow-100 to-amber-200",
+        textColor: "text-yellow-700",
+        iconBg: "bg-yellow-600",
+        shimmer: true,
+        shimmerColor: "gold",
+        emoji: "🏆"
+      };
+    }
+  };
+
+  const orderStyle = getOrderCardStyle();
+
   const metricsData = [
     {
       title: "Potentiale",
@@ -352,6 +411,20 @@ export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => v
       color: "text-green-600",
       bgColor: "bg-green-100",
       explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
+    },
+    {
+      title: "Aufträge heute",
+      value: orderCount.toString(),
+      icon: Users,
+      color: orderStyle.textColor,
+      bgColor: orderStyle.bgColor,
+      explanation: "Anzahl der heute gewonnenen Neukunden",
+      borderColor: orderStyle.borderColor,
+      shimmer: orderStyle.shimmer,
+      shimmerColor: orderStyle.shimmerColor,
+      emoji: orderStyle.emoji,
+      iconBg: orderStyle.iconBg,
+      isOrderCard: true
     }
   ];
 
@@ -522,10 +595,26 @@ export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => v
         <div className="px-4 md:px-6">
           <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
-              const isGreenCard = metric.title === "Aufträge heute";
+              const isOrderCard = metric.isOrderCard;
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto ${isGreenCard ? 'border-2 border-green-500 bg-green-50/50' : ''}`}>
-                <div className="absolute -top-0.5 right-0.5">
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto overflow-hidden ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
+                {/* Shimmer Effect für Aufträge Card */}
+                {isOrderCard && metric.shimmer && (
+                  <div
+                    className={`absolute inset-0 ${
+                      metric.shimmerColor === "gold"
+                        ? "bg-gradient-to-r from-transparent via-yellow-300/30 to-transparent"
+                        : "bg-gradient-to-r from-transparent via-gray-300/30 to-transparent"
+                    }`}
+                    style={{
+                      animation: metric.shimmerColor === "gold" 
+                        ? "shimmer 2s infinite" 
+                        : "shimmer 2.5s infinite"
+                    }}
+                  />
+                )}
+                
+                <div className="absolute -top-0.5 right-0.5 z-10">
                   <Popover>
                     <PopoverTrigger asChild>
                       <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
@@ -537,16 +626,20 @@ export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => v
                     </PopoverContent>
                   </Popover>
                 </div>
-                {isGreenCard && (
+                {isOrderCard && (
                   <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
-                    <div className="w-6 h-6 bg-green-500 rounded-full flex items-center justify-center">
-                      <Check className="w-4 h-4 text-white" />
-                    </div>
+                    {metric.emoji ? (
+                      <div className="text-2xl">{metric.emoji}</div>
+                    ) : (
+                      <div className={`${metric.iconBg} rounded-full p-1.5`}>
+                        <Check className="w-4 h-4 text-white" />
+                      </div>
+                    )}
                   </div>
                 )}
-                <div className="flex flex-col items-center justify-center text-center mt-2">
-                  <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>{metric.value}</div>
-                  <div className="text-sm text-muted-foreground">{metric.title}</div>
+                <div className={`flex flex-col items-center justify-center text-center mt-2 ${isOrderCard ? 'relative z-10' : ''}`}>
+                  <div className={`font-bold mb-2 ${isMobile ? 'text-xl' : 'text-3xl'} ${isOrderCard ? metric.color : 'text-foreground'}`}>{metric.value}</div>
+                  <div className={`text-sm ${isOrderCard ? metric.color : 'text-muted-foreground'}`}>{metric.title}</div>
                 </div>
               </Card>
               );
