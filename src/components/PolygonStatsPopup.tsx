@@ -152,16 +152,16 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                innerRadius={55}
-                outerRadius={75}
+                innerRadius={50}
+                outerRadius={80}
                 fill="#8884d8"
                 dataKey="value"
                 activeIndex={activeIndex}
                 activeShape={renderActiveShape}
                 onMouseEnter={(_, index) => setActiveIndex(index)}
                 onMouseLeave={() => setActiveIndex(undefined)}
-                paddingAngle={2}
-                cornerRadius={6}
+                paddingAngle={4}
+                cornerRadius={8}
                 style={{ 
                   cursor: 'pointer',
                   transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
@@ -178,9 +178,9 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center bg-background/80 backdrop-blur-sm rounded-full w-20 h-20 flex flex-col items-center justify-center shadow-lg">
-              <p className="text-xl font-bold text-foreground">{totalUnits}</p>
-              <p className="text-xs text-muted-foreground">WE</p>
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground mb-1">Total WEs</p>
+              <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
             </div>
           </div>
         </div>
