@@ -1,8 +1,9 @@
+import { useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
 
 interface Address {
   id: number;
@@ -52,7 +53,31 @@ const statusColors: Record<string, string> = {
   "gewerbe": "#f97316"
 };
 
+const renderActiveShape = (props: any) => {
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  
+  return (
+    <g>
+      <Sector
+        cx={cx}
+        cy={cy}
+        innerRadius={innerRadius}
+        outerRadius={outerRadius + 8}
+        startAngle={startAngle}
+        endAngle={endAngle}
+        fill={fill}
+        style={{
+          filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2))',
+          transition: 'all 0.3s ease'
+        }}
+      />
+    </g>
+  );
+};
+
 export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExisting }: PolygonStatsPopupProps) {
+  const [activeIndex, setActiveIndex] = useState<number | undefined>(undefined);
+  
   // Calculate statistics
   const totalAddresses = addresses.length;
   const totalUnits = addresses.reduce((sum, addr) => sum + addr.units.length, 0);
@@ -84,7 +109,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
     }));
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 p-3 shadow-2xl z-[1000] bg-background border-border">
+    <Card className="fixed bottom-6 right-6 w-96 p-4 shadow-2xl z-[1000] bg-gradient-to-br from-background via-background to-muted/20 border-border backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-foreground">Polygon-Auswahl</h3>
@@ -118,38 +143,43 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       <Separator className="mb-2" />
 
       {/* Status Distribution Pie Chart */}
-      <div className="mb-2">
-        <h4 className="text-sm font-semibold text-foreground mb-2">Status-Verteilung</h4>
-        <div className="relative">
-          <ResponsiveContainer width="100%" height={180}>
+      <div className="mb-3">
+        <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
+        <div className="relative flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={240}>
             <PieChart>
               <Pie
                 data={chartData}
                 cx="50%"
                 cy="50%"
                 labelLine={false}
-                innerRadius={45}
-                outerRadius={60}
+                innerRadius={60}
+                outerRadius={85}
                 fill="#8884d8"
                 dataKey="value"
+                activeIndex={activeIndex}
+                activeShape={renderActiveShape}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(undefined)}
+                style={{ cursor: 'pointer' }}
               >
                 {chartData.map((entry, index) => (
-                  <Cell key={`cell-${index}`} fill={entry.color} />
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                    style={{
+                      filter: index === activeIndex ? 'brightness(1.1)' : 'none',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
                 ))}
               </Pie>
-              <Tooltip 
-                contentStyle={{ 
-                  backgroundColor: 'hsl(var(--background))', 
-                  border: '1px solid hsl(var(--border))',
-                  borderRadius: '6px'
-                }}
-              />
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground">WE</p>
+            <div className="text-center bg-background/80 backdrop-blur-sm rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-lg">
               <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
+              <p className="text-xs text-muted-foreground">WE</p>
             </div>
           </div>
         </div>
