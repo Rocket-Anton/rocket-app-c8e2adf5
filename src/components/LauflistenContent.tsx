@@ -991,20 +991,23 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              {/* Main Dropdown */}
                              <Popover open={dateFilterOpen} onOpenChange={setDateFilterOpen}>
                                <PopoverTrigger asChild>
-                               <Button
-                                   variant="outline"
-                                   className="w-full justify-between h-9 font-normal bg-background focus-visible:ring-0 focus-visible:border-gray-400"
-                                 >
-                                   <span className={dateFilterMode === "" ? "text-muted-foreground" : ""}>
-                                     {dateFilterMode === "" ? "Zeitraum auswählen" : 
-                                      lastModifiedDate ? (
-                                        `${dateFilterMode === "vor" ? "Vor" : "Nach"} ${format(lastModifiedDate, "dd.MM.yyyy")}${quickDateOption ? ` (${quickDateOption} Tage)` : ""}`
-                                      ) : (
-                                        dateFilterMode === "vor" ? "Vor" : "Nach"
-                                      )}
-                                   </span>
-                                   <ChevronDown className="h-4 w-4 opacity-50" />
-                                 </Button>
+                                <Button
+                                    variant="outline"
+                                    className="w-full justify-start h-9 font-normal bg-background focus-visible:ring-0 focus-visible:border-gray-400 text-left"
+                                  >
+                                    <span className={cn(
+                                      "flex-1 text-sm",
+                                      dateFilterMode === "" ? "text-muted-foreground" : ""
+                                    )}>
+                                      {dateFilterMode === "" ? "Zeitraum auswählen" : 
+                                       lastModifiedDate ? (
+                                         `${dateFilterMode === "vor" ? "Vor" : "Nach"} ${format(lastModifiedDate, "dd.MM.yyyy")}${quickDateOption ? ` (${quickDateOption} Tage)` : ""}`
+                                       ) : (
+                                         dateFilterMode === "vor" ? "Vor" : "Nach"
+                                       )}
+                                    </span>
+                                    <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
+                                  </Button>
                                </PopoverTrigger>
                                <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
                                  <PopoverContent 
