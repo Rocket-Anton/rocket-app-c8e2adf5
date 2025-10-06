@@ -373,67 +373,67 @@ export default function Karte() {
                 <Button
                   onClick={toggleDrawingMode}
                   variant={isDrawingMode ? "default" : "outline"}
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Laufliste"
                 >
-                  <PersonStanding className="h-5 w-5" />
+                  <PersonStanding className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Standort"
                 >
-                  <MapPin className="h-5 w-5" />
+                  <MapPin className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Zoom In"
                   onClick={() => mapInstance.current?.zoomIn()}
                 >
-                  <Plus className="h-5 w-5" />
+                  <Plus className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Zoom Out"
                   onClick={() => mapInstance.current?.zoomOut()}
                 >
-                  <Minus className="h-5 w-5" />
+                  <Minus className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Filter"
                 >
-                  <Filter className="h-5 w-5" />
+                  <Filter className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Ebenen"
                 >
-                  <Layers className="h-5 w-5" />
+                  <Layers className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  className="shadow-lg bg-background hover:bg-accent w-9 h-9 p-0"
                   size="icon"
                   title="Vollbild"
                 >
-                  <Maximize2 className="h-5 w-5" />
+                  <Maximize2 className="h-4 w-4" />
                 </Button>
               </div>
             </div>
