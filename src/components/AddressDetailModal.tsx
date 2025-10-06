@@ -1147,6 +1147,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Kein Interesse Grund-Dialog */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <button
+              onClick={() => setKeinInteresseDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
             <AlertDialogHeader>
               <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1195,6 +1202,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Potenzial Bewertung */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <button
+              onClick={() => setPotenzialDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
             <AlertDialogHeader>
               <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1317,6 +1331,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Kein Interesse Grund-Dialog (Mobile) */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <button
+              onClick={() => setKeinInteresseDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
             <AlertDialogHeader>
               <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1366,6 +1387,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Potenzial Bewertung (Mobile) */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <button
+              onClick={() => setPotenzialDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
             <AlertDialogHeader>
               <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
               <AlertDialogDescription>
