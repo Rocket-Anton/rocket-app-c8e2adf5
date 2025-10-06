@@ -1176,7 +1176,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </div>
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
               <AlertDialogCancel 
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0"
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-xl"
                 onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
               >
                 Abbrechen
@@ -1184,7 +1184,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <AlertDialogAction 
                 onClick={confirmKeinInteresse}
                 disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-xl font-medium"
               >
                 Bestätigen
               </AlertDialogAction>
@@ -1347,7 +1347,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </div>
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
               <AlertDialogCancel 
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0"
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-xl"
                 onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
               >
                 Abbrechen
@@ -1355,7 +1355,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <AlertDialogAction 
                 onClick={confirmKeinInteresse}
                 disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-xl font-medium"
               >
                 Bestätigen
               </AlertDialogAction>
