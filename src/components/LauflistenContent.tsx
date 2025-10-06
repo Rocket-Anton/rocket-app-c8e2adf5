@@ -614,7 +614,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   />
                 )}
                 
-                <div className={`absolute -top-0.5 right-0.5 z-10 ${isOrderCard ? '-top-3 -right-3 z-20' : ''}`}>
+                <div className={isOrderCard ? "absolute -top-3 -right-3 z-20" : "absolute -top-0.5 right-0.5 z-10"}>
                   <Popover>
                     <PopoverTrigger asChild>
                       {isOrderCard ? (
