@@ -350,7 +350,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
         textColor: "text-red-600",
         iconBg: "bg-red-500",
         shimmer: false,
-        emoji: null
+        emoji: "😭"
       };
     } else if (orderCount <= 2) {
       return {
@@ -359,7 +359,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
         textColor: "text-yellow-600",
         iconBg: "bg-yellow-500",
         shimmer: false,
-        emoji: null
+        emoji: "🧐"
       };
     } else if (orderCount <= 5) {
       return {
@@ -627,9 +627,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   </Popover>
                 </div>
                 {isOrderCard && (
-                  <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
+                  <div className="absolute -bottom-2 -right-2 z-10 pointer-events-none">
                     {metric.emoji ? (
-                      <div className="text-2xl">{metric.emoji}</div>
+                      <div className="text-xl leading-none">{metric.emoji}</div>
                     ) : (
                       <div className={`${metric.iconBg} rounded-full p-1.5`}>
                         <Check className="w-4 h-4 text-white" />
