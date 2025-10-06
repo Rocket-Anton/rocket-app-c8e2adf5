@@ -96,7 +96,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   });
   
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
-  const currentAddress = allAddresses.length > 0 ? allAddresses[currentIndex] : address;
+  
+  // Ensure currentAddress always has a valid value
+  const currentAddress = useMemo(() => {
+    if (allAddresses.length > 0) {
+      // Make sure currentIndex is within bounds
+      const validIndex = Math.max(0, Math.min(currentIndex, allAddresses.length - 1));
+      return allAddresses[validIndex];
+    }
+    return address;
+  }, [allAddresses, currentIndex, address]);
   
   // Handle dialog close and notify parent with final index
   const handleDialogChange = (open: boolean) => {
