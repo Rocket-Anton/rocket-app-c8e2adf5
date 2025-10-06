@@ -632,21 +632,12 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   />
                 )}
                 
-                <div className={isOrderCard ? "absolute -top-3 -right-3 z-20" : "absolute -top-0.5 right-0.5 z-10"}>
+                <div className="absolute -top-0.5 right-0.5 z-10">
                   <Popover>
                     <PopoverTrigger asChild>
-                      {isOrderCard ? (
-                        <button
-                          aria-label="Infos"
-                          className="w-6 h-6 rounded-full bg-white ring-1 ring-green-500 shadow flex items-center justify-center hover:bg-muted/50 transition"
-                        >
-                          <Info className="w-4 h-4 text-green-600" />
-                        </button>
-                      ) : (
-                        <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
-                          <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
-                        </button>
-                      )}
+                      <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
+                        <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
+                      </button>
                     </PopoverTrigger>
                     <PopoverContent className="w-80 p-3" align="end" side="bottom">
                       <p className="text-sm">{metric.explanation}</p>
@@ -656,7 +647,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                 {isOrderCard && (
                   <div className="absolute -bottom-1 -right-1 z-10 pointer-events-none">
                     {metric.emoji ? (
-                      <div className="text-xl leading-none">{metric.emoji}</div>
+                      <div className="text-2xl leading-none">{metric.emoji}</div>
                     ) : (
                       <div className={`w-6 h-6 ${metric.iconBg} rounded-full flex items-center justify-center`}>
                         <Check className="w-4 h-4 text-white" />
