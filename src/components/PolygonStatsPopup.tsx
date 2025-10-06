@@ -173,7 +173,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
           return (
             <div 
               key={index} 
-              className="grid grid-cols-[1fr_auto_auto] gap-3 items-center text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
+              className="grid grid-cols-[1fr_3rem_3rem] gap-2 items-center text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
               onMouseEnter={() => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(undefined)}
             >
@@ -184,8 +184,8 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
                 />
                 <span className="text-foreground">{item.name}</span>
               </div>
-              <span className="font-semibold text-foreground">{item.value}</span>
-              <span className="font-semibold text-foreground">{percentage}%</span>
+              <span className="font-semibold text-foreground text-left">{item.value}</span>
+              <span className="font-semibold text-foreground text-left">{percentage}%</span>
             </div>
           );
         })}
