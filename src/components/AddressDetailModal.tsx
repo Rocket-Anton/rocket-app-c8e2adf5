@@ -680,99 +680,103 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     ) : null}
 
                     <div>
-                      <div className="flex items-center gap-3 min-w-0">
-                        <Select 
-                          value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
-                          onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
-                        >
-                          <SelectTrigger className="flex-1 h-11 md:h-12 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none items-center">
-                            <SelectValue>
-                              {(() => {
-                                const currentStatus = unitStatuses[`${addr.id}:${unit.id}`] || "offen";
-                                const statusOption = statusOptions.find(s => s.value === currentStatus);
-                                return statusOption ? (
-                                  <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
-                                    {statusOption.label}
+                      <div className="flex gap-3 min-w-0">
+                        <div className="flex-1 min-w-0">
+                          <Select 
+                            value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
+                            onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
+                          >
+                            <SelectTrigger className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                              <SelectValue>
+                                {(() => {
+                                  const currentStatus = unitStatuses[`${addr.id}:${unit.id}`] || "offen";
+                                  const statusOption = statusOptions.find(s => s.value === currentStatus);
+                                  return statusOption ? (
+                                    <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
+                                      {statusOption.label}
+                                    </div>
+                                  ) : null;
+                                })()}
+                              </SelectValue>
+                            </SelectTrigger>
+                            <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
+                              {statusOptions
+                                .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
+                                .map((status) => (
+                                  <SelectItem key={status.value} value={status.value}>
+                                    <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                                      {status.label}
+                                    </div>
+                                  </SelectItem>
+                                ))}
+                            </BoundedSelectContent>
+                          </Select>
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          <Popover key={`popover-${unit.id}-${popoverKey}`}>
+                            <PopoverTrigger asChild>
+                              <Button 
+                                variant="outline" 
+                                className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-xs font-medium relative"
+                              >
+                                <span>Historie</span>
+                                <ChevronDown className="h-4 w-4 opacity-50" />
+                                {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
+                                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                    {statusHistories[`${addr.id}:${unit.id}`].length}
+                                  </span>
+                                )}
+                              </Button>
+                            </PopoverTrigger>
+                            <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
+                              <BoundedPopoverContent
+                                modalRef={modalContentRef}
+                                align="end"
+                                sideOffset={8}
+                                className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
+                              >
+                                <div
+                                  className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
+                                  onWheel={(e) => e.stopPropagation()}
+                                  onPointerDown={(e) => e.stopPropagation()}
+                                  onTouchStart={(e) => e.stopPropagation()}
+                                  style={{ WebkitOverflowScrolling: 'touch' }}
+                                >
+                                  <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
+                                    <h3 className="font-medium text-sm">Status Historie</h3>
                                   </div>
-                                ) : null;
-                              })()}
-                            </SelectValue>
-                          </SelectTrigger>
-                          <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
-                            {statusOptions
-                              .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
-                              .map((status) => (
-                                <SelectItem key={status.value} value={status.value}>
-                                  <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                                    {status.label}
+                                  <div className="p-3 pt-2">
+                                    <div className="space-y-2">
+                                      {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
+                                        (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
+                                          const statusOption = statusOptions.find(s => s.label === history.status);
+                                          return (
+                                            <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                              <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                                {history.status}
+                                              </div>
+                                              <div className="text-xs text-muted-foreground">
+                                                {history.changedBy}
+                                              </div>
+                                              <div className="text-xs text-muted-foreground">
+                                                {history.changedAt}
+                                              </div>
+                                            </div>
+                                          );
+                                        })
+                                      ) : (
+                                        <div className="text-sm text-muted-foreground text-center py-4">
+                                          Kein Update vorhanden
+                                        </div>
+                                      )}
+                                    </div>
                                   </div>
-                                </SelectItem>
-                              ))}
-                          </BoundedSelectContent>
-                        </Select>
-                        <Popover key={`popover-${unit.id}-${popoverKey}`}>
-                          <PopoverTrigger asChild>
-                            <Button 
-                              variant="outline" 
-                              size="sm"
-                              className="h-11 md:h-12 px-3 gap-2 text-xs font-medium shrink-0 relative"
-                            >
-                              <RotateCcw className="w-3.5 h-3.5" />
-                              Historie
-                              {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
-                                <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                                  {statusHistories[`${addr.id}:${unit.id}`].length}
-                                </span>
-                              )}
-                            </Button>
-                          </PopoverTrigger>
-                           <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
-                            <BoundedPopoverContent
-                              modalRef={modalContentRef}
-                              align="end"
-                              sideOffset={8}
-                              className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
-                            >
-                               <div
-                                 className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
-                                 onWheel={(e) => e.stopPropagation()}
-                                 onPointerDown={(e) => e.stopPropagation()}
-                                 onTouchStart={(e) => e.stopPropagation()}
-                                 style={{ WebkitOverflowScrolling: 'touch' }}
-                               >
-                                <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
-                                  <h3 className="font-medium text-sm">Status Historie</h3>
                                 </div>
-                                <div className="p-3 pt-2">
-                                  <div className="space-y-2">
-                                    {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
-                                      (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
-                                        const statusOption = statusOptions.find(s => s.label === history.status);
-                                        return (
-                                          <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
-                                            <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
-                                              {history.status}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                              {history.changedBy}
-                                            </div>
-                                            <div className="text-xs text-muted-foreground">
-                                              {history.changedAt}
-                                            </div>
-                                          </div>
-                                        );
-                                      })
-                                    ) : (
-                                      <div className="text-sm text-muted-foreground text-center py-4">
-                                        Kein Update vorhanden
-                                      </div>
-                                    )}
-                                  </div>
-                                </div>
-                              </div>
-                            </BoundedPopoverContent>
-                          </PopoverPrimitive.Portal>
-                        </Popover>
+                              </BoundedPopoverContent>
+                            </PopoverPrimitive.Portal>
+                          </Popover>
+                        </div>
                       </div>
                     </div>
 
