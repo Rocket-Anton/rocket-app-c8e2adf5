@@ -271,24 +271,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   }, [open, currentIndex, allAddresses, initializeAddressStates]);
   
 
-  // Close all status popovers when scrolling significantly in the main container
+  // Disable auto-closing popovers on scroll to ensure 'Historie' opens reliably on mobile
   useEffect(() => {
     const scrollEl = scrollContainerRef.current;
     if (!scrollEl) return;
-
-    let lastScrollTop = 0;
-    const handleScroll = () => {
-      const currentScrollTop = scrollEl.scrollTop;
-      // Only close popovers if user scrolled more than 10px
-      if (Math.abs(currentScrollTop - lastScrollTop) > 10) {
-        setPopoverKey(prev => prev + 1);
-        lastScrollTop = currentScrollTop;
-      }
-    };
-
-    scrollEl.addEventListener('scroll', handleScroll, { passive: true });
+    // No listeners; rely on user interactions to close.
     return () => {
-      scrollEl.removeEventListener('scroll', handleScroll);
+      // nothing
     };
   }, []);
 
@@ -1331,7 +1320,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="box-border w-[95vw] max-w-[95vw] sm:max-w-2xl sm:w-full h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
           <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
