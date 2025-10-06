@@ -4,7 +4,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon } from "lucide-react";
+import { Pentagon, MapPin, Plus, Minus, Filter, Layers, Maximize2, PersonStanding } from "lucide-react";
 import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -368,16 +368,74 @@ export default function Karte() {
             <div className="flex-1 p-4 sm:p-6 overflow-hidden relative">
               <div className="h-full w-full rounded-lg border border-border overflow-hidden shadow-sm" ref={mapContainer} />
               
-              {/* Polygon Drawing Toggle Button */}
-              <Button
-                onClick={toggleDrawingMode}
-                variant={isDrawingMode ? "default" : "outline"}
-                className="absolute top-8 right-8 z-[1000] shadow-lg"
-                size="icon"
-                title={isDrawingMode ? "Zeichnen beenden" : "Polygon zeichnen"}
-              >
-                <Pentagon className="h-4 w-4" />
-              </Button>
+              {/* Map Controls - Right Side */}
+              <div className="absolute top-8 right-8 z-[1000] flex flex-col gap-2">
+                <Button
+                  onClick={toggleDrawingMode}
+                  variant={isDrawingMode ? "default" : "outline"}
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Laufliste"
+                >
+                  <PersonStanding className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Standort"
+                >
+                  <MapPin className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Zoom In"
+                  onClick={() => mapInstance.current?.zoomIn()}
+                >
+                  <Plus className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Zoom Out"
+                  onClick={() => mapInstance.current?.zoomOut()}
+                >
+                  <Minus className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Filter"
+                >
+                  <Filter className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Ebenen"
+                >
+                  <Layers className="h-5 w-5" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-background hover:bg-accent w-12 h-12 p-0"
+                  size="icon"
+                  title="Vollbild"
+                >
+                  <Maximize2 className="h-5 w-5" />
+                </Button>
+              </div>
             </div>
           </div>
         </SidebarInset>
