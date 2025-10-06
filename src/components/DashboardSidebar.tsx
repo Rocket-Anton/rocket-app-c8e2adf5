@@ -121,8 +121,9 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="overflow-hidden">
-                    <div className="animate-accordion-down border-l-2 border-sidebar-foreground/30 ml-5 pl-4 space-y-1 mt-1">
+                  <div className="overflow-hidden ml-5 pl-4 relative">
+                    <div className="absolute left-0 top-2 bottom-2 w-0.5 bg-sidebar-foreground/30"></div>
+                    <div className="animate-accordion-down space-y-1 mt-1">
                       <SidebarMenuItem>
                         <SidebarMenuButton 
                           size="sm" 
