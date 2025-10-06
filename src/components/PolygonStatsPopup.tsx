@@ -54,12 +54,12 @@ const statusColors: Record<string, string> = {
 };
 
 const renderActiveShape = (props: any) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
   
   const midAngle = (startAngle + endAngle) / 2;
   const radian = Math.PI / 180;
-  const offsetX = Math.cos(-midAngle * radian) * 10;
-  const offsetY = Math.sin(-midAngle * radian) * 10;
+  const offsetX = Math.cos(-midAngle * radian) * 4;
+  const offsetY = Math.sin(-midAngle * radian) * 4;
   
   return (
     <g>
@@ -67,13 +67,14 @@ const renderActiveShape = (props: any) => {
         cx={cx + offsetX}
         cy={cy + offsetY}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 6}
+        outerRadius={outerRadius + 3}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
+        cornerRadius={6}
         style={{
-          filter: 'drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.3))',
-          transition: 'all 0.3s ease'
+          filter: 'drop-shadow(0px 4px 10px rgba(0, 0, 0, 0.25))',
+          transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
         }}
       />
     </g>
@@ -83,8 +84,12 @@ const renderActiveShape = (props: any) => {
 const CustomTooltip = ({ active, payload }: any) => {
   if (active && payload && payload.length) {
     return (
-      <div className="bg-foreground text-background px-3 py-1.5 rounded-md shadow-lg text-sm font-medium">
-        {payload[0].name} • {payload[0].value}
+      <div className="bg-foreground text-background px-3 py-1.5 rounded-md shadow-lg text-sm font-medium flex items-center gap-2">
+        <div 
+          className="w-2 h-2 rounded-full flex-shrink-0" 
+          style={{ backgroundColor: payload[0].payload.color }}
+        />
+        <span>{payload[0].name} • {payload[0].value}</span>
       </div>
     );
   }
@@ -134,10 +139,57 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         </Button>
       </div>
 
-      <Separator className="mb-2" />
+      <Separator className="mb-3" />
+
+      {/* Status Distribution Pie Chart */}
+      <div className="mb-3">
+        <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
+        <div className="relative flex items-center justify-center">
+          <ResponsiveContainer width="100%" height={200}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                innerRadius={55}
+                outerRadius={75}
+                fill="#8884d8"
+                dataKey="value"
+                activeIndex={activeIndex}
+                activeShape={renderActiveShape}
+                onMouseEnter={(_, index) => setActiveIndex(index)}
+                onMouseLeave={() => setActiveIndex(undefined)}
+                paddingAngle={2}
+                cornerRadius={6}
+                style={{ 
+                  cursor: 'pointer',
+                  transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
+                }}
+              >
+                {chartData.map((entry, index) => (
+                  <Cell 
+                    key={`cell-${index}`} 
+                    fill={entry.color}
+                  />
+                ))}
+              </Pie>
+              <Tooltip content={<CustomTooltip />} />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center bg-background/80 backdrop-blur-sm rounded-full w-20 h-20 flex flex-col items-center justify-center shadow-lg">
+              <p className="text-xl font-bold text-foreground">{totalUnits}</p>
+              <p className="text-xs text-muted-foreground">WE</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <Separator className="mb-3" />
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-2">
+      <div className="grid grid-cols-2 gap-3 mb-3">
         <div>
           <p className="text-sm text-muted-foreground mb-1">Adressen</p>
           <p className="text-xl font-bold text-foreground">{totalAddresses}</p>
@@ -156,8 +208,10 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         </div>
       </div>
 
+      <Separator className="mb-3" />
+
       {/* Status List with Percentages */}
-      <div className="mb-3 max-h-40 overflow-y-auto space-y-2">
+      <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5">
         {chartData.map((item, index) => {
           const percentage = totalUnits > 0 ? ((item.value / totalUnits) * 100).toFixed(0) : "0";
           return (
@@ -180,60 +234,16 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         })}
       </div>
 
-      <Separator className="mb-2" />
-
-      {/* Status Distribution Pie Chart */}
-      <div className="mb-3">
-        <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
-        <div className="relative flex items-center justify-center">
-          <ResponsiveContainer width="100%" height={240}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                innerRadius={60}
-                outerRadius={85}
-                fill="#8884d8"
-                dataKey="value"
-                activeIndex={activeIndex}
-                activeShape={renderActiveShape}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
-                style={{ cursor: 'pointer' }}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center bg-background/80 backdrop-blur-sm rounded-full w-24 h-24 flex flex-col items-center justify-center shadow-lg">
-              <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
-              <p className="text-xs text-muted-foreground">WE</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Separator className="mb-2" />
-
       {/* Actions */}
-      <div className="space-y-2">
-        <Button onClick={onCreateList} className="w-full" size="sm">
-          Laufliste erstellen
-        </Button>
-        <Button onClick={onAddToExisting} variant="outline" className="w-full" size="sm">
-          Zu Laufliste hinzufügen
-        </Button>
-        <Button onClick={onClose} variant="ghost" className="w-full" size="sm">
+      <div className="flex gap-2">
+        <Button onClick={onClose} variant="ghost" size="sm" className="flex-shrink-0">
           Abbrechen
+        </Button>
+        <Button onClick={onAddToExisting} variant="outline" size="sm" className="flex-1">
+          Zu Liste
+        </Button>
+        <Button onClick={onCreateList} size="sm" className="flex-1">
+          Erstellen
         </Button>
       </div>
     </Card>
