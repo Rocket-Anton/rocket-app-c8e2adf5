@@ -900,9 +900,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
 
     // Add to history
+    const statusLabel = statusOptions.find(s => s.value === "neukunde")?.label || "Neukunde";
     const historyEntry = {
       id: Date.now(),
-      status: "neukunde",
+      status: statusLabel,
       changedBy: "Abdullah Kater",
       changedAt: timestamp
     };
@@ -1629,6 +1630,93 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Order Creation Dialog (Single Address) */}
+        <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Auftrag anlegen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+                <input
+                  type="text"
+                  value={orderForm.vorname}
+                  onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Vorname eingeben"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+                <input
+                  type="text"
+                  value={orderForm.nachname}
+                  onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Nachname eingeben"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+                <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Tarif auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-[10000]">
+                    <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
+                    <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
+                    <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
+                    <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Zusätze</label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={orderForm.zusaetze.includes('NC TV')}
+                      onChange={() => toggleZusatz('NC TV')}
+                      className="w-4 h-4 rounded border-border text-primary mr-2"
+                    />
+                    <span className="text-sm">NC TV</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={orderForm.zusaetze.includes('NC Router')}
+                      onChange={() => toggleZusatz('NC Router')}
+                      className="w-4 h-4 rounded border-border text-primary mr-2"
+                    />
+                    <span className="text-sm">NC Router</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOrderDialogOpen(false);
+                  setOrderUnitId(null);
+                  setOrderAddressId(null);
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleConfirmOrder}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </>
     );
   }
@@ -2242,6 +2330,93 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogFooter>
           </AlertDialogContent>
         </AlertDialog>
+
+        {/* Order Creation Dialog (Mobile) */}
+        <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+            <DialogHeader>
+              <DialogTitle>Auftrag anlegen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+                <input
+                  type="text"
+                  value={orderForm.vorname}
+                  onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Vorname eingeben"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+                <input
+                  type="text"
+                  value={orderForm.nachname}
+                  onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  placeholder="Nachname eingeben"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+                <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Tarif auswählen" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-background z-[10000]">
+                    <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
+                    <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
+                    <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
+                    <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-2 block">Zusätze</label>
+                <div className="space-y-2">
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={orderForm.zusaetze.includes('NC TV')}
+                      onChange={() => toggleZusatz('NC TV')}
+                      className="w-4 h-4 rounded border-border text-primary mr-2"
+                    />
+                    <span className="text-sm">NC TV</span>
+                  </label>
+                  <label className="flex items-center">
+                    <input
+                      type="checkbox"
+                      checked={orderForm.zusaetze.includes('NC Router')}
+                      onChange={() => toggleZusatz('NC Router')}
+                      className="w-4 h-4 rounded border-border text-primary mr-2"
+                    />
+                    <span className="text-sm">NC Router</span>
+                  </label>
+                </div>
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setOrderDialogOpen(false);
+                  setOrderUnitId(null);
+                  setOrderAddressId(null);
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={handleConfirmOrder}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
       </>
     );
   }
