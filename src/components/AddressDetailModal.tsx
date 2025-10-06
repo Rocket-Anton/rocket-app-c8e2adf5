@@ -413,24 +413,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           align={align}
           sideOffset={sideOffset}
           avoidCollisions={false}
-          sticky="always"
           className={cn(
             "z-[1200] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
             className
           )}
-          style={{ ["--bounded-max-h" as any]: `${maxH ?? 0}px` }}
         >
-          <SelectPrimitive.ScrollUpButton className="flex h-6 items-center justify-center bg-popover/80" />
           <SelectPrimitive.Viewport
-            className="p-1 max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
+            className="p-1 overflow-y-auto overscroll-contain touch-pan-y"
             onWheel={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
-            style={{ WebkitOverflowScrolling: "touch" } as any}
+            style={{ 
+              WebkitOverflowScrolling: "touch",
+              maxHeight: maxH ? `${maxH}px` : "300px"
+            } as any}
           >
             {children}
           </SelectPrimitive.Viewport>
-          <SelectPrimitive.ScrollDownButton className="flex h-6 items-center justify-center bg-popover/80" />
         </SelectPrimitive.Content>
       </SelectPrimitive.Portal>
     );
