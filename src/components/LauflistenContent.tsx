@@ -1061,7 +1061,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
 
                            {/* Date Picker Modal */}
                            {dateFilterMode && (
-                             <Sheet open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                              <Sheet open={datePickerOpen} onOpenChange={(open) => {
+                                setDatePickerOpen(open);
+                                // Nur dateFilterMode zurücksetzen wenn Sheet geschlossen wird UND kein Datum/Quick-Option ausgewählt wurde
+                                if (!open && !lastModifiedDate && !quickDateOption) {
+                                  setDateFilterMode("");
+                                }
+                              }}>
                                <SheetContent side="bottom" className="h-auto max-h-[85vh] w-full p-4 rounded-t-2xl">
                                   <div className="space-y-4">
                                     {/* Quick Select Buttons - nur bei "Vor" */}
