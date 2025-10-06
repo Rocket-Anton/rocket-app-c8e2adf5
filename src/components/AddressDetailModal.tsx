@@ -99,6 +99,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [newNoteText, setNewNoteText] = useState("");
   const [deleteNoteDialogOpen, setDeleteNoteDialogOpen] = useState(false);
   const [pendingDeleteNoteId, setPendingDeleteNoteId] = useState<number | null>(null);
+  
+  // Kein Interesse Dialog States
+  const [keinInteresseDialogOpen, setKeinInteresseDialogOpen] = useState(false);
+  const [pendingKeinInteresse, setPendingKeinInteresse] = useState<{addressId: number, unitId: number} | null>(null);
+  const [keinInteresseReason, setKeinInteresseReason] = useState<string>("");
+  const [keinInteresseCustomText, setKeinInteresseCustomText] = useState<string>("");
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
@@ -154,18 +160,20 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       coordinates: [10.0330, 47.5600]
     }
   ]);
-  const [notes, setNotes] = useState([
+  const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([
     {
       id: 1,
       author: "Abdullah Kater",
       timestamp: "16.07.25 18:41",
-      content: "Möchte Nix."
+      content: "Möchte Nix.",
+      permanent: false
     },
     {
       id: 2,
       author: "Abdullah Kater", 
       timestamp: "16.07.25 18:41",
-      content: ""
+      content: "",
+      permanent: false
     }
   ]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
@@ -456,6 +464,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   const handleStatusChange = (addressId: number, unitId: number, newStatus: string) => {
     const k = `${addressId}:${unitId}`;
+    
+    // Wenn "kein-interesse" ausgewählt wird, öffne den Dialog zur Begründung
+    if (newStatus === "kein-interesse") {
+      setPendingKeinInteresse({ addressId, unitId });
+      setKeinInteresseDialogOpen(true);
+      return; // Nicht direkt Status setzen
+    }
+    
     setUnitStatuses(prev => ({ ...prev, [k]: newStatus }));
 
     const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
@@ -548,6 +564,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   };
 
   const handleDeleteNote = (noteId: number) => {
+    // Prüfen, ob die Notiz permanent ist
+    const note = notes.find(n => n.id === noteId);
+    if (note?.permanent) {
+      toast({
+        title: "Diese Notiz kann nicht gelöscht werden",
+        className: "bg-red-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+        duration: 2000,
+      });
+      return;
+    }
     setPendingDeleteNoteId(noteId);
     setDeleteNoteDialogOpen(true);
   };
@@ -565,6 +591,64 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
       duration: 1000,
     });
+  };
+  
+  const confirmKeinInteresse = () => {
+    if (!pendingKeinInteresse || !keinInteresseReason) return;
+    
+    const { addressId, unitId } = pendingKeinInteresse;
+    const k = `${addressId}:${unitId}`;
+    
+    // Grund-Text erstellen
+    let reasonText = keinInteresseReason;
+    if (keinInteresseReason === "Anderer Grund" && keinInteresseCustomText.trim()) {
+      reasonText = keinInteresseCustomText.trim();
+    }
+    
+    // Permanente Notiz hinzufügen
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const newNote = {
+      id: Date.now(),
+      author: "Abdullah Kater",
+      timestamp: timestamp,
+      content: `Kein Interesse: ${reasonText}`,
+      permanent: true
+    };
+    
+    setNotes(prev => [newNote, ...prev]);
+    
+    // Jetzt Status auf "kein-interesse" setzen
+    setUnitStatuses(prev => ({ ...prev, [k]: "kein-interesse" }));
+    
+    const statusLabel = statusOptions.find(s => s.value === "kein-interesse")?.label || "Kein Interesse";
+    const statusTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    setLastUpdated(prev => ({ ...prev, [k]: statusTimestamp }));
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [k]: [
+        {
+          id: Date.now(),
+          status: statusLabel,
+          changedBy: "Abdullah Kater",
+          changedAt: statusTimestamp
+        },
+        ...(prev[k] || [])
+      ]
+    }));
+    
+    toast({
+      title: "✓ Status geändert",
+      className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 1000,
+    });
+    
+    // Dialog schließen und zurücksetzen
+    setKeinInteresseDialogOpen(false);
+    setPendingKeinInteresse(null);
+    setKeinInteresseReason("");
+    setKeinInteresseCustomText("");
   };
 
   const handleAddAppointment = (unitId: number) => {
@@ -1476,6 +1560,59 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <AlertDialogAction 
               onClick={confirmSameStatusUpdate}
               className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+            >
+              Bestätigen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
+            <AlertDialogDescription>
+              Bitte wählen Sie einen Grund aus:
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="space-y-3">
+            {["Zu alt", "Kein Besuch mehr erwünscht", "Ziehen bald weg", "Anderer Grund"].map((reason) => (
+              <label key={reason} className="flex items-center gap-3 cursor-pointer p-3 border rounded-md hover:bg-muted/50">
+                <input
+                  type="radio"
+                  name="keinInteresseReason"
+                  value={reason}
+                  checked={keinInteresseReason === reason}
+                  onChange={(e) => setKeinInteresseReason(e.target.value)}
+                  className="w-4 h-4"
+                />
+                <span className="text-sm">{reason}</span>
+              </label>
+            ))}
+            
+            {keinInteresseReason === "Anderer Grund" && (
+              <Textarea
+                placeholder="Grund eingeben..."
+                value={keinInteresseCustomText}
+                onChange={(e) => setKeinInteresseCustomText(e.target.value)}
+                className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 mt-3"
+              />
+            )}
+          </div>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogCancel 
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0"
+              onClick={() => {
+                setKeinInteresseReason("");
+                setKeinInteresseCustomText("");
+              }}
+            >
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmKeinInteresse}
+              disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Bestätigen
             </AlertDialogAction>
