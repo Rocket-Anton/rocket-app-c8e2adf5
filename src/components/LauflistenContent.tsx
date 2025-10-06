@@ -1014,7 +1014,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                    sideOffset={4}
                                  >
                                    <div className="py-1">
-                                     <div className="text-xs text-muted-foreground px-3 py-2">Zeitraum:</div>
                                      <button
                                        type="button"
                                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
@@ -1534,7 +1533,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                    sideOffset={4}
                                  >
                                    <div className="py-1">
-                                     <div className="text-xs text-muted-foreground px-3 py-2">Zeitraum:</div>
                                      <button
                                        type="button"
                                        className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
