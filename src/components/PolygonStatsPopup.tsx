@@ -2,6 +2,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from "recharts";
 
 interface Address {
   id: number;
@@ -73,6 +74,15 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
   const customerTotal = neukunden + bestandskunden;
   const customerQuote = totalUnits > 0 ? ((customerTotal / totalUnits) * 100).toFixed(1) : "0";
 
+  // Prepare data for pie chart
+  const chartData = Object.entries(statusCounts)
+    .sort((a, b) => b[1] - a[1])
+    .map(([status, count]) => ({
+      name: statusLabels[status] || status,
+      value: count,
+      color: statusColors[status],
+    }));
+
   return (
     <Card className="fixed bottom-6 right-6 w-80 p-3 shadow-2xl z-[1000] bg-background border-border">
       {/* Header */}
@@ -107,25 +117,37 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
 
       <Separator className="mb-2" />
 
-      {/* Status Distribution */}
+      {/* Status Distribution Pie Chart */}
       <div className="mb-2">
         <h4 className="text-sm font-semibold text-foreground mb-2">Status-Verteilung</h4>
-        <div className="space-y-1.5 max-h-32 overflow-y-auto">
-          {Object.entries(statusCounts)
-            .sort((a, b) => b[1] - a[1])
-            .map(([status, count]) => (
-              <div key={status} className="flex items-center justify-between text-sm">
-                <div className="flex items-center gap-2">
-                  <div
-                    className="w-3 h-3 rounded-full"
-                    style={{ backgroundColor: statusColors[status] }}
-                  />
-                  <span className="text-foreground">{statusLabels[status] || status}</span>
-                </div>
-                <span className="font-semibold text-foreground">{count}</span>
-              </div>
-            ))}
-        </div>
+        <ResponsiveContainer width="100%" height={180}>
+          <PieChart>
+            <Pie
+              data={chartData}
+              cx="50%"
+              cy="50%"
+              labelLine={false}
+              outerRadius={60}
+              fill="#8884d8"
+              dataKey="value"
+            >
+              {chartData.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={entry.color} />
+              ))}
+            </Pie>
+            <Tooltip 
+              contentStyle={{ 
+                backgroundColor: 'hsl(var(--background))', 
+                border: '1px solid hsl(var(--border))',
+                borderRadius: '6px'
+              }}
+            />
+            <Legend 
+              wrapperStyle={{ fontSize: '12px' }}
+              iconSize={8}
+            />
+          </PieChart>
+        </ResponsiveContainer>
       </div>
 
       <Separator className="mb-2" />
