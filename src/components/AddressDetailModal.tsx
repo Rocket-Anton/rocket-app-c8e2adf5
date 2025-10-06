@@ -417,16 +417,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             "z-[1200] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
             className
           )}
+          style={{ maxHeight: maxH ? `${maxH}px` : undefined }}
         >
           <SelectPrimitive.Viewport
-            className="p-1 overflow-y-auto overscroll-contain touch-pan-y"
+            className="p-1 overflow-y-auto overscroll-contain touch-pan-y w-full min-w-[var(--radix-select-trigger-width)]"
             onWheel={(e) => e.stopPropagation()}
             onTouchStart={(e) => e.stopPropagation()}
             onTouchMove={(e) => e.stopPropagation()}
-            style={{ 
-              WebkitOverflowScrolling: "touch",
-              maxHeight: maxH ? `${maxH}px` : "300px"
-            } as any}
+            style={{ WebkitOverflowScrolling: "touch", maxHeight: "100%" } as any}
           >
             {children}
           </SelectPrimitive.Viewport>
