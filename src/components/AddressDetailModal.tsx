@@ -1114,17 +1114,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Left Panel */}
         <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
-          <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
+          <div className={`w-full`}>
             {units.length > 0 ? (
               units.map((unit, index) => (
-                <div key={unit.id} className="space-y-2 w-full">
+                <div key={unit.id} className="space-y-1 w-full">
                   {/* Trennlinie zwischen Wohneinheiten (nicht vor der ersten) */}
                   {unitCount > 1 && index > 0 && (
-                    <div className="border-t border-muted-foreground/20 mt-1 mb-4" />
+                    <div className="border-t border-muted-foreground/20 my-1" />
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <div className="mb-2">
+                    <div className="mb-1">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
                         {unit.addedBy && unit.addedAt && (
