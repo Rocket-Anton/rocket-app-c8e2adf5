@@ -162,6 +162,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
   const [postalCodeInput, setPostalCodeInput] = useState("");
   
   const [lastModifiedDate, setLastModifiedDate] = useState<Date | undefined>(undefined);
+  const [dateFilterMode, setDateFilterMode] = useState<"vor" | "nach">("vor");
+  const [dateFilterType, setDateFilterType] = useState<"quick" | "custom">("quick");
+  const [quickDateOption, setQuickDateOption] = useState<string>("");
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [streetSuggestions, setStreetSuggestions] = useState<string[]>([]);
   const [citySuggestions, setCitySuggestions] = useState<string[]>([]);
@@ -332,9 +335,21 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
       (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
       (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
     
-    // For now, we don't have lastModified data in mock, so we'll always match
-    // In real implementation, you would check: address.lastModified >= lastModifiedDate
-    const matchesLastModified = true;
+    // Date filter - check if address was last qualified before/after the selected date
+    let matchesLastModified = true;
+    if (lastModifiedDate) {
+      // For mock data, we'll use a random date for each address
+      // In production, this would come from the actual lastModified field
+      const mockLastModified = new Date(2025, 9, 1 + (address.id % 30)); // Mock dates in October
+      
+      if (dateFilterMode === "vor") {
+        // Show addresses last modified BEFORE this date
+        matchesLastModified = mockLastModified < lastModifiedDate;
+      } else {
+        // Show addresses last modified AFTER this date
+        matchesLastModified = mockLastModified >= lastModifiedDate;
+      }
+    }
 
     return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
   }).map(address => {
@@ -812,9 +827,12 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 setCityFilter("");
                                 setCityInput("");
                                 setPostalCodeFilter("");
-                                setPostalCodeInput("");
-                                setHouseNumberFilter("");
-                                setLastModifiedDate(undefined);
+                                 setPostalCodeInput("");
+                                 setHouseNumberFilter("");
+                                 setLastModifiedDate(undefined);
+                                 setQuickDateOption("");
+                                 setDateFilterType("quick");
+                                 setDateFilterMode("vor");
                               }}
                               className="h-8 text-xs"
                             >
@@ -1097,9 +1115,146 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 ))}
                               </div>
                             )}
-                          </div>
-                        </div>
-                      </div>
+                           </div>
+                         </div>
+
+                         {/* Letzte Qualifizierung Filter */}
+                         <div className="space-y-2">
+                           <label className="text-sm font-medium">Letzte Qualifizierung</label>
+                           
+                           {/* Vor/Nach Toggle */}
+                           <div className="flex gap-2">
+                             <Button
+                               type="button"
+                               variant={dateFilterMode === "vor" ? "default" : "outline"}
+                               size="sm"
+                               className="flex-1 h-8"
+                               onClick={() => setDateFilterMode("vor")}
+                             >
+                               Vor
+                             </Button>
+                             <Button
+                               type="button"
+                               variant={dateFilterMode === "nach" ? "default" : "outline"}
+                               size="sm"
+                               className="flex-1 h-8"
+                               onClick={() => setDateFilterMode("nach")}
+                             >
+                               Nach
+                             </Button>
+                           </div>
+
+                           {/* Quick Select Buttons */}
+                           {dateFilterMode === "vor" && (
+                             <div className="space-y-2">
+                               <div className="text-xs text-muted-foreground">Schnellauswahl:</div>
+                               <div className="grid grid-cols-3 gap-2">
+                                 {[
+                                   { label: "7 Tage", value: "7", days: 7 },
+                                   { label: "14 Tage", value: "14", days: 14 },
+                                   { label: "30 Tage", value: "30", days: 30 },
+                                   { label: "60 Tage", value: "60", days: 60 },
+                                   { label: "90 Tage", value: "90", days: 90 },
+                                   { label: "180 Tage", value: "180", days: 180 },
+                                 ].map((option) => (
+                                   <Button
+                                     key={option.value}
+                                     type="button"
+                                     variant={quickDateOption === option.value ? "default" : "outline"}
+                                     size="sm"
+                                     className="h-8 text-xs"
+                                     onClick={() => {
+                                       const date = new Date();
+                                       date.setDate(date.getDate() - option.days);
+                                       setLastModifiedDate(date);
+                                       setQuickDateOption(option.value);
+                                       setDateFilterType("quick");
+                                     }}
+                                   >
+                                     {option.label}
+                                   </Button>
+                                 ))}
+                               </div>
+                             </div>
+                           )}
+
+                           {/* Custom Date Picker */}
+                           <div className="space-y-2">
+                             <div className="text-xs text-muted-foreground">
+                               {dateFilterMode === "vor" ? "Oder festes Datum:" : "Datum wählen:"}
+                             </div>
+                             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                               <PopoverTrigger asChild>
+                                 <Button
+                                   variant="outline"
+                                   className={cn(
+                                     "w-full justify-start text-left font-normal h-9",
+                                     !lastModifiedDate && "text-muted-foreground",
+                                     dateFilterType === "custom" && lastModifiedDate && "border-primary"
+                                   )}
+                                 >
+                                   <CalendarIcon className="mr-2 h-4 w-4" />
+                                   {lastModifiedDate && dateFilterType === "custom" ? (
+                                     format(lastModifiedDate, "dd.MM.yyyy")
+                                   ) : (
+                                     <span>Datum wählen</span>
+                                   )}
+                                 </Button>
+                               </PopoverTrigger>
+                               <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
+                                 <PopoverContent 
+                                   className="w-auto p-0 bg-background z-[10001]" 
+                                   align="start"
+                                   side="bottom"
+                                   sideOffset={8}
+                                 >
+                                   <Calendar
+                                     mode="single"
+                                     selected={lastModifiedDate}
+                                     onSelect={(date) => {
+                                       setLastModifiedDate(date);
+                                       setDateFilterType("custom");
+                                       setQuickDateOption("");
+                                       setDatePickerOpen(false);
+                                     }}
+                                     initialFocus
+                                     className="pointer-events-auto"
+                                   />
+                                 </PopoverContent>
+                               </PopoverPrimitive.Portal>
+                             </Popover>
+                             
+                             {/* Clear Button */}
+                             {lastModifiedDate && (
+                               <Button
+                                 type="button"
+                                 variant="ghost"
+                                 size="sm"
+                                 className="w-full h-8 text-xs"
+                                 onClick={() => {
+                                   setLastModifiedDate(undefined);
+                                   setQuickDateOption("");
+                                   setDateFilterType("quick");
+                                 }}
+                               >
+                                 <X className="w-3 h-3 mr-1" />
+                                 Filter zurücksetzen
+                               </Button>
+                             )}
+                             
+                             {/* Info Text */}
+                             {lastModifiedDate && (
+                               <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                                 {dateFilterMode === "vor" ? (
+                                   <>Zeigt Adressen, die <strong>vor dem {format(lastModifiedDate, "dd.MM.yyyy")}</strong> qualifiziert wurden</>
+                                 ) : (
+                                   <>Zeigt Adressen, die <strong>ab dem {format(lastModifiedDate, "dd.MM.yyyy")}</strong> qualifiziert wurden</>
+                                 )}
+                               </div>
+                             )}
+                           </div>
+                         </div>
+                       </div>
                     </SheetContent>
                   </Sheet>
                 ) : (
@@ -1148,8 +1303,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               setCityInput("");
                               setPostalCodeFilter("");
                               setPostalCodeInput("");
-                              setHouseNumberFilter("");
-                              setLastModifiedDate(undefined);
+                               setHouseNumberFilter("");
+                               setLastModifiedDate(undefined);
+                               setQuickDateOption("");
+                               setDateFilterType("quick");
+                               setDateFilterMode("vor");
                             }}
                             className="h-8 text-xs"
                           >
@@ -1438,9 +1596,143 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                   ))}
                                 </div>
                               )}
-                            </div>
-                          </div>
-                        </div>
+                             </div>
+                           </div>
+
+                           {/* Letzte Qualifizierung Filter - Desktop */}
+                           <div className="space-y-2">
+                             <label className="text-sm font-medium">Letzte Qualifizierung</label>
+                             
+                             {/* Vor/Nach Toggle */}
+                             <div className="flex gap-2">
+                               <Button
+                                 type="button"
+                                 variant={dateFilterMode === "vor" ? "default" : "outline"}
+                                 size="sm"
+                                 className="flex-1 h-8"
+                                 onClick={() => setDateFilterMode("vor")}
+                               >
+                                 Vor
+                               </Button>
+                               <Button
+                                 type="button"
+                                 variant={dateFilterMode === "nach" ? "default" : "outline"}
+                                 size="sm"
+                                 className="flex-1 h-8"
+                                 onClick={() => setDateFilterMode("nach")}
+                               >
+                                 Nach
+                               </Button>
+                             </div>
+
+                             {/* Quick Select Buttons */}
+                             {dateFilterMode === "vor" && (
+                               <div className="space-y-2">
+                                 <div className="text-xs text-muted-foreground">Schnellauswahl:</div>
+                                 <div className="grid grid-cols-3 gap-2">
+                                   {[
+                                     { label: "7 Tage", value: "7", days: 7 },
+                                     { label: "14 Tage", value: "14", days: 14 },
+                                     { label: "30 Tage", value: "30", days: 30 },
+                                     { label: "60 Tage", value: "60", days: 60 },
+                                     { label: "90 Tage", value: "90", days: 90 },
+                                     { label: "180 Tage", value: "180", days: 180 },
+                                   ].map((option) => (
+                                     <Button
+                                       key={option.value}
+                                       type="button"
+                                       variant={quickDateOption === option.value ? "default" : "outline"}
+                                       size="sm"
+                                       className="h-8 text-xs"
+                                       onClick={() => {
+                                         const date = new Date();
+                                         date.setDate(date.getDate() - option.days);
+                                         setLastModifiedDate(date);
+                                         setQuickDateOption(option.value);
+                                         setDateFilterType("quick");
+                                       }}
+                                     >
+                                       {option.label}
+                                     </Button>
+                                   ))}
+                                 </div>
+                               </div>
+                             )}
+
+                             {/* Custom Date Picker */}
+                             <div className="space-y-2">
+                               <div className="text-xs text-muted-foreground">
+                                 {dateFilterMode === "vor" ? "Oder festes Datum:" : "Datum wählen:"}
+                               </div>
+                               <Popover>
+                                 <PopoverTrigger asChild>
+                                   <Button
+                                     variant="outline"
+                                     className={cn(
+                                       "w-full justify-start text-left font-normal h-9",
+                                       !lastModifiedDate && "text-muted-foreground",
+                                       dateFilterType === "custom" && lastModifiedDate && "border-primary"
+                                     )}
+                                   >
+                                     <CalendarIcon className="mr-2 h-4 w-4" />
+                                     {lastModifiedDate && dateFilterType === "custom" ? (
+                                       format(lastModifiedDate, "dd.MM.yyyy")
+                                     ) : (
+                                       <span>Datum wählen</span>
+                                     )}
+                                   </Button>
+                                 </PopoverTrigger>
+                                 <PopoverContent 
+                                   className="w-auto p-0 bg-background z-[10002]" 
+                                   align="start"
+                                   side="left"
+                                   sideOffset={8}
+                                 >
+                                   <Calendar
+                                     mode="single"
+                                     selected={lastModifiedDate}
+                                     onSelect={(date) => {
+                                       setLastModifiedDate(date);
+                                       setDateFilterType("custom");
+                                       setQuickDateOption("");
+                                     }}
+                                     initialFocus
+                                     className="pointer-events-auto"
+                                   />
+                                 </PopoverContent>
+                               </Popover>
+                               
+                               {/* Clear Button */}
+                               {lastModifiedDate && (
+                                 <Button
+                                   type="button"
+                                   variant="ghost"
+                                   size="sm"
+                                   className="w-full h-8 text-xs"
+                                   onClick={() => {
+                                     setLastModifiedDate(undefined);
+                                     setQuickDateOption("");
+                                     setDateFilterType("quick");
+                                   }}
+                                 >
+                                   <X className="w-3 h-3 mr-1" />
+                                   Filter zurücksetzen
+                                 </Button>
+                               )}
+                               
+                               {/* Info Text */}
+                               {lastModifiedDate && (
+                                 <div className="text-xs text-muted-foreground bg-muted/50 p-2 rounded">
+                                   {dateFilterMode === "vor" ? (
+                                     <>Zeigt Adressen, die <strong>vor dem {format(lastModifiedDate, "dd.MM.yyyy")}</strong> qualifiziert wurden</>
+                                   ) : (
+                                     <>Zeigt Adressen, die <strong>ab dem {format(lastModifiedDate, "dd.MM.yyyy")}</strong> qualifiziert wurden</>
+                                   )}
+                                 </div>
+                               )}
+                             </div>
+                           </div>
+                         </div>
                     </PopoverContent>
                   </Popover>
                 )}
