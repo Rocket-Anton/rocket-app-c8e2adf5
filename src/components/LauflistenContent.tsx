@@ -248,7 +248,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
     { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
     { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
-    { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
+    { value: "neukunde", label: "Neukunde", color: "bg-emerald-500 text-white" },
     { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
     { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
     { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
