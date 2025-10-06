@@ -89,19 +89,19 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       <div className="grid grid-cols-2 gap-3 mb-2">
         <div>
           <p className="text-sm text-muted-foreground mb-1">Adressen</p>
-          <p className="text-2xl font-bold text-foreground">{totalAddresses}</p>
+          <p className="text-xl font-bold text-foreground">{totalAddresses}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-1">Wohneinheiten</p>
-          <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
+          <p className="text-xl font-bold text-foreground">{totalUnits}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-1">Faktor</p>
-          <p className="text-2xl font-bold text-foreground">{factor}</p>
+          <p className="text-xl font-bold text-foreground">{factor}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground mb-1">Kunden-Quote</p>
-          <p className="text-2xl font-bold text-foreground">{customerQuote}%</p>
+          <p className="text-xl font-bold text-foreground">{customerQuote}%</p>
         </div>
       </div>
 
