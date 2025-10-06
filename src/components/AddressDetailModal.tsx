@@ -651,10 +651,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-1 min-w-0">
-                          <label className="text-xs text-foreground mb-1 block font-medium">Stockwerk</label>
                           <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.floor}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Auswählen" />
+                              <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="EG">EG</SelectItem>
@@ -666,10 +665,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <label className="text-xs text-foreground mb-1 block font-medium">Lage</label>
                           <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.position}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Auswählen" />
+                              <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="Links">Links</SelectItem>
