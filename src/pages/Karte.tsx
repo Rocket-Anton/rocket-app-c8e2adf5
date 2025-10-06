@@ -358,14 +358,14 @@ export default function Karte() {
         <SidebarInset>
           <div className="flex flex-col h-full w-full">
             {/* Header */}
-            <header className="flex items-center justify-between px-4 sm:px-6 py-3 sm:py-4 border-b border-border bg-background">
+            <header className="flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
               <div className="flex items-center gap-3">
                 <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
               </div>
             </header>
 
             {/* Map Container */}
-            <div className="flex-1 p-4 sm:p-6 overflow-hidden relative">
+            <div className="flex-1 p-4 overflow-hidden relative">
               <div className="h-full w-full rounded-lg border border-border overflow-hidden shadow-sm" ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
