@@ -1099,7 +1099,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div ref={scrollContainerRef} className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div ref={scrollContainerRef} className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-2 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -1473,7 +1473,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 {currentAddress?.postalCode || ''} {currentAddress?.city || ''}
               </p>
               
-              <div className="flex items-center justify-between w-full pt-2 sm:pt-3">
+              <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
                   <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
