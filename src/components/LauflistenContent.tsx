@@ -43,6 +43,7 @@ import {
 import { Calendar } from "./ui/calendar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { format } from "date-fns";
+import { de } from "date-fns/locale";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
 
@@ -1113,18 +1114,22 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                       </div>
                                     )}
 
-                                   {/* Calendar */}
-                                   <Calendar
-                                     mode="single"
-                                     selected={lastModifiedDate}
-                                     onSelect={(date) => {
-                                       setLastModifiedDate(date);
-                                       setDateFilterType("custom");
-                                       setQuickDateOption("");
-                                     }}
-                                     initialFocus
-                                     className="pointer-events-auto rounded-md"
-                                   />
+                                    {/* Calendar */}
+                                    <div className="flex justify-center">
+                                      <Calendar
+                                        mode="single"
+                                        selected={lastModifiedDate}
+                                        onSelect={(date) => {
+                                          setLastModifiedDate(date);
+                                          setDateFilterType("custom");
+                                          setQuickDateOption("");
+                                        }}
+                                        locale={de}
+                                        weekStartsOn={1}
+                                        initialFocus
+                                        className="pointer-events-auto rounded-md"
+                                      />
+                                    </div>
 
                                    {/* Done Button */}
                                    <Button
