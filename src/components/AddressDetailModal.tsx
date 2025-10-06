@@ -6,6 +6,7 @@ import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
+import confetti from 'canvas-confetti';
 import {
   Dialog,
   DialogContent,
@@ -143,6 +144,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Delete Unit Dialog States
   const [deleteUnitDialogOpen, setDeleteUnitDialogOpen] = useState(false);
   const [pendingDeleteUnit, setPendingDeleteUnit] = useState<{addressId: number, unitId: number} | null>(null);
+  
+  // Order Creation Dialog States
+  const [orderDialogOpen, setOrderDialogOpen] = useState(false);
+  const [orderUnitId, setOrderUnitId] = useState<number | null>(null);
+  const [orderAddressId, setOrderAddressId] = useState<number | null>(null);
+  const [orderForm, setOrderForm] = useState({
+    vorname: '',
+    nachname: '',
+    tarif: '',
+    zusaetze: [] as string[]
+  });
+  
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
@@ -845,6 +858,122 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setDeleteUnitDialogOpen(false);
     setPendingDeleteUnit(null);
   };
+  
+  // Handle opening order dialog
+  const handleOpenOrderDialog = (addressId: number, unitId: number) => {
+    setOrderAddressId(addressId);
+    setOrderUnitId(unitId);
+    setOrderForm({
+      vorname: '',
+      nachname: '',
+      tarif: '',
+      zusaetze: []
+    });
+    setOrderDialogOpen(true);
+  };
+
+  // Handle order confirmation
+  const handleConfirmOrder = () => {
+    if (!orderForm.vorname || !orderForm.nachname || !orderForm.tarif || !orderUnitId || !orderAddressId) {
+      toast({
+        title: "Fehlende Angaben",
+        className: "bg-red-500 text-white border-0",
+        duration: 2000,
+      });
+      return;
+    }
+
+    const k = `${orderAddressId}:${orderUnitId}`;
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    const shortTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Update status to Neukunde
+    setUnitStatuses(prev => ({
+      ...prev,
+      [k]: "neukunde"
+    }));
+
+    // Update last updated timestamp
+    setLastUpdated(prev => ({
+      ...prev,
+      [k]: timestamp
+    }));
+
+    // Add to history
+    const historyEntry = {
+      id: Date.now(),
+      status: "neukunde",
+      changedBy: "Abdullah Kater",
+      changedAt: timestamp
+    };
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [k]: [
+        ...(prev[k] || []),
+        historyEntry
+      ]
+    }));
+
+    // Add note about the order
+    const orderNote = {
+      id: Date.now() + 1,
+      author: "Abdullah Kater",
+      timestamp: shortTimestamp,
+      content: `Auftrag erstellt:\nTarif: ${orderForm.tarif}${orderForm.zusaetze.length > 0 ? '\nZusätze: ' + orderForm.zusaetze.join(', ') : ''}\nKunde: ${orderForm.vorname} ${orderForm.nachname}`,
+      permanent: true
+    };
+    setNotes(prev => [orderNote, ...prev]);
+
+    // Trigger confetti animation
+    const duration = 3000;
+    const animationEnd = Date.now() + duration;
+    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+
+    function randomInRange(min: number, max: number) {
+      return Math.random() * (max - min) + min;
+    }
+
+    const interval: any = setInterval(function() {
+      const timeLeft = animationEnd - Date.now();
+
+      if (timeLeft <= 0) {
+        return clearInterval(interval);
+      }
+
+      const particleCount = 50 * (timeLeft / duration);
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+      });
+      confetti({
+        ...defaults,
+        particleCount,
+        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+      });
+    }, 250);
+
+    toast({
+      title: "🎉 Neuer Kunde!",
+      className: "bg-green-500 text-white border-0 text-lg font-semibold",
+      duration: 3000,
+    });
+
+    setOrderDialogOpen(false);
+    setOrderUnitId(null);
+    setOrderAddressId(null);
+  };
+
+  // Toggle zusatz selection
+  const toggleZusatz = (zusatz: string) => {
+    setOrderForm(prev => ({
+      ...prev,
+      zusaetze: prev.zusaetze.includes(zusatz)
+        ? prev.zusaetze.filter(z => z !== zusatz)
+        : [...prev.zusaetze, zusatz]
+    }));
+  };
 
   const handleAddAppointment = (unitId: number) => {
     setPendingAppointmentUnitId(unitId);
@@ -947,8 +1076,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       )}
                     </div>
                   )}
-                  {/* Gray Container for Fields */}
-                    <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
+                {/* Gray Container for Fields - Green background if Neukunde */}
+                    <div className={`rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full ${
+                      unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
+                        ? "bg-green-100 dark:bg-green-950/30" 
+                        : "bg-muted/70"
+                    }`}>
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-[2] min-w-0">
@@ -986,6 +1119,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <Select 
                             value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                             onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
+                            disabled={unitStatuses[`${addr.id}:${unit.id}`] === "neukunde"}
                           >
                             <SelectTrigger className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue>
@@ -1201,11 +1335,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </Collapsible>
                     </div>
 
-                    {/* Auftrag Button */}
-                    <Button className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md">
-                      <FileText className="w-4 h-4 mr-2" />
-                      Auftrag
-                    </Button>
+                    {/* Auftrag Button - Only show if not Neukunde */}
+                    {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && (
+                      <Button 
+                        onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
+                        className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
+                      >
+                        <FileText className="w-4 h-4 mr-2" />
+                        Auftrag
+                      </Button>
+                    )}
                   </div>
                 </div>
               ))
@@ -2726,6 +2865,95 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      
+      {/* Order Creation Dialog */}
+      <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+          <DialogHeader>
+            <DialogTitle>Auftrag anlegen</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+              <input
+                type="text"
+                value={orderForm.vorname}
+                onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Vorname eingeben"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+              <input
+                type="text"
+                value={orderForm.nachname}
+                onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
+                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                placeholder="Nachname eingeben"
+              />
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+              <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Tarif auswählen" />
+                </SelectTrigger>
+                <SelectContent className="bg-background z-[10000]">
+                  <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
+                  <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
+                  <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
+                  <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <label className="text-sm font-medium mb-2 block">Zusätze</label>
+              <div className="space-y-2">
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="nc-tv"
+                    checked={orderForm.zusaetze.includes('NC TV')}
+                    onChange={() => toggleZusatz('NC TV')}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary mr-2"
+                  />
+                  <label htmlFor="nc-tv" className="text-sm cursor-pointer">NC TV</label>
+                </div>
+                <div className="flex items-center">
+                  <input
+                    type="checkbox"
+                    id="nc-router"
+                    checked={orderForm.zusaetze.includes('NC Router')}
+                    onChange={() => toggleZusatz('NC Router')}
+                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary mr-2"
+                  />
+                  <label htmlFor="nc-router" className="text-sm cursor-pointer">NC Router</label>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div className="flex gap-3 mt-4">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setOrderDialogOpen(false);
+                setOrderUnitId(null);
+                setOrderAddressId(null);
+              }}
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={handleConfirmOrder}
+              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+            >
+              Bestätigen
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </>
   );
 };
