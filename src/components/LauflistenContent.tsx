@@ -955,78 +955,80 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              <PopoverTrigger asChild>
                                <Button
                                  variant="outline"
-                                 className="w-full justify-start h-9 font-normal"
+                                 className="w-full justify-between h-9 font-normal"
                                >
-                                 {dateFilterMode === "" ? (
-                                   <span className="text-muted-foreground">Zeitraum auswählen</span>
-                                 ) : lastModifiedDate ? (
-                                   <span>
-                                     {dateFilterMode === "vor" ? "Vor" : "Nach"} {format(lastModifiedDate, "dd.MM.yyyy")}
-                                     {quickDateOption && ` (${quickDateOption} Tage)`}
-                                   </span>
-                                 ) : (
-                                   <span>{dateFilterMode === "vor" ? "Vor" : "Nach"}</span>
-                                 )}
-                                 <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                                 <span className={dateFilterMode === "" ? "text-muted-foreground" : ""}>
+                                   {dateFilterMode === "" ? "Zeitraum auswählen" : 
+                                    lastModifiedDate ? (
+                                      `${dateFilterMode === "vor" ? "Vor" : "Nach"} ${format(lastModifiedDate, "dd.MM.yyyy")}${quickDateOption ? ` (${quickDateOption} Tage)` : ""}`
+                                    ) : (
+                                      dateFilterMode === "vor" ? "Vor" : "Nach"
+                                    )}
+                                 </span>
+                                 <ChevronDown className="h-4 w-4 opacity-50" />
                                </Button>
                              </PopoverTrigger>
                              <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
                                <PopoverContent 
-                                 className="w-[280px] p-3 bg-background z-[10001]" 
-                                 align="center"
+                                 className="w-[var(--radix-popover-trigger-width)] p-2 bg-background z-[10001]" 
+                                 align="start"
                                  side="bottom"
-                                 sideOffset={8}
+                                 sideOffset={4}
                                >
-                                 <div className="space-y-3">
-                                   {/* Vor/Nach Auswahl */}
-                                   <div className="space-y-2">
-                                     <div className="text-xs font-medium text-muted-foreground">Zeitraum:</div>
-                                     <div className="flex gap-2">
-                                       <Button
-                                         type="button"
-                                         variant={dateFilterMode === "vor" ? "default" : "outline"}
-                                         size="sm"
-                                         className="flex-1 h-9"
-                                         onClick={() => {
-                                           setDateFilterMode("vor");
-                                           setTimeout(() => setDatePickerOpen(true), 100);
-                                         }}
-                                       >
-                                         Vor
-                                       </Button>
-                                       <Button
-                                         type="button"
-                                         variant={dateFilterMode === "nach" ? "default" : "outline"}
-                                         size="sm"
-                                         className="flex-1 h-9"
-                                         onClick={() => {
-                                           setDateFilterMode("nach");
-                                           setTimeout(() => setDatePickerOpen(true), 100);
-                                         }}
-                                       >
-                                         Nach
-                                       </Button>
-                                     </div>
-                                   </div>
-
+                                 <div className="space-y-1">
+                                   <div className="text-xs font-medium text-muted-foreground px-2 py-1">Zeitraum:</div>
+                                   <button
+                                     type="button"
+                                     className={cn(
+                                       "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                                       dateFilterMode === "vor" 
+                                         ? "bg-primary text-primary-foreground" 
+                                         : "hover:bg-muted"
+                                     )}
+                                     onClick={() => {
+                                       setDateFilterMode("vor");
+                                       setDateFilterOpen(false);
+                                       setTimeout(() => setDatePickerOpen(true), 100);
+                                     }}
+                                   >
+                                     Vor
+                                   </button>
+                                   <button
+                                     type="button"
+                                     className={cn(
+                                       "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                                       dateFilterMode === "nach" 
+                                         ? "bg-primary text-primary-foreground" 
+                                         : "hover:bg-muted"
+                                     )}
+                                     onClick={() => {
+                                       setDateFilterMode("nach");
+                                       setDateFilterOpen(false);
+                                       setTimeout(() => setDatePickerOpen(true), 100);
+                                     }}
+                                   >
+                                     Nach
+                                   </button>
+                                   
                                    {/* Clear Button */}
                                    {(lastModifiedDate || dateFilterMode) && (
-                                     <Button
-                                       type="button"
-                                       variant="ghost"
-                                       size="sm"
-                                       className="w-full h-8 text-xs"
-                                       onClick={() => {
-                                         setLastModifiedDate(undefined);
-                                         setQuickDateOption("");
-                                         setDateFilterType("quick");
-                                         setDateFilterMode("");
-                                         setDateFilterOpen(false);
-                                       }}
-                                     >
-                                       <X className="w-3 h-3 mr-1" />
-                                       Zurücksetzen
-                                     </Button>
+                                     <>
+                                       <div className="h-px bg-border my-1"></div>
+                                       <button
+                                         type="button"
+                                         className="w-full text-left px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted transition-colors flex items-center gap-2"
+                                         onClick={() => {
+                                           setLastModifiedDate(undefined);
+                                           setQuickDateOption("");
+                                           setDateFilterType("quick");
+                                           setDateFilterMode("");
+                                           setDateFilterOpen(false);
+                                         }}
+                                       >
+                                         <X className="w-3 h-3" />
+                                         Zurücksetzen
+                                       </button>
+                                     </>
                                    )}
                                  </div>
                                </PopoverContent>
@@ -1471,76 +1473,76 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                <PopoverTrigger asChild>
                                  <Button
                                    variant="outline"
-                                   className="w-full justify-start h-9 font-normal"
+                                   className="w-full justify-between h-9 font-normal"
                                  >
-                                   {dateFilterMode === "" ? (
-                                     <span className="text-muted-foreground">Zeitraum auswählen</span>
-                                   ) : lastModifiedDate ? (
-                                     <span>
-                                       {dateFilterMode === "vor" ? "Vor" : "Nach"} {format(lastModifiedDate, "dd.MM.yyyy")}
-                                       {quickDateOption && ` (${quickDateOption} Tage)`}
-                                     </span>
-                                   ) : (
-                                     <span>{dateFilterMode === "vor" ? "Vor" : "Nach"}</span>
-                                   )}
-                                   <ChevronDown className="ml-auto h-4 w-4 opacity-50" />
+                                   <span className={dateFilterMode === "" ? "text-muted-foreground" : ""}>
+                                     {dateFilterMode === "" ? "Zeitraum auswählen" : 
+                                      lastModifiedDate ? (
+                                        `${dateFilterMode === "vor" ? "Vor" : "Nach"} ${format(lastModifiedDate, "dd.MM.yyyy")}${quickDateOption ? ` (${quickDateOption} Tage)` : ""}`
+                                      ) : (
+                                        dateFilterMode === "vor" ? "Vor" : "Nach"
+                                      )}
+                                   </span>
+                                   <ChevronDown className="h-4 w-4 opacity-50" />
                                  </Button>
                                </PopoverTrigger>
                                <PopoverContent 
-                                 className="w-[280px] p-3 bg-background z-[10002]" 
+                                 className="w-[var(--radix-popover-trigger-width)] p-2 bg-background z-[10002]" 
                                  align="start"
-                                 side="left"
-                                 sideOffset={8}
+                                 side="bottom"
+                                 sideOffset={4}
                                >
-                                 <div className="space-y-3">
-                                   {/* Vor/Nach Auswahl */}
-                                   <div className="space-y-2">
-                                     <div className="text-xs font-medium text-muted-foreground">Zeitraum:</div>
-                                     <div className="flex gap-2">
-                                       <Button
-                                         type="button"
-                                         variant={dateFilterMode === "vor" ? "default" : "outline"}
-                                         size="sm"
-                                         className="flex-1 h-9"
-                                         onClick={() => {
-                                           setDateFilterMode("vor");
-                                           setTimeout(() => setDatePickerOpen(true), 100);
-                                         }}
-                                       >
-                                         Vor
-                                       </Button>
-                                       <Button
-                                         type="button"
-                                         variant={dateFilterMode === "nach" ? "default" : "outline"}
-                                         size="sm"
-                                         className="flex-1 h-9"
-                                         onClick={() => {
-                                           setDateFilterMode("nach");
-                                           setTimeout(() => setDatePickerOpen(true), 100);
-                                         }}
-                                       >
-                                         Nach
-                                       </Button>
-                                     </div>
-                                   </div>
-
+                                 <div className="space-y-1">
+                                   <div className="text-xs font-medium text-muted-foreground px-2 py-1">Zeitraum:</div>
+                                   <button
+                                     type="button"
+                                     className={cn(
+                                       "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                                       dateFilterMode === "vor" 
+                                         ? "bg-primary text-primary-foreground" 
+                                         : "hover:bg-muted"
+                                     )}
+                                     onClick={() => {
+                                       setDateFilterMode("vor");
+                                       setTimeout(() => setDatePickerOpen(true), 100);
+                                     }}
+                                   >
+                                     Vor
+                                   </button>
+                                   <button
+                                     type="button"
+                                     className={cn(
+                                       "w-full text-left px-3 py-2 rounded-md text-sm transition-colors",
+                                       dateFilterMode === "nach" 
+                                         ? "bg-primary text-primary-foreground" 
+                                         : "hover:bg-muted"
+                                     )}
+                                     onClick={() => {
+                                       setDateFilterMode("nach");
+                                       setTimeout(() => setDatePickerOpen(true), 100);
+                                     }}
+                                   >
+                                     Nach
+                                   </button>
+                                   
                                    {/* Clear Button */}
                                    {(lastModifiedDate || dateFilterMode) && (
-                                     <Button
-                                       type="button"
-                                       variant="ghost"
-                                       size="sm"
-                                       className="w-full h-8 text-xs"
-                                       onClick={() => {
-                                         setLastModifiedDate(undefined);
-                                         setQuickDateOption("");
-                                         setDateFilterType("quick");
-                                         setDateFilterMode("");
-                                       }}
-                                     >
-                                       <X className="w-3 h-3 mr-1" />
-                                       Zurücksetzen
-                                     </Button>
+                                     <>
+                                       <div className="h-px bg-border my-1"></div>
+                                       <button
+                                         type="button"
+                                         className="w-full text-left px-3 py-2 rounded-md text-sm text-muted-foreground hover:bg-muted transition-colors flex items-center gap-2"
+                                         onClick={() => {
+                                           setLastModifiedDate(undefined);
+                                           setQuickDateOption("");
+                                           setDateFilterType("quick");
+                                           setDateFilterMode("");
+                                         }}
+                                       >
+                                         <X className="w-3 h-3" />
+                                         Zurücksetzen
+                                       </button>
+                                     </>
                                    )}
                                  </div>
                                </PopoverContent>
