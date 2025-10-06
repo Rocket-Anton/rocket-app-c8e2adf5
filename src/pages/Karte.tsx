@@ -373,11 +373,11 @@ export default function Karte() {
                 <Button
                   onClick={toggleDrawingMode}
                   variant={isDrawingMode ? "default" : "outline"}
-                  className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0 border-2 border-blue-500"
+                  className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0"
                   size="icon"
                   title="Laufliste"
                 >
-                  <PersonStanding className="h-4 w-4 text-blue-500" />
+                  <PersonStanding className="h-3 w-3" />
                 </Button>
                 
                 <Button
