@@ -130,7 +130,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
     }));
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 p-4 shadow-2xl z-[1000] bg-gradient-to-br from-background via-background to-muted/20 border-border backdrop-blur-sm">
+    <Card className="fixed bottom-6 right-6 w-80 p-4 shadow-2xl z-[1000] bg-gradient-to-br from-background via-background to-muted/20 border-border backdrop-blur-sm">
       {/* Header */}
       <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-foreground">Polygon-Auswahl</h3>
