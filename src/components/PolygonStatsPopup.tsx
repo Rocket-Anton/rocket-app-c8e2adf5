@@ -140,6 +140,30 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         </div>
       </div>
 
+      {/* Status List with Percentages */}
+      <div className="mb-3 max-h-40 overflow-y-auto space-y-2">
+        {chartData.map((item, index) => {
+          const percentage = totalUnits > 0 ? ((item.value / totalUnits) * 100).toFixed(0) : "0";
+          return (
+            <div 
+              key={index} 
+              className="flex items-center justify-between text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
+              onMouseEnter={() => setActiveIndex(index)}
+              onMouseLeave={() => setActiveIndex(undefined)}
+            >
+              <div className="flex items-center gap-2">
+                <div
+                  className="w-3 h-3 rounded-full flex-shrink-0"
+                  style={{ backgroundColor: item.color }}
+                />
+                <span className="text-foreground">{item.name}</span>
+              </div>
+              <span className="font-semibold text-foreground">{percentage}%</span>
+            </div>
+          );
+        })}
+      </div>
+
       <Separator className="mb-2" />
 
       {/* Status Distribution Pie Chart */}
