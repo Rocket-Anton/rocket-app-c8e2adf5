@@ -365,8 +365,8 @@ export default function Karte() {
             </header>
 
             {/* Map Container */}
-            <div className="flex-1 p-4 overflow-hidden relative">
-              <div className="h-full w-full rounded-lg border border-border overflow-hidden shadow-sm" ref={mapContainer} />
+            <div className="flex-1 overflow-hidden relative">
+              <div className="h-full w-full" ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
               <div className="absolute top-8 right-8 z-[1000] flex flex-col gap-1.5">
