@@ -3,7 +3,7 @@ import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { PieChart, Pie, Cell, ResponsiveContainer, Sector } from "recharts";
+import { PieChart, Pie, Cell, ResponsiveContainer, Sector, Tooltip } from "recharts";
 
 interface Address {
   id: number;
@@ -54,25 +54,41 @@ const statusColors: Record<string, string> = {
 };
 
 const renderActiveShape = (props: any) => {
-  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill } = props;
+  const { cx, cy, innerRadius, outerRadius, startAngle, endAngle, fill, payload } = props;
+  
+  const midAngle = (startAngle + endAngle) / 2;
+  const radian = Math.PI / 180;
+  const offsetX = Math.cos(-midAngle * radian) * 10;
+  const offsetY = Math.sin(-midAngle * radian) * 10;
   
   return (
     <g>
       <Sector
-        cx={cx}
-        cy={cy}
+        cx={cx + offsetX}
+        cy={cy + offsetY}
         innerRadius={innerRadius}
-        outerRadius={outerRadius + 8}
+        outerRadius={outerRadius + 6}
         startAngle={startAngle}
         endAngle={endAngle}
         fill={fill}
         style={{
-          filter: 'drop-shadow(0px 4px 8px rgba(0, 0, 0, 0.2))',
+          filter: 'drop-shadow(0px 6px 12px rgba(0, 0, 0, 0.3))',
           transition: 'all 0.3s ease'
         }}
       />
     </g>
   );
+};
+
+const CustomTooltip = ({ active, payload }: any) => {
+  if (active && payload && payload.length) {
+    return (
+      <div className="bg-foreground text-background px-3 py-1.5 rounded-md shadow-lg text-sm font-medium">
+        {payload[0].name} • {payload[0].value}
+      </div>
+    );
+  }
+  return null;
 };
 
 export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExisting }: PolygonStatsPopupProps) {
@@ -191,13 +207,10 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
                   <Cell 
                     key={`cell-${index}`} 
                     fill={entry.color}
-                    style={{
-                      filter: index === activeIndex ? 'brightness(1.1)' : 'none',
-                      transition: 'all 0.3s ease'
-                    }}
                   />
                 ))}
               </Pie>
+              <Tooltip content={<CustomTooltip />} />
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
