@@ -1212,10 +1212,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <p className="text-center text-sm text-muted-foreground">Bewertung: {potenzialRating} von 5 Sternen</p>
             )}
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
                 Abbrechen
               </AlertDialogCancel>
-              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed">
+              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium">
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -1301,12 +1301,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg">
                 Abbrechen
               </AlertDialogCancel>
               <AlertDialogAction 
                 onClick={confirmSameStatusUpdate}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
               </AlertDialogAction>
@@ -1383,10 +1383,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <p className="text-center text-sm text-muted-foreground">Bewertung: {potenzialRating} von 5 Sternen</p>
             )}
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
                 Abbrechen
               </AlertDialogCancel>
-              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed">
+              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium">
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
@@ -1411,13 +1411,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   setAddNoteDialogOpen(false);
                   setNewNoteText("");
                 }}
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg"
               >
                 Abbrechen
               </Button>
               <Button
                 onClick={handleAddNote}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
               </Button>
@@ -1668,14 +1668,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   setAppointmentNotes("");
                   setPendingAppointmentUnitId(null);
                 }}
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg"
               >
                 Abbrechen
               </Button>
               <Button
                 onClick={saveAppointment}
                 disabled={!appointmentDate || !appointmentTime}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
               </Button>
@@ -1692,12 +1692,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg">
                 Abbrechen
               </AlertDialogCancel>
               <AlertDialogAction 
                 onClick={confirmDeleteNote}
-                className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
               </AlertDialogAction>
