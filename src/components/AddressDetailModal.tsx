@@ -49,8 +49,8 @@ interface Address {
   postalCode: string;
   city: string;
   coordinates?: [number, number];
-  units?: { id: number; floor: string; position: string; status: string }[];
-  filteredUnits?: { id: number; floor: string; position: string; status: string }[];
+  units?: { id: number; floor: string; position: string; status: string; addedBy?: string; addedAt?: string }[];
+  filteredUnits?: { id: number; floor: string; position: string; status: string; addedBy?: string; addedAt?: string }[];
 }
 
 interface AddressDetailModalProps {
@@ -750,33 +750,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     
-    // Create new units with status "offen"
+    // Create new units with status "offen" - NO floor/position preset, NO notes
     const highestId = Math.max(...(targetAddress.units.length > 0 ? targetAddress.units.map(u => u.id) : [0]), 0);
     const newUnits = Array.from({ length: addUnitsCount }, (_, i) => ({
       id: highestId + i + 1,
-      floor: "EG",
-      position: "Links",
-      status: "offen"
+      floor: "",
+      position: "",
+      status: "offen",
+      addedBy: "Abdullah Kater",
+      addedAt: timestamp
     }));
 
     // Add units to the address
     targetAddress.units.push(...newUnits);
 
-    // Set status and history for each new unit
+    // Set status for each new unit - NO history, NO notes
     newUnits.forEach(unit => {
       const k = `${pendingAddressId}:${unit.id}`;
       setUnitStatuses(prev => ({ ...prev, [k]: "offen" }));
       setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
-      
-      // Add note for the new unit
-      const note = {
-        id: Date.now() + unit.id,
-        author: "Abdullah Kater",
-        timestamp: timestamp,
-        content: `Wohneinheit hinzugefügt`,
-        permanent: true
-      };
-      setNotes(prev => [note, ...prev]);
     });
 
     toast({
@@ -870,16 +862,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <h3 className="font-semibold text-base mb-2">Wohneinheit {index + 1}</h3>
+                    <div className="mb-2">
+                      <h3 className="font-semibold text-base inline">Wohneinheit {index + 1}</h3>
+                      {unit.addedBy && unit.addedAt && (
+                        <span className="text-xs text-muted-foreground ml-2">
+                          Hinzugefügt: {unit.addedBy}, {unit.addedAt}
+                        </span>
+                      )}
+                    </div>
                   )}
                   {/* Gray Container for Fields */}
                     <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-[2] min-w-0">
-                          <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.floor}>
+                          <Select defaultValue={unit.floor || undefined}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="EG" />
+                              <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="EG">EG</SelectItem>
@@ -891,9 +890,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.position}>
+                          <Select defaultValue={unit.position || undefined}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Rechts" />
+                              <SelectValue placeholder="Lage" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="Links">Links</SelectItem>
