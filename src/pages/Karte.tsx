@@ -1,9 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon } from "lucide-react";
+import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -125,6 +127,8 @@ export default function Karte() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
   const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
+  const [selectedAddresses, setSelectedAddresses] = useState<typeof mockAddresses>([]);
+  const [showStatsPopup, setShowStatsPopup] = useState(false);
 
   // Function to create marker icon based on zoom level
   const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
@@ -226,12 +230,19 @@ export default function Karte() {
       
       // Check which addresses are inside the polygon
       const polygon = layer.getLatLngs()[0];
-      const selectedAddresses = mockAddresses.filter(address => {
+      const selectedAddrs = mockAddresses.filter(address => {
         const point = L.latLng(address.coordinates[1], address.coordinates[0]);
         return isPointInPolygon(point, polygon);
       });
       
-      console.log('Selected addresses:', selectedAddresses);
+      setSelectedAddresses(selectedAddrs);
+      setShowStatsPopup(true);
+      
+      // Disable drawing mode after polygon is created
+      polygonDrawerRef.current?.disable();
+      setIsDrawingMode(false);
+      
+      toast.success(`${selectedAddrs.length} Adressen ausgewählt`);
     });
 
     // Add markers for each address
@@ -370,6 +381,25 @@ export default function Karte() {
             </div>
           </div>
         </SidebarInset>
+
+        {/* Polygon Stats Popup */}
+        {showStatsPopup && selectedAddresses.length > 0 && (
+          <PolygonStatsPopup
+            addresses={selectedAddresses}
+            onClose={() => {
+              setShowStatsPopup(false);
+              setSelectedAddresses([]);
+            }}
+            onCreateList={() => {
+              toast.success("Laufliste wird erstellt...");
+              // TODO: Implement create list functionality
+            }}
+            onAddToExisting={() => {
+              toast.success("Zu bestehender Laufliste hinzufügen...");
+              // TODO: Implement add to existing list functionality
+            }}
+          />
+        )}
       </div>
     </SidebarProvider>
   );
