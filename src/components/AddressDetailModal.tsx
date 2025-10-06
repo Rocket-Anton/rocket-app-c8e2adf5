@@ -650,7 +650,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <div className="bg-muted/70 rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full">
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-[2] min-w-0">
                           <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.floor}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Stockwerk" />
@@ -681,7 +681,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                     <div>
                       <div className="flex gap-3 min-w-0">
-                        <div className="flex-1 min-w-0">
+                        <div className="flex-[2] min-w-0">
                           <Select 
                             value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                             onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
