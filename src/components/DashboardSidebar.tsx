@@ -79,36 +79,36 @@ export const DashboardSidebar = () => {
           )}
         </SidebarHeader>
 
-        <SidebarContent className="px-2">
+        <SidebarContent className="px-3">
           <SidebarGroup>
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-2">
+              <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Home className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span className="whitespace-nowrap">Dashboard</span>}
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                    <Home className="!w-6 !h-6 flex-shrink-0" />
+                    {state !== "collapsed" && <span className="text-base whitespace-nowrap">Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Clock className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span className="whitespace-nowrap">Aktivitäten</span>}
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                    <Clock className="!w-6 !h-6 flex-shrink-0" />
+                    {state !== "collapsed" && <span className="text-base whitespace-nowrap">Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
-                    className={`w-full text-sidebar-accent-foreground font-medium rounded-lg ${
+                    className={`w-full text-sidebar-accent-foreground font-medium rounded-xl py-3 ${
                       state === "collapsed" 
-                        ? "h-10 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/80" 
-                        : "justify-between bg-sidebar-accent hover:bg-sidebar-accent/80"
+                        ? "h-12 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/90" 
+                        : "justify-between bg-sidebar-accent hover:bg-sidebar-accent/90"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <PersonStanding className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span className="whitespace-nowrap">Lauflisten</span>}
+                    <div className="flex items-center gap-3">
+                      <PersonStanding className="!w-6 !h-6 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-base whitespace-nowrap">Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
                       isLauflistenExpanded ? (
@@ -121,43 +121,41 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="animate-accordion-down">
-                    <SidebarMenuItem className="ml-6">
+                  <div className="animate-accordion-down border-l-2 border-sidebar-border/40 ml-6 pl-4 space-y-1">
+                    <SidebarMenuItem>
                       <SidebarMenuButton 
                         size="sm" 
                         onClick={() => navigate("/")}
-                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-lg ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
+                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
                       >
-                        <Circle className={`w-4 h-4 ${location.pathname === "/" ? "fill-current" : ""}`} />
-                        <span>Liste</span>
+                        <span className="text-base">Liste</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     
-                    <SidebarMenuItem className="ml-6">
+                    <SidebarMenuItem>
                       <SidebarMenuButton 
                         size="sm" 
                         onClick={() => navigate("/karte")}
-                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-lg ${location.pathname === "/karte" ? "bg-sidebar-accent" : ""}`}
+                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/karte" ? "bg-sidebar-accent" : ""}`}
                       >
-                        <Circle className={`w-4 h-4 ${location.pathname === "/karte" ? "fill-current" : ""}`} />
-                        <span>Karte</span>
+                        <span className="text-base">Karte</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                   </div>
                 )}
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${
                     state === "collapsed" 
-                      ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent relative" 
+                      ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent relative" 
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
-                    <div className="flex items-center gap-2">
-                      <Calendar className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span className="whitespace-nowrap">Termine</span>}
+                    <div className="flex items-center gap-3">
+                      <Calendar className="!w-6 !h-6 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-base whitespace-nowrap">Termine</span>}
                     </div>
                     {state !== "collapsed" ? (
-                      <Badge variant="destructive" className="w-4 h-4 p-0 text-xs flex items-center justify-center">
+                      <Badge variant="destructive" className="w-5 h-5 p-0 text-xs flex items-center justify-center">
                         1
                       </Badge>
                     ) : (
@@ -171,15 +169,15 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
-                    className={`text-sidebar-foreground rounded-lg ${
+                    className={`text-sidebar-foreground rounded-xl py-3 ${
                       state === "collapsed" 
-                        ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                         : "justify-between hover:bg-sidebar-accent"
                     }`}
                   >
-                    <div className="flex items-center gap-2">
-                      <User className="!w-5 !h-5 flex-shrink-0" />
-                      {state !== "collapsed" && <span className="whitespace-nowrap">Leads</span>}
+                    <div className="flex items-center gap-3">
+                      <User className="!w-6 !h-6 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-base whitespace-nowrap">Leads</span>}
                     </div>
                     {state !== "collapsed" && (
                       isLeadsExpanded ? (
@@ -204,18 +202,18 @@ export const DashboardSidebar = () => {
               </div>
             )}
             <SidebarGroupContent>
-              <SidebarMenu className="space-y-2">
+              <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-lg ${state === "collapsed" ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Settings className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span className="whitespace-nowrap">Settings</span>}
+                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                    <Settings className="!w-6 !h-6 flex-shrink-0" />
+                    {state !== "collapsed" && <span className="text-base whitespace-nowrap">Settings</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton asChild className={`text-sidebar-foreground rounded-lg ${
+                  <SidebarMenuButton asChild className={`text-sidebar-foreground rounded-xl py-3 ${
                     state === "collapsed" 
-                      ? "h-10 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                      ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     <div className="w-full flex items-center justify-between">
@@ -223,9 +221,9 @@ export const DashboardSidebar = () => {
                         <Switch className="scale-75" />
                       ) : (
                         <>
-                          <div className="flex items-center gap-2 min-w-0">
-                            <Moon className="!w-5 !h-5 flex-shrink-0" />
-                            <span className="whitespace-nowrap">Dark mode</span>
+                          <div className="flex items-center gap-3 min-w-0">
+                            <Moon className="!w-6 !h-6 flex-shrink-0" />
+                            <span className="text-base whitespace-nowrap">Dark mode</span>
                           </div>
                           <Switch className="ml-auto scale-90" />
                         </>
