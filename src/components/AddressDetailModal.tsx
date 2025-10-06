@@ -610,7 +610,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               })()}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[260px] overflow-y-auto">
+                          <SelectContent 
+                            side="bottom" 
+                            avoidCollisions={false} 
+                            className="bg-background z-[10000] overflow-y-auto"
+                            style={{ 
+                              maxHeight: 'min(260px, var(--radix-popper-available-height, 260px))'
+                            }}
+                          >
                             {statusOptions
                               .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                               .map((status) => (
