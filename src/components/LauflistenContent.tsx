@@ -813,9 +813,26 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                       </Button>
                     </SheetTrigger>
                     <SheetContent ref={mobileSheetRef} side="bottom" className="h-[85vh] flex flex-col p-0">
-                      <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
-                        <div className="flex items-center justify-start gap-32">
-                          <SheetTitle>Filter</SheetTitle>
+                       <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
+                         <div className="flex items-center justify-start gap-32">
+                           <div className="flex items-center gap-2">
+                             <SheetTitle>Filter</SheetTitle>
+                             {(() => {
+                               const activeFilterCount = 
+                                 statusFilter.length + 
+                                 (streetFilter ? 1 : 0) + 
+                                 (cityFilter ? 1 : 0) + 
+                                 (postalCodeFilter ? 1 : 0) + 
+                                 (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                                 (sortierung !== "alle" ? 1 : 0) +
+                                 (lastModifiedDate ? 1 : 0);
+                               return activeFilterCount > 0 ? (
+                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                                   {activeFilterCount}
+                                 </div>
+                               ) : null;
+                             })()}
+                           </div>
                           {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
                             <Button 
                               variant="ghost" 
