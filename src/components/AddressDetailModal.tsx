@@ -126,7 +126,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
   const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
-    // Dummy-Termine in Köln
+    // Dummy-Termine in Köln-Heumar, Am Alten Turm
     {
       id: 1,
       unitId: 1,
@@ -135,7 +135,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       customer: "Max Mustermann",
       notes: "Erstbesichtigung",
       address: "Am Alten Turm 1, 51107 Köln",
-      coordinates: [6.9603, 50.9375]
+      coordinates: [7.0810, 50.9206]
     },
     {
       id: 2,
@@ -145,7 +145,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       customer: "Anna Schmidt",
       notes: "Nachbesprechung",
       address: "Am Alten Turm 2, 51107 Köln",
-      coordinates: [6.9608, 50.9378]
+      coordinates: [7.0812, 50.9206]
     },
     {
       id: 3,
@@ -155,7 +155,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       customer: "Peter Müller",
       notes: "",
       address: "Am Alten Turm 4, 51107 Köln",
-      coordinates: [6.9613, 50.9381]
+      coordinates: [7.0814, 50.9207]
     },
     {
       id: 4,
@@ -165,7 +165,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       customer: "Lisa Weber",
       notes: "Vertragsübergabe",
       address: "Am Alten Turm 5, 51107 Köln",
-      coordinates: [6.9618, 50.9384]
+      coordinates: [7.0815, 50.9207]
     }
   ]);
   const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([
