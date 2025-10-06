@@ -1473,7 +1473,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 {currentAddress?.postalCode || ''} {currentAddress?.city || ''}
               </p>
               
-              <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
+              <div className="flex items-center justify-between w-full pt-2 sm:pt-3">
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
                   <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
