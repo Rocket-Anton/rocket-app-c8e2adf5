@@ -1,5 +1,6 @@
 import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
+import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
 import rocketIcon from "@/assets/rocket-icon-blue.png";
 import { 
@@ -20,6 +21,8 @@ import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 
 export const DashboardSidebar = () => {
+  const navigate = useNavigate();
+  const location = useLocation();
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(true);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 
@@ -120,15 +123,23 @@ export const DashboardSidebar = () => {
                 {isLauflistenExpanded && state !== "collapsed" && (
                   <div className="animate-accordion-down">
                     <SidebarMenuItem className="ml-6">
-                      <SidebarMenuButton size="sm" className="text-sidebar-foreground hover:bg-sidebar-accent rounded-lg">
-                        <Circle className="w-4 h-4 fill-current" />
+                      <SidebarMenuButton 
+                        size="sm" 
+                        onClick={() => navigate("/")}
+                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-lg ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
+                      >
+                        <Circle className={`w-4 h-4 ${location.pathname === "/" ? "fill-current" : ""}`} />
                         <span>Liste</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
                     
                     <SidebarMenuItem className="ml-6">
-                      <SidebarMenuButton size="sm" className="text-sidebar-foreground hover:bg-sidebar-accent rounded-lg">
-                        <Circle className="w-4 h-4" />
+                      <SidebarMenuButton 
+                        size="sm" 
+                        onClick={() => navigate("/karte")}
+                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-lg ${location.pathname === "/karte" ? "bg-sidebar-accent" : ""}`}
+                      >
+                        <Circle className={`w-4 h-4 ${location.pathname === "/karte" ? "fill-current" : ""}`} />
                         <span>Karte</span>
                       </SidebarMenuButton>
                     </SidebarMenuItem>
