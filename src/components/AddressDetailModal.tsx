@@ -119,7 +119,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentTime, setAppointmentTime] = useState("");
   const [appointmentHour, setAppointmentHour] = useState("");
   const [appointmentMinute, setAppointmentMinute] = useState("");
-  const [appointmentDuration, setAppointmentDuration] = useState("30");
+  const [appointmentDuration, setAppointmentDuration] = useState("");
   const [appointmentCustomer, setAppointmentCustomer] = useState("");
   const [appointmentNotes, setAppointmentNotes] = useState("");
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
@@ -735,6 +735,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       unitId: pendingAppointmentUnitId,
       date: appointmentDate.toLocaleDateString('de-DE'),
       time: appointmentTime,
+      duration: appointmentDuration || "30",
       customer: appointmentCustomer,
       notes: appointmentNotes,
       address: `${currentAddress.street} ${currentAddress.houseNumber}, ${currentAddress.postalCode} ${currentAddress.city}`,
@@ -755,7 +756,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setAppointmentTime("");
     setAppointmentHour("");
     setAppointmentMinute("");
-    setAppointmentDuration("30");
+    setAppointmentDuration("");
     setAppointmentCustomer("");
     setAppointmentNotes("");
     setAddAppointmentDialogOpen(false);
@@ -1506,6 +1507,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         if (value && appointmentMinute) {
                           setAppointmentTime(`${value}:${appointmentMinute}`);
                         }
+                        // Automatisch 30 min setzen wenn Stunde gewählt wird
+                        if (value && !appointmentDuration) {
+                          setAppointmentDuration("30");
+                        }
                       }}
                     >
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
@@ -1709,7 +1714,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   setAppointmentTime("");
                   setAppointmentHour("");
                   setAppointmentMinute("");
-                  setAppointmentDuration("30");
+                  setAppointmentDuration("");
                   setAppointmentCustomer("");
                   setAppointmentNotes("");
                   setPendingAppointmentUnitId(null);
@@ -2019,6 +2024,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       if (value && appointmentMinute) {
                         setAppointmentTime(`${value}:${appointmentMinute}`);
                       }
+                      // Automatisch 30 min setzen wenn Stunde gewählt wird
+                      if (value && !appointmentDuration) {
+                        setAppointmentDuration("30");
+                      }
                     }}
                   >
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
@@ -2234,7 +2243,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 setAppointmentTime("");
                 setAppointmentHour("");
                 setAppointmentMinute("");
-                setAppointmentDuration("30");
+                setAppointmentDuration("");
                 setAppointmentCustomer("");
                 setAppointmentNotes("");
                 setPendingAppointmentUnitId(null);
