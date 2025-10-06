@@ -936,16 +936,30 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                          {/* Sortierung Filter */}
                          <div className="space-y-1">
                            <label className="text-sm font-medium">Sortierung</label>
-                           <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
-                             <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                               <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
-                             </SelectTrigger>
-                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
-                               <SelectItem value="alle">Alle</SelectItem>
-                               <SelectItem value="gerade">Gerade</SelectItem>
-                               <SelectItem value="ungerade">Ungerade</SelectItem>
-                             </SelectContent>
-                           </Select>
+                           <div className="relative">
+                             <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
+                               <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
+                                 <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
+                               </SelectTrigger>
+                               <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                 <SelectItem value="alle">Alle</SelectItem>
+                                 <SelectItem value="gerade">Gerade</SelectItem>
+                                 <SelectItem value="ungerade">Ungerade</SelectItem>
+                               </SelectContent>
+                             </Select>
+                             {sortierung !== "alle" && (
+                               <button
+                                 onClick={(e) => {
+                                   e.preventDefault();
+                                   e.stopPropagation();
+                                   setSortierung("alle");
+                                 }}
+                                 className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                               >
+                                 <X className="w-4 h-4" />
+                               </button>
+                             )}
+                           </div>
                          </div>
 
                          {/* Letzte Qualifizierung Filter */}
@@ -1439,16 +1453,30 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            {/* Sortierung Filter */}
                            <div className="space-y-1">
                              <label className="text-sm font-medium">Sortierung</label>
-                             <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
-                               <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                                 <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
-                               </SelectTrigger>
-                               <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
-                                 <SelectItem value="alle">Alle</SelectItem>
-                                 <SelectItem value="gerade">Gerade</SelectItem>
-                                 <SelectItem value="ungerade">Ungerade</SelectItem>
-                               </SelectContent>
-                             </Select>
+                             <div className="relative">
+                               <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
+                                 <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
+                                   <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
+                                 </SelectTrigger>
+                                 <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                   <SelectItem value="alle">Alle</SelectItem>
+                                   <SelectItem value="gerade">Gerade</SelectItem>
+                                   <SelectItem value="ungerade">Ungerade</SelectItem>
+                                 </SelectContent>
+                               </Select>
+                               {sortierung !== "alle" && (
+                                 <button
+                                   onClick={(e) => {
+                                     e.preventDefault();
+                                     e.stopPropagation();
+                                     setSortierung("alle");
+                                   }}
+                                   className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+                                 >
+                                   <X className="w-4 h-4" />
+                                 </button>
+                               )}
+                             </div>
                            </div>
 
                            {/* Letzte Qualifizierung Filter - Desktop */}
