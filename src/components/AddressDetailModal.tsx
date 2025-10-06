@@ -108,7 +108,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   // Use filteredUnits if available (from status filter), otherwise use all units
   // ALWAYS filter out deleted units
-  const allUnits = currentAddress.filteredUnits || currentAddress.units || [];
+  const allUnits = currentAddress?.filteredUnits || currentAddress?.units || [];
   const displayUnits = allUnits.filter(unit => !unit.deleted);
   const wohneinheiten = displayUnits.length;
   
