@@ -1158,7 +1158,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <SelectTrigger className="w-full h-10 border border-border rounded-md bg-background">
                   <SelectValue placeholder="Grund auswählen..." />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[10000]">
+                <SelectContent className="bg-background border border-border shadow-lg z-[10000]" position="popper">
                   <SelectItem value="Zu alt">Zu alt</SelectItem>
                   <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
                   <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
