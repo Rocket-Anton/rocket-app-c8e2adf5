@@ -853,7 +853,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                <Button
                                    variant="outline"
                                    role="combobox"
-                                   className="w-full justify-start h-9 bg-background font-normal pr-16"
+                                   className="w-full justify-start h-9 bg-background font-normal pr-16 focus-visible:ring-0 focus-visible:border-gray-400"
                                  >
                                    <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
                                      {statusFilter.length > 0
@@ -937,7 +937,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                          <div className="space-y-1">
                            <label className="text-sm font-medium">Sortierung</label>
                            <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
-                             <SelectTrigger className="bg-background h-9">
+                             <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
                              </SelectTrigger>
                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
@@ -956,9 +956,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              {/* Main Dropdown */}
                              <Popover open={dateFilterOpen} onOpenChange={setDateFilterOpen}>
                                <PopoverTrigger asChild>
-                                 <Button
+                               <Button
                                    variant="outline"
-                                   className="w-full justify-between h-9 font-normal bg-background"
+                                   className="w-full justify-between h-9 font-normal bg-background focus-visible:ring-0 focus-visible:border-gray-400"
                                  >
                                    <span className={dateFilterMode === "" ? "text-muted-foreground" : ""}>
                                      {dateFilterMode === "" ? "Zeitraum auswählen" : 
@@ -1118,7 +1118,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               onFocus={() => streetInput && setShowStreetSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
                               autoFocus={false}
-                              className="bg-background h-9 pr-8"
+                               className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                             />
                             {streetInput && (
                               <button
@@ -1162,7 +1162,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               onValueChange={setHouseNumberFilter}
                               disabled={!streetFilter}
                             >
-                              <SelectTrigger className="bg-background h-9">
+                               <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                 <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
                               </SelectTrigger>
                               <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
@@ -1198,7 +1198,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               }}
                               onFocus={() => postalCodeInput && setShowPostalCodeSuggestions(true)}
                               onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
-                              className="bg-background h-9 pr-8"
+                               className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                             />
                             {postalCodeInput && (
                               <button
@@ -1244,7 +1244,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               }}
                               onFocus={() => cityInput && setShowCitySuggestions(true)}
                               onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                              className="bg-background h-9 pr-8"
+                               className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                             />
                             {cityInput && (
                               <button
@@ -1351,7 +1351,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                <Button
                                    variant="outline"
                                    role="combobox"
-                                   className="w-full justify-start h-9 bg-background font-normal pr-16"
+                                   className="w-full justify-start h-9 bg-background font-normal pr-16 focus-visible:ring-0 focus-visible:border-gray-400"
                                  >
                                    <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
                                      {statusFilter.length > 0
@@ -1440,7 +1440,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            <div className="space-y-1">
                              <label className="text-sm font-medium">Sortierung</label>
                              <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
-                               <SelectTrigger className="bg-background h-9">
+                               <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                  <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
                                </SelectTrigger>
                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
@@ -1459,10 +1459,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                {/* Main Dropdown */}
                                <Popover>
                                  <PopoverTrigger asChild>
-                                   <Button
-                                     variant="outline"
-                                     className="w-full justify-between h-9 font-normal bg-background"
-                                   >
+                               <Button
+                                   variant="outline"
+                                   className="w-full justify-between h-9 font-normal bg-background focus-visible:ring-0 focus-visible:border-gray-400"
+                                 >
                                      <span className={dateFilterMode === "" ? "text-muted-foreground" : ""}>
                                        {dateFilterMode === "" ? "Zeitraum auswählen" : 
                                         lastModifiedDate ? (
@@ -1606,7 +1606,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 onFocus={() => streetInput && setShowStreetSuggestions(true)}
                                 onBlur={() => setTimeout(() => setShowStreetSuggestions(false), 200)}
                                 autoFocus={false}
-                                className="bg-background h-9 pr-8"
+                               className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                               />
                               {streetInput && (
                                 <button
@@ -1650,7 +1650,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 onValueChange={setHouseNumberFilter}
                                 disabled={!streetFilter}
                               >
-                                <SelectTrigger className="bg-background h-9">
+                                <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                   <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
                                 </SelectTrigger>
                                 <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
@@ -1686,7 +1686,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 }}
                                 onFocus={() => postalCodeInput && setShowPostalCodeSuggestions(true)}
                                 onBlur={() => setTimeout(() => setShowPostalCodeSuggestions(false), 200)}
-                                className="bg-background h-9 pr-8"
+                               className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                               />
                               {postalCodeInput && (
                                 <button
@@ -1732,7 +1732,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 }}
                                 onFocus={() => cityInput && setShowCitySuggestions(true)}
                                 onBlur={() => setTimeout(() => setShowCitySuggestions(false), 200)}
-                                className="bg-background h-9 pr-8"
+                                className="bg-background h-9 pr-8 focus-visible:ring-0 focus:border-gray-400"
                               />
                               {cityInput && (
                                 <button
