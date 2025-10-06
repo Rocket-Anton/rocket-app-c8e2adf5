@@ -368,7 +368,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
         textColor: "text-green-600",
         iconBg: "bg-green-500",
         shimmer: false,
-        emoji: null
+        emoji: "😏"
       };
     } else if (orderCount < 10) {
       return {
