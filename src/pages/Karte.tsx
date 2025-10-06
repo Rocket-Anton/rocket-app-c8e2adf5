@@ -2,8 +2,11 @@ import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { Button } from "@/components/ui/button";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import "leaflet-draw/dist/leaflet.draw.css";
+import "leaflet-draw";
 
 // Fix for default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -117,6 +120,70 @@ export default function Karte() {
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.Marker[]>([]);
+  const [isDrawingMode, setIsDrawingMode] = useState(false);
+  const drawControlRef = useRef<L.Control.Draw | null>(null);
+  const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
+
+  // Function to create marker icon based on zoom level
+  const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
+    // Calculate overall status based on units
+    const statusCounts: Record<string, number> = {};
+    address.units.forEach(unit => {
+      statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
+    });
+
+    // Determine primary status (most common)
+    let primaryStatus = "offen";
+    let maxCount = 0;
+    Object.entries(statusCounts).forEach(([status, count]) => {
+      if (count > maxCount) {
+        maxCount = count;
+        primaryStatus = status;
+      }
+    });
+
+    const color = statusColorMap[primaryStatus] || "#6b7280";
+    
+    // Scale marker size based on zoom level - smaller when zoomed in
+    let size = 32;
+    let fontSize = 14;
+    let borderWidth = 3;
+    
+    if (zoom >= 18) {
+      size = 24;
+      fontSize = 11;
+      borderWidth = 2;
+    } else if (zoom >= 16) {
+      size = 28;
+      fontSize = 12;
+      borderWidth = 2;
+    }
+
+    return L.divIcon({
+      className: "custom-address-marker",
+      html: `
+        <div style="
+          width: ${size}px;
+          height: ${size}px;
+          background: ${color};
+          color: white;
+          border-radius: 50%;
+          border: ${borderWidth}px solid white;
+          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: ${fontSize}px;
+          font-weight: 700;
+        ">
+          ${address.units.length}
+        </div>
+      `,
+      iconSize: [size, size],
+      iconAnchor: [size / 2, size / 2],
+    });
+  };
 
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
@@ -130,8 +197,53 @@ export default function Karte() {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
     }).addTo(map);
 
+    // Initialize drawn items layer
+    const drawnItems = new L.FeatureGroup();
+    map.addLayer(drawnItems);
+    drawnItemsRef.current = drawnItems;
+
+    // Add polygon drawing control
+    const drawControl = new L.Control.Draw({
+      position: 'topright',
+      draw: {
+        polygon: {
+          allowIntersection: false,
+          shapeOptions: {
+            color: '#3b82f6',
+            fillOpacity: 0.2,
+          }
+        },
+        polyline: false,
+        rectangle: false,
+        circle: false,
+        marker: false,
+        circlemarker: false,
+      },
+      edit: {
+        featureGroup: drawnItems,
+        remove: true,
+      }
+    });
+    drawControlRef.current = drawControl;
+
+    // Handle polygon drawing complete
+    map.on(L.Draw.Event.CREATED, (event: any) => {
+      const layer = event.layer;
+      drawnItems.addLayer(layer);
+      
+      // Check which addresses are inside the polygon
+      const polygon = layer.getLatLngs()[0];
+      const selectedAddresses = mockAddresses.filter(address => {
+        const point = L.latLng(address.coordinates[1], address.coordinates[0]);
+        return isPointInPolygon(point, polygon);
+      });
+      
+      console.log('Selected addresses:', selectedAddresses);
+    });
+
     // Add markers for each address
     const bounds = L.latLngBounds([]);
+    const markers: L.Marker[] = [];
 
     mockAddresses.forEach((address) => {
       // Calculate overall status based on units
@@ -151,34 +263,14 @@ export default function Karte() {
       });
 
       const color = statusColorMap[primaryStatus] || "#6b7280";
-
-      const customIcon = L.divIcon({
-        className: "custom-address-marker",
-        html: `
-          <div style="
-            width: 32px;
-            height: 32px;
-            background: ${color};
-            color: white;
-            border-radius: 50%;
-            border: 3px solid white;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 14px;
-            font-weight: 700;
-          ">
-            ${address.units.length}
-          </div>
-        `,
-        iconSize: [32, 32],
-        iconAnchor: [16, 16],
-      });
+      const currentZoom = map.getZoom();
+      const customIcon = createMarkerIcon(address, currentZoom);
 
       const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
         icon: customIcon 
       }).addTo(map);
+      
+      markers.push(marker);
 
       // Create popup content
       const unitsInfo = address.units.map(unit => 
@@ -199,6 +291,20 @@ export default function Karte() {
       bounds.extend([address.coordinates[1], address.coordinates[0]]);
     });
 
+    markersRef.current = markers;
+
+    // Update marker sizes on zoom
+    map.on('zoomend', () => {
+      const zoom = map.getZoom();
+      mockAddresses.forEach((address, index) => {
+        const marker = markers[index];
+        if (marker) {
+          const newIcon = createMarkerIcon(address, zoom);
+          marker.setIcon(newIcon);
+        }
+      });
+    });
+
     // Fit map to show all markers
     if (mockAddresses.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] });
@@ -211,6 +317,32 @@ export default function Karte() {
       }
     };
   }, []);
+
+  // Toggle drawing mode
+  const toggleDrawingMode = () => {
+    if (!mapInstance.current || !drawControlRef.current) return;
+    
+    if (isDrawingMode) {
+      mapInstance.current.removeControl(drawControlRef.current);
+    } else {
+      mapInstance.current.addControl(drawControlRef.current);
+    }
+    setIsDrawingMode(!isDrawingMode);
+  };
+
+  // Helper function to check if a point is inside a polygon
+  const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
+    let inside = false;
+    for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+      const xi = polygon[i].lat, yi = polygon[i].lng;
+      const xj = polygon[j].lat, yj = polygon[j].lng;
+      
+      const intersect = ((yi > point.lng) !== (yj > point.lng))
+        && (point.lat < (xj - xi) * (point.lng - yi) / (yj - yi) + xi);
+      if (intersect) inside = !inside;
+    }
+    return inside;
+  };
 
   return (
     <SidebarProvider>
@@ -226,8 +358,18 @@ export default function Karte() {
             </header>
 
             {/* Map Container */}
-            <div className="flex-1 p-4 sm:p-6 overflow-hidden">
+            <div className="flex-1 p-4 sm:p-6 overflow-hidden relative">
               <div className="h-full w-full rounded-lg border border-border overflow-hidden shadow-sm" ref={mapContainer} />
+              
+              {/* Polygon Drawing Toggle Button */}
+              <Button
+                onClick={toggleDrawingMode}
+                variant={isDrawingMode ? "default" : "outline"}
+                className="absolute top-8 right-8 z-[1000] shadow-lg"
+                size="sm"
+              >
+                {isDrawingMode ? "Zeichnen beenden" : "Polygon zeichnen"}
+              </Button>
             </div>
           </div>
         </SidebarInset>
