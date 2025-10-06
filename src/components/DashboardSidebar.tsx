@@ -23,10 +23,20 @@ import { Switch } from "./ui/switch";
 export const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
-  const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(true);
+  
+  // Auto-expand based on current route
+  const isInLauflistenSection = location.pathname === "/" || location.pathname === "/karte";
+  const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(isInLauflistenSection);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 
   const { state, toggleSidebar } = useSidebar();
+
+  // Auto-expand the correct section when route changes
+  useEffect(() => {
+    if (state !== "collapsed") {
+      setIsLauflistenExpanded(isInLauflistenSection);
+    }
+  }, [location.pathname, state, isInLauflistenSection]);
 
   // Close expanded menus when sidebar collapses
   useEffect(() => {
