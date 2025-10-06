@@ -850,14 +850,16 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                           <div className="relative">
                             <Popover open={statusOpen} onOpenChange={setStatusOpen}>
                               <PopoverTrigger asChild>
-                                <Button
-                                  variant="outline"
-                                  role="combobox"
-                                  className="w-full justify-start h-9 bg-background font-normal pr-16"
-                                >
-                                  {statusFilter.length > 0
-                                    ? `${statusFilter.length} ausgewählt`
-                                    : "Status wählen"}
+                               <Button
+                                   variant="outline"
+                                   role="combobox"
+                                   className="w-full justify-start h-9 bg-background font-normal pr-16"
+                                 >
+                                   <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
+                                     {statusFilter.length > 0
+                                       ? `${statusFilter.length} ausgewählt`
+                                       : "Status wählen"}
+                                   </span>
                                 </Button>
                               </PopoverTrigger>
                               <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1 pointer-events-none">
@@ -936,7 +938,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            <label className="text-sm font-medium">Sortierung</label>
                            <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
                              <SelectTrigger className="bg-background h-9">
-                               <SelectValue placeholder="Sortierung wählen" />
+                               <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
                              </SelectTrigger>
                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                <SelectItem value="alle">Alle</SelectItem>
@@ -1346,14 +1348,16 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                             <div className="relative">
                               <Popover open={statusOpen} onOpenChange={setStatusOpen}>
                                 <PopoverTrigger asChild>
-                                  <Button
-                                    variant="outline"
-                                    role="combobox"
-                                    className="w-full justify-start h-9 bg-background font-normal pr-16"
-                                  >
-                                    {statusFilter.length > 0
-                                      ? `${statusFilter.length} ausgewählt`
-                                      : "Status wählen"}
+                               <Button
+                                   variant="outline"
+                                   role="combobox"
+                                   className="w-full justify-start h-9 bg-background font-normal pr-16"
+                                 >
+                                   <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
+                                     {statusFilter.length > 0
+                                       ? `${statusFilter.length} ausgewählt`
+                                       : "Status wählen"}
+                                   </span>
                                   </Button>
                                 </PopoverTrigger>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1 pointer-events-none">
@@ -1437,7 +1441,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              <label className="text-sm font-medium">Sortierung</label>
                              <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
                                <SelectTrigger className="bg-background h-9">
-                                 <SelectValue placeholder="Sortierung wählen" />
+                                 <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
                                </SelectTrigger>
                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                  <SelectItem value="alle">Alle</SelectItem>
