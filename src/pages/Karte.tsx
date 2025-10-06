@@ -353,9 +353,9 @@ export default function Karte() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-dvh w-full bg-muted/30 overflow-hidden" style={{ ['--sidebar-width-icon' as any]: '5.5rem' }}>
+      <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
-        <SidebarInset className="p-0">
+        <SidebarInset className="p-0 m-0 border-0">
           <div className="flex flex-col h-full w-full">
             {/* Header */}
             <header className="flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
