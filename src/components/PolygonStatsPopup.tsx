@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { X } from "lucide-react";
+import { X, MapPin, Home, TrendingUp, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
@@ -142,22 +142,42 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       <Separator className="mb-3" />
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-3">
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Adressen</p>
-          <p className="text-3xl font-bold text-foreground">{totalAddresses}</p>
+      <div className="grid grid-cols-2 gap-2 mb-3">
+        <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center">
+              <MapPin className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Adressen</p>
+          <p className="text-2xl font-semibold text-foreground">{totalAddresses}</p>
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Wohneinheiten</p>
-          <p className="text-3xl font-bold text-foreground">{totalUnits}</p>
+        <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center">
+              <Home className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Wohneinheiten</p>
+          <p className="text-2xl font-semibold text-foreground">{totalUnits}</p>
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Faktor</p>
-          <p className="text-3xl font-bold text-foreground">{factor}</p>
+        <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center">
+              <TrendingUp className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Faktor</p>
+          <p className="text-2xl font-semibold text-foreground">{factor}</p>
         </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Kunden-Quote</p>
-          <p className="text-3xl font-bold text-foreground">{customerQuote}%</p>
+        <div className="bg-muted/30 rounded-lg p-3 border border-border/50">
+          <div className="flex items-center gap-2 mb-2">
+            <div className="w-8 h-8 rounded-full bg-background flex items-center justify-center">
+              <Users className="w-4 h-4 text-muted-foreground" />
+            </div>
+          </div>
+          <p className="text-xs text-muted-foreground mb-1">Kunden-Quote</p>
+          <p className="text-2xl font-semibold text-foreground">{customerQuote}%</p>
         </div>
       </div>
 
