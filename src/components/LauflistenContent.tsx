@@ -614,15 +614,21 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   />
                 )}
                 
-                <div className="absolute -top-3 -right-3 z-20">
+                <div className={`absolute -top-0.5 right-0.5 z-10 ${isOrderCard ? '-top-3 -right-3 z-20' : ''}`}>
                   <Popover>
                     <PopoverTrigger asChild>
-                      <button
-                        aria-label="Infos"
-                        className="w-6 h-6 rounded-full bg-white ring-1 ring-green-500 shadow flex items-center justify-center hover:bg-muted/50 transition"
-                      >
-                        <Info className="w-4 h-4 text-green-600" />
-                      </button>
+                      {isOrderCard ? (
+                        <button
+                          aria-label="Infos"
+                          className="w-6 h-6 rounded-full bg-white ring-1 ring-green-500 shadow flex items-center justify-center hover:bg-muted/50 transition"
+                        >
+                          <Info className="w-4 h-4 text-green-600" />
+                        </button>
+                      ) : (
+                        <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
+                          <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
+                        </button>
+                      )}
                     </PopoverTrigger>
                     <PopoverContent className="w-80 p-3" align="end" side="bottom">
                       <p className="text-sm">{metric.explanation}</p>
@@ -650,14 +656,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
             
             {/* Gauge Chart Card */}
             <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px] md:w-auto`}>
-              <div className="absolute -top-3 -right-3 z-20">
+              <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
-                    <button
-                      aria-label="Infos"
-                      className="w-6 h-6 rounded-full bg-white ring-1 ring-green-500 shadow flex items-center justify-center hover:bg-muted/50 transition"
-                    >
-                      <Info className="w-4 h-4 text-green-600" />
+                    <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
+                      <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
                     </button>
                   </PopoverTrigger>
                   <PopoverContent className="w-80 p-3" align="end" side="bottom">
