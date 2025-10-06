@@ -853,11 +853,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                  setDateFilterType("quick");
                                  setDateFilterMode("");
                               }}
-                              className="h-8 text-xs"
-                            >
-                              <X className="w-3 h-3 mr-0.5" />
-                              Zurücksetzen
-                            </Button>
+                               className="h-8 text-xs"
+                             >
+                               <X className="w-3 h-3 mr-2" />
+                               Zurücksetzen
+                             </Button>
                           )}
                         </div>
                       </SheetHeader>
@@ -1411,11 +1411,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                setDateFilterType("quick");
                                setDateFilterMode("");
                             }}
-                            className="h-8 text-xs"
-                          >
-                            <X className="w-3 h-3 mr-1" />
-                            Zurücksetzen
-                          </Button>
+                             className="h-8 text-xs"
+                           >
+                             <X className="w-3 h-3 mr-2" />
+                             Zurücksetzen
+                           </Button>
                         )}
                       </div>
 
