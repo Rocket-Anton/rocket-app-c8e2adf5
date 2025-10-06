@@ -166,8 +166,8 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       {/* Status Distribution */}
       <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
 
-      {/* Status List with Percentages */}
-      <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5">
+      {/* Status List with Counts and Percentages */}
+      <div className="mb-3 max-h-32 overflow-y-auto space-y-0.5">
         {chartData.map((item, index) => {
           const percentage = totalUnits > 0 ? ((item.value / totalUnits) * 100).toFixed(0) : "0";
           return (
@@ -184,7 +184,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
                 />
                 <span className="text-foreground">{item.name}</span>
               </div>
-              <span className="font-semibold text-foreground">{percentage}%</span>
+              <span className="font-semibold text-foreground">{item.value} • {percentage}%</span>
             </div>
           );
         })}
