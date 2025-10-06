@@ -906,11 +906,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
                                     <h3 className="font-medium text-sm">Status Historie</h3>
                                   </div>
-                                  <div className="p-3 pt-2">
+                                   <div className="p-3 pt-2">
                                     <div className="space-y-2">
                                       {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
                                         (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
-                                          const statusOption = statusOptions.find(s => s.label === history.status);
+                                          // Extract base status (remove rating info like "(3 ⭐)")
+                                          const baseStatus = history.status.split('(')[0].trim();
+                                          const statusOption = statusOptions.find(s => s.label === baseStatus);
                                           return (
                                             <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
                                               <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
