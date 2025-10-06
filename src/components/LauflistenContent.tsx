@@ -649,7 +649,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                 {isOrderCard && (
                   <div className="absolute -bottom-1 -right-1 z-10 pointer-events-none">
                     {metric.emoji ? (
-                      <div className="text-2xl leading-none">{metric.emoji}</div>
+                      <div className="relative">
+                        <div className="absolute inset-0 bg-white/60 rounded-full blur-sm"></div>
+                        <div className="relative text-2xl leading-none">{metric.emoji}</div>
+                      </div>
                     ) : (
                       <div className={`w-6 h-6 ${metric.iconBg} rounded-full flex items-center justify-center`}>
                         <Check className="w-4 h-4 text-white" />
