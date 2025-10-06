@@ -471,8 +471,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const handleStatusChange = (addressId: number, unitId: number, newStatus: string) => {
     const k = `${addressId}:${unitId}`;
     
+    console.log("handleStatusChange called with:", { addressId, unitId, newStatus });
+    
     // Wenn "kein-interesse" ausgewählt wird, öffne den Dialog zur Begründung
     if (newStatus === "kein-interesse") {
+      console.log("Opening kein-interesse dialog");
       setPendingKeinInteresse({ addressId, unitId });
       setKeinInteresseDialogOpen(true);
       return; // Nicht direkt Status setzen
@@ -480,6 +483,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     // Wenn "potenzial" ausgewählt wird, öffne den Bewertungs-Dialog
     if (newStatus === "potenzial") {
+      console.log("Opening potenzial dialog");
       setPendingPotenzial({ addressId, unitId });
       setPotenzialDialogOpen(true);
       return; // Nicht direkt Status setzen
