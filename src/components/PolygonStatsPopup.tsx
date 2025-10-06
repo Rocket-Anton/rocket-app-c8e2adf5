@@ -141,6 +141,28 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
 
       <Separator className="mb-3" />
 
+      {/* Statistics Grid */}
+      <div className="grid grid-cols-2 gap-3 mb-3">
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Adressen</p>
+          <p className="text-xl font-bold text-foreground">{totalAddresses}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Wohneinheiten</p>
+          <p className="text-xl font-bold text-foreground">{totalUnits}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Faktor</p>
+          <p className="text-xl font-bold text-foreground">{factor}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground mb-1">Kunden-Quote</p>
+          <p className="text-xl font-bold text-foreground">{customerQuote}%</p>
+        </div>
+      </div>
+
+      <Separator className="mb-3" />
+
       {/* Status Distribution Pie Chart */}
       <div className="mb-3">
         <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
@@ -183,28 +205,6 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
               <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
             </div>
           </div>
-        </div>
-      </div>
-
-      <Separator className="mb-3" />
-
-      {/* Statistics Grid */}
-      <div className="grid grid-cols-2 gap-3 mb-3">
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Adressen</p>
-          <p className="text-xl font-bold text-foreground">{totalAddresses}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Wohneinheiten</p>
-          <p className="text-xl font-bold text-foreground">{totalUnits}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Faktor</p>
-          <p className="text-xl font-bold text-foreground">{factor}</p>
-        </div>
-        <div>
-          <p className="text-sm text-muted-foreground mb-1">Kunden-Quote</p>
-          <p className="text-xl font-bold text-foreground">{customerQuote}%</p>
         </div>
       </div>
 
