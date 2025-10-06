@@ -85,14 +85,14 @@ export const DashboardSidebar = () => {
               <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Home className="!w-6 !h-6 flex-shrink-0" />
+                    <Home className="!w-5 !h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span className="text-base whitespace-nowrap">Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Clock className="!w-6 !h-6 flex-shrink-0" />
+                    <Clock className="!w-5 !h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span className="text-base whitespace-nowrap">Aktivitäten</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -107,7 +107,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <PersonStanding className="!w-6 !h-6 flex-shrink-0" />
+                      <PersonStanding className="!w-5 !h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span className="text-base whitespace-nowrap">Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -121,7 +121,7 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="animate-accordion-down border-l-2 border-sidebar-border/40 ml-6 pl-4 space-y-1">
+                  <div className="animate-accordion-down border-l-2 border-sidebar-foreground/30 ml-5 pl-4 space-y-1">
                     <SidebarMenuItem>
                       <SidebarMenuButton 
                         size="sm" 
@@ -151,7 +151,7 @@ export const DashboardSidebar = () => {
                       : "justify-between hover:bg-sidebar-accent"
                   }`}>
                     <div className="flex items-center gap-3">
-                      <Calendar className="!w-6 !h-6 flex-shrink-0" />
+                      <Calendar className="!w-5 !h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span className="text-base whitespace-nowrap">Termine</span>}
                     </div>
                     {state !== "collapsed" ? (
@@ -176,7 +176,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <User className="!w-6 !h-6 flex-shrink-0" />
+                      <User className="!w-5 !h-5 flex-shrink-0" />
                       {state !== "collapsed" && <span className="text-base whitespace-nowrap">Leads</span>}
                     </div>
                     {state !== "collapsed" && (
@@ -205,7 +205,7 @@ export const DashboardSidebar = () => {
               <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
                   <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Settings className="!w-6 !h-6 flex-shrink-0" />
+                    <Settings className="!w-5 !h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span className="text-base whitespace-nowrap">Settings</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
@@ -222,7 +222,7 @@ export const DashboardSidebar = () => {
                       ) : (
                         <>
                           <div className="flex items-center gap-3 min-w-0">
-                            <Moon className="!w-6 !h-6 flex-shrink-0" />
+                            <Moon className="!w-5 !h-5 flex-shrink-0" />
                             <span className="text-base whitespace-nowrap">Dark mode</span>
                           </div>
                           <Switch className="ml-auto scale-90" />
