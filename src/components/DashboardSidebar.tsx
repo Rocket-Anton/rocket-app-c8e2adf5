@@ -121,26 +121,28 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="animate-accordion-down border-l-2 border-sidebar-foreground/30 ml-5 pl-4 space-y-1">
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        size="sm" 
-                        onClick={() => navigate("/")}
-                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
-                      >
-                        <span className="text-base">Liste</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
-                    
-                    <SidebarMenuItem>
-                      <SidebarMenuButton 
-                        size="sm" 
-                        onClick={() => navigate("/karte")}
-                        className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/karte" ? "bg-sidebar-accent" : ""}`}
-                      >
-                        <span className="text-base">Karte</span>
-                      </SidebarMenuButton>
-                    </SidebarMenuItem>
+                  <div className="overflow-hidden">
+                    <div className="animate-accordion-down border-l-2 border-sidebar-foreground/30 ml-5 pl-4 space-y-1 mt-1">
+                      <SidebarMenuItem>
+                        <SidebarMenuButton 
+                          size="sm" 
+                          onClick={() => navigate("/")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Liste</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                      
+                      <SidebarMenuItem>
+                        <SidebarMenuButton 
+                          size="sm" 
+                          onClick={() => navigate("/karte")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/karte" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Karte</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
                   </div>
                 )}
 
