@@ -688,7 +688,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               })()}
                             </SelectValue>
                           </SelectTrigger>
-                          <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
+                          <SelectContent className="bg-background z-[10000]">
                             {statusOptions
                               .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                               .map((status) => (
@@ -698,7 +698,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   </div>
                                 </SelectItem>
                               ))}
-                          </BoundedSelectContent>
+                          </SelectContent>
                         </Select>
                         <Popover key={`popover-${unit.id}-${popoverKey}`}>
                           <PopoverTrigger asChild>
