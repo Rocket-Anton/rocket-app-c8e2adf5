@@ -792,9 +792,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     {unitCount > 1 ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-[2] min-w-0">
+                          <label className="block text-sm font-medium mb-1.5">Stockwerk</label>
                           <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.floor}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Stockwerk" />
+                              <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="EG">EG</SelectItem>
@@ -806,9 +807,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
 
                         <div className="flex-1 min-w-0">
+                          <label className="block text-sm font-medium mb-1.5">Lage</label>
                           <Select defaultValue={(unitStatuses[`${addr.id}:${unit.id}`] || "offen") === "offen" ? undefined : unit.position}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Lage" />
+                              <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
                             <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="Links">Links</SelectItem>
@@ -823,6 +825,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <div>
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-[2] min-w-0">
+                          <label className="block text-sm font-medium mb-1.5">Status</label>
                           <Select 
                             value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                             onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
@@ -855,13 +858,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
 
                         <div className="flex-1 min-w-0">
+                          <label className="block text-sm font-medium mb-1.5">Historie</label>
                           <Popover key={`popover-${unit.id}-${popoverKey}`}>
                             <PopoverTrigger asChild>
                               <Button 
                                 variant="outline" 
                                 className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative px-3"
                               >
-                                <span>Historie</span>
+                                <span>Anzeigen</span>
                                 <ChevronDown className="h-4 w-4 opacity-50" />
                                 {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
                                   <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
