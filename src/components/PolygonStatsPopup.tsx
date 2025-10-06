@@ -74,19 +74,19 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
   const customerQuote = totalUnits > 0 ? ((customerTotal / totalUnits) * 100).toFixed(1) : "0";
 
   return (
-    <Card className="fixed bottom-6 right-6 w-80 p-4 shadow-2xl z-[1000] bg-background border-border">
+    <Card className="fixed bottom-6 right-6 w-80 p-3 shadow-2xl z-[1000] bg-background border-border">
       {/* Header */}
-      <div className="flex items-center justify-between mb-4">
+      <div className="flex items-center justify-between mb-2">
         <h3 className="text-lg font-semibold text-foreground">Polygon-Auswahl</h3>
         <Button variant="ghost" size="icon" onClick={onClose}>
           <X className="h-4 w-4" />
         </Button>
       </div>
 
-      <Separator className="mb-4" />
+      <Separator className="mb-2" />
 
       {/* Statistics Grid */}
-      <div className="grid grid-cols-2 gap-4 mb-4">
+      <div className="grid grid-cols-2 gap-3 mb-2">
         <div>
           <p className="text-sm text-muted-foreground mb-1">Adressen</p>
           <p className="text-2xl font-bold text-foreground">{totalAddresses}</p>
@@ -105,12 +105,12 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         </div>
       </div>
 
-      <Separator className="mb-4" />
+      <Separator className="mb-2" />
 
       {/* Status Distribution */}
-      <div className="mb-4">
-        <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
-        <div className="space-y-2 max-h-48 overflow-y-auto">
+      <div className="mb-2">
+        <h4 className="text-sm font-semibold text-foreground mb-2">Status-Verteilung</h4>
+        <div className="space-y-1.5 max-h-32 overflow-y-auto">
           {Object.entries(statusCounts)
             .sort((a, b) => b[1] - a[1])
             .map(([status, count]) => (
@@ -128,7 +128,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
         </div>
       </div>
 
-      <Separator className="mb-4" />
+      <Separator className="mb-2" />
 
       {/* Actions */}
       <div className="space-y-2">
