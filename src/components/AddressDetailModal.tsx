@@ -82,9 +82,10 @@ interface AddressDetailModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onClose?: (finalIndex: number) => void;
+  onOrderCreated?: () => void;
 }
 
-export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose }: AddressDetailModalProps) => {
+export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -1001,6 +1002,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       className: "bg-green-500 text-white border-0 text-lg font-semibold",
       duration: 3000,
     });
+
+    // Notify parent component about order creation
+    onOrderCreated?.();
 
     setOrderDialogOpen(false);
     setOrderUnitId(null);

@@ -132,7 +132,7 @@ const mockAddresses = [
   },
 ];
 
-export const LauflistenContent = () => {
+export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => void }) => {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [sortierung, setSortierung] = useState("alle");
@@ -1403,6 +1403,7 @@ export const LauflistenContent = () => {
                       allAddresses={displayedAddresses}
                       currentIndex={index}
                       onModalClose={handleModalClose}
+                      onOrderCreated={onOrderCreated}
                     />
                   </div>
                 ))}

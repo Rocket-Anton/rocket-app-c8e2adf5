@@ -180,4 +180,22 @@ All colors MUST be HSL.
   display: flex;
   flex-direction: column;
 }
+
+/* Shimmer Animations */
+@keyframes shimmer {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(100%);
+  }
+}
+
+.animate-shimmer-silver {
+  animation: shimmer 2.5s infinite;
+}
+
+.animate-shimmer-gold {
+  animation: shimmer 2s infinite;
+}
 }
