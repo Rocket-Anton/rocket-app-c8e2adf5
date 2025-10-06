@@ -156,44 +156,24 @@ export default function Karte() {
         className: "custom-address-marker",
         html: `
           <div style="
-            position: relative;
+            width: 32px;
+            height: 32px;
             background: ${color};
             color: white;
-            padding: 6px 10px;
-            border-radius: 8px;
-            font-size: 11px;
-            font-weight: 600;
+            border-radius: 50%;
+            border: 3px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            white-space: nowrap;
-            border: 2px solid white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 14px;
+            font-weight: 700;
           ">
-            ${address.houseNumber}
-            <div style="
-              position: absolute;
-              bottom: -6px;
-              left: 50%;
-              transform: translateX(-50%);
-              width: 0;
-              height: 0;
-              border-left: 6px solid transparent;
-              border-right: 6px solid transparent;
-              border-top: 6px solid white;
-            "></div>
-            <div style="
-              position: absolute;
-              bottom: -4px;
-              left: 50%;
-              transform: translateX(-50%);
-              width: 0;
-              height: 0;
-              border-left: 5px solid transparent;
-              border-right: 5px solid transparent;
-              border-top: 5px solid ${color};
-            "></div>
+            ${address.units.length}
           </div>
         `,
-        iconSize: [40, 30],
-        iconAnchor: [20, 30],
+        iconSize: [32, 32],
+        iconAnchor: [16, 16],
       });
 
       const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
