@@ -718,7 +718,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <PopoverTrigger asChild>
                               <Button 
                                 variant="outline" 
-                                className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-xs font-medium relative"
+                                className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative px-3"
                               >
                                 <span>Historie</span>
                                 <ChevronDown className="h-4 w-4 opacity-50" />
