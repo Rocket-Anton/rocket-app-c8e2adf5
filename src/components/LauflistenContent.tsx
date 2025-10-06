@@ -1034,18 +1034,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            </Popover>
 
                            {/* Date Picker Modal */}
-                           <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                             <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
-                               <PopoverContent 
-                                 className="w-auto p-0 bg-background z-[10002]" 
-                                 align="center"
-                                 side="bottom"
-                                 sideOffset={100}
-                               >
-                                 <div className="p-4 space-y-3">
-                                   {/* Quick Select Buttons */}
-                                   <div className="space-y-2">
-                                     <div className="text-xs font-medium text-muted-foreground">Schnellauswahl:</div>
+                           {dateFilterMode && (
+                             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+                               <PopoverPrimitive.Portal container={mobileSheetRef.current ?? undefined}>
+                                 <PopoverContent 
+                                   className="w-[90vw] max-w-[400px] p-0 bg-background z-[10002] rounded-2xl shadow-2xl" 
+                                   align="center"
+                                   side="top"
+                                   sideOffset={20}
+                                 >
+                                   <div className="p-4 space-y-4">
+                                     {/* Quick Select Buttons */}
                                      <div className="grid grid-cols-3 gap-2">
                                        {[
                                          { label: "7 Tage", value: "7", days: 7 },
@@ -1055,43 +1054,56 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                          <Button
                                            key={option.value}
                                            type="button"
-                                           variant={quickDateOption === option.value ? "default" : "outline"}
+                                           variant="outline"
                                            size="sm"
-                                           className="h-9 text-xs bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                                           className={cn(
+                                             "h-10 text-sm font-medium",
+                                             quickDateOption === option.value
+                                               ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                                               : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                                           )}
                                            onClick={() => {
                                              const date = new Date();
                                              date.setDate(date.getDate() - option.days);
                                              setLastModifiedDate(date);
                                              setQuickDateOption(option.value);
                                              setDateFilterType("quick");
-                                             setDatePickerOpen(false);
-                                             setDateFilterOpen(false);
                                            }}
                                          >
                                            {option.label}
                                          </Button>
                                        ))}
                                      </div>
-                                   </div>
 
-                                   {/* Calendar */}
-                                   <Calendar
-                                     mode="single"
-                                     selected={lastModifiedDate}
-                                     onSelect={(date) => {
-                                       setLastModifiedDate(date);
-                                       setDateFilterType("custom");
-                                       setQuickDateOption("");
-                                       setDatePickerOpen(false);
-                                       setDateFilterOpen(false);
-                                     }}
-                                     initialFocus
-                                     className="pointer-events-auto rounded-md border"
-                                   />
-                                 </div>
-                               </PopoverContent>
-                             </PopoverPrimitive.Portal>
-                           </Popover>
+                                     {/* Calendar */}
+                                     <Calendar
+                                       mode="single"
+                                       selected={lastModifiedDate}
+                                       onSelect={(date) => {
+                                         setLastModifiedDate(date);
+                                         setDateFilterType("custom");
+                                         setQuickDateOption("");
+                                       }}
+                                       initialFocus
+                                       className="pointer-events-auto rounded-md"
+                                     />
+
+                                     {/* Done Button */}
+                                     <Button
+                                       type="button"
+                                       className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl"
+                                       onClick={() => {
+                                         setDatePickerOpen(false);
+                                         setDateFilterOpen(false);
+                                       }}
+                                     >
+                                       Fertig
+                                     </Button>
+                                   </div>
+                                 </PopoverContent>
+                               </PopoverPrimitive.Portal>
+                             </Popover>
+                           )}
 
                            {/* Info Text */}
                            {lastModifiedDate && dateFilterMode && (
