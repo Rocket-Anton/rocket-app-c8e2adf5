@@ -847,7 +847,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                   ) : null;
                                 })()}
                               </div>
-                              {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                               {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate || sortierung !== "alle") && (
                                 <Button 
                                   variant="ghost" 
                                   size="sm"
@@ -1405,7 +1405,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                       {/* Fixed Header */}
                       <div className="flex-shrink-0 p-4 border-b border-border bg-background flex items-center justify-between">
                         <h3 className="text-lg font-semibold">Filter</h3>
-                        {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                        {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate || sortierung !== "alle") && (
                           <Button 
                             variant="ghost" 
                             size="sm"
