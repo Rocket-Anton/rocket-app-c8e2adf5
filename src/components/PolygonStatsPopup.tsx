@@ -163,52 +163,8 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
 
       <Separator className="mb-3" />
 
-      {/* Status Distribution Pie Chart */}
-      <div className="mb-3">
-        <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
-        <div className="relative flex items-center justify-center">
-          <ResponsiveContainer width="100%" height={200}>
-            <PieChart>
-              <Pie
-                data={chartData}
-                cx="50%"
-                cy="50%"
-                labelLine={false}
-                innerRadius={50}
-                outerRadius={80}
-                fill="#8884d8"
-                dataKey="value"
-                activeIndex={activeIndex}
-                activeShape={renderActiveShape}
-                onMouseEnter={(_, index) => setActiveIndex(index)}
-                onMouseLeave={() => setActiveIndex(undefined)}
-                paddingAngle={4}
-                cornerRadius={8}
-                style={{ 
-                  cursor: 'pointer',
-                  transition: 'all 0.6s cubic-bezier(0.4, 0, 0.2, 1)'
-                }}
-              >
-                {chartData.map((entry, index) => (
-                  <Cell 
-                    key={`cell-${index}`} 
-                    fill={entry.color}
-                  />
-                ))}
-              </Pie>
-              <Tooltip content={<CustomTooltip />} />
-            </PieChart>
-          </ResponsiveContainer>
-          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
-            <div className="text-center">
-              <p className="text-xs text-muted-foreground mb-1">Total WEs</p>
-              <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <Separator className="mb-3" />
+      {/* Status Distribution */}
+      <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
 
       {/* Status List with Percentages */}
       <div className="mb-3 max-h-32 overflow-y-auto space-y-1.5">
