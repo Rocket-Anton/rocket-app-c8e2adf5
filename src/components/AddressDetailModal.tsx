@@ -611,6 +611,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent 
+                            container={modalContentRef.current}
                             side="bottom" 
                             avoidCollisions={false} 
                             className="bg-background z-[10000] overflow-y-auto"
