@@ -1257,7 +1257,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                 <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
                               </SelectTrigger>
-                              <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                <SelectContent side="bottom" className="bg-background z-[10000] max-h-[40vh] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                 <SelectItem value="alle">Alle</SelectItem>
                                 {availableHouseNumbers.map((num) => (
                                   <SelectItem key={num} value={num}>
@@ -1808,7 +1808,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                 <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
                                   <SelectValue placeholder={streetFilter ? "Hausnummer wählen" : "Erst Straße wählen"} />
                                 </SelectTrigger>
-                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
+                                <SelectContent side="bottom" className="bg-background z-[10000] max-h-[40vh] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                   <SelectItem value="alle">Alle</SelectItem>
                                   {availableHouseNumbers.map((num) => (
                                     <SelectItem key={num} value={num}>
