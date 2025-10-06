@@ -815,7 +815,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                     </SheetTrigger>
                     <SheetContent ref={mobileSheetRef} side="bottom" className="h-[85vh] flex flex-col p-0">
                        <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
-                         <div className="flex items-center justify-start gap-32">
+                         <div className="flex items-center justify-start gap-4">
                            <div className="flex items-center gap-2">
                              <SheetTitle>Filter</SheetTitle>
                              {(() => {
@@ -855,7 +855,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                               }}
                                className="h-8 text-xs"
                              >
-                               <X className="w-3 h-3 mr-2" />
+                               <X className="w-3 h-3 mr-0.5" />
                                Zurücksetzen
                              </Button>
                           )}
@@ -1411,11 +1411,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                setDateFilterType("quick");
                                setDateFilterMode("");
                             }}
-                             className="h-8 text-xs"
-                           >
-                             <X className="w-3 h-3 mr-2" />
-                             Zurücksetzen
-                           </Button>
+                              className="h-8 text-xs"
+                            >
+                              <X className="w-3 h-3 mr-0.5" />
+                              Zurücksetzen
+                            </Button>
                         )}
                       </div>
 
