@@ -144,10 +144,6 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
                   borderRadius: '6px'
                 }}
               />
-              <Legend 
-                wrapperStyle={{ fontSize: '12px' }}
-                iconSize={8}
-              />
             </PieChart>
           </ResponsiveContainer>
           <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
