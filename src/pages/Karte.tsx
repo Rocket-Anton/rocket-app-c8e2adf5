@@ -3,6 +3,7 @@ import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
+import { Pentagon } from "lucide-react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -122,8 +123,8 @@ export default function Karte() {
   const mapInstance = useRef<L.Map | null>(null);
   const markersRef = useRef<L.Marker[]>([]);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const drawControlRef = useRef<L.Control.Draw | null>(null);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
+  const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
 
   // Function to create marker icon based on zoom level
   const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
@@ -202,29 +203,17 @@ export default function Karte() {
     map.addLayer(drawnItems);
     drawnItemsRef.current = drawnItems;
 
-    // Add polygon drawing control
-    const drawControl = new L.Control.Draw({
-      position: 'topright',
-      draw: {
-        polygon: {
-          allowIntersection: false,
-          shapeOptions: {
-            color: '#3b82f6',
-            fillOpacity: 0.2,
-          }
-        },
-        polyline: false,
-        rectangle: false,
-        circle: false,
-        marker: false,
-        circlemarker: false,
+    // Initialize polygon drawer
+    const polygonDrawer = new L.Draw.Polygon(map, {
+      allowIntersection: false,
+      shapeOptions: {
+        color: '#3b82f6',
+        fillOpacity: 0.2,
+        weight: 2,
       },
-      edit: {
-        featureGroup: drawnItems,
-        remove: true,
-      }
+      showArea: true,
     });
-    drawControlRef.current = drawControl;
+    polygonDrawerRef.current = polygonDrawer;
 
     // Handle polygon drawing complete
     map.on(L.Draw.Event.CREATED, (event: any) => {
@@ -320,14 +309,17 @@ export default function Karte() {
 
   // Toggle drawing mode
   const toggleDrawingMode = () => {
-    if (!mapInstance.current || !drawControlRef.current) return;
+    if (!polygonDrawerRef.current) return;
     
     if (isDrawingMode) {
-      mapInstance.current.removeControl(drawControlRef.current);
+      // Disable drawing mode
+      polygonDrawerRef.current.disable();
+      setIsDrawingMode(false);
     } else {
-      mapInstance.current.addControl(drawControlRef.current);
+      // Enable drawing mode - this will allow clicking on the map to draw
+      polygonDrawerRef.current.enable();
+      setIsDrawingMode(true);
     }
-    setIsDrawingMode(!isDrawingMode);
   };
 
   // Helper function to check if a point is inside a polygon
@@ -366,9 +358,10 @@ export default function Karte() {
                 onClick={toggleDrawingMode}
                 variant={isDrawingMode ? "default" : "outline"}
                 className="absolute top-8 right-8 z-[1000] shadow-lg"
-                size="sm"
+                size="icon"
+                title={isDrawingMode ? "Zeichnen beenden" : "Polygon zeichnen"}
               >
-                {isDrawingMode ? "Zeichnen beenden" : "Polygon zeichnen"}
+                <Pentagon className="h-4 w-4" />
               </Button>
             </div>
           </div>
