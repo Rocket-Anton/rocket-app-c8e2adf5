@@ -203,15 +203,35 @@ export default function Karte() {
     map.addLayer(drawnItems);
     drawnItemsRef.current = drawnItems;
 
-    // Initialize polygon drawer
+    // Initialize polygon drawer with proper options
     const polygonDrawer = new L.Draw.Polygon(map, {
       allowIntersection: false,
+      drawError: {
+        color: '#e74c3c',
+        message: '<strong>Fehler:</strong> Die Form darf sich nicht überschneiden!',
+      },
       shapeOptions: {
         color: '#3b82f6',
+        fillColor: '#3b82f6',
         fillOpacity: 0.2,
-        weight: 2,
+        weight: 3,
+        opacity: 0.8,
       },
       showArea: true,
+      showLength: true,
+      metric: true,
+      repeatMode: false,
+      icon: new L.DivIcon({
+        iconSize: new L.Point(8, 8),
+        className: 'leaflet-div-icon leaflet-editing-icon',
+      }),
+      touchIcon: new L.DivIcon({
+        iconSize: new L.Point(20, 20),
+        className: 'leaflet-div-icon leaflet-editing-icon leaflet-touch-icon',
+      }),
+      guidelineDistance: 20,
+      maxGuideLineLength: 4000,
+      zIndexOffset: 2000,
     });
     polygonDrawerRef.current = polygonDrawer;
 
