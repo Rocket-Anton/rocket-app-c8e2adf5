@@ -394,26 +394,6 @@ export default function Karte() {
                   variant="outline"
                   className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0"
                   size="icon"
-                  title="Zoom In"
-                  onClick={() => mapInstance.current?.zoomIn()}
-                >
-                  <Plus className="h-3 w-3" />
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0"
-                  size="icon"
-                  title="Zoom Out"
-                  onClick={() => mapInstance.current?.zoomOut()}
-                >
-                  <Minus className="h-3 w-3" />
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0"
-                  size="icon"
                   title="Filter"
                 >
                   <Filter className="h-3 w-3" />
