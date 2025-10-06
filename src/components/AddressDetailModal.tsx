@@ -48,6 +48,7 @@ interface Address {
   houseNumber: string;
   postalCode: string;
   city: string;
+  coordinates?: [number, number];
   units?: { id: number; floor: string; position: string; status: string }[];
   filteredUnits?: { id: number; floor: string; position: string; status: string }[];
 }
@@ -186,7 +187,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const unitCardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const currentAddressCoordsRef = useRef<[number, number]>([10.0310, 47.5580]); // Koordinaten für Lindenau
 
   // Memoize current address for map to prevent unnecessary re-renders
   const mapCurrentAddress = useMemo(() => ({
@@ -194,8 +194,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     houseNumber: currentAddress.houseNumber,
     postalCode: currentAddress.postalCode,
     city: currentAddress.city,
-    coordinates: currentAddressCoordsRef.current
-  }), [currentAddress.street, currentAddress.houseNumber, currentAddress.postalCode, currentAddress.city]);
+    coordinates: currentAddress.coordinates || [6.9603, 50.9375] as [number, number] // Default to Köln
+  }), [currentAddress.street, currentAddress.houseNumber, currentAddress.postalCode, currentAddress.city, currentAddress.coordinates]);
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {

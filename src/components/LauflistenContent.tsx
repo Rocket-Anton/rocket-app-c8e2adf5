@@ -53,6 +53,7 @@ const mockAddresses = [
     houseNumber: "1", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9603, 50.9375] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Links", status: "offen" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -64,6 +65,7 @@ const mockAddresses = [
     houseNumber: "2", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9608, 50.9378] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
       { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
@@ -75,6 +77,7 @@ const mockAddresses = [
     houseNumber: "4", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9613, 50.9381] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
       { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
@@ -86,6 +89,7 @@ const mockAddresses = [
     houseNumber: "5", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9618, 50.9384] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Mitte", status: "offen" },
     ]
@@ -96,6 +100,7 @@ const mockAddresses = [
     houseNumber: "7", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9623, 50.9387] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Links", status: "potenzial" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -108,6 +113,7 @@ const mockAddresses = [
     houseNumber: "9", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9628, 50.9390] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
     ]
@@ -118,6 +124,7 @@ const mockAddresses = [
     houseNumber: "11", 
     postalCode: "51107", 
     city: "Köln",
+    coordinates: [6.9633, 50.9393] as [number, number],
     units: [
       { id: 1, floor: "EG", position: "Links", status: "termin" },
       { id: 2, floor: "1. OG", position: "Links", status: "neukunde" },
