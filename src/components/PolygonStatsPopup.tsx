@@ -120,34 +120,43 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       {/* Status Distribution Pie Chart */}
       <div className="mb-2">
         <h4 className="text-sm font-semibold text-foreground mb-2">Status-Verteilung</h4>
-        <ResponsiveContainer width="100%" height={180}>
-          <PieChart>
-            <Pie
-              data={chartData}
-              cx="50%"
-              cy="50%"
-              labelLine={false}
-              outerRadius={60}
-              fill="#8884d8"
-              dataKey="value"
-            >
-              {chartData.map((entry, index) => (
-                <Cell key={`cell-${index}`} fill={entry.color} />
-              ))}
-            </Pie>
-            <Tooltip 
-              contentStyle={{ 
-                backgroundColor: 'hsl(var(--background))', 
-                border: '1px solid hsl(var(--border))',
-                borderRadius: '6px'
-              }}
-            />
-            <Legend 
-              wrapperStyle={{ fontSize: '12px' }}
-              iconSize={8}
-            />
-          </PieChart>
-        </ResponsiveContainer>
+        <div className="relative">
+          <ResponsiveContainer width="100%" height={180}>
+            <PieChart>
+              <Pie
+                data={chartData}
+                cx="50%"
+                cy="50%"
+                labelLine={false}
+                innerRadius={45}
+                outerRadius={60}
+                fill="#8884d8"
+                dataKey="value"
+              >
+                {chartData.map((entry, index) => (
+                  <Cell key={`cell-${index}`} fill={entry.color} />
+                ))}
+              </Pie>
+              <Tooltip 
+                contentStyle={{ 
+                  backgroundColor: 'hsl(var(--background))', 
+                  border: '1px solid hsl(var(--border))',
+                  borderRadius: '6px'
+                }}
+              />
+              <Legend 
+                wrapperStyle={{ fontSize: '12px' }}
+                iconSize={8}
+              />
+            </PieChart>
+          </ResponsiveContainer>
+          <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
+            <div className="text-center">
+              <p className="text-xs text-muted-foreground">WE</p>
+              <p className="text-2xl font-bold text-foreground">{totalUnits}</p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Separator className="mb-2" />
