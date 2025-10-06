@@ -106,14 +106,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     onOpenChange(open);
   };
   
-  // Guard: If no address is available, don't render
-  if (!currentAddress) {
-    return null;
-  }
-  
   // Use filteredUnits if available (from status filter), otherwise use all units
   // ALWAYS filter out deleted units
-  const allUnits = currentAddress.filteredUnits || currentAddress.units || [];
+  const allUnits = currentAddress?.filteredUnits || currentAddress?.units || [];
   const displayUnits = allUnits.filter(unit => !unit.deleted);
   const wohneinheiten = displayUnits.length;
   
@@ -1445,6 +1440,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </div>
     );
   };
+
+  // Guard: If no address is available, don't render
+  if (!currentAddress) {
+    return null;
+  }
 
   // Desktop or no carousel mode - REMOVED: Now we always use carousel when there are multiple addresses
   if (allAddresses.length <= 1) {
