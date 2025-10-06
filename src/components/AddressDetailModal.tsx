@@ -7,7 +7,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
 import confetti from 'canvas-confetti';
-import { RocketAnimation } from "./RocketAnimation";
+import { Rocket3D } from "./Rocket3D";
 import {
   Dialog,
   DialogContent,
@@ -1770,7 +1770,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
         
-        <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
+        <Rocket3D show={showRocket} onComplete={() => setShowRocket(false)} />
       </>
     );
   }
@@ -2472,7 +2472,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
         
-        <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
+        <Rocket3D show={showRocket} onComplete={() => setShowRocket(false)} />
       </>
     );
   }
@@ -3186,7 +3186,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </DialogContent>
       </Dialog>
       
-      <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
+      <Rocket3D show={showRocket} onComplete={() => setShowRocket(false)} />
     </>
   );
 };
