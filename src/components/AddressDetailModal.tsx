@@ -1150,29 +1150,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <AlertDialogHeader>
               <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
               <AlertDialogDescription>
-                Bitte wählen Sie einen Grund aus:
+                Bitte wähle einen Grund aus:
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="space-y-3">
-              {["Zu alt", "Kein Besuch mehr erwünscht", "Ziehen bald weg", "Anderer Grund"].map((reason) => (
-                <label key={reason} className="flex items-center gap-3 cursor-pointer p-3 border rounded-md hover:bg-muted/50">
-                  <input
-                    type="radio"
-                    name="keinInteresseReason"
-                    value={reason}
-                    checked={keinInteresseReason === reason}
-                    onChange={(e) => setKeinInteresseReason(e.target.value)}
-                    className="w-4 h-4"
-                  />
-                  <span className="text-sm">{reason}</span>
-                </label>
-              ))}
+              <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Grund auswählen..." />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Zu alt">Zu alt</SelectItem>
+                  <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
+                  <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
+                  <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
+                </SelectContent>
+              </Select>
               {keinInteresseReason === "Anderer Grund" && (
                 <Textarea
                   placeholder="Grund eingeben..."
                   value={keinInteresseCustomText}
                   onChange={(e) => setKeinInteresseCustomText(e.target.value)}
-                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 mt-3"
+                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                 />
               )}
             </div>
@@ -1200,7 +1198,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <AlertDialogHeader>
               <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
               <AlertDialogDescription>
-                Wie schätzen Sie das Potenzial ein?
+                Wie schätzt du das Potenzial ein?
               </AlertDialogDescription>
             </AlertDialogHeader>
             <div className="flex justify-center gap-2 py-6">
