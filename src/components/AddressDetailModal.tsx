@@ -913,24 +913,24 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <div className="mb-2 flex items-start justify-between">
-                      <div>
-                        <h3 className="font-semibold text-base inline">Wohneinheit {index + 1}</h3>
+                    <div className="mb-2">
+                      <div className="flex items-center justify-between">
+                        <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
                         {unit.addedBy && unit.addedAt && (
-                          <span className="text-xs text-muted-foreground ml-2">
-                            Hinzugefügt: {unit.addedBy}, {unit.addedAt}
-                          </span>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                            onClick={() => handleDeleteUnitClick(addr.id, unit.id)}
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
                         )}
                       </div>
                       {unit.addedBy && unit.addedAt && (
-                        <Button
-                          variant="ghost"
-                          size="icon"
-                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                          onClick={() => handleDeleteUnitClick(addr.id, unit.id)}
-                        >
-                          <Trash2 className="h-4 w-4" />
-                        </Button>
+                        <div className="text-xs text-muted-foreground mt-1">
+                          Hinzugefügt: {unit.addedBy}, {unit.addedAt}
+                        </div>
                       )}
                     </div>
                   )}
