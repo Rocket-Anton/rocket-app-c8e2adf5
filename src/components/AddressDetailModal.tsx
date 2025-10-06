@@ -383,8 +383,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [modalRef]);
 
     useLayoutEffect(() => {
+      // Initial update + additional delayed update for first render
+      update();
       let r1 = 0, r2 = 0;
-      r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(update); });
+      r1 = requestAnimationFrame(() => { 
+        r2 = requestAnimationFrame(() => {
+          update();
+        }); 
+      });
 
       const onScroll = () => update();
       window.addEventListener("resize", update);
