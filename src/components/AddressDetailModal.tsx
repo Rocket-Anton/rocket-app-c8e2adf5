@@ -713,12 +713,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               )}
                             </Button>
                           </PopoverTrigger>
-                          <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
+                           <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
                             <BoundedPopoverContent
                               modalRef={modalContentRef}
                               align="end"
                               sideOffset={8}
-                              className="w-64 p-0 z-[1200] overflow-hidden rounded-md border bg-popover shadow-xl"
+                              className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
                             >
                                <div
                                  className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
@@ -1041,6 +1041,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <>
         <Dialog open={open} onOpenChange={handleDialogChange}>
           <DialogContent 
+            ref={modalContentRef}
             hideClose 
             className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh]"
           >
