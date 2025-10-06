@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon, Star } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
@@ -117,6 +117,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [addUnitsDialogOpen, setAddUnitsDialogOpen] = useState(false);
   const [addUnitsCount, setAddUnitsCount] = useState<number>(1);
   const [pendingAddressId, setPendingAddressId] = useState<number | null>(null);
+  
+  // Delete Unit Dialog States
+  const [deleteUnitDialogOpen, setDeleteUnitDialogOpen] = useState(false);
+  const [pendingDeleteUnit, setPendingDeleteUnit] = useState<{addressId: number, unitId: number} | null>(null);
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
@@ -783,6 +787,53 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setAddUnitsCount(1);
   };
 
+  const handleDeleteUnitClick = (addressId: number, unitId: number) => {
+    setPendingDeleteUnit({ addressId, unitId });
+    setDeleteUnitDialogOpen(true);
+  };
+
+  const confirmDeleteUnit = () => {
+    if (!pendingDeleteUnit) return;
+
+    const { addressId, unitId } = pendingDeleteUnit;
+    const targetAddress = allAddresses.length > 0 
+      ? allAddresses.find(addr => addr.id === addressId) 
+      : (currentAddress.id === addressId ? currentAddress : null);
+    
+    if (!targetAddress || !targetAddress.units) return;
+
+    // Remove the unit from the address
+    targetAddress.units = targetAddress.units.filter(u => u.id !== unitId);
+
+    // Clean up status and history
+    const k = `${addressId}:${unitId}`;
+    setUnitStatuses(prev => {
+      const newStatuses = { ...prev };
+      delete newStatuses[k];
+      return newStatuses;
+    });
+    setLastUpdated(prev => {
+      const newUpdated = { ...prev };
+      delete newUpdated[k];
+      return newUpdated;
+    });
+    setStatusHistories(prev => {
+      const newHistories = { ...prev };
+      delete newHistories[k];
+      return newHistories;
+    });
+
+    toast({
+      title: "✓ Wohneinheit gelöscht",
+      className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 1000,
+    });
+
+    // Close dialog and reset
+    setDeleteUnitDialogOpen(false);
+    setPendingDeleteUnit(null);
+  };
+
   const handleAddAppointment = (unitId: number) => {
     setPendingAppointmentUnitId(unitId);
     // Set map to show appointments for selected date when dialog opens
@@ -862,12 +913,24 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <div className="mb-2">
-                      <h3 className="font-semibold text-base inline">Wohneinheit {index + 1}</h3>
+                    <div className="mb-2 flex items-start justify-between">
+                      <div>
+                        <h3 className="font-semibold text-base inline">Wohneinheit {index + 1}</h3>
+                        {unit.addedBy && unit.addedAt && (
+                          <span className="text-xs text-muted-foreground ml-2">
+                            Hinzugefügt: {unit.addedBy}, {unit.addedAt}
+                          </span>
+                        )}
+                      </div>
                       {unit.addedBy && unit.addedAt && (
-                        <span className="text-xs text-muted-foreground ml-2">
-                          Hinzugefügt: {unit.addedBy}, {unit.addedAt}
-                        </span>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
+                          onClick={() => handleDeleteUnitClick(addr.id, unit.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
                       )}
                     </div>
                   )}
@@ -1387,6 +1450,29 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Hinzufügen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Unit Dialog */}
+        <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Diese Wohneinheit löschen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDeleteUnit}
+                className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              >
+                Löschen
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -1976,6 +2062,29 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Hinzufügen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Delete Unit Dialog (Mobile) */}
+        <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Diese Wohneinheit löschen?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmDeleteUnit}
+                className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+              >
+                Löschen
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
@@ -2575,6 +2684,29 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
             >
               Hinzufügen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      {/* Delete Unit Dialog (Desktop Carousel) */}
+      <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
+            <AlertDialogDescription>
+              Diese Wohneinheit löschen?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteUnit}
+              className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
+            >
+              Löschen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
