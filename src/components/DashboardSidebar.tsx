@@ -129,7 +129,7 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="ml-5 animate-accordion-down mt-1">
+                  <div className="ml-5 mt-1">
                     <div className="space-y-2">
                       {/* ITEM: Liste */}
                       <SidebarMenuItem
