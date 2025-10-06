@@ -173,18 +173,16 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
           return (
             <div 
               key={index} 
-              className="flex items-center justify-between text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
+              className="flex items-center gap-2 text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
               onMouseEnter={() => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(undefined)}
             >
-              <div className="flex items-center gap-2">
-                <div
-                  className="w-3 h-3 rounded-full flex-shrink-0"
-                  style={{ backgroundColor: item.color }}
-                />
-                <span className="text-foreground">{item.name}</span>
-              </div>
-              <span className="font-semibold text-foreground">{item.value} • {percentage}%</span>
+              <div
+                className="w-3 h-3 rounded-full flex-shrink-0"
+                style={{ backgroundColor: item.color }}
+              />
+              <span className="text-foreground">{item.name}</span>
+              <span className="font-semibold text-foreground">{item.value} {percentage}%</span>
             </div>
           );
         })}
