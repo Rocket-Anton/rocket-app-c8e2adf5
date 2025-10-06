@@ -389,6 +389,10 @@ export default function Karte() {
             onClose={() => {
               setShowStatsPopup(false);
               setSelectedAddresses([]);
+              // Remove all drawn polygons
+              if (drawnItemsRef.current) {
+                drawnItemsRef.current.clearLayers();
+              }
             }}
             onCreateList={() => {
               toast.success("Laufliste wird erstellt...");
