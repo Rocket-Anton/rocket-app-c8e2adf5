@@ -527,58 +527,47 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (pendingStatusUpdate === null) return;
     
     const currentStatus = unitStatuses[pendingStatusUpdate] || "offen";
+    
+    // Wenn Status "potenzial" ist, Bewertungs-Dialog öffnen für Neubewertung
+    if (currentStatus === "potenzial") {
+      const [addressIdStr, unitIdStr] = pendingStatusUpdate.split(':');
+      const addressId = parseInt(addressIdStr);
+      const unitId = parseInt(unitIdStr);
+      
+      setConfirmStatusUpdateOpen(false);
+      setPendingStatusUpdate(null);
+      
+      // Bewertungs-Dialog öffnen
+      setPendingPotenzial({ addressId, unitId });
+      setPotenzialRating(0); // Reset rating
+      setPotenzialDialogOpen(true);
+      return;
+    }
+    
+    // Normales Status-Update für andere Status
+    const statusLabel = statusOptions.find(s => s.value === currentStatus)?.label || currentStatus;
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     
-    // Wenn Status "potenzial" ist, zurück auf "offen" setzen für Neubewertung
-    if (currentStatus === "potenzial") {
-      setUnitStatuses(prev => ({ ...prev, [pendingStatusUpdate]: "offen" }));
-      
-      setLastUpdated(prev => ({ ...prev, [pendingStatusUpdate]: timestamp }));
-      
-      setStatusHistories(prev => ({
-        ...prev,
-        [pendingStatusUpdate]: [
-          {
-            id: Date.now(),
-            status: "Offen (Neubewertung erforderlich)",
-            changedBy: "Abdullah Kater",
-            changedAt: timestamp
-          },
-          ...(prev[pendingStatusUpdate] || [])
-        ]
-      }));
+    setLastUpdated(prev => ({ ...prev, [pendingStatusUpdate]: timestamp }));
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [pendingStatusUpdate]: [
+        {
+          id: Date.now(),
+          status: statusLabel,
+          changedBy: "Abdullah Kater",
+          changedAt: timestamp
+        },
+        ...(prev[pendingStatusUpdate] || [])
+      ]
+    }));
 
-      toast({
-        title: "✓ Neubewertung erforderlich",
-        description: "Status wurde auf 'Offen' zurückgesetzt",
-        className: "bg-blue-400 text-white border-0 w-auto max-w-[300px] p-3 py-2",
-        duration: 2000,
-      });
-    } else {
-      // Normales Status-Update für andere Status
-      const statusLabel = statusOptions.find(s => s.value === currentStatus)?.label || currentStatus;
-      
-      setLastUpdated(prev => ({ ...prev, [pendingStatusUpdate]: timestamp }));
-      
-      setStatusHistories(prev => ({
-        ...prev,
-        [pendingStatusUpdate]: [
-          {
-            id: Date.now(),
-            status: statusLabel,
-            changedBy: "Abdullah Kater",
-            changedAt: timestamp
-          },
-          ...(prev[pendingStatusUpdate] || [])
-        ]
-      }));
-
-      toast({
-        title: "✓ Status aktualisiert",
-        className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
-        duration: 1000,
-      });
-    }
+    toast({
+      title: "✓ Status aktualisiert",
+      className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 1000,
+    });
     
     setConfirmStatusUpdateOpen(false);
     setPendingStatusUpdate(null);
