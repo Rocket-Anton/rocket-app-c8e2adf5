@@ -49,10 +49,10 @@ import rocketLogoWhite from "@/assets/rocket-logo-white.png";
 const mockAddresses = [
   { 
     id: 1, 
-    street: "Alt-Lindenau", 
-    houseNumber: "7", 
-    postalCode: "88175", 
-    city: "Lindenau",
+    street: "Am Alten Turm", 
+    houseNumber: "1", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Links", status: "offen" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -60,10 +60,10 @@ const mockAddresses = [
   },
   { 
     id: 2, 
-    street: "Alt-Lindenau", 
-    houseNumber: "9", 
-    postalCode: "88175", 
-    city: "Lindenau",
+    street: "Am Alten Turm", 
+    houseNumber: "2", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
       { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
@@ -71,10 +71,10 @@ const mockAddresses = [
   },
   { 
     id: 3, 
-    street: "Hauptstraße", 
-    houseNumber: "12", 
-    postalCode: "88175", 
-    city: "Lindenau",
+    street: "Am Alten Turm", 
+    houseNumber: "4", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
       { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
@@ -82,20 +82,20 @@ const mockAddresses = [
   },
   { 
     id: 4, 
-    street: "Hauptstraße", 
-    houseNumber: "14", 
-    postalCode: "88175", 
-    city: "Lindenau",
+    street: "Am Alten Turm", 
+    houseNumber: "5", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Mitte", status: "offen" },
     ]
   },
   { 
     id: 5, 
-    street: "Bahnhofstraße", 
-    houseNumber: "3", 
-    postalCode: "88176", 
-    city: "Scheidegg",
+    street: "Am Alten Turm", 
+    houseNumber: "7", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Links", status: "potenzial" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -104,34 +104,23 @@ const mockAddresses = [
   },
   { 
     id: 6, 
-    street: "Bahnhofstraße", 
-    houseNumber: "5", 
-    postalCode: "88176", 
-    city: "Scheidegg",
+    street: "Am Alten Turm", 
+    houseNumber: "9", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
     ]
   },
   { 
     id: 7, 
-    street: "Bergstraße", 
-    houseNumber: "21", 
-    postalCode: "88177", 
-    city: "Westallgäu",
+    street: "Am Alten Turm", 
+    houseNumber: "11", 
+    postalCode: "51107", 
+    city: "Köln",
     units: [
       { id: 1, floor: "EG", position: "Links", status: "termin" },
-      { id: 2, floor: "1. OG", position: "Links", status: "nicht-vorhanden" },
-    ]
-  },
-  { 
-    id: 8, 
-    street: "Bergstraße", 
-    houseNumber: "23", 
-    postalCode: "88177", 
-    city: "Westallgäu",
-    units: [
-      { id: 1, floor: "EG", position: "Mitte", status: "neukunde" },
-      { id: 2, floor: "1. OG", position: "Mitte", status: "bestandskunde" },
+      { id: 2, floor: "1. OG", position: "Links", status: "neukunde" },
     ]
   },
 ];

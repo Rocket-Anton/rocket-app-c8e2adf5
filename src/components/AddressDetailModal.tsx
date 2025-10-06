@@ -125,7 +125,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
   const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
-    // Dummy-Termine in Alt-Lindenau
+    // Dummy-Termine in Köln
     {
       id: 1,
       unitId: 1,
@@ -133,8 +133,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "10:00",
       customer: "Max Mustermann",
       notes: "Erstbesichtigung",
-      address: "Alt-Lindenau 12, 88175 Lindenau",
-      coordinates: [10.0315, 47.5585]
+      address: "Am Alten Turm 1, 51107 Köln",
+      coordinates: [6.9603, 50.9375]
     },
     {
       id: 2,
@@ -143,8 +143,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "14:30",
       customer: "Anna Schmidt",
       notes: "Nachbesprechung",
-      address: "Alt-Lindenau 15, 88175 Lindenau",
-      coordinates: [10.0320, 47.5590]
+      address: "Am Alten Turm 2, 51107 Köln",
+      coordinates: [6.9608, 50.9378]
     },
     {
       id: 3,
@@ -153,8 +153,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "09:00",
       customer: "Peter Müller",
       notes: "",
-      address: "Alt-Lindenau 20, 88175 Lindenau",
-      coordinates: [10.0325, 47.5595]
+      address: "Am Alten Turm 4, 51107 Köln",
+      coordinates: [6.9613, 50.9381]
     },
     {
       id: 4,
@@ -163,8 +163,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       time: "16:00",
       customer: "Lisa Weber",
       notes: "Vertragsübergabe",
-      address: "Alt-Lindenau 25, 88175 Lindenau",
-      coordinates: [10.0330, 47.5600]
+      address: "Am Alten Turm 5, 51107 Köln",
+      coordinates: [6.9618, 50.9384]
     }
   ]);
   const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([
