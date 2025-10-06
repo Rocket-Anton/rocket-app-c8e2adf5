@@ -873,11 +873,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                    role="combobox"
                                    className="w-full justify-start h-9 bg-background font-normal pr-16 focus-visible:ring-0 focus-visible:border-gray-400"
                                  >
-                                   <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
-                                     {statusFilter.length > 0
-                                       ? `${statusFilter.length} ausgewählt`
-                                       : "Status wählen"}
-                                   </span>
+                                    <span className={cn(
+                                      "text-sm",
+                                      statusFilter.length === 0 ? "text-muted-foreground" : ""
+                                    )}>
+                                      {statusFilter.length > 0
+                                        ? `${statusFilter.length} ausgewählt`
+                                        : "Status wählen"}
+                                    </span>
                                 </Button>
                               </PopoverTrigger>
                               <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1 pointer-events-none">
@@ -957,11 +960,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            <div className="relative">
                              <Select value={sortierung} onValueChange={setSortierung}>
                                <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                                 <SelectValue>
-                                   <span className={sortierung === "alle" ? "text-muted-foreground" : ""}>
-                                     {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
-                                   </span>
-                                 </SelectValue>
+                                  <SelectValue>
+                                    <span className={cn(
+                                      "text-sm",
+                                      sortierung === "alle" ? "text-muted-foreground" : ""
+                                    )}>
+                                      {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
+                                    </span>
+                                  </SelectValue>
                                </SelectTrigger>
                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                  <SelectItem value="alle">Alle</SelectItem>
@@ -1412,11 +1418,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                    role="combobox"
                                    className="w-full justify-start h-9 bg-background font-normal pr-16 focus-visible:ring-0 focus-visible:border-gray-400"
                                  >
-                                   <span className={statusFilter.length === 0 ? "text-muted-foreground" : ""}>
-                                     {statusFilter.length > 0
-                                       ? `${statusFilter.length} ausgewählt`
-                                       : "Status wählen"}
-                                   </span>
+                                    <span className={cn(
+                                      "text-sm",
+                                      statusFilter.length === 0 ? "text-muted-foreground" : ""
+                                    )}>
+                                      {statusFilter.length > 0
+                                        ? `${statusFilter.length} ausgewählt`
+                                        : "Status wählen"}
+                                    </span>
                                   </Button>
                                 </PopoverTrigger>
                                 <div className="absolute inset-y-0 right-0 flex items-center pr-3 gap-1 pointer-events-none">
@@ -1501,11 +1510,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                              <div className="relative">
                                <Select value={sortierung} onValueChange={setSortierung}>
                                  <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                                   <SelectValue>
-                                     <span className={sortierung === "alle" ? "text-muted-foreground" : ""}>
-                                       {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
-                                     </span>
-                                   </SelectValue>
+                                    <SelectValue>
+                                      <span className={cn(
+                                        "text-sm",
+                                        sortierung === "alle" ? "text-muted-foreground" : ""
+                                      )}>
+                                        {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
+                                      </span>
+                                    </SelectValue>
                                  </SelectTrigger>
                                  <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                    <SelectItem value="alle">Alle</SelectItem>
