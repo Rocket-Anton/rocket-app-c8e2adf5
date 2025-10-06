@@ -1130,6 +1130,20 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                           setDateFilterType("custom");
                                           setQuickDateOption("");
                                         }}
+                                        disabled={(date) => {
+                                          const today = new Date();
+                                          today.setHours(0, 0, 0, 0);
+                                          
+                                          if (dateFilterMode === "vor") {
+                                            // Bei "Vor": Keine zukünftigen Daten (maximal heute)
+                                            return date > today;
+                                          } else {
+                                            // Bei "Nach": Maximal gestern
+                                            const yesterday = new Date(today);
+                                            yesterday.setDate(yesterday.getDate() - 1);
+                                            return date > yesterday;
+                                          }
+                                        }}
                                         locale={de}
                                         weekStartsOn={1}
                                         initialFocus
