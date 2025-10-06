@@ -383,13 +383,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [modalRef]);
 
     useLayoutEffect(() => {
-      // Initial update + additional delayed update for first render
+      // Initial updates to ensure correct first open after popper positions
       update();
+      const t = setTimeout(() => update(), 0);
       let r1 = 0, r2 = 0;
-      r1 = requestAnimationFrame(() => { 
+      r1 = requestAnimationFrame(() => {
         r2 = requestAnimationFrame(() => {
           update();
-        }); 
+        });
       });
 
       const onScroll = () => update();
@@ -397,18 +398,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       window.addEventListener("scroll", onScroll, true);
 
       const el = contentRef.current;
-      const mo = el
-        ? new MutationObserver(() => update())
-        : undefined;
+      const mo = el ? new MutationObserver(() => update()) : undefined;
       if (el) mo!.observe(el, { attributes: true, attributeFilter: ["style", "data-state", "data-side"] });
 
+      // Observe size changes of the modal container and content
+      const modalEl = modalRef?.current ?? null;
+      const roModal = modalEl ? new ResizeObserver(() => update()) : undefined;
+      if (modalEl) roModal!.observe(modalEl);
+
+      const roContent = el ? new ResizeObserver(() => update()) : undefined;
+      if (el) roContent!.observe(el);
+
       return () => {
+        clearTimeout(t);
         cancelAnimationFrame(r1); cancelAnimationFrame(r2);
         window.removeEventListener("resize", update);
         window.removeEventListener("scroll", onScroll, true);
         mo?.disconnect();
+        roModal?.disconnect();
+        roContent?.disconnect();
       };
-    }, [update]);
+    }, [update, modalRef]);
 
     return (
       <SelectPrimitive.Portal container={modalRef?.current ?? undefined}>
