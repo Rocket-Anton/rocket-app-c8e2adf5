@@ -415,6 +415,20 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
 
   const metricsData = [
     {
+      title: "Aufträge heute",
+      value: orderCount.toString(),
+      icon: Users,
+      color: orderStyle.textColor,
+      bgColor: orderStyle.bgColor,
+      explanation: "Anzahl der heute gewonnenen Neukunden",
+      borderColor: orderStyle.borderColor,
+      shimmer: orderStyle.shimmer,
+      shimmerColor: orderStyle.shimmerColor,
+      emoji: orderStyle.emoji,
+      iconBg: orderStyle.iconBg,
+      isOrderCard: true
+    },
+    {
       title: "Potentiale",
       value: "127",
       icon: Target,
@@ -429,20 +443,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
       color: "text-green-600",
       bgColor: "bg-green-100",
       explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
-    },
-    {
-      title: "Aufträge heute",
-      value: orderCount.toString(),
-      icon: Users,
-      color: orderStyle.textColor,
-      bgColor: orderStyle.bgColor,
-      explanation: "Anzahl der heute gewonnenen Neukunden",
-      borderColor: orderStyle.borderColor,
-      shimmer: orderStyle.shimmer,
-      shimmerColor: orderStyle.shimmerColor,
-      emoji: orderStyle.emoji,
-      iconBg: orderStyle.iconBg,
-      isOrderCard: true
     }
   ];
 
