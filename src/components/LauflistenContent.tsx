@@ -954,9 +954,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                          <div className="space-y-1">
                            <label className="text-sm font-medium">Sortierung</label>
                            <div className="relative">
-                             <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
+                             <Select value={sortierung} onValueChange={setSortierung}>
                                <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                                 <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
+                                 <SelectValue>
+                                   <span className={sortierung === "alle" ? "text-muted-foreground" : ""}>
+                                     {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
+                                   </span>
+                                 </SelectValue>
                                </SelectTrigger>
                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                  <SelectItem value="alle">Alle</SelectItem>
@@ -1471,9 +1475,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            <div className="space-y-1">
                              <label className="text-sm font-medium">Sortierung</label>
                              <div className="relative">
-                               <Select value={sortierung} onValueChange={setSortierung} defaultValue="alle">
+                               <Select value={sortierung} onValueChange={setSortierung}>
                                  <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
-                                   <SelectValue placeholder="Sortierung wählen" className="text-muted-foreground" />
+                                   <SelectValue>
+                                     <span className={sortierung === "alle" ? "text-muted-foreground" : ""}>
+                                       {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
+                                     </span>
+                                   </SelectValue>
                                  </SelectTrigger>
                                  <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
                                    <SelectItem value="alle">Alle</SelectItem>
