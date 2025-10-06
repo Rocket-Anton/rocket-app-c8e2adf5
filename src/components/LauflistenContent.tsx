@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
+import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import SwipeDeck from "./swipe/SwipeDeck";
@@ -1638,61 +1639,101 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                )}
                              </div>
 
-                             {/* Date Picker Modal */}
-                             <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-                               <PopoverContent 
-                                 className="w-auto p-0 bg-background z-[10003]" 
-                                 align="center"
-                                 side="left"
-                                 sideOffset={100}
-                               >
-                                 <div className="p-4 space-y-3">
-                                   {/* Quick Select Buttons */}
-                                   <div className="space-y-2">
-                                     <div className="text-xs font-medium text-muted-foreground">Schnellauswahl:</div>
-                                     <div className="grid grid-cols-3 gap-2">
-                                       {[
-                                         { label: "7 Tage", value: "7", days: 7 },
-                                         { label: "14 Tage", value: "14", days: 14 },
-                                         { label: "30 Tage", value: "30", days: 30 },
-                                       ].map((option) => (
-                                         <Button
-                                           key={option.value}
-                                           type="button"
-                                           variant={quickDateOption === option.value ? "default" : "outline"}
-                                           size="sm"
-                                           className="h-9 text-xs bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
-                                           onClick={() => {
-                                             const date = new Date();
-                                             date.setDate(date.getDate() - option.days);
-                                             setLastModifiedDate(date);
-                                             setQuickDateOption(option.value);
-                                             setDateFilterType("quick");
-                                             setDatePickerOpen(false);
-                                           }}
-                                         >
-                                           {option.label}
-                                         </Button>
-                                       ))}
-                                     </div>
-                                   </div>
+                              {/* Date Picker Modal - Desktop (centered dialog) */}
+                              {dateFilterMode && (
+                                <Dialog open={datePickerOpen} onOpenChange={(open) => {
+                                  setDatePickerOpen(open);
+                                  if (!open && !lastModifiedDate && !quickDateOption) {
+                                    setDateFilterMode("");
+                                  }
+                                }}>
+                                  <DialogContent className="sm:max-w-md">
+                                    <div className="space-y-4">
+                                      {/* Quick Select Buttons - nur bei "Vor" */}
+                                      {dateFilterMode === "vor" && (
+                                        <div className="grid grid-cols-3 gap-2">
+                                          {[
+                                            { label: "7 Tage", value: "7", days: 7 },
+                                            { label: "14 Tage", value: "14", days: 14 },
+                                            { label: "30 Tage", value: "30", days: 30 },
+                                          ].map((option) => (
+                                            <Button
+                                              key={option.value}
+                                              type="button"
+                                              variant="outline"
+                                              size="sm"
+                                              className={cn(
+                                                "h-10 text-sm font-medium",
+                                                quickDateOption === option.value
+                                                  ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                                                  : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                                              )}
+                                              onClick={() => {
+                                                if (quickDateOption === option.value) {
+                                                  setLastModifiedDate(undefined);
+                                                  setQuickDateOption("");
+                                                  setDateFilterType("");
+                                                } else {
+                                                  const date = new Date();
+                                                  date.setDate(date.getDate() - option.days);
+                                                  setLastModifiedDate(date);
+                                                  setQuickDateOption(option.value);
+                                                  setDateFilterType("quick");
+                                                }
+                                              }}
+                                            >
+                                              {option.label}
+                                            </Button>
+                                          ))}
+                                        </div>
+                                      )}
 
-                                   {/* Calendar */}
-                                   <Calendar
-                                     mode="single"
-                                     selected={lastModifiedDate}
-                                     onSelect={(date) => {
-                                       setLastModifiedDate(date);
-                                       setDateFilterType("custom");
-                                       setQuickDateOption("");
-                                       setDatePickerOpen(false);
-                                     }}
-                                     initialFocus
-                                     className="pointer-events-auto rounded-md border"
-                                   />
-                                 </div>
-                               </PopoverContent>
-                             </Popover>
+                                      {/* Calendar */}
+                                      <div className="flex justify-center">
+                                        <Calendar
+                                          mode="single"
+                                          selected={lastModifiedDate}
+                                          onSelect={(date) => {
+                                            setLastModifiedDate(date);
+                                            setDateFilterType("custom");
+                                            setQuickDateOption("");
+                                          }}
+                                          disabled={(date) => {
+                                            const today = new Date();
+                                            today.setHours(0, 0, 0, 0);
+                                            
+                                            if (dateFilterMode === "vor") {
+                                              return date > today;
+                                            } else {
+                                              const yesterday = new Date(today);
+                                              yesterday.setDate(yesterday.getDate() - 1);
+                                              return date > yesterday;
+                                            }
+                                          }}
+                                          locale={de}
+                                          weekStartsOn={1}
+                                          initialFocus
+                                          className="pointer-events-auto rounded-md"
+                                        />
+                                      </div>
+
+                                      {/* Done Button */}
+                                      <Button
+                                        type="button"
+                                        className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl"
+                                        onClick={() => {
+                                          if (!lastModifiedDate && !quickDateOption) {
+                                            setDateFilterMode("");
+                                          }
+                                          setDatePickerOpen(false);
+                                        }}
+                                      >
+                                        Fertig
+                                      </Button>
+                                    </div>
+                                  </DialogContent>
+                                </Dialog>
+                              )}
 
                              {/* Info Text */}
                              {lastModifiedDate && dateFilterMode && (
