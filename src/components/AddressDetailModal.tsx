@@ -1095,6 +1095,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <SelectItem value="1. OG">1. OG</SelectItem>
                               <SelectItem value="2. OG">2. OG</SelectItem>
                               <SelectItem value="3. OG">3. OG</SelectItem>
+                              <SelectItem value="4. OG">4. OG</SelectItem>
+                              <SelectItem value="5. OG">5. OG</SelectItem>
+                              <SelectItem value="6. OG">6. OG</SelectItem>
+                              <SelectItem value="7. OG">7. OG</SelectItem>
+                              <SelectItem value="8. OG">8. OG</SelectItem>
                             </SelectContent>
                           </Select>
                         </div>
