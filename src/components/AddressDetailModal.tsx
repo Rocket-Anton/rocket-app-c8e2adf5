@@ -1118,10 +1118,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       )}
                     </div>
                   )}
-                {/* Gray Container for Fields - Green background if Neukunde */}
+                {/* Gray Container for Fields - Green background if Neukunde, Red if Kein Interesse */}
                     <div className={`rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full ${
                       unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
                         ? "bg-green-100 dark:bg-green-950/30" 
+                        : unitStatuses[`${addr.id}:${unit.id}`] === "kein-interesse"
+                        ? "bg-red-100 dark:bg-red-950/30"
                         : "bg-muted/70"
                     }`}>
                     {unitCount > 1 ? (
