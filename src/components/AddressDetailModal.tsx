@@ -236,12 +236,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   // Memoize current address for map to prevent unnecessary re-renders
   const mapCurrentAddress = useMemo(() => ({
-    street: currentAddress.street,
-    houseNumber: currentAddress.houseNumber,
-    postalCode: currentAddress.postalCode,
-    city: currentAddress.city,
-    coordinates: currentAddress.coordinates || [6.9603, 50.9375] as [number, number] // Default to Köln
-  }), [currentAddress.street, currentAddress.houseNumber, currentAddress.postalCode, currentAddress.city, currentAddress.coordinates]);
+    street: currentAddress?.street || '',
+    houseNumber: currentAddress?.houseNumber || '',
+    postalCode: currentAddress?.postalCode || '',
+    city: currentAddress?.city || '',
+    coordinates: currentAddress?.coordinates || [6.9603, 50.9375] as [number, number] // Default to Köln
+  }), [currentAddress?.street, currentAddress?.houseNumber, currentAddress?.postalCode, currentAddress?.city, currentAddress?.coordinates]);
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -783,7 +783,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     const targetAddress = allAddresses.length > 0 
       ? allAddresses.find(addr => addr.id === pendingAddressId) 
-      : (currentAddress.id === pendingAddressId ? currentAddress : null);
+      : (currentAddress?.id === pendingAddressId ? currentAddress : null);
     
     if (!targetAddress) return;
     
@@ -836,7 +836,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const { addressId, unitId } = pendingDeleteUnit;
     const targetAddress = allAddresses.length > 0 
       ? allAddresses.find(addr => addr.id === addressId) 
-      : (currentAddress.id === addressId ? currentAddress : null);
+      : (currentAddress?.id === addressId ? currentAddress : null);
     
     if (!targetAddress || !targetAddress.units) return;
 
@@ -1051,7 +1051,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       duration: appointmentDuration || "30",
       customer: appointmentCustomer,
       notes: appointmentNotes,
-      address: `${currentAddress.street} ${currentAddress.houseNumber}, ${currentAddress.postalCode} ${currentAddress.city}`,
+      address: `${currentAddress?.street || ''} ${currentAddress?.houseNumber || ''}, ${currentAddress?.postalCode || ''} ${currentAddress?.city || ''}`,
       coordinates
     };
 
@@ -1062,7 +1062,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
     
     // Set status to "termin"
-    handleStatusChange(currentAddress.id, pendingAppointmentUnitId, "termin");
+    handleStatusChange(currentAddress?.id, pendingAppointmentUnitId, "termin");
 
     // Reset form
     setAppointmentDate(undefined);
@@ -1453,10 +1453,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <span className="sr-only">Close</span>
               </DialogClose>
               <DialogTitle className="text-lg sm:text-xl font-semibold">
-                {currentAddress.street} {currentAddress.houseNumber}
+                {currentAddress?.street || ''} {currentAddress?.houseNumber || ''}
               </DialogTitle>
               <p className="text-sm text-muted-foreground">
-                {currentAddress.postalCode} {currentAddress.city}
+                {currentAddress?.postalCode || ''} {currentAddress?.city || ''}
               </p>
               
               <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
@@ -1470,7 +1470,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   variant="ghost" 
                   size="sm" 
                   className="text-blue-600 text-xs sm:text-sm gap-1 border-0"
-                  onClick={() => handleAddUnitsClick(currentAddress.id)}
+                  onClick={() => handleAddUnitsClick(currentAddress?.id)}
                 >
                   <Plus className="w-4 h-4" />
                   Hinzufügen
