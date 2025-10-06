@@ -18,7 +18,6 @@ import {
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
-import { OrderCounter } from "./OrderCounter";
 
 interface DashboardSidebarProps {
   orderCount: number;
@@ -82,13 +81,6 @@ export const DashboardSidebar = ({ orderCount }: DashboardSidebarProps) => {
         </SidebarHeader>
 
         <SidebarContent className="px-2">
-          {/* Order Counter */}
-          {state !== "collapsed" && (
-            <div className="mb-4 px-2">
-              <OrderCounter count={orderCount} />
-            </div>
-          )}
-
           <SidebarGroup>
             <SidebarGroupContent>
               <SidebarMenu className="space-y-2">

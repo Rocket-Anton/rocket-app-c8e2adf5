@@ -352,15 +352,6 @@ export const LauflistenContent = ({ onOrderCreated }: { onOrderCreated?: () => v
       color: "text-green-600",
       bgColor: "bg-green-100",
       explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
-    },
-    {
-      title: "Aufträge heute",
-      value: "8",
-      icon: Users,
-      color: "text-green-600",
-      bgColor: "bg-green-100",
-      explanation: "Anzahl der heute gewonnenen Neukunden",
-      cardColor: "border-green-500"
     }
   ];
 
