@@ -1127,10 +1127,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                    <Button
                                      type="button"
                                      className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl"
-                                     onClick={() => {
-                                       setDatePickerOpen(false);
-                                       setDateFilterOpen(false);
-                                     }}
+                                      onClick={() => {
+                                        // Wenn nichts ausgewählt wurde, alles zurücksetzen
+                                        if (!lastModifiedDate && !quickDateOption) {
+                                          setDateFilterMode("");
+                                        }
+                                        setDatePickerOpen(false);
+                                        setDateFilterOpen(false);
+                                      }}
                                    >
                                      Fertig
                                    </Button>
