@@ -252,6 +252,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
     { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
     { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
     { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
+    { value: "doppelt", label: "Doppelt", color: "bg-gray-300 text-gray-800" },
     { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
     { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" },
   ];
