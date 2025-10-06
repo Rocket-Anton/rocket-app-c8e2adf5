@@ -680,7 +680,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     ) : null}
 
                     <div>
-                      <label className="text-xs text-foreground mb-1 block font-medium">Status</label>
                       <div className="flex items-center gap-3 min-w-0">
                         <Select 
                           value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
