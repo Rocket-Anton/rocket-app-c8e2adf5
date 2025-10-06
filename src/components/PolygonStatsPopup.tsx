@@ -200,7 +200,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
           Zu Liste
         </Button>
         <Button onClick={onCreateList} size="sm" className="flex-1">
-          Erstellen
+          Neue Liste
         </Button>
       </div>
     </Card>
