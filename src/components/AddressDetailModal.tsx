@@ -7,6 +7,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
 import confetti from 'canvas-confetti';
+import { RocketAnimation } from "./RocketAnimation";
 import {
   Dialog,
   DialogContent,
@@ -157,6 +158,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   });
   
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
+  const [showRocket, setShowRocket] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
   const [mapDisplayDate, setMapDisplayDate] = useState<Date | undefined>(undefined);
@@ -990,6 +992,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
       });
     }, 250);
+
+    // Trigger rocket animation
+    setShowRocket(true);
 
     toast({
       title: "🎉 Neuer Kunde!",
@@ -3170,6 +3175,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
         </DialogContent>
       </Dialog>
+      
+      <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
     </>
   );
 };

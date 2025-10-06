@@ -81,10 +81,21 @@ export default {
             height: "0",
           },
         },
+        "rocket-launch": {
+          "0%": {
+            transform: "translateY(0) rotate(-45deg)",
+            opacity: "1",
+          },
+          "100%": {
+            transform: "translateY(-120vh) rotate(-45deg)",
+            opacity: "0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "rocket-launch": "rocket-launch 3s ease-out forwards",
       },
     },
   },
