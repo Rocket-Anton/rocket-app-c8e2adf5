@@ -121,6 +121,19 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const displayUnits = allUnits.filter(unit => !unit.deleted);
   const wohneinheiten = displayUnits.length;
   
+  // Anzahl der aktuell sichtbaren (gefilterten & nicht gelöschten) Einheiten ermitteln
+  const visibleUnitsCount = useMemo(() => {
+    const base = currentAddress?.filteredUnits ?? currentAddress?.units ?? [];
+    return base.filter(u => !u.deleted).length;
+  }, [currentAddress?.filteredUnits, currentAddress?.units]);
+  
+  // Scroll zurücksetzen, wenn Adresse ODER sichtbare Anzahl sich ändert
+  useEffect(() => {
+    const el = scrollContainerRef.current;
+    if (!el) return;
+    el.scrollTop = 0; // bewusst ohne smooth, damit kein Flackern
+  }, [currentAddress?.id, visibleUnitsCount, open]);
+  
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<string, string>>({});
   const [statusHistories, setStatusHistories] = useState<Record<string, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
@@ -1099,7 +1112,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Left Panel */}
-        <div ref={scrollContainerRef} className={`flex-1 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
