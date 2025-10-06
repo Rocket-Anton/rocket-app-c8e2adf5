@@ -83,9 +83,10 @@ interface AddressDetailModalProps {
   onOpenChange: (open: boolean) => void;
   onClose?: (finalIndex: number) => void;
   onOrderCreated?: () => void;
+  onUpdateUnitStatus?: (addressId: number, unitId: number, newStatus: string) => void;
 }
 
-export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated }: AddressDetailModalProps) => {
+export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const [emblaRef, emblaApi] = useEmblaCarousel({
@@ -926,7 +927,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     console.log("Neuer Auftrag erstellt:", newOrder);
     
-    // Update status to Neukunde
+    // Update status to Neukunde in parent component
+    if (onUpdateUnitStatus) {
+      onUpdateUnitStatus(orderAddressId, orderUnitId, "neukunde");
+    }
+    
+    // Update status to Neukunde in local state
     setUnitStatuses(prev => ({
       ...prev,
       [k]: "neukunde"

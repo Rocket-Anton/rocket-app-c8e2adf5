@@ -138,6 +138,9 @@ interface LauflistenContentProps {
 }
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: LauflistenContentProps) => {
+  // State für Adressen, damit Änderungen persistent sind
+  const [addresses, setAddresses] = useState(mockAddresses);
+  
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [sortierung, setSortierung] = useState("alle");
@@ -181,13 +184,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
   };
 
   // Get unique streets, cities, and postal codes for autocomplete
-  const uniqueStreets = Array.from(new Set(mockAddresses.map(a => a.street)));
-  const uniqueCities = Array.from(new Set(mockAddresses.map(a => a.city)));
-  const uniquePostalCodes = Array.from(new Set(mockAddresses.map(a => a.postalCode)));
+  const uniqueStreets = Array.from(new Set(addresses.map(a => a.street)));
+  const uniqueCities = Array.from(new Set(addresses.map(a => a.city)));
+  const uniquePostalCodes = Array.from(new Set(addresses.map(a => a.postalCode)));
   
   // Get available house numbers for selected street
   const availableHouseNumbers = streetFilter
-    ? mockAddresses
+    ? addresses
         .filter(a => a.street === streetFilter)
         .map(a => a.houseNumber)
     : [];
@@ -225,6 +228,21 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
       setPostalCodeSuggestions([]);
     }
   }, [postalCodeInput]);
+
+  // Funktion zum Aktualisieren des Status einer Wohneinheit
+  const updateUnitStatus = useCallback((addressId: number, unitId: number, newStatus: string) => {
+    setAddresses(prev => prev.map(addr => {
+      if (addr.id === addressId) {
+        return {
+          ...addr,
+          units: addr.units?.map(unit => 
+            unit.id === unitId ? { ...unit, status: newStatus } : unit
+          )
+        };
+      }
+      return addr;
+    }));
+  }, []);
 
   const statusOptions = [
     { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
@@ -288,7 +306,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
     );
   };
   // Filter addresses based on all criteria
-  const filteredAddresses = mockAddresses.filter(address => {
+  const filteredAddresses = addresses.filter(address => {
     // Search term filter
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = searchTerm === "" || (
@@ -1497,6 +1515,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                       currentIndex={index}
                       onModalClose={handleModalClose}
                       onOrderCreated={onOrderCreated}
+                      onUpdateUnitStatus={updateUnitStatus}
                     />
                   </div>
                 ))}

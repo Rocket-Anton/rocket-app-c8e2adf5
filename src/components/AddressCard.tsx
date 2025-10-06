@@ -23,9 +23,10 @@ interface AddressCardProps {
   currentIndex?: number;
   onModalClose?: (finalIndex: number) => void;
   onOrderCreated?: () => void;
+  onUpdateUnitStatus?: (addressId: number, unitId: number, newStatus: string) => void;
 }
 
-export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onModalClose, onOrderCreated }: AddressCardProps) => {
+export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onModalClose, onOrderCreated, onUpdateUnitStatus }: AddressCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [justClosed, setJustClosed] = useState(false);
   const isMobile = useIsMobile();
@@ -105,6 +106,7 @@ export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onMo
         onOpenChange={handleModalClose}
         onClose={handleAddressChange}
         onOrderCreated={onOrderCreated}
+        onUpdateUnitStatus={onUpdateUnitStatus}
       />
     </>
   );
