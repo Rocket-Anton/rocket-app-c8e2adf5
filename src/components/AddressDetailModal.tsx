@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon, Star } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
@@ -105,6 +105,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [pendingKeinInteresse, setPendingKeinInteresse] = useState<{addressId: number, unitId: number} | null>(null);
   const [keinInteresseReason, setKeinInteresseReason] = useState<string>("");
   const [keinInteresseCustomText, setKeinInteresseCustomText] = useState<string>("");
+  
+  // Potenzial Bewertung Dialog States
+  const [potenzialDialogOpen, setPotenzialDialogOpen] = useState(false);
+  const [pendingPotenzial, setPendingPotenzial] = useState<{addressId: number, unitId: number} | null>(null);
+  const [potenzialRating, setPotenzialRating] = useState<number>(0);
+  const [potenzialHoverRating, setPotenzialHoverRating] = useState<number>(0);
   const [addAppointmentDialogOpen, setAddAppointmentDialogOpen] = useState(false);
   const [datePopoverOpen, setDatePopoverOpen] = useState(false);
   const [appointmentDate, setAppointmentDate] = useState<Date | undefined>(undefined);
@@ -472,6 +478,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       return; // Nicht direkt Status setzen
     }
     
+    // Wenn "potenzial" ausgewählt wird, öffne den Bewertungs-Dialog
+    if (newStatus === "potenzial") {
+      setPendingPotenzial({ addressId, unitId });
+      setPotenzialDialogOpen(true);
+      return; // Nicht direkt Status setzen
+    }
+    
     setUnitStatuses(prev => ({ ...prev, [k]: newStatus }));
 
     const statusLabel = statusOptions.find(s => s.value === newStatus)?.label || newStatus;
@@ -649,6 +662,46 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPendingKeinInteresse(null);
     setKeinInteresseReason("");
     setKeinInteresseCustomText("");
+  };
+  
+  const confirmPotenzialRating = () => {
+    if (!pendingPotenzial || potenzialRating === 0) return;
+    
+    const { addressId, unitId } = pendingPotenzial;
+    const k = `${addressId}:${unitId}`;
+    
+    // Status auf "potenzial" setzen
+    setUnitStatuses(prev => ({ ...prev, [k]: "potenzial" }));
+    
+    const statusLabel = statusOptions.find(s => s.value === "potenzial")?.label || "Potenzial";
+    const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
+    
+    setStatusHistories(prev => ({
+      ...prev,
+      [k]: [
+        {
+          id: Date.now(),
+          status: `${statusLabel} (${potenzialRating} ⭐)`,
+          changedBy: "Abdullah Kater",
+          changedAt: timestamp
+        },
+        ...(prev[k] || [])
+      ]
+    }));
+    
+    toast({
+      title: "✓ Status geändert",
+      className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+      duration: 1000,
+    });
+    
+    // Dialog schließen und zurücksetzen
+    setPotenzialDialogOpen(false);
+    setPendingPotenzial(null);
+    setPotenzialRating(0);
+    setPotenzialHoverRating(0);
   };
 
   const handleAddAppointment = (unitId: number) => {
@@ -1612,6 +1665,61 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <AlertDialogAction 
               onClick={confirmKeinInteresse}
               disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
+              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              Bestätigen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      
+      <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogHeader>
+            <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
+            <AlertDialogDescription>
+              Wie schätzen Sie das Potenzial ein?
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <div className="flex justify-center gap-2 py-6">
+            {[1, 2, 3, 4, 5].map((star) => (
+              <button
+                key={star}
+                type="button"
+                onClick={() => setPotenzialRating(star)}
+                onMouseEnter={() => setPotenzialHoverRating(star)}
+                onMouseLeave={() => setPotenzialHoverRating(0)}
+                className="transition-transform hover:scale-110"
+              >
+                <Star
+                  className={cn(
+                    "w-12 h-12 transition-colors",
+                    (potenzialHoverRating >= star || (potenzialHoverRating === 0 && potenzialRating >= star))
+                      ? "fill-yellow-400 text-yellow-400"
+                      : "fill-none text-gray-300"
+                  )}
+                />
+              </button>
+            ))}
+          </div>
+          {potenzialRating > 0 && (
+            <p className="text-center text-sm text-muted-foreground">
+              Bewertung: {potenzialRating} von 5 Sternen
+            </p>
+          )}
+          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+            <AlertDialogCancel 
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0"
+              onClick={() => {
+                setPotenzialRating(0);
+                setPotenzialHoverRating(0);
+              }}
+            >
+              Abbrechen
+            </AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={confirmPotenzialRating}
+              disabled={potenzialRating === 0}
               className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed"
             >
               Bestätigen
