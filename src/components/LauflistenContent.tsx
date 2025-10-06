@@ -163,7 +163,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
   
   const [lastModifiedDate, setLastModifiedDate] = useState<Date | undefined>(undefined);
   const [dateFilterMode, setDateFilterMode] = useState<"" | "vor" | "nach">("");
-  const [dateFilterType, setDateFilterType] = useState<"quick" | "custom">("quick");
+  const [dateFilterType, setDateFilterType] = useState<"quick" | "custom" | "">("quick");
   const [quickDateOption, setQuickDateOption] = useState<string>("");
   const [dateFilterOpen, setDateFilterOpen] = useState(false);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
@@ -1063,39 +1063,46 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                            {dateFilterMode && (
                              <Sheet open={datePickerOpen} onOpenChange={setDatePickerOpen}>
                                <SheetContent side="bottom" className="h-auto max-h-[85vh] w-full p-4 rounded-t-2xl">
-                                 <div className="space-y-4">
-                                   {/* Quick Select Buttons - nur bei "Vor" */}
-                                   {dateFilterMode === "vor" && (
-                                     <div className="grid grid-cols-3 gap-2">
-                                       {[
-                                         { label: "7 Tage", value: "7", days: 7 },
-                                         { label: "14 Tage", value: "14", days: 14 },
-                                         { label: "30 Tage", value: "30", days: 30 },
-                                       ].map((option) => (
-                                         <Button
-                                           key={option.value}
-                                           type="button"
-                                           variant="outline"
-                                           size="sm"
-                                           className={cn(
-                                             "h-10 text-sm font-medium",
-                                             quickDateOption === option.value
-                                               ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
-                                               : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
-                                           )}
-                                           onClick={() => {
-                                             const date = new Date();
-                                             date.setDate(date.getDate() - option.days);
-                                             setLastModifiedDate(date);
-                                             setQuickDateOption(option.value);
-                                             setDateFilterType("quick");
-                                           }}
-                                         >
-                                           {option.label}
-                                         </Button>
-                                       ))}
-                                     </div>
-                                   )}
+                                  <div className="space-y-4">
+                                    {/* Quick Select Buttons - nur bei "Vor" */}
+                                    {dateFilterMode === "vor" && (
+                                      <div className="grid grid-cols-3 gap-2 pt-8">
+                                        {[
+                                          { label: "7 Tage", value: "7", days: 7 },
+                                          { label: "14 Tage", value: "14", days: 14 },
+                                          { label: "30 Tage", value: "30", days: 30 },
+                                        ].map((option) => (
+                                          <Button
+                                            key={option.value}
+                                            type="button"
+                                            variant="outline"
+                                            size="sm"
+                                            className={cn(
+                                              "h-10 text-sm font-medium",
+                                              quickDateOption === option.value
+                                                ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                                                : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                                            )}
+                                            onClick={() => {
+                                              // Toggle functionality: if already selected, deselect
+                                              if (quickDateOption === option.value) {
+                                                setLastModifiedDate(undefined);
+                                                setQuickDateOption("");
+                                                setDateFilterType("");
+                                              } else {
+                                                const date = new Date();
+                                                date.setDate(date.getDate() - option.days);
+                                                setLastModifiedDate(date);
+                                                setQuickDateOption(option.value);
+                                                setDateFilterType("quick");
+                                              }
+                                            }}
+                                          >
+                                            {option.label}
+                                          </Button>
+                                        ))}
+                                      </div>
+                                    )}
 
                                    {/* Calendar */}
                                    <Calendar
