@@ -353,7 +353,7 @@ export default function Karte() {
 
   return (
     <SidebarProvider>
-      <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width-icon' as any]: '5.5rem' }}>
+      <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
           <div className="flex flex-col h-full w-full">
@@ -365,7 +365,7 @@ export default function Karte() {
             </header>
 
             {/* Map Container */}
-            <div className="flex-1 overflow-hidden relative z-0">
+            <div className="flex-1 overflow-hidden relative">
               <div className="h-full w-full" ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
