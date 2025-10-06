@@ -615,7 +615,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto overflow-hidden ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
                 {/* Shimmer Effect für Aufträge Card */}
                 {isOrderCard && metric.shimmer && (
                   <div
