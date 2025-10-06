@@ -814,7 +814,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                         })()}
                       </Button>
                     </SheetTrigger>
-                    <SheetContent ref={mobileSheetRef} side="bottom" className="h-[85vh] flex flex-col p-0 [&>button[data-radix-collection-item]]:hidden">
+                    <SheetContent ref={mobileSheetRef} side="bottom" hideClose className="h-[85vh] flex flex-col p-0 [&>button[data-radix-collection-item]]:hidden">
                        <SheetHeader className="flex-shrink-0 p-4 pb-3 border-b border-border">
                           <div className="space-y-3">
                             {/* Close button row */}
