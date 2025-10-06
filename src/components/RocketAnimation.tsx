@@ -11,6 +11,7 @@ export const RocketAnimation = ({ show, onComplete }: RocketAnimationProps) => {
 
   useEffect(() => {
     if (show) {
+      console.log("🚀 Raketen-Animation gestartet!");
       setIsVisible(true);
       const timer = setTimeout(() => {
         setIsVisible(false);
@@ -23,14 +24,11 @@ export const RocketAnimation = ({ show, onComplete }: RocketAnimationProps) => {
   if (!isVisible) return null;
 
   return (
-    <div className="fixed inset-0 pointer-events-none z-[9999] flex items-end justify-center">
+    <div className="fixed bottom-0 left-1/2 -translate-x-1/2 pointer-events-none z-[10001] w-32 h-32">
       <img
         src={rocketIcon}
         alt="Rocket"
-        className="w-20 h-20 animate-rocket-launch"
-        style={{
-          animation: "rocketLaunch 3s ease-out forwards"
-        }}
+        className="w-full h-full object-contain animate-rocket-launch"
       />
     </div>
   );

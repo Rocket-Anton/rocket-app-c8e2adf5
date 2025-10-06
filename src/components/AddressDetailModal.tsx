@@ -1765,6 +1765,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </div>
           </DialogContent>
         </Dialog>
+        
+        <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
       </>
     );
   }
@@ -2465,6 +2467,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </div>
           </DialogContent>
         </Dialog>
+        
+        <RocketAnimation show={showRocket} onComplete={() => setShowRocket(false)} />
       </>
     );
   }
