@@ -4,7 +4,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon, MapPin, Plus, Minus, Filter, Layers, Maximize2, PersonStanding } from "lucide-react";
+import { Pentagon, Plus, Minus, Filter, Layers, Maximize2, PersonStanding } from "lucide-react";
 import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -384,9 +384,10 @@ export default function Karte() {
                   variant="outline"
                   className="shadow-lg bg-background hover:bg-accent w-7 h-7 p-0"
                   size="icon"
-                  title="Standort"
+                  title="Polygon zeichnen"
+                  onClick={toggleDrawingMode}
                 >
-                  <MapPin className="h-3 w-3" />
+                  <Pentagon className="h-3 w-3" />
                 </Button>
                 
                 <Button
