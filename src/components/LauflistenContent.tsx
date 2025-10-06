@@ -627,7 +627,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                   </Popover>
                 </div>
                 {isOrderCard && (
-                  <div className="absolute bottom-2 -right-1 z-10 pointer-events-none">
+                  <div className="absolute -bottom-1 -right-1 z-10 pointer-events-none">
                     {metric.emoji ? (
                       <div className="text-xl leading-none">{metric.emoji}</div>
                     ) : (
