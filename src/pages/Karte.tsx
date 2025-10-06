@@ -369,7 +369,7 @@ export default function Karte() {
               <div className="h-full w-full" ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
-              <div className="absolute top-8 right-8 z-[1000] flex flex-col gap-1.5">
+              <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
                 <Button
                   onClick={toggleDrawingMode}
                   variant={isDrawingMode ? "default" : "outline"}
