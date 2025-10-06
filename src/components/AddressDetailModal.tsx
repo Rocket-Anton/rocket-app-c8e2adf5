@@ -4,6 +4,7 @@ import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
+import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
 import {
   Dialog,
@@ -39,6 +40,7 @@ import {
   CollapsibleTrigger,
 } from "./ui/collapsible";
 import { Textarea } from "./ui/textarea";
+import { cn } from "@/lib/utils";
 
 interface Address {
   id: number;
@@ -354,6 +356,87 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   });
 
+  // Select-Content, der die Höhe an die Unterkante der Modal begrenzt und nie nach oben flippt
+  const BoundedSelectContent = forwardRef<
+    HTMLDivElement,
+    {
+      modalRef: React.RefObject<HTMLElement>;
+      className?: string;
+      align?: "start" | "center" | "end";
+      sideOffset?: number;
+      children: React.ReactNode;
+    }
+  >(({ modalRef, className, align = "start", sideOffset = 8, children }, _ref) => {
+    const contentRef = useRef<HTMLDivElement | null>(null);
+    const [maxH, setMaxH] = useState<number | undefined>();
+
+    const update = useCallback(() => {
+      const modalEl = modalRef?.current as HTMLElement | null;
+      const contentEl = contentRef.current as HTMLElement | null;
+      if (!modalEl || !contentEl) return;
+
+      const modalRect = modalEl.getBoundingClientRect();
+      const contentRect = contentEl.getBoundingClientRect();
+      // freie Höhe bis zur Unterkante der Modal-Karte (kleines Padding)
+      const available = Math.max(160, Math.floor(modalRect.bottom - contentRect.top - 8));
+      setMaxH(available);
+    }, [modalRef]);
+
+    useLayoutEffect(() => {
+      let r1 = 0, r2 = 0;
+      r1 = requestAnimationFrame(() => { r2 = requestAnimationFrame(update); });
+
+      const onScroll = () => update();
+      window.addEventListener("resize", update);
+      window.addEventListener("scroll", onScroll, true);
+
+      const el = contentRef.current;
+      const mo = el
+        ? new MutationObserver(() => update())
+        : undefined;
+      if (el) mo!.observe(el, { attributes: true, attributeFilter: ["style", "data-state", "data-side"] });
+
+      return () => {
+        cancelAnimationFrame(r1); cancelAnimationFrame(r2);
+        window.removeEventListener("resize", update);
+        window.removeEventListener("scroll", onScroll, true);
+        mo?.disconnect();
+      };
+    }, [update]);
+
+    return (
+      <SelectPrimitive.Portal container={modalRef?.current ?? undefined}>
+        <SelectPrimitive.Content
+          ref={contentRef}
+          position="popper"
+          side="bottom"
+          align={align}
+          sideOffset={sideOffset}
+          avoidCollisions={false}
+          sticky="always"
+          className={cn(
+            "z-[1200] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
+            className
+          )}
+          style={{ ["--bounded-max-h" as any]: `${maxH ?? 0}px` }}
+        >
+          <SelectPrimitive.ScrollUpButton className="flex h-6 items-center justify-center bg-popover/80" />
+          <SelectPrimitive.Viewport
+            className="p-1 max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
+            onWheel={(e) => e.stopPropagation()}
+            onTouchStart={(e) => e.stopPropagation()}
+            onTouchMove={(e) => e.stopPropagation()}
+            style={{ WebkitOverflowScrolling: "touch" } as any}
+          >
+            {children}
+          </SelectPrimitive.Viewport>
+          <SelectPrimitive.ScrollDownButton className="flex h-6 items-center justify-center bg-popover/80" />
+        </SelectPrimitive.Content>
+      </SelectPrimitive.Portal>
+    );
+  });
+  BoundedSelectContent.displayName = "BoundedSelectContent";
+
   const showStatusUpdateButton = (status: string) => {
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
   };
@@ -605,11 +688,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               })()}
                             </SelectValue>
                           </SelectTrigger>
-                          <SelectContent 
-                            side="bottom" 
-                            avoidCollisions={false} 
-                            className="bg-background z-[10000]"
-                          >
+                          <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
                             {statusOptions
                               .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                               .map((status) => (
@@ -619,7 +698,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   </div>
                                 </SelectItem>
                               ))}
-                          </SelectContent>
+                          </BoundedSelectContent>
                         </Select>
                         <Popover key={`popover-${unit.id}-${popoverKey}`}>
                           <PopoverTrigger asChild>
