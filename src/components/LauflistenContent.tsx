@@ -815,52 +815,51 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                     </SheetTrigger>
                     <SheetContent ref={mobileSheetRef} side="bottom" className="h-[85vh] flex flex-col p-0">
                        <SheetHeader className="flex-shrink-0 p-4 border-b border-border">
-                         <div className="flex items-center justify-start gap-20">
-                           <div className="flex items-center gap-2">
-                             <SheetTitle>Filter</SheetTitle>
-                             {(() => {
-                               const activeFilterCount = 
-                                 statusFilter.length + 
-                                 (streetFilter ? 1 : 0) + 
-                                 (cityFilter ? 1 : 0) + 
-                                 (postalCodeFilter ? 1 : 0) + 
-                                 (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
-                                 (sortierung !== "alle" ? 1 : 0) +
-                                 (lastModifiedDate ? 1 : 0);
-                               return activeFilterCount > 0 ? (
-                                 <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
-                                   {activeFilterCount}
-                                 </div>
-                               ) : null;
-                             })()}
-                           </div>
-                          {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
-                            <Button 
-                              variant="ghost" 
-                              size="sm"
-                              onClick={() => {
-                                setStatusFilter([]);
-                                setSortierung("alle");
-                                setStreetFilter("");
-                                setStreetInput("");
-                                setCityFilter("");
-                                setCityInput("");
-                                setPostalCodeFilter("");
-                                 setPostalCodeInput("");
-                                 setHouseNumberFilter("");
-                                 setLastModifiedDate(undefined);
-                                 setQuickDateOption("");
-                                 setDateFilterType("quick");
-                                 setDateFilterMode("");
-                              }}
-                               className="h-8 text-xs"
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2">
+                              <SheetTitle>Filter</SheetTitle>
+                              {(() => {
+                                const activeFilterCount = 
+                                  statusFilter.length + 
+                                  (streetFilter ? 1 : 0) + 
+                                  (cityFilter ? 1 : 0) + 
+                                  (postalCodeFilter ? 1 : 0) + 
+                                  (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0) +
+                                  (sortierung !== "alle" ? 1 : 0) +
+                                  (lastModifiedDate ? 1 : 0);
+                                return activeFilterCount > 0 ? (
+                                  <div className="flex items-center justify-center w-6 h-6 rounded-full bg-primary text-primary-foreground text-xs font-semibold">
+                                    {activeFilterCount}
+                                  </div>
+                                ) : null;
+                              })()}
+                            </div>
+                           {(statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter || lastModifiedDate) && (
+                             <Button 
+                               variant="ghost" 
+                               size="sm"
+                               onClick={() => {
+                                 setStatusFilter([]);
+                                 setSortierung("alle");
+                                 setStreetFilter("");
+                                 setStreetInput("");
+                                 setCityFilter("");
+                                 setCityInput("");
+                                 setPostalCodeFilter("");
+                                  setPostalCodeInput("");
+                                  setHouseNumberFilter("");
+                                  setLastModifiedDate(undefined);
+                                  setQuickDateOption("");
+                                  setDateFilterType("quick");
+                                  setDateFilterMode("");
+                               }}
+                               className="h-8 text-xs text-blue-600 hover:text-blue-700 hover:bg-transparent"
                              >
-                               <X className="w-3 h-3 mr-0.5" />
                                Zurücksetzen
                              </Button>
-                          )}
-                        </div>
-                      </SheetHeader>
+                           )}
+                         </div>
+                       </SheetHeader>
                       <div className="flex-1 overflow-y-auto overflow-x-hidden p-4 space-y-4 min-h-0" style={{ overscrollBehavior: 'contain' }}>
                         {/* Status Filter */}
                         <div className="space-y-1">
