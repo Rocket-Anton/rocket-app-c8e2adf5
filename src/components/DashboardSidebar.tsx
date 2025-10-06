@@ -121,11 +121,11 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
 
                 {isLauflistenExpanded && state !== "collapsed" && (
-                  <div className="overflow-hidden ml-5 relative">
+                  <div className="overflow-hidden ml-6 relative">
                     <div className="absolute left-0 top-0 bottom-0 w-px bg-sidebar-foreground/30"></div>
-                    <div className="animate-accordion-down space-y-1 mt-1">
-                      <SidebarMenuItem className="relative pl-5">
-                        <div className="absolute left-1 top-1/2 w-3 h-3 border-l-2 border-b-2 border-sidebar-foreground/30 rounded-bl-md -translate-y-1/2"></div>
+                    <div className="animate-accordion-down space-y-1 mt-1 pl-3">
+                      <SidebarMenuItem className="relative">
+                        <div className="absolute -left-3 top-1/2 w-3 h-3 border-l-2 border-b-2 border-sidebar-foreground/30 rounded-bl"></div>
                         <SidebarMenuButton 
                           size="sm" 
                           onClick={() => navigate("/")}
@@ -135,8 +135,8 @@ export const DashboardSidebar = () => {
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                       
-                      <SidebarMenuItem className="relative pl-5">
-                        <div className="absolute left-1 top-1/2 w-3 h-3 border-l-2 border-b-2 border-sidebar-foreground/30 rounded-bl-md -translate-y-1/2"></div>
+                      <SidebarMenuItem className="relative">
+                        <div className="absolute -left-3 top-1/2 w-3 h-3 border-l-2 border-b-2 border-sidebar-foreground/30 rounded-bl"></div>
                         <SidebarMenuButton 
                           size="sm" 
                           onClick={() => navigate("/karte")}
