@@ -1155,7 +1155,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogHeader>
             <div className="space-y-3">
               <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
-                <SelectTrigger className="w-full h-10 border border-border rounded-md bg-background">
+                <SelectTrigger className="w-full h-10 rounded-md bg-background border-0 shadow-sm">
                   <SelectValue placeholder="Grund auswählen" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[1200]">
@@ -1325,7 +1325,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogHeader>
             <div className="space-y-3">
               <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
-                <SelectTrigger className="w-full h-10 border border-border rounded-md bg-background">
+                <SelectTrigger className="w-full h-10 rounded-md bg-background border-0 shadow-sm">
                   <SelectValue placeholder="Grund auswählen" />
                 </SelectTrigger>
                 <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[1200]">
