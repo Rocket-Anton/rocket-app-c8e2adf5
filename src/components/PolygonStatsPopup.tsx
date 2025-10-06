@@ -74,7 +74,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
   const customerQuote = totalUnits > 0 ? ((customerTotal / totalUnits) * 100).toFixed(1) : "0";
 
   return (
-    <Card className="fixed bottom-6 right-6 w-96 p-6 shadow-2xl z-[1000] bg-background border-border">
+    <Card className="fixed bottom-6 right-6 w-80 p-4 shadow-2xl z-[1000] bg-background border-border">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="text-lg font-semibold text-foreground">Polygon-Auswahl</h3>
