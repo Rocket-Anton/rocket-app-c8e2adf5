@@ -743,12 +743,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       ? allAddresses.find(addr => addr.id === pendingAddressId) 
       : (currentAddress.id === pendingAddressId ? currentAddress : null);
     
-    if (!targetAddress || !targetAddress.units) return;
+    if (!targetAddress) return;
+    
+    // Initialize units array if it doesn't exist
+    if (!targetAddress.units) targetAddress.units = [];
 
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     
     // Create new units with status "offen"
-    const highestId = Math.max(...targetAddress.units.map(u => u.id), 0);
+    const highestId = Math.max(...(targetAddress.units.length > 0 ? targetAddress.units.map(u => u.id) : [0]), 0);
     const newUnits = Array.from({ length: addUnitsCount }, (_, i) => ({
       id: highestId + i + 1,
       floor: "EG",
@@ -1907,6 +1910,73 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Add Units Dialog (Mobile) */}
+        <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+            <button
+              onClick={() => setAddUnitsDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+
+            <div className="py-4">
+              <div className="flex items-center justify-center gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
+                  disabled={addUnitsCount <= 1}
+                  className="h-10 w-10 rounded-full"
+                >
+                  -
+                </Button>
+                <div className="w-20 text-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="3"
+                    value={addUnitsCount}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setAddUnitsCount(Math.min(3, Math.max(1, val)));
+                    }}
+                    className="text-center text-xl font-semibold h-12"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
+                  disabled={addUnitsCount >= 3}
+                  className="h-10 w-10 rounded-full"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmAddUnits}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Hinzufügen
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
