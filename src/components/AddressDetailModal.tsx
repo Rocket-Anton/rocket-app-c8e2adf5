@@ -565,7 +565,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                            <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
                               <SelectItem value="EG">EG</SelectItem>
                               <SelectItem value="1. OG">1. OG</SelectItem>
                               <SelectItem value="2. OG">2. OG</SelectItem>
@@ -580,7 +580,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                            <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
                               <SelectItem value="Links">Links</SelectItem>
                               <SelectItem value="Rechts">Rechts</SelectItem>
                               <SelectItem value="Mitte">Mitte</SelectItem>
@@ -1098,7 +1098,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Stunde" />
                       </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                      <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
                         {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                           <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                             {hour.toString().padStart(2, '0')}
@@ -1118,7 +1118,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Minute" />
                       </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                      <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
                         {[0, 10, 20, 30, 40, 50].map((minute) => (
                           <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                             {minute.toString().padStart(2, '0')}
@@ -1487,7 +1487,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Stunde" />
                     </SelectTrigger>
-                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                     <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
                       {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                         <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                           {hour.toString().padStart(2, '0')}
@@ -1507,7 +1507,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Minute" />
                     </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                    <SelectContent container={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
                       {[0, 10, 20, 30, 40, 50].map((minute) => (
                         <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                           {minute.toString().padStart(2, '0')}
