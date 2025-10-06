@@ -127,12 +127,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return base.filter(u => !u.deleted).length;
   }, [currentAddress?.filteredUnits, currentAddress?.units]);
   
-  // Scroll zurücksetzen, wenn Adresse ODER sichtbare Anzahl sich ändert
+  // Scroll zurücksetzen nur wenn aktiv gefiltert wird oder Adresse wechselt
   useEffect(() => {
     const el = scrollContainerRef.current;
     if (!el) return;
-    el.scrollTop = 0; // bewusst ohne smooth, damit kein Flackern
-  }, [currentAddress?.id, visibleUnitsCount, open]);
+    
+    // Reset nur wenn filteredUnits aktiv ist (also Filter angewendet)
+    const isFiltered = currentAddress?.filteredUnits !== undefined;
+    if (isFiltered || !open) {
+      el.scrollTop = 0;
+    }
+  }, [currentAddress?.id, currentAddress?.filteredUnits, open]);
   
   // State for each unit's current status
   const [unitStatuses, setUnitStatuses] = useState<Record<string, string>>({});
@@ -1114,17 +1119,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Left Panel */}
         <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
-          <div className={`w-full`}>
+          <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
               units.map((unit, index) => (
-                <div key={unit.id} className="space-y-1 w-full">
+                <div key={unit.id} className="space-y-2 w-full">
                   {/* Trennlinie zwischen Wohneinheiten (nicht vor der ersten) */}
                   {unitCount > 1 && index > 0 && (
-                    <div className="border-t border-muted-foreground/20 my-1" />
+                    <div className="border-t border-muted-foreground/20 mt-1 mb-4" />
                   )}
                   {/* Wohneinheit Heading - nur bei mehreren Einheiten */}
                   {unitCount > 1 && (
-                    <div className="mb-1">
+                    <div className="mb-2">
                       <div className="flex items-center justify-between">
                         <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
                         {unit.addedBy && unit.addedAt && (
