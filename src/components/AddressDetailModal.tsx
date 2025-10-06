@@ -874,18 +874,54 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   // Handle order confirmation
   const handleConfirmOrder = () => {
-    if (!orderForm.vorname || !orderForm.nachname || !orderForm.tarif || !orderUnitId || !orderAddressId) {
+    // Validate required fields
+    const missingFields = [];
+    if (!orderForm.vorname) missingFields.push("Vorname");
+    if (!orderForm.nachname) missingFields.push("Nachname");
+    if (!orderForm.tarif) missingFields.push("Tarif");
+    
+    if (missingFields.length > 0) {
       toast({
-        title: "Fehlende Angaben",
+        title: "Pflichtfelder fehlen",
+        description: `Bitte füllen Sie aus: ${missingFields.join(", ")}`,
+        className: "bg-red-500 text-white border-0",
+        duration: 3000,
+      });
+      return;
+    }
+
+    if (!orderUnitId || !orderAddressId) {
+      toast({
+        title: "Fehler",
+        description: "Adresse oder Wohneinheit nicht gefunden.",
         className: "bg-red-500 text-white border-0",
         duration: 2000,
       });
       return;
     }
 
+    const targetAddress = allAddresses.find(a => 
+      a.units?.some(u => u.id === orderUnitId)
+    ) || currentAddress;
+
     const k = `${orderAddressId}:${orderUnitId}`;
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     const shortTimestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
+    
+    // Create order record with address information
+    const newOrder = {
+      id: Date.now(),
+      vorname: orderForm.vorname,
+      nachname: orderForm.nachname,
+      tarif: orderForm.tarif,
+      zusaetze: orderForm.zusaetze,
+      adresse: `${targetAddress.street} ${targetAddress.houseNumber}, ${targetAddress.postalCode} ${targetAddress.city}`,
+      wohneinheit: orderUnitId,
+      createdAt: timestamp,
+      createdBy: "Abdullah Kater"
+    };
+    
+    console.log("Neuer Auftrag erstellt:", newOrder);
     
     // Update status to Neukunde
     setUnitStatuses(prev => ({
@@ -1644,27 +1680,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+                <label className="text-sm font-medium mb-1.5 block">Vorname *</label>
                 <input
                   type="text"
                   value={orderForm.vorname}
                   onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                   placeholder="Vorname eingeben"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+                <label className="text-sm font-medium mb-1.5 block">Nachname *</label>
                 <input
                   type="text"
                   value={orderForm.nachname}
                   onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                   placeholder="Nachname eingeben"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+                <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
                 <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Tarif auswählen" />
@@ -2344,27 +2380,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </DialogHeader>
             <div className="space-y-4">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+                <label className="text-sm font-medium mb-1.5 block">Vorname *</label>
                 <input
                   type="text"
                   value={orderForm.vorname}
                   onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                   placeholder="Vorname eingeben"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+                <label className="text-sm font-medium mb-1.5 block">Nachname *</label>
                 <input
                   type="text"
                   value={orderForm.nachname}
                   onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                   placeholder="Nachname eingeben"
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+                <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
                 <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Tarif auswählen" />
@@ -3054,27 +3090,27 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogHeader>
           <div className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Vorname</label>
+              <label className="text-sm font-medium mb-1.5 block">Vorname *</label>
               <input
                 type="text"
                 value={orderForm.vorname}
                 onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                 placeholder="Vorname eingeben"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Nachname</label>
+              <label className="text-sm font-medium mb-1.5 block">Nachname *</label>
               <input
                 type="text"
                 value={orderForm.nachname}
                 onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:ring-2 focus:ring-primary"
+                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
                 placeholder="Nachname eingeben"
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">Tarif</label>
+              <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
               <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Tarif auswählen" />
