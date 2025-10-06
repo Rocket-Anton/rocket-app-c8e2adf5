@@ -271,14 +271,19 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   }, [open, currentIndex, allAddresses, initializeAddressStates]);
   
 
-  // Close all status popovers when scrolling in the main container
+  // Close all status popovers when scrolling significantly in the main container
   useEffect(() => {
     const scrollEl = scrollContainerRef.current;
     if (!scrollEl) return;
 
+    let lastScrollTop = 0;
     const handleScroll = () => {
-      // Force re-render of all popovers to close them
-      setPopoverKey(prev => prev + 1);
+      const currentScrollTop = scrollEl.scrollTop;
+      // Only close popovers if user scrolled more than 10px
+      if (Math.abs(currentScrollTop - lastScrollTop) > 10) {
+        setPopoverKey(prev => prev + 1);
+        lastScrollTop = currentScrollTop;
+      }
     };
 
     scrollEl.addEventListener('scroll', handleScroll, { passive: true });
@@ -566,7 +571,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
-                            <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="EG">EG</SelectItem>
                               <SelectItem value="1. OG">1. OG</SelectItem>
                               <SelectItem value="2. OG">2. OG</SelectItem>
@@ -581,7 +586,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Auswählen" />
                             </SelectTrigger>
-                            <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[200px] overflow-y-auto">
+                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                               <SelectItem value="Links">Links</SelectItem>
                               <SelectItem value="Rechts">Rechts</SelectItem>
                               <SelectItem value="Mitte">Mitte</SelectItem>
@@ -612,14 +617,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </SelectValue>
                           </SelectTrigger>
                           <SelectContent 
-                            container={modalContentRef.current}
-                            boundTo={modalContentRef.current}
                             side="bottom" 
                             avoidCollisions={false} 
-                            className="bg-background z-[10000] overflow-y-auto"
-                            style={{ 
-                              maxHeight: 'min(260px, var(--radix-popper-available-height, 260px))'
-                            }}
+                            className="bg-background z-[10000]"
                           >
                             {statusOptions
                               .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
@@ -1100,7 +1100,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Stunde" />
                       </SelectTrigger>
-                      <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                         {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                           <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                             {hour.toString().padStart(2, '0')}
@@ -1120,7 +1120,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Minute" />
                       </SelectTrigger>
-                      <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                         {[0, 10, 20, 30, 40, 50].map((minute) => (
                           <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                             {minute.toString().padStart(2, '0')}
@@ -1331,7 +1331,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[95vw] max-w-[95vw] sm:max-w-2xl sm:w-full h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
           <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
@@ -1489,7 +1489,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Stunde" />
                     </SelectTrigger>
-                     <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                       {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                         <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                           {hour.toString().padStart(2, '0')}
@@ -1509,7 +1509,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Minute" />
                     </SelectTrigger>
-                    <SelectContent container={modalContentRef.current} boundTo={modalContentRef.current} side="bottom" avoidCollisions={false} className="bg-background z-[10000] max-h-[240px] overflow-y-auto">
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
                       {[0, 10, 20, 30, 40, 50].map((minute) => (
                         <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                           {minute.toString().padStart(2, '0')}
