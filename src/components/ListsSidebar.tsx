@@ -471,7 +471,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
             </div>
           </SheetHeader>
 
-          <ScrollArea className="h-[calc(100vh-160px)] mt-6">
+          <ScrollArea className="h-[calc(100vh-160px)] mt-3">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-muted-foreground">Lädt...</div>
