@@ -494,12 +494,17 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                     </div>
 
                     <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
-                      <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
+                      <div className="px-3 pb-3 border-t border-border pt-2">
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
                           <div className="space-y-1">
                             <div className="text-xs font-semibold text-foreground mb-1">Statusverteilung</div>
-                            <div className="space-y-0">
+                            <div className="max-h-[120px] overflow-y-auto space-y-0 pr-1"
+                              style={{
+                                scrollbarWidth: 'thin',
+                                scrollbarColor: 'hsl(var(--muted-foreground)) transparent'
+                              }}
+                            >
                               {Object.entries(statusCounts[list.id])
                                 .sort(([, a], [, b]) => b - a)
                                 .map(([status, count], index) => {
