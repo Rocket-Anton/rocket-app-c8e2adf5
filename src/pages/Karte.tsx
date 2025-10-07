@@ -877,7 +877,7 @@ function KarteContent() {
       <AIAssistant
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
-        showListsSidebar={showListsSidebar || showFilterSidebar}
+        showListsSidebar={showListsSidebar}
         onSetFilter={(filters) => {
           if (filters.status) setStatusFilter(filters.status);
           if (filters.street) {

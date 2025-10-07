@@ -311,8 +311,8 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     }
   };
 
-  const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-4";
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
+  const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-6";
   
   return (
     <>
