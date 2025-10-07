@@ -70,7 +70,9 @@ export const DashboardSidebar = () => {
   
   // Auto-expand based on current route
   const isInLauflistenSection = location.pathname === "/" || location.pathname === "/karte";
+  const isInSettingsSection = location.pathname.startsWith("/settings");
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(isInLauflistenSection);
+  const [isSettingsExpanded, setIsSettingsExpanded] = useState(isInSettingsSection);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
 
   const { state, toggleSidebar } = useSidebar();
@@ -79,13 +81,15 @@ export const DashboardSidebar = () => {
   useEffect(() => {
     if (state !== "collapsed") {
       setIsLauflistenExpanded(isInLauflistenSection);
+      setIsSettingsExpanded(isInSettingsSection);
     }
-  }, [location.pathname, state, isInLauflistenSection]);
+  }, [location.pathname, state, isInLauflistenSection, isInSettingsSection]);
 
   // Close expanded menus when sidebar collapses
   useEffect(() => {
     if (state === "collapsed") {
       setIsLauflistenExpanded(false);
+      setIsSettingsExpanded(false);
       setIsLeadsExpanded(false);
     }
   }, [state]);
@@ -296,14 +300,79 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
-                  <SidebarMenuButton 
-                    onClick={() => navigate("/settings")}
-                    className={`text-sidebar-foreground rounded-xl py-3 ${location.pathname === "/settings" ? "bg-sidebar-accent" : ""} ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}
+                  <SidebarMenuButton
+                    onClick={() => state !== "collapsed" && setIsSettingsExpanded(!isSettingsExpanded)}
+                    className={`text-sidebar-foreground rounded-xl py-3 ${
+                      state === "collapsed" 
+                        ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "justify-between hover:bg-sidebar-accent"
+                    } ${location.pathname.startsWith("/settings") ? "bg-sidebar-accent" : ""}`}
                   >
-                    <Settings className="!w-5 !h-5 flex-shrink-0" />
-                    {state !== "collapsed" && <span className="text-base whitespace-nowrap">Settings</span>}
+                    <div className="flex items-center gap-3">
+                      <Settings className="!w-5 !h-5 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-base whitespace-nowrap">Settings</span>}
+                    </div>
+                    {state !== "collapsed" && (
+                      isSettingsExpanded ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+
+                {isSettingsExpanded && state !== "collapsed" && (
+                  <div className="ml-5 mt-1">
+                    <div className="space-y-2">
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/projects")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Projekte</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/addresses")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/addresses" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Adressen</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
+                  </div>
+                )}
 
                 <SidebarMenuItem>
                   <SidebarMenuButton asChild className={`text-sidebar-foreground rounded-xl py-3 ${
