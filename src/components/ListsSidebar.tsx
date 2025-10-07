@@ -459,16 +459,16 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
               </DropdownMenu>
             </div>
 
-            {selectedLists.size > 0 && (
-              <div className="flex items-center justify-end text-[11px] text-muted-foreground mt-1 px-1">
+            <div className="flex items-center justify-end text-[11px] text-muted-foreground mt-1 px-1 min-h-[16px]">
+              {selectedLists.size > 0 && (
                 <button 
                   onClick={toggleSelectAll} 
                   className="hover:text-foreground underline-offset-2 hover:underline"
                 >
                   {selectedLists.size === getFilteredAndSortedLists().length ? 'Aufheben' : 'Alle'}
                 </button>
-              </div>
-            )}
+              )}
+            </div>
           </SheetHeader>
 
           <ScrollArea className="h-[calc(100vh-160px)] mt-6">
