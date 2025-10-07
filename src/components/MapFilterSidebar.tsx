@@ -21,16 +21,16 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 
 const statusOptions = [
-  { value: "offen", label: "Offen", color: "#6b7280" },
-  { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "#eab308" },
-  { value: "karte-eingeworfen", label: "Karte eingeworfen", color: "#f59e0b" },
-  { value: "potenzial", label: "Potenzial", color: "#22c55e" },
-  { value: "neukunde", label: "Neukunde", color: "#3b82f6" },
-  { value: "bestandskunde", label: "Bestandskunde", color: "#10b981" },
-  { value: "kein-interesse", label: "Kein Interesse", color: "#ef4444" },
-  { value: "termin", label: "Termin", color: "#a855f7" },
-  { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "#9ca3af" },
-  { value: "gewerbe", label: "Gewerbe", color: "#f97316" },
+  { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
+  { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+  { value: "karte-eingeworfen", label: "Karte eingeworfen", color: "bg-amber-500 text-white" },
+  { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
+  { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
+  { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
+  { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
+  { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
+  { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
+  { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" },
 ];
 
 interface MapFilterSidebarProps {
@@ -214,29 +214,47 @@ export function MapFilterSidebar({
                     maxHeight: "min(var(--radix-popper-available-height, 300px), 300px)"
                   }}
                 >
-                  <div className="max-h-[300px] overflow-y-auto p-1">
-                    {statusOptions.map((status) => (
-                      <div
-                        key={status.value}
-                        onClick={() => {
-                          setStatusFilter(
-                            statusFilter.includes(status.value)
-                              ? statusFilter.filter((s) => s !== status.value)
-                              : [...statusFilter, status.value]
-                          );
-                        }}
-                        className="flex items-center gap-2 px-3 py-2 cursor-pointer hover:bg-muted rounded-sm"
-                      >
-                        <div
-                          className="w-3 h-3 rounded-full flex-shrink-0"
-                          style={{ backgroundColor: status.color }}
-                        />
-                        <span className="flex-1 text-sm">{status.label}</span>
-                        {statusFilter.includes(status.value) && (
-                          <Check className="h-4 w-4 text-green-500 stroke-[3]" />
-                        )}
-                      </div>
-                    ))}
+                  <div
+                    role="listbox"
+                    aria-multiselectable
+                    className="overflow-y-auto overscroll-contain touch-pan-y"
+                    style={{ 
+                      maxHeight: "min(300px, var(--radix-popper-available-height, 300px))",
+                      WebkitOverflowScrolling: 'touch'
+                    }}
+                    onWheel={(e) => e.stopPropagation()}
+                    onTouchStart={(e) => e.stopPropagation()}
+                    onTouchMove={(e) => e.stopPropagation()}
+                  >
+                    {statusOptions.map((option) => {
+                      const checked = statusFilter.includes(option.value);
+                      return (
+                        <button
+                          key={option.value}
+                          role="option"
+                          aria-selected={checked}
+                          onClick={() => {
+                            setStatusFilter(
+                              checked 
+                                ? statusFilter.filter((s) => s !== option.value) 
+                                : [...statusFilter, option.value]
+                            );
+                          }}
+                          className="w-full text-left px-3 py-2 hover:bg-muted/50 flex items-center gap-2"
+                        >
+                          <span
+                            className={`flex-shrink-0 w-4 h-4 border-2 rounded flex items-center justify-center ${
+                              checked ? 'border-green-500' : 'border-input'
+                            }`}
+                          >
+                            {checked ? <Check className="w-3 h-3 text-green-500 stroke-[3]" /> : null}
+                          </span>
+                          <span className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                            {option.label}
+                          </span>
+                        </button>
+                      );
+                    })}
                   </div>
                 </PopoverContent>
               </PopoverPrimitive.Portal>
