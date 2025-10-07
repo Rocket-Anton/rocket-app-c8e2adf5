@@ -65,13 +65,16 @@ serve(async (req) => {
     console.log('Geocoding address:', { street, houseNumber, postalCode, city });
 
     // Build query string for Nominatim - more specific for building-level accuracy
+    // Format: house number first, then street for better building matching
     const query = `${houseNumber} ${street}, ${postalCode} ${city}, Germany`;
     const encodedQuery = encodeURIComponent(query);
 
-    // Use Nominatim API with building-specific parameters
-    // addressdetails=1 for more detailed response
-    // polygon_geojson=1 to get building geometry when available for rooftop precision
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1&polygon_geojson=1`;
+    // Use Nominatim API with building-specific parameters for rooftop precision
+    // polygon_geojson=1: Get building polygon geometry for centroid calculation
+    // addressdetails=1: Get detailed address components
+    // layer=address: Force address-level results (not street/area)
+    // featuretype=house: Prioritize house/building results
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1&polygon_geojson=1&layer=address&featuretype=house`;
 
     console.log('Calling Nominatim API:', nominatimUrl);
 
