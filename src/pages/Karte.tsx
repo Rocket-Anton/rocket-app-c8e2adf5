@@ -78,7 +78,7 @@ export default function Karte() {
   const [addressListColors, setAddressListColors] = useState<Map<number, string>>(new Map());
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
   const [addresses, setAddresses] = useState<Address[]>([]);
-  const [refinedCoords, setRefinedCoords] = useState<Map<number, [number, number]>>(new Map());
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
 
   // Auth check
   useEffect(() => {
@@ -163,18 +163,21 @@ export default function Karte() {
   }, []);
 
   const loadAddresses = async () => {
+    setIsLoadingAddresses(true);
     const { data, error } = await supabase
       .from('lauflisten_addresses')
       .select('*');
 
     if (error) {
       console.error('Error loading addresses:', error);
+      setIsLoadingAddresses(false);
       return;
     }
 
     if (!data || data.length === 0) {
       console.log('No addresses found in database');
       setAddresses([]);
+      setIsLoadingAddresses(false);
       return;
     }
 
@@ -210,6 +213,7 @@ export default function Karte() {
 
     console.log('Loaded addresses:', loadedAddresses);
     setAddresses(loadedAddresses);
+    setIsLoadingAddresses(false);
   };
 
   const loadAssignedAddresses = async () => {
@@ -241,36 +245,9 @@ export default function Karte() {
     setAddressListColors(colorMap);
   };
 
-  // Refine coordinates with rooftop geocoding (uses edge function, rate-limited)
+  // Initialize map and markers when addresses are loaded
   useEffect(() => {
-    let cancelled = false;
-    const run = async () => {
-      if (addresses.length === 0) return;
-      try {
-        const results = await geocodeAddressesBatch(addresses.map(a => ({
-          street: a.street,
-          houseNumber: a.houseNumber,
-          postalCode: a.postalCode,
-          city: a.city,
-          coordinates: a.coordinates,
-        })));
-        if (cancelled) return;
-        const map = new Map<number, [number, number]>();
-        addresses.forEach((a, i) => {
-          const r = results[i];
-          if (r) map.set(a.id, [r.lng, r.lat]);
-        });
-        setRefinedCoords(map);
-      } catch (e) {
-        console.error('Failed to refine coordinates:', e);
-      }
-    };
-    run();
-    return () => { cancelled = true; };
-  }, [addresses]);
-
-  useEffect(() => {
-    if (!mapContainer.current || mapInstance.current) return;
+    if (!mapContainer.current || mapInstance.current || isLoadingAddresses) return;
 
     // Initialize map centered on Köln-Heumar
     const map = L.map(mapContainer.current).setView([50.9206, 7.0814], 16);
@@ -315,8 +292,7 @@ export default function Karte() {
       // Check which addresses are inside the polygon
       const polygon = layer.getLatLngs()[0];
       const selectedAddrs = addresses.filter(address => {
-        const c = refinedCoords.get(address.id) || address.coordinates;
-        const point = L.latLng(c[1], c[0]);
+        const point = L.latLng(address.coordinates[1], address.coordinates[0]);
         return isPointInPolygon(point, polygon);
       });
       
@@ -357,12 +333,7 @@ export default function Karte() {
       const currentZoom = map.getZoom();
       const customIcon = createMarkerIcon(address, currentZoom);
 
-      const chosen = refinedCoords.get(address.id) || address.coordinates;
-      if (!chosen || (chosen[0] === 0 && chosen[1] === 0)) {
-        // Skip invalid coordinates (e.g., not yet geocoded)
-        return;
-      }
-      const marker = L.marker([chosen[1], chosen[0]], { 
+      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
         icon: customIcon 
       }).addTo(map);
       
@@ -386,13 +357,13 @@ export default function Karte() {
 
       // Zoom to marker on click
       marker.on('click', () => {
-        map.setView([chosen[1], chosen[0]], 18, {
+        map.setView([address.coordinates[1], address.coordinates[0]], 18, {
           animate: true,
           duration: 0.5
         });
       });
 
-      bounds.extend([chosen[1], chosen[0]]);
+      bounds.extend([address.coordinates[1], address.coordinates[0]]);
     });
 
     markersRef.current = markers;
@@ -420,7 +391,7 @@ export default function Karte() {
         mapInstance.current = null;
       }
     };
-  }, [addresses, refinedCoords]);
+  }, [addresses, isLoadingAddresses]);
 
   // Toggle drawing mode
   const toggleDrawingMode = () => {
@@ -514,11 +485,7 @@ export default function Karte() {
         iconAnchor: [size / 2, size / 2],
       });
 
-      const chosen = refinedCoords.get(address.id) || address.coordinates;
-      if (!chosen || (chosen[0] === 0 && chosen[1] === 0)) {
-        return; // skip invalid coords
-      }
-      const marker = L.marker([chosen[1], chosen[0]], { 
+      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
         icon: customIcon 
       }).addTo(map);
       
@@ -541,9 +508,8 @@ export default function Karte() {
       `);
 
       // Zoom to marker on click
-      const c = refinedCoords.get(address.id) || address.coordinates;
       marker.on('click', () => {
-        map.setView([c[1], c[0]], 18, {
+        map.setView([address.coordinates[1], address.coordinates[0]], 18, {
           animate: true,
           duration: 0.5
         });
@@ -551,7 +517,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses, refinedCoords]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
@@ -582,10 +548,20 @@ export default function Karte() {
 
             {/* Map Container */}
             <div className="flex-1 overflow-hidden relative z-0">
-              <div className="h-full w-full" ref={mapContainer} style={{ cursor: isDrawingMode ? 'crosshair' : undefined }} />
+              {isLoadingAddresses ? (
+                <div className="h-full w-full flex items-center justify-center bg-muted/30">
+                  <div className="flex flex-col items-center gap-3">
+                    <div className="w-12 h-12 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+                    <p className="text-sm text-muted-foreground">Laden...</p>
+                  </div>
+                </div>
+              ) : (
+                <div className="h-full w-full" ref={mapContainer} style={{ cursor: isDrawingMode ? 'crosshair' : undefined }} />
+              )}
               
               {/* Map Controls - Right Side */}
-              <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
+              {!isLoadingAddresses && (
+                <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
                 <Button
                   onClick={() => setShowListsSidebar(true)}
                   variant="outline"
@@ -668,6 +644,7 @@ export default function Karte() {
                   <Maximize2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </div>
+              )}
             </div>
           </div>
         </SidebarInset>
