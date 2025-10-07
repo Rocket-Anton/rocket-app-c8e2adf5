@@ -243,22 +243,28 @@ export default function Karte() {
   const loadAssignedAddresses = async () => {
     const { data, error } = await supabase
       .from('lauflisten_addresses')
-      .select('address_id, laufliste_id, lauflisten(color, assigned_to)');
+      .select('address_id, laufliste_id, lauflisten!inner(color, assigned_to)');
 
     if (error) {
       console.error('Error loading assigned addresses:', error);
       return;
     }
 
+    console.log('Loaded assigned addresses with colors:', data);
+
     const ids = new Set(data?.map(item => item.address_id) || []);
     const colorMap = new Map<number, string>();
     
     data?.forEach(item => {
-      if (item.lauflisten && Array.isArray(item.lauflisten) && item.lauflisten[0]) {
-        colorMap.set(item.address_id, item.lauflisten[0].color);
+      // The join returns a single object, not an array
+      if (item.lauflisten) {
+        const list = item.lauflisten as any;
+        colorMap.set(item.address_id, list.color);
+        console.log(`Address ${item.address_id} -> Color ${list.color}`);
       }
     });
     
+    console.log('Color map:', colorMap);
     setAssignedAddressIds(ids);
     setAddressListColors(colorMap);
   };
