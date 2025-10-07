@@ -4,8 +4,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon, Filter, Layers, Maximize2 } from "lucide-react";
-import runningIcon from "@/assets/running-icon-clean.png";
+import { Pentagon, Filter, Layers, Maximize2, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -378,7 +377,7 @@ export default function Karte() {
                   size="icon"
                   title="Laufliste"
                 >
-                  <img src={runningIcon} alt="Laufliste" className="h-6 w-6 opacity-60" />
+                  <ClipboardList className="h-6 w-6 text-muted-foreground" />
                 </Button>
                 
                 <Button
