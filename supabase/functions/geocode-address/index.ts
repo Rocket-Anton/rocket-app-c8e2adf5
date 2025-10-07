@@ -28,12 +28,14 @@ serve(async (req) => {
 
     console.log('Geocoding address:', { street, houseNumber, postalCode, city });
 
-    // Build query string for Nominatim
-    const query = `${street} ${houseNumber}, ${postalCode} ${city}, Germany`;
+    // Build query string for Nominatim - more specific for building-level accuracy
+    const query = `${houseNumber} ${street}, ${postalCode} ${city}, Germany`;
     const encodedQuery = encodeURIComponent(query);
 
-    // Use Nominatim API (OpenStreetMap) - Free and no API key required
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1`;
+    // Use Nominatim API with building-specific parameters
+    // addressdetails=1 for more detailed response
+    // layer=address forces address-level results (buildings, not streets)
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1&layer=address`;
 
     console.log('Calling Nominatim API:', nominatimUrl);
 
