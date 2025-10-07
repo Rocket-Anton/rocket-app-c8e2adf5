@@ -1,8 +1,9 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, PersonStanding, Circle, Calendar, User, Settings, Moon } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, Circle, Calendar, User, Settings, Moon } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
 import rocketIcon from "@/assets/rocket-icon-blue.png";
+import runningIcon from "@/assets/running-icon-clean.png";
 import { 
   Sidebar, 
   SidebarContent, 
@@ -125,7 +126,7 @@ export const DashboardSidebar = () => {
                     }`}
                   >
                     <div className="flex items-center gap-3">
-                      <PersonStanding className="!w-5 !h-5 flex-shrink-0" />
+                      <img src={runningIcon} alt="Laufliste" className="!w-5 !h-5 flex-shrink-0 opacity-100" />
                       {state !== "collapsed" && <span className="text-base whitespace-nowrap">Lauflisten</span>}
                     </div>
                     {state !== "collapsed" && (
