@@ -391,7 +391,7 @@ export default function Karte() {
                 </Button>
                 
                 <Button
-                  variant="outline"
+                  variant={isDrawingMode ? "default" : "outline"}
                   className="shadow-lg bg-white hover:bg-white/90 border-border"
                   size="icon"
                   title="Polygon zeichnen"
