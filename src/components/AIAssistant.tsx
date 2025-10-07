@@ -202,28 +202,17 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
     stopRecording();
   };
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    startYRef.current = e.clientY;
-    startRecording();
-  };
-
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isRecording) return;
-    const currentY = e.clientY;
-    const diff = startYRef.current - currentY;
+  const handleClick = () => {
+    if (isLoading) return;
     
-    if (diff > 80 && !isLocked) {
-      setIsLocked(true);
-      setSlideOffset(0);
-    } else if (!isLocked) {
-      setSlideOffset(Math.max(0, diff));
+    if (isRecording) {
+      // Stop and send
+      stopRecording();
+    } else {
+      // Start recording
+      startRecording();
+      setIsLocked(true); // Auto-lock for desktop
     }
-  };
-
-  const handleMouseUp = () => {
-    if (!isRecording) return;
-    if (isLocked) return;
-    stopRecording();
   };
 
   const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-4";
@@ -385,10 +374,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                   onTouchStart={handleTouchStart}
                   onTouchMove={handleTouchMove}
                   onTouchEnd={handleTouchEnd}
-                  onMouseDown={handleMouseDown}
-                  onMouseMove={handleMouseMove}
-                  onMouseUp={handleMouseUp}
-                  onMouseLeave={handleMouseUp}
+                  onClick={handleClick}
                   disabled={isLoading}
                   className={cn(
                     "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all select-none",
