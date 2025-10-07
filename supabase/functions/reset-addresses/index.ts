@@ -47,38 +47,19 @@ Deno.serve(async (req) => {
       { street: 'Am Pfarracker', house_number: '35 A', postal_code: '33619', city: 'Bielefeld' },
     ];
 
-    // Geocode each address and insert
+    console.log('Creating addresses with temporary coordinates, then geocoding...');
+    
+    // Step 1: Create all addresses with Bielefeld center as temporary coordinates
+    const bielefeldCenter = { lat: 52.0302, lng: 8.5325 };
     const insertedAddresses = [];
     
     for (const addr of addresses) {
       try {
-        console.log(`Geocoding ${addr.street} ${addr.house_number}...`);
-        
-        // Call geocode function
-        const { data: geocodeData, error: geocodeError } = await supabase.functions.invoke('geocode-address', {
-          body: {
-            street: addr.street,
-            houseNumber: addr.house_number,
-            postalCode: addr.postal_code,
-            city: addr.city,
-          },
-        });
-
-        if (geocodeError || !geocodeData?.coordinates) {
-          console.error(`Geocoding failed for ${addr.street} ${addr.house_number}:`, geocodeError || 'No coordinates returned');
-          // Skip this address if geocoding fails - no dummy data!
-          continue;
-        }
-
-        const coordinates = geocodeData.coordinates;
-        console.log(`Successfully geocoded ${addr.street} ${addr.house_number}:`, coordinates);
-
-        // Insert address with real geocoded coordinates
         const { data, error } = await supabase
           .from('addresses')
           .insert({
             ...addr,
-            coordinates,
+            coordinates: bielefeldCenter,
             units: [{ status: 'nicht_bearbeitet' }],
             created_by: user.id,
           })
@@ -86,19 +67,67 @@ Deno.serve(async (req) => {
           .single();
 
         if (error) {
-          console.error(`Database insert failed for ${addr.street} ${addr.house_number}:`, error);
-          throw error;
+          console.error(`Failed to insert ${addr.street} ${addr.house_number}:`, error);
+          continue;
         }
         
         insertedAddresses.push(data);
-        console.log(`Successfully inserted ${addr.street} ${addr.house_number}`);
-        
+        console.log(`Inserted ${addr.street} ${addr.house_number} with ID ${data.id}`);
       } catch (err: any) {
-        console.error(`Error processing ${addr.street} ${addr.house_number}:`, err.message);
+        console.error(`Error inserting ${addr.street} ${addr.house_number}:`, err.message);
       }
     }
 
-    return new Response(JSON.stringify({ success: true, addresses: insertedAddresses }), {
+    // Step 2: Geocode and update each address (in background)
+    const geocodePromises = insertedAddresses.map(async (address) => {
+      try {
+        console.log(`Geocoding ${address.street} ${address.house_number}...`);
+        
+        const { data: geocodeData, error: geocodeError } = await supabase.functions.invoke('geocode-address', {
+          body: {
+            street: address.street,
+            houseNumber: address.house_number,
+            postalCode: address.postal_code,
+            city: address.city,
+          },
+        });
+
+        if (geocodeError || !geocodeData?.coordinates) {
+          console.error(`Geocoding failed for ${address.street} ${address.house_number}:`, geocodeError);
+          return;
+        }
+
+        console.log(`Got coordinates for ${address.street} ${address.house_number}:`, geocodeData.coordinates);
+
+        // Update address with real coordinates
+        const { error: updateError } = await supabase
+          .from('addresses')
+          .update({ coordinates: geocodeData.coordinates })
+          .eq('id', address.id);
+
+        if (updateError) {
+          console.error(`Failed to update coordinates for ${address.street} ${address.house_number}:`, updateError);
+        } else {
+          console.log(`Successfully updated coordinates for ${address.street} ${address.house_number}`);
+        }
+      } catch (err: any) {
+        console.error(`Error geocoding ${address.street} ${address.house_number}:`, err.message);
+      }
+    });
+
+    // Wait for all geocoding to complete (with timeout)
+    await Promise.race([
+      Promise.all(geocodePromises),
+      new Promise(resolve => setTimeout(resolve, 30000)) // 30s timeout
+    ]);
+
+    console.log(`Reset complete: ${insertedAddresses.length} addresses created`);
+
+    return new Response(JSON.stringify({ 
+      success: true, 
+      addresses: insertedAddresses,
+      message: `${insertedAddresses.length} Adressen erstellt und werden geocoded...`
+    }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
