@@ -392,12 +392,12 @@ export default function Karte() {
                 
                 <Button
                   variant={isDrawingMode ? "default" : "outline"}
-                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  className={`shadow-lg border-border ${isDrawingMode ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
                   size="icon"
                   title="Polygon zeichnen"
                   onClick={toggleDrawingMode}
                 >
-                  <Pentagon className="h-4 w-4 text-muted-foreground" />
+                  <Pentagon className={`h-4 w-4 ${isDrawingMode ? '' : 'text-muted-foreground'}`} />
                 </Button>
                 
                 <Button
