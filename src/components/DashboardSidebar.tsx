@@ -101,7 +101,7 @@ export const DashboardSidebar = () => {
         className="
           bg-sidebar transition-all duration-300 ease-in-out
           !border-r-0 data-[side=left]:border-r-0 data-[side=right]:border-l-0
-          shadow-none
+          shadow-none z-10
         " 
         style={{ ['--sidebar-width-icon' as any]: '5.5rem', ['--sidebar-width' as any]: '14rem' }}
       >
