@@ -52,7 +52,7 @@ Deno.serve(async (req) => {
       .insert(addresses.map(addr => ({
         ...addr,
         coordinates: { lat: 52.0302, lng: 8.5325 },
-        units: [],
+        units: [{ status: 'nicht_bearbeitet' }], // Minimum 1 WE pro Adresse
         created_by: user.id,
       })))
       .select();
