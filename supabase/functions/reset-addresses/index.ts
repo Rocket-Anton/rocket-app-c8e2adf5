@@ -52,6 +52,8 @@ Deno.serve(async (req) => {
     
     for (const addr of addresses) {
       try {
+        console.log(`Geocoding ${addr.street} ${addr.house_number}...`);
+        
         // Call geocode function
         const { data: geocodeData, error: geocodeError } = await supabase.functions.invoke('geocode-address', {
           body: {
@@ -62,16 +64,16 @@ Deno.serve(async (req) => {
           },
         });
 
-        let coordinates = { lat: 52.0302, lng: 8.5325 }; // Fallback
-        
-        if (!geocodeError && geocodeData?.coordinates) {
-          coordinates = geocodeData.coordinates;
-          console.log(`Geocoded ${addr.street} ${addr.house_number}:`, coordinates);
-        } else {
-          console.error(`Geocoding failed for ${addr.street} ${addr.house_number}:`, geocodeError);
+        if (geocodeError || !geocodeData?.coordinates) {
+          console.error(`Geocoding failed for ${addr.street} ${addr.house_number}:`, geocodeError || 'No coordinates returned');
+          // Skip this address if geocoding fails - no dummy data!
+          continue;
         }
 
-        // Insert address with geocoded coordinates
+        const coordinates = geocodeData.coordinates;
+        console.log(`Successfully geocoded ${addr.street} ${addr.house_number}:`, coordinates);
+
+        // Insert address with real geocoded coordinates
         const { data, error } = await supabase
           .from('addresses')
           .insert({
@@ -83,11 +85,16 @@ Deno.serve(async (req) => {
           .select()
           .single();
 
-        if (error) throw error;
+        if (error) {
+          console.error(`Database insert failed for ${addr.street} ${addr.house_number}:`, error);
+          throw error;
+        }
+        
         insertedAddresses.push(data);
+        console.log(`Successfully inserted ${addr.street} ${addr.house_number}`);
         
       } catch (err: any) {
-        console.error(`Error processing ${addr.street} ${addr.house_number}:`, err);
+        console.error(`Error processing ${addr.street} ${addr.house_number}:`, err.message);
       }
     }
 
