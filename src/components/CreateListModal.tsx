@@ -195,61 +195,18 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
 
       console.log('List created:', laufliste);
 
-      // Geocode all addresses in parallel for maximum speed
-      console.log('Starting parallel geocoding for', addresses.length, 'addresses');
-      const geocodedAddresses = await Promise.all(
-        addresses.map(async (addr) => {
-          // Check if coordinates are valid
-          if (hasValidCoordinates(addr.coordinates)) {
-            return {
-              ...addr,
-              coordinates: { lng: addr.coordinates[0], lat: addr.coordinates[1] }
-            };
-          }
-
-          // Geocode the address (parallel execution)
-          const result = await geocodeAddress(
-            addr.street,
-            addr.houseNumber,
-            addr.postalCode,
-            addr.city
-          );
-
-          if (result.coordinates) {
-            return {
-              ...addr,
-              coordinates: result.coordinates
-            };
-          } else {
-            console.warn(`Failed to geocode: ${addr.street} ${addr.houseNumber}`);
-            // Use fallback coordinates (0, 0) if geocoding fails
-            return {
-              ...addr,
-              coordinates: { lng: 0, lat: 0 }
-            };
-          }
-        })
-      );
-      console.log('Parallel geocoding completed');
-
-      // Add addresses to laufliste
-      const addressInserts = geocodedAddresses.map(addr => ({
+      // Add addresses to laufliste (only create junction table entries)
+      const addressLinks = addresses.map(addr => ({
         laufliste_id: laufliste.id,
         address_id: addr.id,
-        street: addr.street,
-        house_number: addr.houseNumber,
-        postal_code: addr.postalCode,
-        city: addr.city,
-        coordinates: addr.coordinates,
-        units: addr.units,
       }));
 
       const { error: addressError } = await supabase
         .from('lauflisten_addresses')
-        .insert(addressInserts);
+        .insert(addressLinks);
 
       if (addressError) {
-        console.error('Error adding addresses:', addressError);
+        console.error('Error linking addresses:', addressError);
         throw addressError;
       }
 

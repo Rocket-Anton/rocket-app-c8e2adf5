@@ -104,41 +104,30 @@ export type Database = {
       lauflisten_addresses: {
         Row: {
           address_id: number
-          city: string
-          coordinates: Json
           created_at: string
-          house_number: string
           id: string
           laufliste_id: string
-          postal_code: string
-          street: string
-          units: Json
         }
         Insert: {
           address_id: number
-          city: string
-          coordinates: Json
           created_at?: string
-          house_number: string
           id?: string
           laufliste_id: string
-          postal_code: string
-          street: string
-          units: Json
         }
         Update: {
           address_id?: number
-          city?: string
-          coordinates?: Json
           created_at?: string
-          house_number?: string
           id?: string
           laufliste_id?: string
-          postal_code?: string
-          street?: string
-          units?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "lauflisten_addresses_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "lauflisten_addresses_laufliste_id_fkey"
             columns: ["laufliste_id"]

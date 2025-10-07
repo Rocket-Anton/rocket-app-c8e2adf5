@@ -104,7 +104,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const fetchStatusCounts = async () => {
     const { data, error } = await supabase
       .from('lauflisten_addresses')
-      .select('laufliste_id, units');
+      .select('laufliste_id, addresses!inner(units)');
 
     if (error) {
       console.error('Error fetching status counts:', error);
@@ -119,11 +119,13 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
         counts[listId] = {};
       }
 
-      const units = item.units as any[];
-      units.forEach((unit: any) => {
-        const status = unit.status;
-        counts[listId][status] = (counts[listId][status] || 0) + 1;
-      });
+      const units = (item.addresses as any)?.units as any[];
+      if (units) {
+        units.forEach((unit: any) => {
+          const status = unit.status;
+          counts[listId][status] = (counts[listId][status] || 0) + 1;
+        });
+      }
     });
 
     setStatusCounts(counts);
