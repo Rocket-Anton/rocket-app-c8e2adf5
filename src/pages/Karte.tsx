@@ -270,8 +270,10 @@ function KarteContent() {
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current || isLoadingAddresses) return;
 
-    // Initialize map centered on Köln-Heumar
-    const map = L.map(mapContainer.current).setView([50.9206, 7.0814], 16);
+    // Initialize map centered on Köln-Heumar without attribution
+    const map = L.map(mapContainer.current, {
+      attributionControl: false
+    }).setView([50.9206, 7.0814], 16);
     mapInstance.current = map;
 
     // Add tile layer
