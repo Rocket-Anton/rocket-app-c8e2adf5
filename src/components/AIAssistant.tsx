@@ -93,23 +93,80 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     fetchProfile();
   }, []);
 
-  // React to order creation
+  // React to order creation with intelligent responses
   useEffect(() => {
     if (onOrderCreated) {
-      const handleOrderCreated = () => {
-        const celebrationMessages = [
-          "🎉 Wow! Neuer Kunde! Super gemacht! Du rockst!",
-          "💪 Stark! Wieder ein neuer Kunde! Weiter so!",
-          "🔥 Krass! Das läuft heute richtig gut bei dir!",
-          "⭐ Perfekt! Ein weiterer Kunde gewonnen!",
-          "🚀 Boom! Neukunde! Du bist der Beste!"
-        ];
-        const randomMsg = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
-        
-        setMessages(prev => [...prev, { 
-          role: "assistant", 
-          content: randomMsg 
-        }]);
+      const handleOrderCreated = async () => {
+        try {
+          const { data: { user } } = await supabase.auth.getUser();
+          if (!user) return;
+
+          // Get today's stats
+          const { data: statsData } = await supabase.rpc('get_today_stats', {
+            p_user_id: user.id
+          });
+
+          // Get conversion rate
+          const { data: conversionData } = await supabase.rpc('get_user_conversion_rate', {
+            p_user_id: user.id
+          });
+
+          const stats = Array.isArray(statsData) ? statsData[0] : statsData;
+          const conversion = Array.isArray(conversionData) ? conversionData[0] : conversionData;
+
+          const ordersToday = (stats?.orders_today || 0) + 1; // +1 for the order just created
+          const targetOrders = stats?.goal_orders || 0;
+          const conversionRate = conversion?.conversion_rate || 0;
+          const statusChangesToday = stats?.status_changes_today || 0;
+
+          let message = "";
+
+          // Check if goal is set
+          if (targetOrders === 0) {
+            // No goal set - ask for it
+            message = `🎉 Super! Das ist dein ${ordersToday}. Auftrag heute!\n\nSag mal, was ist denn dein Ziel für heute? Wie viele Aufträge willst du noch schreiben?`;
+          } else {
+            // Goal is set - provide intelligent feedback
+            const remaining = targetOrders - ordersToday;
+            
+            if (ordersToday === 1) {
+              // First order
+              if (conversionRate > 0) {
+                const contactsNeeded = Math.ceil(remaining * conversionRate);
+                message = `🎉 Stark! Dein erster Auftrag heute ist in der Tasche!\n\nDu hast heute noch ${statusChangesToday} Kontakte gemacht. Bei deiner Conversion-Rate von ${conversionRate.toFixed(1)} brauchst du durchschnittlich ${conversionRate.toFixed(1)} Kontakte für einen Auftrag.\n\nBis zu deinem Tagesziel von ${targetOrders} Aufträgen brauchst du noch ca. ${contactsNeeded} Kontakte. Vollgas! 💪`;
+              } else {
+                message = `🎉 Perfekt! Dein erster Auftrag heute!\n\nNoch ${remaining} bis zum Tagesziel von ${targetOrders}. Du schaffst das! 🚀`;
+              }
+            } else if (remaining > 0) {
+              // Progress towards goal
+              const contactsForNext = conversionRate > 0 ? Math.ceil(conversionRate) : 5;
+              message = `🔥 Yes! Das ist schon Auftrag Nr. ${ordersToday} heute!\n\nNoch ${remaining} bis zum Ziel. Bei deiner Rate brauchst du noch ca. ${contactsForNext} Kontakte für den nächsten. Weiter so! 💪`;
+            } else if (remaining === 0) {
+              // Goal reached!
+              message = `🎊 BOOM! Tagesziel erreicht!\n\nDu hast ${ordersToday} Aufträge geschrieben - genau dein Ziel! Du bist der Hammer! 🏆`;
+            } else {
+              // Over goal
+              message = `⭐ Wahnsinn! ${ordersToday} Aufträge heute!\n\nDu hast dein Ziel von ${targetOrders} schon übertroffen! Absoluter Champion! 👑`;
+            }
+          }
+
+          setMessages(prev => [...prev, { 
+            role: "assistant", 
+            content: message 
+          }]);
+        } catch (error) {
+          console.error("Error getting stats:", error);
+          // Fallback message
+          const fallbackMessages = [
+            "🎉 Super gemacht! Ein weiterer Auftrag!",
+            "💪 Stark! Weiter so!",
+            "🔥 Yes! Du rockst!"
+          ];
+          setMessages(prev => [...prev, { 
+            role: "assistant", 
+            content: fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)]
+          }]);
+        }
       };
       
       // Store the handler

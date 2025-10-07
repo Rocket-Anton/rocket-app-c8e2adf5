@@ -7,6 +7,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
 import confetti from 'canvas-confetti';
+import { supabase } from "@/integrations/supabase/client";
 import {
   Dialog,
   DialogContent,
@@ -1030,6 +1031,28 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       className: "bg-green-500 text-white border-0 text-lg font-semibold",
       duration: 3000,
     });
+
+    // Track order creation in user_activities
+    const trackOrderCreation = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser();
+        if (user) {
+          await supabase.from('user_activities').insert({
+            user_id: user.id,
+            activity_type: 'order_created',
+            metadata: {
+              address_id: orderAddressId,
+              unit_id: orderUnitId,
+              tarif: orderForm.tarif,
+              customer: `${orderForm.vorname} ${orderForm.nachname}`
+            }
+          });
+        }
+      } catch (error) {
+        console.error('Error tracking order:', error);
+      }
+    };
+    trackOrderCreation();
 
     // Notify parent component about order creation
     onOrderCreated?.();
