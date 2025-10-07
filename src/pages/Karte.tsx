@@ -552,7 +552,7 @@ export default function Karte() {
                 <Button
                   onClick={() => setShowListsSidebar(true)}
                   variant="outline"
-                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                   size="icon"
                   title="Lauflisten anzeigen"
                 >
