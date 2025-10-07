@@ -74,6 +74,19 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
           // Skip transparent pixels
           if (a < 128) continue;
 
+          // Skip near-white colors (brightness > 240)
+          const brightness = (r + g + b) / 3;
+          if (brightness > 240) continue;
+
+          // Skip near-black colors (brightness < 15)
+          if (brightness < 15) continue;
+
+          // Skip grayscale colors (low saturation)
+          const max = Math.max(r, g, b);
+          const min = Math.min(r, g, b);
+          const saturation = max === 0 ? 0 : (max - min) / max;
+          if (saturation < 0.2) continue;
+
           const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
           colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
         }
@@ -84,6 +97,7 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
           .slice(0, 5)
           .map(([color]) => color);
 
+        console.log("Extracted colors:", sortedColors);
         resolve(sortedColors);
       };
       img.src = imageSrc;
