@@ -282,30 +282,31 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
       <Sheet open={open} onOpenChange={onClose}>
         <SheetContent side="right" className="w-[400px] sm:w-[540px]">
           <SheetHeader>
-            <div className="flex items-center justify-between">
-              <SheetTitle>Lauflisten</SheetTitle>
-              <div className="flex gap-2">
-                {selectedLists.size >= 2 && (
-                  <Button
-                    size="sm"
-                    variant="default"
-                    onClick={() => setShowMergeConfirm(true)}
-                    className="gap-2"
-                  >
-                    <Merge className="h-4 w-4" />
-                    Zusammenführen ({selectedLists.size})
-                  </Button>
-                )}
+            <div className="flex items-center justify-between gap-4">
+              <div className="flex items-center gap-3">
+                <SheetTitle>Lauflisten</SheetTitle>
                 {selectedLists.size >= 1 && (
                   <Button
                     size="icon"
-                    variant="destructive"
+                    variant="ghost"
                     onClick={() => setShowBulkDeleteConfirm(true)}
+                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                   >
                     <Trash className="h-4 w-4" />
                   </Button>
                 )}
               </div>
+              {selectedLists.size >= 2 && (
+                <Button
+                  size="sm"
+                  variant="default"
+                  onClick={() => setShowMergeConfirm(true)}
+                  className="gap-2 flex-shrink-0"
+                >
+                  <Merge className="h-4 w-4" />
+                  Zusammenführen ({selectedLists.size})
+                </Button>
+              )}
             </div>
           </SheetHeader>
 
