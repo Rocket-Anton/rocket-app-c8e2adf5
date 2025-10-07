@@ -43,12 +43,12 @@ const LIST_COLORS = [
 ];
 
 export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateListModalProps) {
-  const [listName, setListName] = useState("");
   const [assignToUser, setAssignToUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
-  const [selectedColor, setSelectedColor] = useState(LIST_COLORS[0].value);
+  const [selectedColor, setSelectedColor] = useState("");
   const [profiles, setProfiles] = useState<Profile[]>([]);
   const [loading, setLoading] = useState(false);
+  const [usedColors, setUsedColors] = useState<string[]>([]);
 
   const totalUnits = addresses.reduce((sum, addr) => sum + addr.units.length, 0);
   const factor = addresses.length > 0 ? (totalUnits / addresses.length).toFixed(2) : "0.00";
@@ -56,6 +56,7 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
   useEffect(() => {
     if (open) {
       fetchProfiles();
+      fetchUsedColors();
     }
   }, [open]);
 
@@ -74,14 +75,70 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
     setProfiles(data || []);
   };
 
-  const handleCreate = async () => {
-    if (!listName.trim()) {
-      toast.error('Bitte geben Sie einen Namen für die Laufliste ein');
+  const fetchUsedColors = async () => {
+    const { data, error } = await supabase
+      .from('lauflisten')
+      .select('color');
+
+    if (error) {
+      console.error('Error fetching used colors:', error);
       return;
     }
 
+    const colors = data?.map(item => item.color) || [];
+    setUsedColors(colors);
+
+    // Select first available color
+    const availableColor = LIST_COLORS.find(color => !colors.includes(color.value));
+    if (availableColor) {
+      setSelectedColor(availableColor.value);
+    }
+  };
+
+  const generateListName = async (userId: string | null): Promise<string> => {
+    if (userId) {
+      // Get user name
+      const profile = profiles.find(p => p.id === userId);
+      if (!profile) return "Laufliste 1";
+
+      // Count existing lists for this user
+      const { data, error } = await supabase
+        .from('lauflisten')
+        .select('id')
+        .eq('assigned_to', userId);
+
+      if (error) {
+        console.error('Error counting user lists:', error);
+        return `${profile.name} 1`;
+      }
+
+      const count = (data?.length || 0) + 1;
+      return `${profile.name} ${count}`;
+    } else {
+      // Count unassigned lists
+      const { data, error } = await supabase
+        .from('lauflisten')
+        .select('id')
+        .is('assigned_to', null);
+
+      if (error) {
+        console.error('Error counting unassigned lists:', error);
+        return "Laufliste 1";
+      }
+
+      const count = (data?.length || 0) + 1;
+      return `Laufliste ${count}`;
+    }
+  };
+
+  const handleCreate = async () => {
     if (assignToUser && !selectedUser) {
       toast.error('Bitte wählen Sie eine Rakete aus');
+      return;
+    }
+
+    if (!selectedColor) {
+      toast.error('Keine verfügbare Farbe gefunden');
       return;
     }
 
@@ -95,6 +152,9 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
         setLoading(false);
         return;
       }
+
+      // Generate list name
+      const listName = await generateListName(assignToUser ? selectedUser : null);
 
       // Create laufliste
       const { data: laufliste, error: listError } = await supabase
@@ -131,15 +191,14 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
 
       if (addressError) throw addressError;
 
-      toast.success('Laufliste erfolgreich erstellt!');
+      toast.success(`Laufliste "${listName}" erfolgreich erstellt!`);
       onSuccess();
       onClose();
       
       // Reset form
-      setListName("");
       setAssignToUser(false);
       setSelectedUser("");
-      setSelectedColor(LIST_COLORS[0].value);
+      setSelectedColor("");
     } catch (error) {
       console.error('Error creating list:', error);
       toast.error('Fehler beim Erstellen der Laufliste');
@@ -172,33 +231,29 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
             </div>
           </div>
 
-          {/* List Name */}
+          {/* Color Display */}
           <div className="space-y-2">
-            <Label htmlFor="list-name">Name der Laufliste</Label>
-            <Input
-              id="list-name"
-              placeholder="z.B. Am Alten Turm"
-              value={listName}
-              onChange={(e) => setListName(e.target.value)}
-            />
-          </div>
-
-          {/* Color Selection */}
-          <div className="space-y-2">
-            <Label>Farbe</Label>
-            <div className="flex gap-2 flex-wrap">
-              {LIST_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`w-10 h-10 rounded-full border-2 transition-all ${
-                    selectedColor === color.value ? 'border-foreground scale-110' : 'border-border'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.label}
-                />
-              ))}
+            <Label>Zugewiesene Farbe</Label>
+            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
+              {selectedColor ? (
+                <>
+                  <div
+                    className="w-8 h-8 rounded-full border-2 border-background shadow-sm"
+                    style={{ backgroundColor: selectedColor }}
+                  />
+                  <span className="text-sm text-foreground">
+                    {LIST_COLORS.find(c => c.value === selectedColor)?.label || 'Farbe ausgewählt'}
+                  </span>
+                </>
+              ) : (
+                <span className="text-sm text-muted-foreground">Keine verfügbaren Farben</span>
+              )}
             </div>
+            {usedColors.length > 0 && (
+              <p className="text-xs text-muted-foreground">
+                {usedColors.length} von {LIST_COLORS.length} Farben bereits verwendet
+              </p>
+            )}
           </div>
 
           {/* Assign to User */}
