@@ -283,8 +283,19 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
         <SheetContent side="right" className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">
-              <div className="flex items-center gap-3">
-                <SheetTitle>Lauflisten</SheetTitle>
+              <SheetTitle>Lauflisten</SheetTitle>
+              <div className="flex items-center gap-2">
+                {selectedLists.size >= 2 && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => setShowMergeConfirm(true)}
+                    className="gap-2 flex-shrink-0"
+                  >
+                    <Merge className="h-4 w-4" />
+                    Zusammenführen ({selectedLists.size})
+                  </Button>
+                )}
                 <Button
                   size="icon"
                   variant="ghost"
@@ -297,17 +308,6 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                   <Trash2 className="h-5 w-5" />
                 </Button>
               </div>
-              {selectedLists.size >= 2 && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={() => setShowMergeConfirm(true)}
-                  className="gap-2 flex-shrink-0"
-                >
-                  <Merge className="h-4 w-4" />
-                  Zusammenführen ({selectedLists.size})
-                </Button>
-              )}
             </div>
           </SheetHeader>
 
