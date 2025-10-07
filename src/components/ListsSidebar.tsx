@@ -459,7 +459,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
               </DropdownMenu>
             </div>
 
-            <div className="flex items-center justify-end text-[11px] text-muted-foreground mt-1 px-1 min-h-[16px]">
+            <div className="flex items-center justify-end text-[11px] text-muted-foreground mt-0.5 px-1 min-h-[16px]">
               {selectedLists.size > 0 && (
                 <button 
                   onClick={toggleSelectAll} 
