@@ -195,19 +195,16 @@ export default function Karte() {
 
     const color = statusColorMap[primaryStatus] || "#6b7280";
     
-    // Scale marker size based on zoom level - smaller when zoomed in
-    let size = 32;
-    let fontSize = 14;
-    let borderWidth = 3;
+    // Scale marker size based on zoom level - smaller markers
+    let size = 24;
+    let fontSize = 11;
     
     if (zoom >= 18) {
-      size = 24;
-      fontSize = 11;
-      borderWidth = 2;
+      size = 18;
+      fontSize = 9;
     } else if (zoom >= 16) {
-      size = 28;
-      fontSize = 12;
-      borderWidth = 2;
+      size = 20;
+      fontSize = 10;
     }
 
     return L.divIcon({
@@ -219,7 +216,6 @@ export default function Karte() {
           background: ${color};
           color: white;
           border-radius: 50%;
-          border: ${borderWidth}px solid white;
           box-shadow: 0 2px 6px rgba(0,0,0,0.3);
           display: flex;
           align-items: center;
@@ -473,10 +469,9 @@ export default function Karte() {
       
       const currentZoom = map.getZoom();
       
-      // Create marker icon with the determined color
-      const size = 32;
-      const fontSize = 14;
-      const borderWidth = 3;
+      // Create marker icon with the determined color - smaller markers without border
+      const size = 24;
+      const fontSize = 11;
       
       const customIcon = L.divIcon({
         className: "custom-address-marker",
@@ -487,7 +482,6 @@ export default function Karte() {
             background: ${color};
             color: white;
             border-radius: 50%;
-            border: ${borderWidth}px solid white;
             box-shadow: 0 2px 6px rgba(0,0,0,0.3);
             display: flex;
             align-items: center;
