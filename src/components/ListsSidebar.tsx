@@ -19,11 +19,12 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUpDown, X } from "lucide-react";
+import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUpDown, X, CheckSquare, Square } from "lucide-react";
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
@@ -336,6 +337,15 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     }
   };
 
+  const handleSelectAll = () => {
+    const filtered = getFilteredAndSortedLists();
+    setSelectedLists(new Set(filtered.map(l => l.id)));
+  };
+
+  const handleDeselectAll = () => {
+    setSelectedLists(new Set());
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onClose} modal={false}>
@@ -343,13 +353,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">
               <SheetTitle>Lauflisten ({lists.length})</SheetTitle>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-1">
                 {selectedLists.size >= 2 && (
                   <Button
                     size="icon"
                     variant="ghost"
                     onClick={() => setShowMergeConfirm(true)}
-                    className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-opacity"
+                    className="h-9 w-9 text-primary hover:text-primary hover:bg-primary/10 transition-opacity"
                     title={`Zusammenführen (${selectedLists.size})`}
                   >
                     <Merge className="h-5 w-5" />
@@ -360,9 +370,10 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                   variant="ghost"
                   onClick={() => setShowBulkDeleteConfirm(true)}
                   className={cn(
-                    "h-8 w-8 mr-6 text-destructive hover:text-destructive hover:bg-destructive/10 transition-opacity",
+                    "h-9 w-9 mr-6 text-destructive hover:text-destructive hover:bg-destructive/10 transition-opacity",
                     selectedLists.size >= 1 ? "opacity-100" : "opacity-0 pointer-events-none"
                   )}
+                  title={selectedLists.size >= 1 ? `Löschen (${selectedLists.size})` : ''}
                 >
                   <Trash2 className="h-5 w-5" />
                 </Button>
@@ -407,6 +418,15 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                   </DropdownMenuItem>
                   <DropdownMenuItem onClick={() => setSortBy('size-desc')}>
                     Größte zuerst
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSelectAll} className="gap-2">
+                    <CheckSquare className="h-4 w-4" />
+                    Alle auswählen
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleDeselectAll} className="gap-2">
+                    <Square className="h-4 w-4" />
+                    Alle abwählen
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
