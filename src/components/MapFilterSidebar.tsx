@@ -262,12 +262,148 @@ export function MapFilterSidebar({
           </div>
         </div>
 
+        {/* Sortierung Filter */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Sortierung</label>
+          <div className="relative">
+            <Select value={sortierung} onValueChange={setSortierung}>
+              <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
+                <SelectValue>
+                  <span className={cn(
+                    "text-sm",
+                    sortierung === "alle" ? "text-muted-foreground" : ""
+                  )}>
+                    {sortierung === "alle" ? "Alle" : sortierung === "gerade" ? "Gerade" : "Ungerade"}
+                  </span>
+                </SelectValue>
+              </SelectTrigger>
+              <SelectContent side="bottom" className="bg-background z-[10000]">
+                <SelectItem value="alle">Alle</SelectItem>
+                <SelectItem value="gerade">Gerade</SelectItem>
+                <SelectItem value="ungerade">Ungerade</SelectItem>
+              </SelectContent>
+            </Select>
+            {sortierung !== "alle" && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setSortierung("alle");
+                }}
+                className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Letzte Qualifizierung Filter */}
+        <div className="space-y-1">
+          <label className="text-sm font-medium">Letzte Qualifizierung</label>
+          <div className="relative">
+            <Popover open={dateFilterOpen} onOpenChange={setDateFilterOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  className="w-full justify-start h-9 font-normal bg-background focus-visible:ring-0 focus-visible:border-gray-400 text-left"
+                >
+                  <span className={cn(
+                    "flex-1 text-sm",
+                    dateFilterMode === "" ? "text-muted-foreground" : ""
+                  )}>
+                    {dateFilterMode === "" ? "Zeitraum auswählen" : 
+                     lastModifiedDate ? (
+                       `${dateFilterMode === "vor" ? "Vor" : "Nach"} ${format(lastModifiedDate, "dd.MM.yyyy", { locale: de })}`
+                     ) : (
+                       dateFilterMode === "vor" ? "Vor" : "Nach"
+                     )}
+                  </span>
+                  <ChevronDown className="h-4 w-4 opacity-50 flex-shrink-0" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverPrimitive.Portal container={sidebarRef.current ?? undefined}>
+                <PopoverContent 
+                  className="w-[var(--radix-popover-trigger-width)] p-0 bg-background z-[10001]" 
+                  align="start"
+                  side="bottom"
+                  sideOffset={4}
+                >
+                  <div className="py-1">
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => {
+                        setDateFilterMode("vor");
+                        setDateFilterOpen(false);
+                        setTimeout(() => setDatePickerOpen(true), 150);
+                      }}
+                    >
+                      Vor
+                    </button>
+                    <button
+                      type="button"
+                      className="w-full text-left px-3 py-2 text-sm hover:bg-muted transition-colors"
+                      onClick={() => {
+                        setDateFilterMode("nach");
+                        setDateFilterOpen(false);
+                        setTimeout(() => setDatePickerOpen(true), 150);
+                      }}
+                    >
+                      Nach
+                    </button>
+                  </div>
+                </PopoverContent>
+              </PopoverPrimitive.Portal>
+            </Popover>
+            
+            {(lastModifiedDate || dateFilterMode) && (
+              <button
+                onClick={(e) => {
+                  e.preventDefault();
+                  e.stopPropagation();
+                  setLastModifiedDate(undefined);
+                  setQuickDateOption("");
+                  setDateFilterType("quick");
+                  setDateFilterMode("");
+                }}
+                className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground z-10"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          {/* Date Picker Popover */}
+          {dateFilterMode && (
+            <Popover open={datePickerOpen} onOpenChange={(open) => {
+              setDatePickerOpen(open);
+              if (!open && !lastModifiedDate && !quickDateOption) {
+                setDateFilterMode("");
+              }
+            }}>
+              <PopoverContent className="w-auto p-0" align="start">
+                <Calendar
+                  mode="single"
+                  selected={lastModifiedDate}
+                  onSelect={(date) => {
+                    setLastModifiedDate(date);
+                    setDatePickerOpen(false);
+                  }}
+                  locale={de}
+                  className={cn("p-3 pointer-events-auto")}
+                />
+              </PopoverContent>
+            </Popover>
+          )}
+        </div>
+
         {/* Street Filter */}
         <div className="space-y-1">
           <label className="text-sm font-medium">Straße</label>
           <div className="relative">
             <Input
-              placeholder="Straße eingeben..."
+              placeholder="Straße eingeben"
               value={streetInput}
               onChange={(e) => setStreetInput(e.target.value)}
               onBlur={() => setStreetFilter(streetInput)}
@@ -277,7 +413,7 @@ export function MapFilterSidebar({
                 }
               }}
               list="street-suggestions-map"
-              className="h-9 text-sm"
+              className="bg-background h-9 pr-8 text-sm focus-visible:ring-0 focus:border-gray-400"
             />
             <datalist id="street-suggestions-map">
               {uniqueStreets.map((street) => (
@@ -299,35 +435,45 @@ export function MapFilterSidebar({
           </div>
         </div>
 
-        {/* House Number Filter - only show when street is selected */}
+        {/* Hausnummer Filter - nur wenn Straße gewählt */}
         {streetFilter && availableHouseNumbers.length > 0 && (
           <div className="space-y-1">
             <label className="text-sm font-medium">Hausnummer</label>
-            <Select
-              value={houseNumberFilter || "alle"}
-              onValueChange={setHouseNumberFilter}
-            >
-              <SelectTrigger className="h-9 text-sm">
-                <SelectValue placeholder="Hausnummer wählen" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="alle">Alle Hausnummern</SelectItem>
-                {availableHouseNumbers.map((number) => (
-                  <SelectItem key={number} value={number}>
-                    {number}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="relative">
+              <Select 
+                value={houseNumberFilter || "alle"} 
+                onValueChange={setHouseNumberFilter}
+              >
+                <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
+                  <SelectValue placeholder="Hausnummer wählen" />
+                </SelectTrigger>
+                <SelectContent side="bottom" className="bg-background z-[10000]">
+                  <SelectItem value="alle">Alle</SelectItem>
+                  {availableHouseNumbers.map((num) => (
+                    <SelectItem key={num} value={num}>
+                      {num}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+              {houseNumberFilter && houseNumberFilter !== "alle" && (
+                <button
+                  onClick={() => setHouseNumberFilter("")}
+                  className="absolute right-8 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              )}
+            </div>
           </div>
         )}
 
-        {/* Postal Code Filter */}
+        {/* PLZ Filter */}
         <div className="space-y-1">
           <label className="text-sm font-medium">PLZ</label>
           <div className="relative">
             <Input
-              placeholder="PLZ eingeben..."
+              placeholder="PLZ eingeben"
               value={postalCodeInput}
               onChange={(e) => setPostalCodeInput(e.target.value)}
               onBlur={() => setPostalCodeFilter(postalCodeInput)}
@@ -337,7 +483,7 @@ export function MapFilterSidebar({
                 }
               }}
               list="postal-code-suggestions-map"
-              className="h-9 text-sm"
+              className="bg-background h-9 pr-8 text-sm focus-visible:ring-0 focus:border-gray-400"
             />
             <datalist id="postal-code-suggestions-map">
               {uniquePostalCodes.map((code) => (
@@ -358,12 +504,12 @@ export function MapFilterSidebar({
           </div>
         </div>
 
-        {/* City Filter */}
+        {/* Ort Filter */}
         <div className="space-y-1">
-          <label className="text-sm font-medium">Stadt</label>
+          <label className="text-sm font-medium">Ort</label>
           <div className="relative">
             <Input
-              placeholder="Stadt eingeben..."
+              placeholder="Ort eingeben"
               value={cityInput}
               onChange={(e) => setCityInput(e.target.value)}
               onBlur={() => setCityFilter(cityInput)}
@@ -373,7 +519,7 @@ export function MapFilterSidebar({
                 }
               }}
               list="city-suggestions-map"
-              className="h-9 text-sm"
+              className="bg-background h-9 pr-8 text-sm focus-visible:ring-0 focus:border-gray-400"
             />
             <datalist id="city-suggestions-map">
               {uniqueCities.map((city) => (
@@ -392,76 +538,6 @@ export function MapFilterSidebar({
               </button>
             )}
           </div>
-        </div>
-
-        {/* Sortierung */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Sortierung</label>
-          <Select value={sortierung} onValueChange={setSortierung}>
-            <SelectTrigger className="h-9 text-sm">
-              <SelectValue placeholder="Sortierung wählen" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="alle">Alle Hausnummern</SelectItem>
-              <SelectItem value="gerade">Gerade Hausnummern</SelectItem>
-              <SelectItem value="ungerade">Ungerade Hausnummern</SelectItem>
-            </SelectContent>
-          </Select>
-        </div>
-
-        {/* Last Qualification Date */}
-        <div className="space-y-1">
-          <label className="text-sm font-medium">Letzte Qualifizierung</label>
-          <Popover open={dateFilterOpen} onOpenChange={setDateFilterOpen}>
-            <PopoverTrigger asChild>
-              <Button
-                variant="outline"
-                className="w-full h-9 justify-start text-left font-normal text-sm"
-              >
-                {lastModifiedDate ? (
-                  <span>
-                    {dateFilterMode === "vor" ? "Vor " : "Nach "}
-                    {format(lastModifiedDate, "dd.MM.yyyy", { locale: de })}
-                  </span>
-                ) : (
-                  <span className="text-muted-foreground">Datum wählen</span>
-                )}
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0" align="start">
-              <div className="p-3 space-y-2">
-                <div className="flex gap-2">
-                  <Button
-                    variant={dateFilterMode === "vor" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setDateFilterMode("vor")}
-                    className="flex-1"
-                  >
-                    Vor
-                  </Button>
-                  <Button
-                    variant={dateFilterMode === "nach" ? "default" : "outline"}
-                    size="sm"
-                    onClick={() => setDateFilterMode("nach")}
-                    className="flex-1"
-                  >
-                    Nach
-                  </Button>
-                </div>
-                {dateFilterMode && (
-                  <Calendar
-                    mode="single"
-                    selected={lastModifiedDate}
-                    onSelect={(date) => {
-                      setLastModifiedDate(date);
-                      setDateFilterOpen(false);
-                    }}
-                    locale={de}
-                  />
-                )}
-              </div>
-            </PopoverContent>
-          </Popover>
         </div>
       </div>
     </div>
