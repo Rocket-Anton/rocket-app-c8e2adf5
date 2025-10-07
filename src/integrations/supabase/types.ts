@@ -14,7 +14,125 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      lauflisten: {
+        Row: {
+          address_count: number | null
+          assigned_to: string | null
+          color: string
+          created_at: string
+          created_by: string | null
+          factor: number | null
+          id: string
+          name: string
+          unit_count: number | null
+        }
+        Insert: {
+          address_count?: number | null
+          assigned_to?: string | null
+          color: string
+          created_at?: string
+          created_by?: string | null
+          factor?: number | null
+          id?: string
+          name: string
+          unit_count?: number | null
+        }
+        Update: {
+          address_count?: number | null
+          assigned_to?: string | null
+          color?: string
+          created_at?: string
+          created_by?: string | null
+          factor?: number | null
+          id?: string
+          name?: string
+          unit_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lauflisten_assigned_to_fkey"
+            columns: ["assigned_to"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lauflisten_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      lauflisten_addresses: {
+        Row: {
+          address_id: number
+          city: string
+          coordinates: Json
+          created_at: string
+          house_number: string
+          id: string
+          laufliste_id: string
+          postal_code: string
+          street: string
+          units: Json
+        }
+        Insert: {
+          address_id: number
+          city: string
+          coordinates: Json
+          created_at?: string
+          house_number: string
+          id?: string
+          laufliste_id: string
+          postal_code: string
+          street: string
+          units: Json
+        }
+        Update: {
+          address_id?: number
+          city?: string
+          coordinates?: Json
+          created_at?: string
+          house_number?: string
+          id?: string
+          laufliste_id?: string
+          postal_code?: string
+          street?: string
+          units?: Json
+        }
+        Relationships: [
+          {
+            foreignKeyName: "lauflisten_addresses_laufliste_id_fkey"
+            columns: ["laufliste_id"]
+            isOneToOne: false
+            referencedRelation: "lauflisten"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          color: string
+          created_at: string
+          id: string
+          name: string
+        }
+        Insert: {
+          color?: string
+          created_at?: string
+          id: string
+          name: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          id?: string
+          name?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

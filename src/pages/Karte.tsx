@@ -2,10 +2,13 @@ import { useEffect, useRef, useState } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
+import { CreateListModal } from "@/components/CreateListModal";
+import { ListsSidebar } from "@/components/ListsSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList } from "lucide-react";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -129,6 +132,9 @@ export default function Karte() {
   const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
   const [selectedAddresses, setSelectedAddresses] = useState<typeof mockAddresses>([]);
   const [showStatsPopup, setShowStatsPopup] = useState(false);
+  const [showCreateListModal, setShowCreateListModal] = useState(false);
+  const [showListsSidebar, setShowListsSidebar] = useState(false);
+  const [assignedAddressIds, setAssignedAddressIds] = useState<Set<number>>(new Set());
 
   // Function to create marker icon based on zoom level
   const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
@@ -188,6 +194,25 @@ export default function Karte() {
       iconSize: [size, size],
       iconAnchor: [size / 2, size / 2],
     });
+  };
+
+  // Load assigned addresses from database
+  useEffect(() => {
+    loadAssignedAddresses();
+  }, []);
+
+  const loadAssignedAddresses = async () => {
+    const { data, error } = await supabase
+      .from('lauflisten_addresses')
+      .select('address_id');
+
+    if (error) {
+      console.error('Error loading assigned addresses:', error);
+      return;
+    }
+
+    const ids = new Set(data?.map(item => item.address_id) || []);
+    setAssignedAddressIds(ids);
   };
 
   useEffect(() => {
@@ -250,11 +275,13 @@ export default function Karte() {
       toast.success(`${selectedAddrs.length} Adressen ausgewählt`);
     });
 
-    // Add markers for each address
+    // Add markers for each address (excluding assigned ones)
     const bounds = L.latLngBounds([]);
     const markers: L.Marker[] = [];
 
     mockAddresses.forEach((address) => {
+      // Skip addresses that are already assigned to a list
+      if (assignedAddressIds.has(address.id)) return;
       // Calculate overall status based on units
       const statusCounts: Record<string, number> = {};
       address.units.forEach(unit => {
@@ -381,13 +408,13 @@ export default function Karte() {
               {/* Map Controls - Right Side */}
               <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
                 <Button
-                  onClick={toggleDrawingMode}
-                  variant={isDrawingMode ? "default" : "outline"}
+                  onClick={() => setShowListsSidebar(true)}
+                  variant="outline"
                   className="shadow-lg bg-white hover:bg-white/90 border-border"
                   size="icon"
-                  title="Laufliste"
+                  title="Lauflisten anzeigen"
                 >
-                  <ClipboardList className="h-6 w-6 text-muted-foreground" />
+                  <ClipboardList className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 
                 <Button
@@ -444,8 +471,8 @@ export default function Karte() {
               }
             }}
             onCreateList={() => {
-              toast.success("Laufliste wird erstellt...");
-              // TODO: Implement create list functionality
+              setShowStatsPopup(false);
+              setShowCreateListModal(true);
             }}
             onAddToExisting={() => {
               toast.success("Zu bestehender Laufliste hinzufügen...");
@@ -453,6 +480,27 @@ export default function Karte() {
             }}
           />
         )}
+
+        {/* Create List Modal */}
+        <CreateListModal
+          open={showCreateListModal}
+          onClose={() => setShowCreateListModal(false)}
+          addresses={selectedAddresses}
+          onSuccess={() => {
+            loadAssignedAddresses();
+            setSelectedAddresses([]);
+            // Remove drawn polygon
+            if (drawnItemsRef.current) {
+              drawnItemsRef.current.clearLayers();
+            }
+          }}
+        />
+
+        {/* Lists Sidebar */}
+        <ListsSidebar
+          open={showListsSidebar}
+          onClose={() => setShowListsSidebar(false)}
+        />
       </div>
     </SidebarProvider>
   );
