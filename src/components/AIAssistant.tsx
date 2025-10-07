@@ -27,16 +27,33 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
   const [isLoading, setIsLoading] = useState(false);
   const [slideOffset, setSlideOffset] = useState(0);
   const [userFirstName, setUserFirstName] = useState<string>("");
+  const [greeting, setGreeting] = useState<string>("Wie kann ich dir heute helfen?");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+
+  const greetings = [
+    "Wie kann ich dir heute helfen?",
+    "Wie kann ich dir behilflich sein?",
+    "Was kann ich für dich tun?",
+    "Schön, dich wiederzusehen! Wie kann ich helfen?",
+    "Hey! Was steht heute an?",
+  ];
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Set random greeting when opening
+  useEffect(() => {
+    if (open && messages.length === 0) {
+      const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+      setGreeting(randomGreeting);
+    }
+  }, [open]);
 
   // Fetch user profile
   useEffect(() => {
@@ -250,7 +267,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
               </div>
               <div>
                 <h2 className="font-semibold text-sm">
-                  {userFirstName ? `Hey ${userFirstName}!` : "Rokki"}
+                  Rokki
                 </h2>
                 <p className="text-xs text-muted-foreground">Dein Rocket Assistent</p>
               </div>
@@ -274,9 +291,14 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                     className="w-full h-full object-cover scale-[1.8] object-[center_35%]"
                   />
                 </div>
-                <h3 className="font-semibold text-sm mb-1">Wie kann ich helfen?</h3>
+                <h3 className="font-semibold text-sm mb-1">
+                  {userFirstName ? `Hey ${userFirstName}! 👋` : "Hey! 👋"}
+                </h3>
                 <p className="text-xs text-muted-foreground px-4 leading-relaxed">
-                  Halte die Mikrofon-Taste gedrückt und stelle deine Frage
+                  {greeting}
+                </p>
+                <p className="text-xs text-muted-foreground px-4 mt-1">
+                  Halte die Mikrofon-Taste gedrückt 🎤
                 </p>
               </div>
             ) : (

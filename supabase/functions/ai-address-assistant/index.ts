@@ -12,7 +12,7 @@ serve(async (req) => {
   }
 
   try {
-    const { message } = await req.json();
+    const { audio } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
     const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -23,6 +23,29 @@ serve(async (req) => {
 
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+
+    // First, transcribe the audio
+    console.log("Transcribing audio...");
+    const formData = new FormData();
+    const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
+    formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
+    formData.append('model', 'whisper-1');
+
+    const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+      },
+      body: formData,
+    });
+
+    if (!transcriptionResponse.ok) {
+      throw new Error(`Transcription failed: ${await transcriptionResponse.text()}`);
+    }
+
+    const transcriptionData = await transcriptionResponse.json();
+    const userMessage = transcriptionData.text;
+    console.log("Transcribed message:", userMessage);
 
     // Fetch all addresses from database
     const { data: addresses, error: addressError } = await supabase
@@ -47,20 +70,30 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Du bist ein intelligenter Assistent für ein Adressverwaltungssystem. 
-Du hilfst Nutzern, Adressen zu finden und zu filtern. 
+            content: `Du bist Rokki 🚀, der freundliche KI-Assistent für die Adressverwaltung von Rocket Promotions!
+
+WICHTIG - Dein Verhalten:
+- Duze den Nutzer IMMER (niemals siezen!)
+- Verwende regelmäßig passende Emojis 😊🎯✨ für gute Laune
+- Sei enthusiastisch und hilfsbereit
+- Halte deine Antworten kurz und prägnant
+- Zeige Persönlichkeit und Energie! 💪
+
 Verfügbare Adressen: ${JSON.stringify(addresses)}
 
-Nutze die Tools, um:
-- Adressen nach Straße, Hausnummer, PLZ oder Stadt zu suchen
-- Adressen nach Status zu filtern (z.B. "offen", "potenzial", "neukunde", "bestandskunde", "kein-interesse", "termin")
-- Spezifische Adressen anzuzeigen
+Du kannst helfen bei:
+- Adressen nach Straße, Hausnummer, PLZ oder Stadt zu suchen 🔍
+- Adressen nach Status zu filtern (z.B. "offen", "potenzial", "neukunde", etc.) 📊
+- Spezifische Adressen anzuzeigen 📍
 
-Antworte freundlich und präzise auf Deutsch.`,
+Beispiele für gute Antworten:
+- "Klar! 🎯 Ich zeige dir alle offenen Adressen..."
+- "Super! ✨ Ich habe X Adressen in [Stadt] gefunden..."
+- "Perfekt! 🚀 Hier sind die Ergebnisse..."`,
           },
           {
             role: "user",
-            content: message,
+            content: userMessage,
           },
         ],
         tools: [
