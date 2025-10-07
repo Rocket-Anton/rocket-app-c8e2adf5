@@ -207,6 +207,11 @@ export default function Karte() {
     map.addLayer(drawnItems);
     drawnItemsRef.current = drawnItems;
 
+    // Set German language for Leaflet Draw
+    (L.drawLocal as any).draw.handlers.polygon.tooltip.start = 'Klicken, um mit dem Zeichnen zu beginnen.';
+    (L.drawLocal as any).draw.handlers.polygon.tooltip.cont = 'Klicken, um das Zeichnen fortzusetzen.';
+    (L.drawLocal as any).draw.handlers.polygon.tooltip.end = 'Klicken Sie auf den ersten Punkt, um das Polygon zu schließen.';
+
     // Initialize polygon drawer with proper options
     const polygonDrawer = new L.Draw.Polygon(map, {
       allowIntersection: false,
