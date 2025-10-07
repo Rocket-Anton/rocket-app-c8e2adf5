@@ -24,9 +24,10 @@ interface AIAssistantProps {
   onTogglePolygon?: (enabled: boolean) => void;
   onNavigate?: (page: "laufliste" | "karte" | "dashboard") => void;
   showListsSidebar?: boolean;
+  onOrderCreated?: () => void;
 }
 
-export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onClearFilters, onTogglePolygon, onNavigate, showListsSidebar = false }: AIAssistantProps) {
+export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onClearFilters, onTogglePolygon, onNavigate, showListsSidebar = false, onOrderCreated }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -91,6 +92,30 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     };
     fetchProfile();
   }, []);
+
+  // React to order creation
+  useEffect(() => {
+    if (onOrderCreated) {
+      const handleOrderCreated = () => {
+        const celebrationMessages = [
+          "🎉 Wow! Neuer Kunde! Super gemacht! Du rockst!",
+          "💪 Stark! Wieder ein neuer Kunde! Weiter so!",
+          "🔥 Krass! Das läuft heute richtig gut bei dir!",
+          "⭐ Perfekt! Ein weiterer Kunde gewonnen!",
+          "🚀 Boom! Neukunde! Du bist der Beste!"
+        ];
+        const randomMsg = celebrationMessages[Math.floor(Math.random() * celebrationMessages.length)];
+        
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: randomMsg 
+        }]);
+      };
+      
+      // Store the handler
+      (window as any).rokkiOrderCreatedHandler = handleOrderCreated;
+    }
+  }, [onOrderCreated]);
 
   const startRecording = async () => {
     console.log("🎤 startRecording called, isLoading:", isLoading, "isRecording:", isRecording);

@@ -1996,7 +1996,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                       allAddresses={displayedAddresses}
                       currentIndex={index}
                       onModalClose={handleModalClose}
-                      onOrderCreated={onOrderCreated}
+                      onOrderCreated={() => {
+                        onOrderCreated?.();
+                        // Trigger Rokki celebration
+                        if ((window as any).rokkiOrderCreatedHandler) {
+                          (window as any).rokkiOrderCreatedHandler();
+                        }
+                      }}
                       onUpdateUnitStatus={updateUnitStatus}
                     />
                   </div>
@@ -2012,6 +2018,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
         showListsSidebar={false}
+        onOrderCreated={() => {
+          if ((window as any).rokkiOrderCreatedHandler) {
+            (window as any).rokkiOrderCreatedHandler();
+          }
+        }}
         onSetFilter={(filters) => {
           if (filters.status) setStatusFilter(filters.status);
           if (filters.street) setStreetFilter(filters.street);
