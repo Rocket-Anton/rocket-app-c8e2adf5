@@ -298,13 +298,11 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                 )}
                 {selectedLists.size >= 1 && (
                   <Button
-                    size="sm"
+                    size="icon"
                     variant="destructive"
                     onClick={() => setShowBulkDeleteConfirm(true)}
-                    className="gap-2"
                   >
                     <Trash className="h-4 w-4" />
-                    Löschen ({selectedLists.size})
                   </Button>
                 )}
               </div>
