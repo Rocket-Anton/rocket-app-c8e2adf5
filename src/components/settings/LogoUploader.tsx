@@ -91,14 +91,48 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
           colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
         }
 
-        // Get top 5 most frequent colors
+        // Get all significant colors (sorted by frequency)
         const sortedColors = Array.from(colorMap.entries())
           .sort((a, b) => b[1] - a[1])
-          .slice(0, 5)
           .map(([color]) => color);
 
-        console.log("Extracted colors:", sortedColors);
-        resolve(sortedColors);
+        // Group similar colors together to get distinct colors
+        const distinctColors: string[] = [];
+        const colorThreshold = 30; // Threshold for color similarity
+        
+        for (const color of sortedColors) {
+          const rgb = {
+            r: parseInt(color.slice(1, 3), 16),
+            g: parseInt(color.slice(3, 5), 16),
+            b: parseInt(color.slice(5, 7), 16)
+          };
+          
+          const isSimilar = distinctColors.some(existingColor => {
+            const existingRgb = {
+              r: parseInt(existingColor.slice(1, 3), 16),
+              g: parseInt(existingColor.slice(3, 5), 16),
+              b: parseInt(existingColor.slice(5, 7), 16)
+            };
+            
+            const distance = Math.sqrt(
+              Math.pow(rgb.r - existingRgb.r, 2) +
+              Math.pow(rgb.g - existingRgb.g, 2) +
+              Math.pow(rgb.b - existingRgb.b, 2)
+            );
+            
+            return distance < colorThreshold;
+          });
+          
+          if (!isSimilar) {
+            distinctColors.push(color);
+          }
+          
+          // Limit to max 5 distinct colors
+          if (distinctColors.length >= 5) break;
+        }
+
+        console.log("Extracted distinct colors:", distinctColors);
+        resolve(distinctColors);
       };
       img.src = imageSrc;
     });
