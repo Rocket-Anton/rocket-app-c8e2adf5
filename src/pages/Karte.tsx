@@ -759,7 +759,7 @@ function KarteContent() {
                   className="shadow-lg bg-white hover:bg-white/90 border-border relative"
                   size="icon"
                   title="Filter"
-                  onClick={() => setShowFilterSidebar(!showFilterSidebar)}
+                  onClick={() => setShowFilterSidebar(true)}
                 >
                   <Filter className="h-4 w-4 text-muted-foreground" />
                   {(() => {
