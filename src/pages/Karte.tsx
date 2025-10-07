@@ -498,20 +498,6 @@ export default function Karte() {
   };
 
 
-    // Fit bounds to AI filtered addresses
-    const bounds = L.latLngBounds([]);
-    addresses.forEach((a) => {
-      if (idsSet.has(a.id)) {
-        bounds.extend([a.coordinates[1], a.coordinates[0]]);
-      }
-    });
-
-    if (bounds.isValid()) {
-      const rightPad = showAIAssistant ? 470 : 50;
-      map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
-    }
-  };
-
   // Recenter when sidebar visibility changes while lists are selected
   useEffect(() => {
     const map = mapInstance.current;
