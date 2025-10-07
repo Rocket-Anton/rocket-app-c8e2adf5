@@ -47,6 +47,7 @@ export const ProvidersSettings = () => {
   });
   const [logoBlob, setLogoBlob] = useState<Blob | null>(null);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
+  const [selectedColorOption, setSelectedColorOption] = useState<string>("other");
 
   useEffect(() => {
     loadProviders();
@@ -77,9 +78,10 @@ export const ProvidersSettings = () => {
     const objectUrl = URL.createObjectURL(blob);
     setFormData(prev => ({ ...prev, logo_url: objectUrl }));
     
-    // Set first color as default if no color selected
-    if (colors.length > 0 && formData.color === "#3b82f6") {
+    // Set first color as default if colors are available
+    if (colors.length > 0) {
       setFormData(prev => ({ ...prev, color: colors[0] }));
+      setSelectedColorOption("color-0");
     }
   };
 
@@ -142,6 +144,7 @@ export const ProvidersSettings = () => {
       setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
       setLogoBlob(null);
       setSuggestedColors([]);
+      setSelectedColorOption("other");
       setIsCreateOpen(false);
       setEditingProvider(null);
       loadProviders();
@@ -186,6 +189,7 @@ export const ProvidersSettings = () => {
     setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
     setLogoBlob(null);
     setSuggestedColors([]);
+    setSelectedColorOption("other");
   };
 
 
@@ -243,11 +247,50 @@ export const ProvidersSettings = () => {
 
               <div>
                 <Label>Farbe</Label>
-                <ColorPickerPopover
-                  color={formData.color}
-                  onChange={(color) => setFormData({ ...formData, color })}
-                  suggestedColors={suggestedColors}
-                />
+                <div className="space-y-2">
+                  {suggestedColors.map((color, index) => (
+                    <label key={index} className="flex items-center gap-3 cursor-pointer">
+                      <input
+                        type="radio"
+                        name="colorOption"
+                        value={`color-${index}`}
+                        checked={selectedColorOption === `color-${index}`}
+                        onChange={() => {
+                          setSelectedColorOption(`color-${index}`);
+                          setFormData({ ...formData, color });
+                        }}
+                        className="w-4 h-4"
+                      />
+                      <div className="flex items-center gap-2">
+                        <div 
+                          className="h-6 w-12 rounded border"
+                          style={{ backgroundColor: color }}
+                        />
+                        <span>Farbe {index + 1}</span>
+                      </div>
+                    </label>
+                  ))}
+                  <label className="flex items-center gap-3 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="colorOption"
+                      value="other"
+                      checked={selectedColorOption === "other"}
+                      onChange={() => setSelectedColorOption("other")}
+                      className="w-4 h-4"
+                    />
+                    <span>Andere</span>
+                  </label>
+                  {selectedColorOption === "other" && (
+                    <div className="ml-7">
+                      <ColorPickerPopover
+                        color={formData.color}
+                        onChange={(color) => setFormData({ ...formData, color })}
+                        suggestedColors={[]}
+                      />
+                    </div>
+                  )}
+                </div>
               </div>
 
               <div className="flex gap-2 justify-end">
