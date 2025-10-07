@@ -232,14 +232,9 @@ export function MapFilterSidebar({
                           style={{ backgroundColor: status.color }}
                         />
                         <span className="flex-1 text-sm">{status.label}</span>
-                        <Check
-                          className={cn(
-                            "h-4 w-4",
-                            statusFilter.includes(status.value)
-                              ? "opacity-100"
-                              : "opacity-0"
-                          )}
-                        />
+                        {statusFilter.includes(status.value) && (
+                          <Check className="h-4 w-4 text-green-500 stroke-[3]" />
+                        )}
                       </div>
                     ))}
                   </div>

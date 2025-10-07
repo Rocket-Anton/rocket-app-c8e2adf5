@@ -178,6 +178,9 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   const sendAudioMessage = async (audioBlob: Blob) => {
     const audioUrl = URL.createObjectURL(audioBlob);
     setMessages((prev) => [...prev, { role: "user", content: "🎤 Sprachnachricht", audioUrl }]);
+    
+    // Sofortige Reaktion - "Einen Moment..."
+    setMessages((prev) => [...prev, { role: "assistant", content: "Einen Moment... ⏳" }]);
     setIsLoading(true);
 
     try {
@@ -195,34 +198,46 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
 
         console.log("AI Response:", data);
 
+        // Entferne "Einen Moment..." Nachricht
+        setMessages((prev) => prev.slice(0, -1));
+
         if (data.type === "action") {
           // Handle action commands from AI
           const { action, parameters, message } = data;
           
-          switch (action) {
-            case "set_filter":
-              if (onSetFilter) {
-                onSetFilter({
-                  status: parameters.status,
-                  street: parameters.street,
-                  postalCode: parameters.postal_code,
-                  city: parameters.city,
-                  houseNumber: parameters.house_number,
-                });
-              }
-              break;
-            case "clear_filters":
-              if (onClearFilters) onClearFilters();
-              break;
-            case "toggle_polygon_draw":
-              if (onTogglePolygon) onTogglePolygon(parameters.enabled);
-              break;
-            case "navigate_to":
-              if (onNavigate) onNavigate(parameters.page);
-              break;
-          }
-
+          // Erst die Bestätigungs-Nachricht anzeigen
           setMessages((prev) => [...prev, { role: "assistant", content: message }]);
+          
+          // Dann Aktion ausführen
+          setTimeout(() => {
+            switch (action) {
+              case "set_filter":
+                if (onSetFilter) {
+                  onSetFilter({
+                    status: parameters.status,
+                    street: parameters.street,
+                    postalCode: parameters.postal_code,
+                    city: parameters.city,
+                    houseNumber: parameters.house_number,
+                  });
+                }
+                // Bestätigung nach Aktion
+                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Erledigt! Filter wurden gesetzt." }]);
+                break;
+              case "clear_filters":
+                if (onClearFilters) onClearFilters();
+                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Filter zurückgesetzt!" }]);
+                break;
+              case "toggle_polygon_draw":
+                if (onTogglePolygon) onTogglePolygon(parameters.enabled);
+                setMessages((prev) => [...prev, { role: "assistant", content: `✅ Polygon-Modus ${parameters.enabled ? 'aktiviert' : 'deaktiviert'}!` }]);
+                break;
+              case "navigate_to":
+                if (onNavigate) onNavigate(parameters.page);
+                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Navigation gestartet!" }]);
+                break;
+            }
+          }, 300);
         } else if (data.type === "tool_result") {
           const resultCount = data.results?.length || 0;
           let responseText = data.message || `${resultCount} Adressen gefunden`;
@@ -252,6 +267,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     } catch (error) {
       console.error("Error:", error);
       toast.error("Fehler bei der Kommunikation mit dem Assistenten");
+      setMessages((prev) => prev.slice(0, -1)); // Remove "Einen Moment..."
       setMessages((prev) => [...prev, { role: "assistant", content: "Entschuldigung, es ist ein Fehler aufgetreten." }]);
     } finally {
       setIsLoading(false);

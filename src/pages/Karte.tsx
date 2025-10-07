@@ -755,13 +755,26 @@ function KarteContent() {
                 </Button>
                 
                 <Button
-                  variant={statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? "default" : "outline"}
-                  className={`shadow-lg border-border ${statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border relative"
                   size="icon"
                   title="Filter"
                   onClick={() => setShowFilterSidebar(!showFilterSidebar)}
                 >
-                  <Filter className={`h-4 w-4 ${statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? '' : 'text-muted-foreground'}`} />
+                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  {(() => {
+                    const activeFilterCount = 
+                      statusFilter.length + 
+                      (streetFilter ? 1 : 0) + 
+                      (cityFilter ? 1 : 0) + 
+                      (postalCodeFilter ? 1 : 0) + 
+                      (houseNumberFilter && houseNumberFilter !== "alle" ? 1 : 0);
+                    return activeFilterCount > 0 ? (
+                      <span className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full bg-green-500 text-white text-xs font-bold">
+                        {activeFilterCount}
+                      </span>
+                    ) : null;
+                  })()}
                 </Button>
                 
                 <Button
@@ -873,7 +886,7 @@ function KarteContent() {
           if (filters.city) setCityFilter(filters.city);
           if (filters.postalCode) setPostalCodeFilter(filters.postalCode);
           if (filters.houseNumber) setHouseNumberFilter(filters.houseNumber);
-          setShowFilterSidebar(true);
+          // NICHT automatisch Filter-Sidebar öffnen
         }}
         onClearFilters={() => {
           setStatusFilter([]);
