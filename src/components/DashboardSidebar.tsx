@@ -127,7 +127,7 @@ export const DashboardSidebar = () => {
                 variant="ghost"
                 size="icon"
                 onClick={toggleSidebar}
-                className="h-6 w-6 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-sm border border-border"
+                className="h-6 w-6 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-sm border-0"
               >
                 <ChevronLeft className="w-3 h-3" />
               </Button>
@@ -138,7 +138,7 @@ export const DashboardSidebar = () => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="absolute -right-3 top-6 h-6 w-6 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-md border border-border rounded-md"
+              className="absolute -right-3 top-6 h-6 w-6 bg-background hover:bg-sidebar-accent text-sidebar-foreground shadow-md border-0 rounded-md"
             >
               <ChevronRight className="w-3 h-3" />
             </Button>
