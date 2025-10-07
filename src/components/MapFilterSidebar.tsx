@@ -392,26 +392,24 @@ export function MapFilterSidebar({
               setDateFilterMode("");
             }
           }}>
-            <DialogContent className="sm:max-w-[480px]">
+            <DialogContent className="sm:max-w-[340px] p-4">
               <div className="space-y-3">
                 {/* Quick Select Buttons - nur bei "Vor" */}
                 {dateFilterMode === "vor" && (
-                  <div className="grid grid-cols-3 gap-2">
+                  <div className="grid grid-cols-3 gap-1.5">
                     {[
                       { label: "7 Tage", value: "7", days: 7 },
                       { label: "14 Tage", value: "14", days: 14 },
                       { label: "30 Tage", value: "30", days: 30 },
                     ].map((option) => (
-                      <Button
+                      <button
                         key={option.value}
                         type="button"
-                        variant="outline"
-                        size="sm"
                         className={cn(
-                          "h-10 text-sm font-medium transition-all",
+                          "h-8 text-xs font-medium rounded-lg transition-all",
                           quickDateOption === option.value
-                            ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
-                            : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                            ? "bg-blue-500 hover:bg-blue-600 text-white"
+                            : "bg-blue-50 hover:bg-blue-100 text-blue-600 border border-blue-200"
                         )}
                         onClick={() => {
                           if (quickDateOption === option.value) {
@@ -428,13 +426,13 @@ export function MapFilterSidebar({
                         }}
                       >
                         {option.label}
-                      </Button>
+                      </button>
                     ))}
                   </div>
                 )}
 
                 {/* Calendar - mit mehr Abstand nach oben wenn "nach" */}
-                <div className={cn("flex justify-center", dateFilterMode === "nach" && "mt-6")}>
+                <div className={cn("flex justify-center", dateFilterMode === "nach" && "mt-8")}>
                   <Calendar
                     mode="single"
                     selected={lastModifiedDate}
@@ -464,10 +462,8 @@ export function MapFilterSidebar({
 
                 {/* Action Buttons */}
                 <div className="flex gap-2 pt-2">
-                  <Button
+                  <button
                     type="button"
-                    variant="outline"
-                    className="flex-1 h-11 text-base font-medium rounded-xl transition-all hover:bg-muted"
                     onClick={() => {
                       setLastModifiedDate(undefined);
                       setQuickDateOption("");
@@ -475,21 +471,22 @@ export function MapFilterSidebar({
                       setDateFilterMode("");
                       setDatePickerOpen(false);
                     }}
+                    className="flex-1 h-11 text-base font-medium rounded-xl border border-input bg-background hover:bg-muted transition-all"
                   >
                     Abbrechen
-                  </Button>
-                  <Button
+                  </button>
+                  <button
                     type="button"
-                    className="flex-1 h-11 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl transition-all"
                     onClick={() => {
                       if (!lastModifiedDate && !quickDateOption) {
                         setDateFilterMode("");
                       }
                       setDatePickerOpen(false);
                     }}
+                    className="flex-1 h-11 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl transition-all shadow-sm"
                   >
                     Fertig
-                  </Button>
+                  </button>
                 </div>
               </div>
             </DialogContent>

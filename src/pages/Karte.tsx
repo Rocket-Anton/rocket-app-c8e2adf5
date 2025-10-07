@@ -727,11 +727,11 @@ function KarteContent() {
                   )}
                 >
                 <Button
-                  onClick={() => setShowListsSidebar(true)}
+                  onClick={() => setShowListsSidebar(!showListsSidebar)}
                   variant="outline"
                   className="shadow-lg bg-white hover:bg-white/90 border-border focus-visible:ring-0 focus-visible:ring-offset-0"
                   size="icon"
-                  title="Lauflisten anzeigen"
+                  title={showListsSidebar ? "Lauflisten ausblenden" : "Lauflisten anzeigen"}
                 >
                   <ClipboardList className="h-4 w-4 text-muted-foreground" />
                 </Button>
