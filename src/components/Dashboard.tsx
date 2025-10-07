@@ -4,7 +4,9 @@ import { LauflistenContent } from "./LauflistenContent";
 import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "./ui/button";
-import { LogIn } from "lucide-react";
+import { LogIn, RefreshCw } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const Dashboard = () => {
   const navigate = useNavigate();
@@ -43,13 +45,40 @@ export const Dashboard = () => {
     return () => clearInterval(checkMidnight);
   }, []);
 
+  const resetAddresses = async () => {
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        toast.error("Bitte zuerst anmelden");
+        return;
+      }
+
+      const { data, error } = await supabase.functions.invoke('reset-addresses', {
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+      });
+
+      if (error) throw error;
+      toast.success("Adressen wurden zurückgesetzt");
+      window.location.reload();
+    } catch (error: any) {
+      console.error('Error resetting addresses:', error);
+      toast.error("Fehler beim Zurücksetzen der Adressen");
+    }
+  };
+
   return (
     <SidebarProvider>
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
           <div className="relative h-full">
-            <div className="absolute top-4 right-4 z-10">
+            <div className="absolute top-4 right-4 z-10 flex gap-2">
+              <Button onClick={resetAddresses} variant="outline" size="sm">
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Adressen Reset
+              </Button>
               <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
                 <LogIn className="w-4 h-4 mr-2" />
                 Anmelden
