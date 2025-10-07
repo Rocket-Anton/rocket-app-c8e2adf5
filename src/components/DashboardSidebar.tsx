@@ -296,7 +296,10 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu className="space-y-1">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-3 ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                  <SidebarMenuButton 
+                    onClick={() => navigate("/settings")}
+                    className={`text-sidebar-foreground rounded-xl py-3 ${location.pathname === "/settings" ? "bg-sidebar-accent" : ""} ${state === "collapsed" ? "h-12 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}
+                  >
                     <Settings className="!w-5 !h-5 flex-shrink-0" />
                     {state !== "collapsed" && <span className="text-base whitespace-nowrap">Settings</span>}
                   </SidebarMenuButton>
