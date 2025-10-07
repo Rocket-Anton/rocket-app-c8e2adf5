@@ -27,6 +27,9 @@ interface Provider {
   id: string;
   name: string;
   description: string | null;
+  logo_url: string | null;
+  color: string;
+  abbreviation: string | null;
   created_at: string;
 }
 
@@ -35,7 +38,13 @@ export const ProvidersSettings = () => {
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "" });
+  const [formData, setFormData] = useState({ 
+    name: "", 
+    description: "", 
+    logo_url: "", 
+    color: "#3b82f6", 
+    abbreviation: "" 
+  });
 
   useEffect(() => {
     loadProviders();
@@ -71,6 +80,9 @@ export const ProvidersSettings = () => {
           .update({
             name: formData.name,
             description: formData.description,
+            logo_url: formData.logo_url || null,
+            color: formData.color,
+            abbreviation: formData.abbreviation || null,
           })
           .eq("id", editingProvider.id);
 
@@ -82,6 +94,9 @@ export const ProvidersSettings = () => {
           .insert({
             name: formData.name,
             description: formData.description,
+            logo_url: formData.logo_url || null,
+            color: formData.color,
+            abbreviation: formData.abbreviation || null,
             created_by: user.id,
           });
 
@@ -89,7 +104,7 @@ export const ProvidersSettings = () => {
         toast.success("Provider erstellt");
       }
 
-      setFormData({ name: "", description: "" });
+      setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
       setIsCreateOpen(false);
       setEditingProvider(null);
       loadProviders();
@@ -104,6 +119,9 @@ export const ProvidersSettings = () => {
     setFormData({
       name: provider.name,
       description: provider.description || "",
+      logo_url: provider.logo_url || "",
+      color: provider.color || "#3b82f6",
+      abbreviation: provider.abbreviation || "",
     });
     setIsCreateOpen(true);
   };
@@ -129,7 +147,7 @@ export const ProvidersSettings = () => {
   const handleDialogClose = () => {
     setIsCreateOpen(false);
     setEditingProvider(null);
-    setFormData({ name: "", description: "" });
+    setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
   };
 
 
@@ -152,7 +170,7 @@ export const ProvidersSettings = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
-                <Label htmlFor="name">Name</Label>
+                <Label htmlFor="name">Name *</Label>
                 <Input
                   id="name"
                   value={formData.name}
@@ -160,6 +178,53 @@ export const ProvidersSettings = () => {
                     setFormData({ ...formData, name: e.target.value })
                   }
                   required
+                />
+              </div>
+              <div>
+                <Label htmlFor="abbreviation">Kürzel</Label>
+                <Input
+                  id="abbreviation"
+                  value={formData.abbreviation}
+                  onChange={(e) =>
+                    setFormData({ ...formData, abbreviation: e.target.value })
+                  }
+                  maxLength={10}
+                  placeholder="z.B. TK, AOK"
+                />
+              </div>
+              <div>
+                <Label htmlFor="color">Farbe</Label>
+                <div className="flex gap-2 items-center">
+                  <Input
+                    id="color"
+                    type="color"
+                    value={formData.color}
+                    onChange={(e) =>
+                      setFormData({ ...formData, color: e.target.value })
+                    }
+                    className="w-20 h-10 cursor-pointer"
+                  />
+                  <Input
+                    type="text"
+                    value={formData.color}
+                    onChange={(e) =>
+                      setFormData({ ...formData, color: e.target.value })
+                    }
+                    className="flex-1"
+                    placeholder="#3b82f6"
+                  />
+                </div>
+              </div>
+              <div>
+                <Label htmlFor="logo_url">Logo URL</Label>
+                <Input
+                  id="logo_url"
+                  type="url"
+                  value={formData.logo_url}
+                  onChange={(e) =>
+                    setFormData({ ...formData, logo_url: e.target.value })
+                  }
+                  placeholder="https://example.com/logo.png"
                 />
               </div>
               <div>
@@ -186,8 +251,11 @@ export const ProvidersSettings = () => {
       <Table className="table-fixed w-full">
         <TableHeader>
           <TableRow>
-            <TableHead className="w-1/4">Name</TableHead>
-            <TableHead className="w-2/4">Beschreibung</TableHead>
+            <TableHead className="w-[60px]">Logo</TableHead>
+            <TableHead className="w-[200px]">Name</TableHead>
+            <TableHead className="w-[100px]">Kürzel</TableHead>
+            <TableHead className="w-[80px]">Farbe</TableHead>
+            <TableHead className="flex-1">Beschreibung</TableHead>
             <TableHead className="w-[120px] text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
@@ -195,7 +263,10 @@ export const ProvidersSettings = () => {
           {loading ? (
             Array.from({ length: 5 }).map((_, i) => (
               <TableRow key={i}>
+                <TableCell><Skeleton className="h-10 w-10 rounded" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                <TableCell><Skeleton className="h-6 w-12 rounded" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
               </TableRow>
@@ -203,7 +274,32 @@ export const ProvidersSettings = () => {
           ) : (
             providers.map((provider) => (
               <TableRow key={provider.id}>
+                <TableCell>
+                  {provider.logo_url ? (
+                    <img 
+                      src={provider.logo_url} 
+                      alt={provider.name} 
+                      className="h-10 w-10 object-contain rounded"
+                    />
+                  ) : (
+                    <div 
+                      className="h-10 w-10 rounded flex items-center justify-center text-white font-semibold text-sm"
+                      style={{ backgroundColor: provider.color }}
+                    >
+                      {provider.abbreviation || provider.name.slice(0, 2).toUpperCase()}
+                    </div>
+                  )}
+                </TableCell>
                 <TableCell className="font-medium">{provider.name}</TableCell>
+                <TableCell>{provider.abbreviation || "-"}</TableCell>
+                <TableCell>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="h-6 w-12 rounded border"
+                      style={{ backgroundColor: provider.color }}
+                    />
+                  </div>
+                </TableCell>
                 <TableCell>{provider.description || "-"}</TableCell>
                 <TableCell className="text-right">
                   <Button

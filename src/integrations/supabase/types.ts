@@ -236,26 +236,35 @@ export type Database = {
       }
       providers: {
         Row: {
+          abbreviation: string | null
+          color: string | null
           created_at: string
           created_by: string
           description: string | null
           id: string
+          logo_url: string | null
           name: string
           updated_at: string
         }
         Insert: {
+          abbreviation?: string | null
+          color?: string | null
           created_at?: string
           created_by: string
           description?: string | null
           id?: string
+          logo_url?: string | null
           name: string
           updated_at?: string
         }
         Update: {
+          abbreviation?: string | null
+          color?: string | null
           created_at?: string
           created_by?: string
           description?: string | null
           id?: string
+          logo_url?: string | null
           name?: string
           updated_at?: string
         }
