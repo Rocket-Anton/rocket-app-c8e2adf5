@@ -358,6 +358,10 @@ export default function Karte() {
       const customIcon = createMarkerIcon(address, currentZoom);
 
       const chosen = refinedCoords.get(address.id) || address.coordinates;
+      if (!chosen || (chosen[0] === 0 && chosen[1] === 0)) {
+        // Skip invalid coordinates (e.g., not yet geocoded)
+        return;
+      }
       const marker = L.marker([chosen[1], chosen[0]], { 
         icon: customIcon 
       }).addTo(map);
@@ -511,6 +515,9 @@ export default function Karte() {
       });
 
       const chosen = refinedCoords.get(address.id) || address.coordinates;
+      if (!chosen || (chosen[0] === 0 && chosen[1] === 0)) {
+        return; // skip invalid coords
+      }
       const marker = L.marker([chosen[1], chosen[0]], { 
         icon: customIcon 
       }).addTo(map);
