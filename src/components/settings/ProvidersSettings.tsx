@@ -256,7 +256,7 @@ export const ProvidersSettings = () => {
               {suggestedColors.length > 0 && (
                 <div>
                   <Label>Farbe</Label>
-                  <div className="flex gap-2 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {suggestedColors.map((color, index) => (
                       <button
                         key={index}

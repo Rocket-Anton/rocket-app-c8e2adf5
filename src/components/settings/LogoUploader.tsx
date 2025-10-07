@@ -64,8 +64,8 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
         const data = imageData.data;
         const colorMap = new Map<string, number>();
 
-        // Sample every 10th pixel for performance
-        for (let i = 0; i < data.length; i += 40) {
+        // Sample every 20th pixel for better performance
+        for (let i = 0; i < data.length; i += 80) {
           const r = data[i];
           const g = data[i + 1];
           const b = data[i + 2];
@@ -74,31 +74,33 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
           // Skip transparent pixels
           if (a < 128) continue;
 
-          // Skip near-white colors (brightness > 240)
+          // Skip near-white colors (brightness > 235)
           const brightness = (r + g + b) / 3;
-          if (brightness > 240) continue;
+          if (brightness > 235) continue;
 
-          // Skip near-black colors (brightness < 15)
-          if (brightness < 15) continue;
+          // Skip near-black colors (brightness < 20)
+          if (brightness < 20) continue;
 
-          // Skip grayscale colors (low saturation)
+          // Calculate saturation
           const max = Math.max(r, g, b);
           const min = Math.min(r, g, b);
           const saturation = max === 0 ? 0 : (max - min) / max;
-          if (saturation < 0.2) continue;
+          
+          // Skip low saturation colors (grayscale)
+          if (saturation < 0.25) continue;
 
           const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
           colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
         }
 
-        // Get all significant colors (sorted by frequency)
+        // Get sorted colors by frequency
         const sortedColors = Array.from(colorMap.entries())
           .sort((a, b) => b[1] - a[1])
           .map(([color]) => color);
 
-        // Group similar colors together to get distinct colors
+        // Group similar colors with much higher threshold
         const distinctColors: string[] = [];
-        const colorThreshold = 60; // Increased threshold to group more similar colors together
+        const colorThreshold = 100; // Much higher threshold to only get truly different colors
         
         for (const color of sortedColors) {
           const rgb = {
@@ -114,6 +116,7 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
               b: parseInt(existingColor.slice(5, 7), 16)
             };
             
+            // Euclidean distance in RGB space
             const distance = Math.sqrt(
               Math.pow(rgb.r - existingRgb.r, 2) +
               Math.pow(rgb.g - existingRgb.g, 2) +
@@ -127,8 +130,8 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
             distinctColors.push(color);
           }
           
-          // Limit to max 3 distinct colors
-          if (distinctColors.length >= 3) break;
+          // Maximum 2 colors for logos
+          if (distinctColors.length >= 2) break;
         }
 
         console.log("Extracted distinct colors:", distinctColors);
