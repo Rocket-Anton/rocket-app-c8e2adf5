@@ -42,6 +42,13 @@ const LIST_COLORS = [
   { value: '#f97316', label: 'Koralle' },
 ];
 
+const DUMMY_PROFILES: Profile[] = [
+  { id: '11111111-1111-1111-1111-111111111111', name: 'Jakob Burkart', color: '#3b82f6' },
+  { id: '22222222-2222-2222-2222-222222222222', name: 'Sarah Müller', color: '#10b981' },
+  { id: '33333333-3333-3333-3333-333333333333', name: 'Tim Schmidt', color: '#f59e0b' },
+  { id: '44444444-4444-4444-4444-444444444444', name: 'Lisa Weber', color: '#8b5cf6' },
+];
+
 export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateListModalProps) {
   const [assignToUser, setAssignToUser] = useState(false);
   const [selectedUser, setSelectedUser] = useState<string>("");
@@ -68,12 +75,14 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
 
     if (error) {
       console.error('Error fetching profiles:', error);
-      toast.error('Fehler beim Laden der Raketen');
+      // Fallback to dummy profiles if backend profiles are not available
+      setProfiles(DUMMY_PROFILES);
+      toast.message('Demo-Daten verwendet', { description: 'Raketen werden vorübergehend aus Dummies geladen.' });
       return;
     }
 
     console.log('Loaded profiles:', data);
-    setProfiles(data || []);
+    setProfiles(data && data.length > 0 ? data : DUMMY_PROFILES);
   };
 
   const fetchUsedColors = async () => {
@@ -247,10 +256,10 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
             <div className="space-y-2">
               <Label htmlFor="user-select">Rakete auswählen</Label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger id="user-select">
+                <SelectTrigger id="user-select" className="w-full justify-start h-9 bg-background font-normal pr-8 border border-border focus-visible:ring-0 focus-visible:border-border">
                   <SelectValue placeholder="Rakete wählen..." />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="z-[1003] bg-background">
                   {profiles.map((profile) => (
                     <SelectItem key={profile.id} value={profile.id}>
                       <div className="flex items-center gap-2">
