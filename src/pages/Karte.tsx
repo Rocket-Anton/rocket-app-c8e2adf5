@@ -477,6 +477,14 @@ function KarteContent() {
   const handleListExpanded = async (listIds: string[]) => {
     const map = mapInstance.current;
 
+    // Wenn Listen ausgewählt werden, Filter zurücksetzen
+    if (listIds.length > 0) {
+      setStatusFilter([]);
+      setStreetFilter("");
+      setCityFilter("");
+      setPostalCodeFilter("");
+      setHouseNumberFilter("");
+    }
 
     // Update selected list IDs immediately for filtering
     setSelectedListIds(new Set(listIds));
