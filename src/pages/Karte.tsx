@@ -324,7 +324,7 @@ export default function Karte() {
 
   // Toggle drawing mode
   const toggleDrawingMode = () => {
-    if (!polygonDrawerRef.current) return;
+    if (!polygonDrawerRef.current || !mapInstance.current) return;
     
     if (isDrawingMode) {
       // Disable drawing mode
@@ -334,6 +334,11 @@ export default function Karte() {
       // Enable drawing mode - this will allow clicking on the map to draw
       polygonDrawerRef.current.enable();
       setIsDrawingMode(true);
+      
+      // Force map to recalculate size to prevent white screen
+      setTimeout(() => {
+        mapInstance.current?.invalidateSize();
+      }, 100);
     }
   };
 
