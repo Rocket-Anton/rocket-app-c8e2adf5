@@ -504,6 +504,8 @@ export default function Karte() {
             if (drawnItemsRef.current) {
               drawnItemsRef.current.clearLayers();
             }
+            // Open lists sidebar to show the newly created list
+            setShowListsSidebar(true);
           }}
         />
 
