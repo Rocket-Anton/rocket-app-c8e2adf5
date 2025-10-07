@@ -481,9 +481,10 @@ export default function Karte() {
         }
       });
       
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-      }
+        if (bounds.isValid()) {
+          const rightPad = showListsSidebar ? 420 : 50;
+          map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
+        }
     } else {
       // Clear focus and restore previous view if available
       setListAddressIds(new Set());
@@ -494,6 +495,22 @@ export default function Karte() {
       }
     }
   };
+
+  // Recenter when sidebar visibility changes while lists are selected
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+    if (selectedListIds.size === 0 || listAddressIds.size === 0) return;
+
+    const bounds = L.latLngBounds([]);
+    addresses.forEach((a) => {
+      if (listAddressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
+    });
+    if (bounds.isValid()) {
+      const rightPad = showListsSidebar ? 420 : 50;
+      map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
+    }
+  }, [showListsSidebar]);
 
   // Re-render markers when filter changes or list is expanded
   useEffect(() => {
