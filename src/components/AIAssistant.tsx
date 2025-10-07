@@ -174,15 +174,20 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
 
   return (
     <>
-      {/* Floating Action Button */}
+      {/* 3D Floating Action Button */}
       {!open && (
-        <Button
+        <button
           onClick={() => onClose()}
-          size="icon"
-          className="fixed bottom-6 right-6 h-14 w-14 rounded-full shadow-2xl hover:shadow-primary/50 z-50 bg-gradient-to-br from-primary to-primary/80 hover:scale-110 transition-all duration-300"
+          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-110 hover:shadow-blue-500/50 group animate-in zoom-in"
+          style={{
+            boxShadow: '0 10px 30px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.1), inset 0 -5px 15px rgba(0, 0, 0, 0.2), inset 0 5px 15px rgba(255, 255, 255, 0.3)'
+          }}
         >
-          <Bot className="h-6 w-6" />
-        </Button>
+          <div className="relative w-full h-full flex items-center justify-center">
+            <Bot className="h-7 w-7 text-white drop-shadow-lg group-hover:scale-110 transition-transform" />
+            <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20" />
+          </div>
+        </button>
       )}
 
       {/* Floating Chat Window */}

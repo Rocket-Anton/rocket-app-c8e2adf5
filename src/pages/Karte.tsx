@@ -818,7 +818,6 @@ export default function Karte() {
           onClose={() => setShowListsSidebar(false)}
           onListExpanded={handleListExpanded}
         />
-
       </div>
     </SidebarProvider>
   );
