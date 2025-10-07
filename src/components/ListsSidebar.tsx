@@ -332,16 +332,6 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                           </div>
                         )}
 
-                        <div>
-                          <Badge variant="outline" className="text-xs">
-                            {new Date(list.created_at).toLocaleDateString('de-DE', {
-                              day: '2-digit',
-                              month: '2-digit',
-                              year: 'numeric',
-                            })}
-                          </Badge>
-                        </div>
-
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
                           <div className="space-y-2">
