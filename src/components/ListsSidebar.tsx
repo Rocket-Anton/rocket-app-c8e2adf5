@@ -296,7 +296,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                     Zusammenführen ({selectedLists.size})
                   </Button>
                 )}
-                {selectedLists.size >= 3 && (
+                {selectedLists.size >= 1 && (
                   <Button
                     size="sm"
                     variant="destructive"
