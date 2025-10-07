@@ -504,6 +504,10 @@ function KarteContent() {
         const center = bounds.getCenter();
         const currentZoom = map.getZoom();
         map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
+        if (showListsSidebar) {
+          const rightSidebarWidth = window.innerWidth >= 640 ? 380 : 320;
+          map.panBy([-(rightSidebarWidth / 2), 0], { animate: false });
+        }
       }
     } else {
       // Clear focus and restore previous view if available
@@ -531,6 +535,10 @@ function KarteContent() {
       const center = bounds.getCenter();
       const currentZoom = map.getZoom();
       map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
+      if (showListsSidebar) {
+        const rightSidebarWidth = window.innerWidth >= 640 ? 380 : 320;
+        map.panBy([-(rightSidebarWidth / 2), 0], { animate: false });
+      }
     }
   }, [showListsSidebar]);
 
@@ -650,11 +658,26 @@ function KarteContent() {
     });
     
     markersRef.current = markers;
-    console.log('Visible markers after filters:', visibleAddressCount, {
-      selectedListCount: selectedListIds.size,
-      listAddressIdsSize: listAddressIds.size,
-      filters: { statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, filterMode }
-    });
+
+    if (selectedListIds.size > 0) {
+      const totalExpected = listAddressIds.size;
+      const allAddressIdsSet = new Set(addresses.map(a => a.id));
+      const missingInAddresses = Array.from(listAddressIds).filter(id => !allAddressIdsSet.has(id));
+      const invalidCoordIds = addresses
+        .filter(a => listAddressIds.has(a.id) && (!a.coordinates || a.coordinates[0] === 0 || a.coordinates[1] === 0))
+        .map(a => a.id);
+
+      console.log('List vs Map diagnostics', {
+        totalExpected,
+        visibleOnMap: visibleAddressCount,
+        missingInAddresses,
+        invalidCoordIds,
+      });
+    } else {
+      console.log('Visible markers after filters', visibleAddressCount, {
+        filters: { statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, filterMode }
+      });
+    }
   }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter]);
 
   // Helper function to check if a point is inside a polygon
