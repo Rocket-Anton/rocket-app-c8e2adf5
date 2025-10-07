@@ -85,7 +85,15 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   }, []);
 
   const startRecording = async () => {
+    console.log("🎤 startRecording called, isLoading:", isLoading, "isRecording:", isRecording);
+    
+    if (isLoading) {
+      console.log("⚠️ Cannot start recording - isLoading is true");
+      return;
+    }
+    
     try {
+      console.log("📱 Requesting microphone access...");
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -93,6 +101,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
           autoGainControl: true
         }
       });
+      console.log("✅ Microphone access granted");
       
       // Setup audio analysis for visual feedback
       const audioContext = new AudioContext();
@@ -133,6 +142,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
       };
 
       mediaRecorder.onstop = async () => {
+        console.log("⏹️ Recording stopped, processing audio...");
         // Stop audio analysis
         if (animationFrameRef.current) {
           cancelAnimationFrame(animationFrameRef.current);
@@ -143,14 +153,16 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
         setAudioLevel(0);
         
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
+        console.log("📦 Audio blob size:", audioBlob.size);
         await sendAudioMessage(audioBlob);
         stream.getTracks().forEach(track => track.stop());
       };
 
       mediaRecorder.start();
       setIsRecording(true);
+      console.log("🔴 Recording started");
     } catch (error) {
-      console.error("Error accessing microphone:", error);
+      console.error("❌ Error accessing microphone:", error);
       toast.error("Mikrofon konnte nicht aktiviert werden");
     }
   };
@@ -299,12 +311,19 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   };
 
   const handleClick = () => {
-    if (isLoading) return;
+    console.log("👆 Button clicked! isLoading:", isLoading, "isRecording:", isRecording);
+    
+    if (isLoading) {
+      console.log("⚠️ Button disabled - isLoading is true");
+      return;
+    }
     
     if (isRecording) {
+      console.log("⏹️ Stopping recording...");
       // Stop and send
       stopRecording();
     } else {
+      console.log("▶️ Starting recording...");
       // Start recording
       startRecording();
       setIsLocked(true); // Auto-lock for desktop
