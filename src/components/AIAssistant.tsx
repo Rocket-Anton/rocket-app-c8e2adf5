@@ -343,19 +343,6 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
           {/* Voice Input - WhatsApp Style */}
           <div className="p-3 border-t bg-background rounded-b-2xl">
             <div className="relative flex items-center justify-center">
-              {isLocked && isRecording && (
-                <div className="absolute top-0 left-1/2 -translate-x-1/2 -translate-y-full mb-2 flex flex-col items-center gap-2">
-                  <div className="bg-muted px-3 py-1 rounded-full text-xs">
-                    Aufnahme läuft...
-                  </div>
-                  <button
-                    onClick={stopRecording}
-                    className="w-12 h-12 rounded-full bg-blue-500 hover:bg-blue-600 flex items-center justify-center shadow-lg transition-colors"
-                  >
-                    <Square className="h-5 w-5 text-white fill-white" />
-                  </button>
-                </div>
-              )}
               
               <div className="relative">
                 {!isLocked && isRecording && slideOffset > 0 && (

@@ -24,23 +24,25 @@ serve(async (req) => {
     // Initialize Supabase client
     const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
 
-    // First, transcribe the audio
-    console.log("Transcribing audio...");
-    const formData = new FormData();
-    const audioBlob = Uint8Array.from(atob(audio), c => c.charCodeAt(0));
-    formData.append('file', new Blob([audioBlob], { type: 'audio/webm' }), 'audio.webm');
-    formData.append('model', 'whisper-1');
-
-    const transcriptionResponse = await fetch('https://api.openai.com/v1/audio/transcriptions', {
-      method: 'POST',
+    // Transcribe audio using Lovable AI
+    console.log("Transcribing audio with Lovable AI...");
+    
+    const transcriptionResponse = await fetch("https://ai.gateway.lovable.dev/v1/audio/transcriptions", {
+      method: "POST",
       headers: {
-        'Authorization': `Bearer ${Deno.env.get('OPENAI_API_KEY')}`,
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
       },
-      body: formData,
+      body: JSON.stringify({
+        model: "whisper-1",
+        audio: audio, // base64 encoded audio
+      }),
     });
 
     if (!transcriptionResponse.ok) {
-      throw new Error(`Transcription failed: ${await transcriptionResponse.text()}`);
+      const errorText = await transcriptionResponse.text();
+      console.error("Transcription error:", errorText);
+      throw new Error(`Transcription failed: ${errorText}`);
     }
 
     const transcriptionData = await transcriptionResponse.json();
