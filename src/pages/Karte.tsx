@@ -563,7 +563,7 @@ export default function Karte() {
                   <DropdownMenuTrigger asChild>
                     <Button
                       variant={filterMode !== 'all' ? "default" : "outline"}
-                      className={`shadow-lg border-border ${filterMode !== 'all' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
+                      className={`shadow-lg border-border focus-visible:ring-0 focus-visible:ring-offset-0 ${filterMode !== 'all' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
                       size="icon"
                       title="Adressfilter"
                     >
