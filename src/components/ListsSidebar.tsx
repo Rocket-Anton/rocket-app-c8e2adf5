@@ -149,10 +149,18 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     const wasExpanded = newExpanded.has(listId);
     
     if (wasExpanded) {
+      // Collapsing the list - remove from expanded and deselect
       newExpanded.delete(listId);
+      const newSelected = new Set(selectedLists);
+      newSelected.delete(listId);
+      setSelectedLists(newSelected);
       onListExpanded(null); // No list expanded, return to normal filter
     } else {
+      // Expanding the list - add to expanded and select
       newExpanded.add(listId);
+      const newSelected = new Set(selectedLists);
+      newSelected.add(listId);
+      setSelectedLists(newSelected);
       onListExpanded(listId); // Show only this list's addresses
     }
     setExpandedLists(newExpanded);

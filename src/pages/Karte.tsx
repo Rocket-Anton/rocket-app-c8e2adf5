@@ -599,7 +599,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, expandedListId, listAddressIds]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
