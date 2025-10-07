@@ -339,7 +339,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
   return (
     <>
       <Sheet open={open} onOpenChange={onClose} modal={false}>
-        <SheetContent side="right" className="w-[400px] sm:w-[540px]">
+        <SheetContent side="right" className="w-[320px] sm:w-[380px]">
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">
               <SheetTitle>Lauflisten ({lists.length})</SheetTitle>
@@ -435,57 +435,62 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                   onOpenChange={() => toggleList(list.id)}
                 >
                   <div
-                    className="rounded-lg border border-border bg-card"
-                    style={{ borderLeftWidth: '4px', borderLeftColor: list.color }}
+                    className={cn(
+                      "rounded-lg border bg-card transition-all duration-200",
+                      expandedLists.has(list.id) 
+                        ? "border-l-4 shadow-md bg-muted/30" 
+                        : "border-l-4 hover:shadow-sm"
+                    )}
+                    style={{ borderLeftColor: list.color }}
                   >
-                    <div className="p-4">
-                      <div className="flex items-center gap-3 mb-3">
+                    <div className="p-3">
+                      <div className="flex items-center gap-2 mb-2">
                         <Checkbox
                           checked={selectedLists.has(list.id)}
                           onCheckedChange={() => toggleSelectList(list.id)}
                           onClick={(e) => e.stopPropagation()}
                         />
                         <CollapsibleTrigger className="flex items-center justify-between flex-1 group">
-                          <h3 className="font-semibold text-foreground">{list.name}</h3>
+                          <h3 className="font-semibold text-sm text-foreground">{list.name}</h3>
                           <div className="flex items-center gap-2">
                             <Button
                               size="icon"
                               variant="ghost"
-                              className="h-7 w-7"
+                              className="h-6 w-6"
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setEditingList(list);
                               }}
                             >
-                              <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+                              <Edit2 className="h-3 w-3 text-muted-foreground" />
                             </Button>
-                            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
+                            <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-300 group-data-[state=open]:rotate-180" />
                           </div>
                         </CollapsibleTrigger>
                       </div>
 
                       <div className="grid grid-cols-3 gap-2">
                         <div className="text-center">
-                          <div className="text-lg font-bold text-foreground">{list.address_count}</div>
-                          <div className="text-xs text-muted-foreground">Adressen</div>
+                          <div className="text-base font-bold text-foreground">{list.address_count}</div>
+                          <div className="text-[10px] text-muted-foreground">Adressen</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-lg font-bold text-foreground">{list.unit_count}</div>
-                          <div className="text-xs text-muted-foreground">Einheiten</div>
+                          <div className="text-base font-bold text-foreground">{list.unit_count}</div>
+                          <div className="text-[10px] text-muted-foreground">Einheiten</div>
                         </div>
                         <div className="text-center">
-                          <div className="text-lg font-bold text-foreground">{list.factor}</div>
-                          <div className="text-xs text-muted-foreground">Faktor</div>
+                          <div className="text-base font-bold text-foreground">{list.factor}</div>
+                          <div className="text-[10px] text-muted-foreground">Faktor</div>
                         </div>
                       </div>
                     </div>
 
-                    <CollapsibleContent>
-                      <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
+                    <CollapsibleContent className="data-[state=open]:animate-accordion-down data-[state=closed]:animate-accordion-up overflow-hidden">
+                      <div className="px-3 pb-3 space-y-2 border-t border-border pt-2">
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
                           <div className="space-y-1">
-                            <div className="text-sm font-semibold text-foreground mb-1.5">Statusverteilung</div>
+                            <div className="text-xs font-semibold text-foreground mb-1">Statusverteilung</div>
                             <div className="space-y-0">
                               {Object.entries(statusCounts[list.id])
                                 .sort(([, a], [, b]) => b - a)
@@ -497,14 +502,14 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                                     <div 
                                       key={status} 
                                       className={cn(
-                                        "grid grid-cols-[1fr_2.5rem_2.5rem] gap-2 items-center text-xs px-2 py-0.5 transition-colors",
+                                        "grid grid-cols-[1fr_2rem_2rem] gap-2 items-center text-[11px] px-2 py-0.5 transition-colors",
                                         index % 2 === 1 && "bg-muted/30",
                                         "hover:bg-muted/50"
                                       )}
                                     >
                                       <div className="flex items-center gap-2">
                                         <div 
-                                          className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                                          className="w-2 h-2 rounded-full flex-shrink-0"
                                           style={{ backgroundColor: statusColor }}
                                         />
                                         <span className="text-foreground capitalize">
