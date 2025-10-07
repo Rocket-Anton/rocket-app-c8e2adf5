@@ -81,6 +81,7 @@ export default function Karte() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [expandedListId, setExpandedListId] = useState<string | null>(null);
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
+  const previousViewRef = useRef<{ center: L.LatLngExpression; zoom: number } | null>(null);
 
   // Auth check
   useEffect(() => {
@@ -447,15 +448,38 @@ export default function Karte() {
 
   // Handle list expansion - show only list's addresses and zoom to them
   const handleListExpanded = async (listId: string | null) => {
-    console.info('List expanded toggled:', listId);
-    setExpandedListId(listId);
-    
+    const map = mapInstance.current;
+    if (!map) {
+      setExpandedListId(listId);
+      return;
+    }
+
     if (listId) {
+      // Save current view once when entering list focus
+      if (!previousViewRef.current) {
+        previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() };
+      }
+      setExpandedListId(listId);
       const addressIds = await loadListAddresses(listId);
-      console.info('Loaded list address IDs:', Array.from(addressIds));
       setListAddressIds(addressIds);
+
+      // Fit immediately to the list's addresses
+      const bounds = L.latLngBounds([]);
+      addresses.forEach((a) => {
+        if (addressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
+      });
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      }
     } else {
+      // Clear list focus and restore previous view if available
+      setExpandedListId(null);
       setListAddressIds(new Set());
+      if (previousViewRef.current) {
+        const { center, zoom } = previousViewRef.current;
+        map.setView(center as L.LatLngExpression, zoom, { animate: true });
+        previousViewRef.current = null;
+      }
     }
   };
 

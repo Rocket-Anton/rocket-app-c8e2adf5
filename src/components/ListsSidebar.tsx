@@ -346,6 +346,15 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     setSelectedLists(new Set());
   };
 
+  const toggleSelectAll = () => {
+    const filtered = getFilteredAndSortedLists();
+    if (selectedLists.size === filtered.length) {
+      setSelectedLists(new Set());
+    } else {
+      setSelectedLists(new Set(filtered.map(l => l.id)));
+    }
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onClose} modal={false}>
@@ -431,6 +440,17 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {selectedLists.size > 0 && (
+              <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1 px-1">
+                <button onClick={toggleSelectAll} className="hover:text-foreground underline-offset-2 hover:underline">
+                  Alle
+                </button>
+                <button onClick={handleDeselectAll} className="hover:text-foreground underline-offset-2 hover:underline">
+                  Aufheben
+                </button>
+              </div>
+            )}
           </SheetHeader>
 
           <ScrollArea className="h-[calc(100vh-160px)] mt-6">
