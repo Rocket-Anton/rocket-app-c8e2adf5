@@ -160,13 +160,17 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
       const { data: { user } } = await supabase.auth.getUser();
       
       if (!user) {
-        toast.error('Sie müssen angemeldet sein');
+        console.error('No authenticated user found');
+        toast.error('Sie müssen angemeldet sein. Bitte implementieren Sie Authentifizierung.');
         setLoading(false);
         return;
       }
 
+      console.log('Creating list with user:', user.id);
+
       // Generate list name
       const listName = await generateListName(assignToUser ? selectedUser : null);
+      console.log('Generated list name:', listName);
 
       // Create laufliste
       const { data: laufliste, error: listError } = await supabase
@@ -183,7 +187,12 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
         .select()
         .single();
 
-      if (listError) throw listError;
+      if (listError) {
+        console.error('Error creating list:', listError);
+        throw listError;
+      }
+
+      console.log('List created:', laufliste);
 
       // Add addresses to laufliste
       const addressInserts = addresses.map(addr => ({
@@ -201,7 +210,10 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
         .from('lauflisten_addresses')
         .insert(addressInserts);
 
-      if (addressError) throw addressError;
+      if (addressError) {
+        console.error('Error adding addresses:', addressError);
+        throw addressError;
+      }
 
       toast.success(`Laufliste "${listName}" erfolgreich erstellt!`);
       onSuccess();
@@ -213,7 +225,7 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
       setSelectedColor("");
     } catch (error) {
       console.error('Error creating list:', error);
-      toast.error('Fehler beim Erstellen der Laufliste');
+      toast.error('Fehler beim Erstellen der Laufliste: ' + (error as any).message);
     } finally {
       setLoading(false);
     }
