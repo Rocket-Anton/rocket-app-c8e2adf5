@@ -314,14 +314,24 @@ export default function Karte() {
     const markers: L.Marker[] = [];
 
     addresses.forEach((address) => {
-      // Apply filter logic
       const isAssigned = assignedAddressIds.has(address.id);
       
-      if (filterMode === 'unassigned' && isAssigned) return;
-      if (filterMode === 'no-rocket') {
-        // Show only unassigned addresses or addresses in lists without rocket
-        // For now, we'll need to load this info separately
-        // TODO: Implement rocket filter
+      // If a list is expanded, only show addresses from that list
+      if (expandedListId && listAddressIds.size > 0) {
+        if (!listAddressIds.has(address.id)) {
+          return; // Skip addresses not in the expanded list
+        }
+      } else if (expandedListId) {
+        // List is expanded but no addresses loaded yet - skip all
+        return;
+      } else {
+        // No list expanded - apply normal filters
+        if (filterMode === 'unassigned' && isAssigned) return;
+        if (filterMode === 'no-rocket') {
+          // Show only unassigned addresses or addresses in lists without rocket
+          // For now, we'll need to load this info separately
+          // TODO: Implement rocket filter
+        }
       }
       
       // Use list color if assigned, otherwise always gray for unassigned
@@ -502,19 +512,16 @@ export default function Karte() {
       // If a list is expanded, only show addresses from that list
       if (expandedListId && listAddressIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
-          console.log(`Address ${address.id} not in list ${expandedListId}, skipping`);
-          return;
+          return; // Skip addresses not in the expanded list
         }
-        console.log(`Address ${address.id} is in expanded list ${expandedListId}`);
       } else if (expandedListId) {
-        console.log(`No addresses found for expanded list ${expandedListId}`);
+        // List is expanded but no addresses loaded yet - skip all
         return;
       } else {
-        // Apply normal filter logic only when no list is expanded
+        // No list expanded - apply normal filters
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
           // Show only unassigned addresses or addresses in lists without rocket
-          // For now, show unassigned for simplicity
           if (isAssigned) return;
         }
       }

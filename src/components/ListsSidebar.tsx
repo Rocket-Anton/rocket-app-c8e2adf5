@@ -486,8 +486,8 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                     className={cn(
                       "rounded-lg border bg-card transition-all duration-200",
                       expandedLists.has(list.id) 
-                        ? "border-l-4 shadow-md bg-muted/30" 
-                        : "border-l-4 hover:shadow-sm"
+                        ? "border-l-4 shadow-lg bg-primary/10 ring-2 ring-primary/20" 
+                        : "border-l-4 hover:shadow-sm hover:bg-muted/20"
                     )}
                     style={{ borderLeftColor: list.color }}
                   >
