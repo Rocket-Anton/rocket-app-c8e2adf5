@@ -19,6 +19,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { MapPin, User, ChevronDown, Edit2, Trash2, Merge } from "lucide-react";
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
+import { cn } from "@/lib/utils";
 
 interface Laufliste {
   id: string;
@@ -322,18 +323,33 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
                           <div className="space-y-1.5">
-                            <div className="text-xs font-medium text-foreground">Statusverteilung</div>
-                            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
+                            <div className="text-sm font-semibold text-foreground">Statusverteilung</div>
+                            <div className="space-y-0">
                               {Object.entries(statusCounts[list.id])
                                 .sort(([, a], [, b]) => b - a)
-                                .map(([status, count]) => (
-                                  <div key={status} className="flex items-center gap-1.5 text-xs">
-                                    <div className="w-2 h-2 rounded-full bg-muted-foreground flex-shrink-0" />
-                                    <span className="text-foreground capitalize">
-                                      {status.replace('-', ' ')}: {count}
-                                    </span>
-                                  </div>
-                                ))}
+                                .map(([status, count], index) => {
+                                  const totalUnits = list.unit_count;
+                                  const percentage = totalUnits > 0 ? ((count / totalUnits) * 100).toFixed(0) : "0";
+                                  return (
+                                    <div 
+                                      key={status} 
+                                      className={cn(
+                                        "grid grid-cols-[1fr_2.5rem_2.5rem] gap-2 items-center text-sm px-2 py-1.5 transition-colors",
+                                        index % 2 === 1 && "bg-muted/30",
+                                        "hover:bg-muted/50"
+                                      )}
+                                    >
+                                      <div className="flex items-center gap-2">
+                                        <div className="w-3 h-3 rounded-full bg-muted-foreground flex-shrink-0" />
+                                        <span className="text-foreground capitalize">
+                                          {status.replace('-', ' ')}
+                                        </span>
+                                      </div>
+                                      <span className="font-semibold text-foreground text-left">{count}</span>
+                                      <span className="font-semibold text-foreground text-left">{percentage}%</span>
+                                    </div>
+                                  );
+                                })}
                             </div>
                           </div>
                         )}
