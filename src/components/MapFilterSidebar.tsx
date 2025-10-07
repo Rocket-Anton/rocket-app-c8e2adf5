@@ -16,6 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "./ui/select";
+import {
+  Dialog,
+  DialogContent,
+} from "./ui/dialog";
 import { Calendar } from "./ui/calendar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -378,30 +382,103 @@ export function MapFilterSidebar({
               </button>
             )}
           </div>
+        </div>
 
-          {/* Date Picker Popover */}
-          {dateFilterMode && (
-            <Popover open={datePickerOpen} onOpenChange={(open) => {
-              setDatePickerOpen(open);
-              if (!open && !lastModifiedDate && !quickDateOption) {
-                setDateFilterMode("");
-              }
-            }}>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={lastModifiedDate}
-                  onSelect={(date) => {
-                    setLastModifiedDate(date);
+        {/* Date Picker Modal - Centered Dialog */}
+        {dateFilterMode && (
+          <Dialog open={datePickerOpen} onOpenChange={(open) => {
+            setDatePickerOpen(open);
+            if (!open && !lastModifiedDate && !quickDateOption) {
+              setDateFilterMode("");
+            }
+          }}>
+            <DialogContent className="sm:max-w-md">
+              <div className="space-y-4">
+                {/* Quick Select Buttons - nur bei "Vor" */}
+                {dateFilterMode === "vor" && (
+                  <div className="grid grid-cols-3 gap-2">
+                    {[
+                      { label: "7 Tage", value: "7", days: 7 },
+                      { label: "14 Tage", value: "14", days: 14 },
+                      { label: "30 Tage", value: "30", days: 30 },
+                    ].map((option) => (
+                      <Button
+                        key={option.value}
+                        type="button"
+                        variant="outline"
+                        size="sm"
+                        className={cn(
+                          "h-10 text-sm font-medium",
+                          quickDateOption === option.value
+                            ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
+                            : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
+                        )}
+                        onClick={() => {
+                          if (quickDateOption === option.value) {
+                            setLastModifiedDate(undefined);
+                            setQuickDateOption("");
+                            setDateFilterType("");
+                          } else {
+                            const date = new Date();
+                            date.setDate(date.getDate() - option.days);
+                            setLastModifiedDate(date);
+                            setQuickDateOption(option.value);
+                            setDateFilterType("quick");
+                          }
+                        }}
+                      >
+                        {option.label}
+                      </Button>
+                    ))}
+                  </div>
+                )}
+
+                {/* Calendar */}
+                <div className="flex justify-center">
+                  <Calendar
+                    mode="single"
+                    selected={lastModifiedDate}
+                    onSelect={(date) => {
+                      setLastModifiedDate(date);
+                      setDateFilterType("custom");
+                      setQuickDateOption("");
+                    }}
+                    disabled={(date) => {
+                      const today = new Date();
+                      today.setHours(0, 0, 0, 0);
+                      
+                      if (dateFilterMode === "vor") {
+                        return date > today;
+                      } else {
+                        const yesterday = new Date(today);
+                        yesterday.setDate(yesterday.getDate() - 1);
+                        return date > yesterday;
+                      }
+                    }}
+                    locale={de}
+                    weekStartsOn={1}
+                    initialFocus
+                    className="pointer-events-auto rounded-md"
+                  />
+                </div>
+
+                {/* Done Button */}
+                <Button
+                  type="button"
+                  className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl"
+                  onClick={() => {
+                    if (!lastModifiedDate && !quickDateOption) {
+                      setDateFilterMode("");
+                    }
                     setDatePickerOpen(false);
                   }}
-                  locale={de}
-                  className={cn("p-3 pointer-events-auto")}
-                />
-              </PopoverContent>
-            </Popover>
-          )}
-        </div>
+                >
+                  Fertig
+                </Button>
+              </div>
+            </DialogContent>
+          </Dialog>
+        )}
 
         {/* Street Filter */}
         <div className="space-y-1">
