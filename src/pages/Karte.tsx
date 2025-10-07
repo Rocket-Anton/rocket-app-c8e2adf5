@@ -447,10 +447,12 @@ export default function Karte() {
 
   // Handle list expansion - show only list's addresses and zoom to them
   const handleListExpanded = async (listId: string | null) => {
+    console.info('List expanded toggled:', listId);
     setExpandedListId(listId);
     
     if (listId) {
       const addressIds = await loadListAddresses(listId);
+      console.info('Loaded list address IDs:', Array.from(addressIds));
       setListAddressIds(addressIds);
     } else {
       setListAddressIds(new Set());
@@ -474,10 +476,17 @@ export default function Karte() {
       const isAssigned = assignedAddressIds.has(address.id);
       
       // If a list is expanded, only show addresses from that list
-      if (expandedListId) {
-        if (!listAddressIds.has(address.id)) return;
+      if (expandedListId && listAddressIds.size > 0) {
+        if (!listAddressIds.has(address.id)) {
+          console.log(`Address ${address.id} not in list ${expandedListId}, skipping`);
+          return;
+        }
+        console.log(`Address ${address.id} is in expanded list ${expandedListId}`);
+      } else if (expandedListId) {
+        console.log(`No addresses found for expanded list ${expandedListId}`);
+        return;
       } else {
-        // Apply normal filter logic
+        // Apply normal filter logic only when no list is expanded
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
           // Show only unassigned addresses or addresses in lists without rocket

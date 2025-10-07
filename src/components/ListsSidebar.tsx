@@ -346,13 +346,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
               <div className="flex items-center gap-2">
                 {selectedLists.size >= 2 && (
                   <Button
-                    size="sm"
-                    variant="default"
+                    size="icon"
+                    variant="ghost"
                     onClick={() => setShowMergeConfirm(true)}
-                    className="gap-2 flex-shrink-0"
+                    className="h-8 w-8 text-primary hover:text-primary hover:bg-primary/10 transition-opacity"
+                    title={`Zusammenführen (${selectedLists.size})`}
                   >
-                    <Merge className="h-4 w-4" />
-                    Zusammenführen ({selectedLists.size})
+                    <Merge className="h-5 w-5" />
                   </Button>
                 )}
                 <Button
