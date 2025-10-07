@@ -23,7 +23,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUpDown } from "lucide-react";
+import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUpDown, X } from "lucide-react";
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
@@ -372,13 +372,21 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
             {/* Search and Sort */}
             <div className="flex items-center gap-2 mt-4">
               <div className="relative flex-1">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground pointer-events-none" />
                 <Input
                   placeholder="Listen durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 border-border focus:border-foreground/30 bg-muted/20 focus:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none focus:ring-0"
+                  className="pl-9 pr-9 border-border focus:border-foreground/30 bg-muted/20 focus:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none focus:ring-0"
                 />
+                {searchQuery && (
+                  <button
+                    onClick={() => setSearchQuery("")}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                )}
               </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
