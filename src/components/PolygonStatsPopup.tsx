@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import { PieChart, Pie, Cell, ResponsiveContainer, Sector, Tooltip } from "recharts";
+import { cn } from "@/lib/utils";
 
 interface Address {
   id: number;
@@ -200,13 +201,17 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       <h4 className="text-sm font-semibold text-foreground mb-3">Status-Verteilung</h4>
 
       {/* Status List with Counts and Percentages */}
-      <div className="mb-3 max-h-32 overflow-y-auto space-y-0.5">
+      <div className="mb-3 max-h-32 overflow-y-auto space-y-0">
         {chartData.map((item, index) => {
           const percentage = totalUnits > 0 ? ((item.value / totalUnits) * 100).toFixed(0) : "0";
           return (
             <div 
               key={index} 
-              className="grid grid-cols-[1fr_3rem_3rem] gap-2 items-center text-sm hover:bg-muted/50 rounded px-2 py-1 transition-colors"
+              className={cn(
+                "grid grid-cols-[1fr_3rem_3rem] gap-2 items-center text-sm px-2 py-1.5 transition-colors",
+                index % 2 === 1 && "bg-muted/30",
+                "hover:bg-muted/50"
+              )}
               onMouseEnter={() => setActiveIndex(index)}
               onMouseLeave={() => setActiveIndex(undefined)}
             >
