@@ -296,6 +296,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   };
 
   const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-4";
+  const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
   
   return (
     <>
@@ -304,8 +305,9 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
         <button
           onClick={() => onClose()}
           className={cn(
-            "fixed bottom-6 h-16 w-16 rounded-full shadow-2xl z-50 transition-all duration-300 hover:scale-110 group animate-in zoom-in overflow-hidden bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600",
-            sidebarOffset
+            "fixed bottom-6 rounded-full shadow-2xl z-50 transition-all duration-300 hover:scale-110 group animate-in zoom-in overflow-hidden bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600",
+            sidebarOffset,
+            isMobile ? "h-12 w-12" : "h-16 w-16"
           )}
           style={{
             boxShadow: '0 10px 30px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.1)'
@@ -322,8 +324,9 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
       {/* Floating Chat Window */}
       {open && (
         <div className={cn(
-          "fixed bottom-6 w-80 h-[420px] flex flex-col bg-background rounded-2xl shadow-2xl border z-50 animate-in slide-in-from-bottom-4 fade-in duration-300",
-          sidebarOffset
+          "fixed bottom-6 flex flex-col bg-background rounded-2xl shadow-2xl border z-50 animate-in slide-in-from-bottom-4 fade-in duration-300",
+          sidebarOffset,
+          isMobile ? "w-[calc(100vw-2rem)] h-[70vh] max-w-sm" : "w-80 h-[420px]"
         )}>
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b bg-background rounded-t-2xl">

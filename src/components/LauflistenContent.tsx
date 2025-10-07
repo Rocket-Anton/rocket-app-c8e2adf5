@@ -4,6 +4,7 @@ import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import SwipeDeck from "./swipe/SwipeDeck";
+import { AIAssistant } from "./AIAssistant";
 import {
   Select,
   SelectContent,
@@ -154,6 +155,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
   const [swipeMode, setSwipeMode] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -927,8 +929,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                                   <div
                                     role="listbox"
                                     aria-multiselectable
-                                    className="max-h-[min(60dvh,var(--radix-popper-available-height,60dvh))] overflow-y-auto overscroll-contain touch-pan-y"
-                                    style={{ WebkitOverflowScrolling: 'touch' }}
+                                    className="overflow-y-auto overscroll-contain touch-pan-y"
+                                    style={{ 
+                                      maxHeight: "min(300px, var(--radix-popper-available-height, 300px))",
+                                      WebkitOverflowScrolling: 'touch'
+                                    }}
                                     onWheel={(e) => e.stopPropagation()}
                                     onTouchStart={(e) => e.stopPropagation()}
                                     onTouchMove={(e) => e.stopPropagation()}
@@ -2001,6 +2006,27 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
           )}
         </div>
       </div>
+      
+      {/* AI Assistant */}
+      <AIAssistant
+        open={showAIAssistant}
+        onClose={() => setShowAIAssistant(!showAIAssistant)}
+        showListsSidebar={false}
+        onSetFilter={(filters) => {
+          if (filters.status) setStatusFilter(filters.status);
+          if (filters.street) setStreetFilter(filters.street);
+          if (filters.city) setCityFilter(filters.city);
+          if (filters.postalCode) setPostalCodeFilter(filters.postalCode);
+          if (filters.houseNumber) setHouseNumberFilter(filters.houseNumber);
+        }}
+        onClearFilters={() => {
+          setStatusFilter([]);
+          setStreetFilter("");
+          setCityFilter("");
+          setPostalCodeFilter("");
+          setHouseNumberFilter("");
+        }}
+      />
     </div>
     </TooltipProvider>
   );

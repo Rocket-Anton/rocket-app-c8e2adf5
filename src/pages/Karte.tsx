@@ -856,6 +856,7 @@ function KarteContent() {
           uniqueStreets={uniqueStreets}
           uniqueCities={uniqueCities}
           uniquePostalCodes={uniquePostalCodes}
+          addresses={addresses}
         />
       </div>
 
@@ -863,10 +864,12 @@ function KarteContent() {
       <AIAssistant
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
-        showListsSidebar={showListsSidebar}
+        showListsSidebar={showListsSidebar || showFilterSidebar}
         onSetFilter={(filters) => {
           if (filters.status) setStatusFilter(filters.status);
-          if (filters.street) setStreetFilter(filters.street);
+          if (filters.street) {
+            setStreetFilter(filters.street);
+          }
           if (filters.city) setCityFilter(filters.city);
           if (filters.postalCode) setPostalCodeFilter(filters.postalCode);
           if (filters.houseNumber) setHouseNumberFilter(filters.houseNumber);
