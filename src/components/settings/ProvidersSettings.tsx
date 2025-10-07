@@ -21,7 +21,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Switch } from "@/components/ui/switch";
 import { LogoUploader } from "./LogoUploader";
 import { ColorPickerPopover } from "./ColorPickerPopover";
 
@@ -31,19 +33,25 @@ interface Provider {
   logo_url: string | null;
   color: string;
   abbreviation: string;
+  is_active: boolean;
   created_at: string;
+  project_count?: number;
+  active_rockets_count?: number;
 }
 
 export const ProvidersSettings = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
   const [formData, setFormData] = useState({ 
     name: "", 
     logo_url: "", 
     color: "#3b82f6", 
-    abbreviation: "" 
+    abbreviation: "",
+    is_active: true
   });
   const [logoBlob, setLogoBlob] = useState<Blob | null>(null);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
@@ -55,13 +63,36 @@ export const ProvidersSettings = () => {
 
   const loadProviders = async () => {
     try {
-      const { data, error } = await supabase
+      // First get providers
+      const { data: providersData, error: providersError } = await supabase
         .from("providers")
         .select("*")
         .order("created_at", { ascending: false });
 
-      if (error) throw error;
-      setProviders(data || []);
+      if (providersError) throw providersError;
+
+      // Then get counts for each provider
+      const providersWithCounts = await Promise.all(
+        (providersData || []).map(async (provider) => {
+          const [projectsRes, raktenRes] = await Promise.all([
+            supabase
+              .from("projects")
+              .select("*", { count: "exact", head: true })
+              .eq("provider_id", provider.id),
+            supabase
+              .from("lauflisten")
+              .select("*", { count: "exact", head: true })
+          ]);
+
+          return {
+            ...provider,
+            project_count: projectsRes.count || 0,
+            active_rockets_count: raktenRes.count || 0
+          };
+        })
+      );
+      
+      setProviders(providersWithCounts);
     } catch (error: any) {
       toast.error("Fehler beim Laden der Provider");
       console.error(error);
@@ -127,6 +158,7 @@ export const ProvidersSettings = () => {
             logo_url: finalLogoUrl || null,
             color: formData.color,
             abbreviation: formData.abbreviation,
+            is_active: formData.is_active,
           })
           .eq("id", editingProvider.id);
 
@@ -140,6 +172,7 @@ export const ProvidersSettings = () => {
             logo_url: finalLogoUrl || null,
             color: formData.color,
             abbreviation: formData.abbreviation,
+            is_active: formData.is_active,
             created_by: user.id,
           });
 
@@ -147,12 +180,13 @@ export const ProvidersSettings = () => {
         toast.success("Provider erstellt");
       }
 
-      setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+      setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true });
       setLogoBlob(null);
       setSuggestedColors([]);
       setSelectedColorOption("other");
       setIsCreateOpen(false);
       setEditingProvider(null);
+      setIsDetailOpen(false);
       loadProviders();
     } catch (error: any) {
       toast.error("Fehler beim Speichern");
@@ -167,10 +201,34 @@ export const ProvidersSettings = () => {
       logo_url: provider.logo_url || "",
       color: provider.color || "#3b82f6",
       abbreviation: provider.abbreviation || "",
+      is_active: provider.is_active ?? true,
     });
-    // Set selectedColorOption to "other" when editing
     setSelectedColorOption("other");
+    setIsDetailOpen(false);
     setIsCreateOpen(true);
+  };
+
+  const handleRowClick = (provider: Provider) => {
+    setSelectedProvider(provider);
+    setIsDetailOpen(true);
+  };
+
+  const handleToggleStatus = async (provider: Provider, e: React.MouseEvent) => {
+    e.stopPropagation();
+    
+    try {
+      const { error } = await supabase
+        .from("providers")
+        .update({ is_active: !provider.is_active })
+        .eq("id", provider.id);
+
+      if (error) throw error;
+      toast.success(provider.is_active ? "Provider deaktiviert" : "Provider aktiviert");
+      loadProviders();
+    } catch (error: any) {
+      toast.error("Fehler beim Aktualisieren");
+      console.error(error);
+    }
   };
 
   const handleDelete = async (id: string) => {
@@ -194,10 +252,15 @@ export const ProvidersSettings = () => {
   const handleDialogClose = () => {
     setIsCreateOpen(false);
     setEditingProvider(null);
-    setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+    setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true });
     setLogoBlob(null);
     setSuggestedColors([]);
     setSelectedColorOption("other");
+  };
+
+  const handleDetailDialogClose = () => {
+    setIsDetailOpen(false);
+    setSelectedProvider(null);
   };
 
 
@@ -251,6 +314,17 @@ export const ProvidersSettings = () => {
                   placeholder="z.B. TK, AOK"
                   required
                 />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Switch 
+                  id="is_active"
+                  checked={formData.is_active}
+                  onCheckedChange={(checked) => 
+                    setFormData({ ...formData, is_active: checked })
+                  }
+                />
+                <Label htmlFor="is_active">Aktiv</Label>
               </div>
 
               {suggestedColors.length > 0 && (
@@ -314,14 +388,14 @@ export const ProvidersSettings = () => {
         </Dialog>
       </div>
 
-      <Table className="table-fixed w-full">
+      <Table className="w-full">
         <TableHeader>
           <TableRow>
             <TableHead className="w-[60px]">Logo</TableHead>
-            <TableHead className="w-[200px]">Name</TableHead>
-            <TableHead className="w-[100px]">Kürzel</TableHead>
-            <TableHead className="w-[80px]">Farbe</TableHead>
-            <TableHead className="w-[120px] text-right">Aktionen</TableHead>
+            <TableHead>Name</TableHead>
+            <TableHead className="w-[120px]">Status</TableHead>
+            <TableHead className="w-[100px] text-center">Projekte</TableHead>
+            <TableHead className="w-[140px] text-center">Aktive Raketen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
@@ -330,14 +404,18 @@ export const ProvidersSettings = () => {
               <TableRow key={i}>
                 <TableCell><Skeleton className="h-10 w-10 rounded" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-full" /></TableCell>
-                <TableCell><Skeleton className="h-6 w-12 rounded" /></TableCell>
-                <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
+                <TableCell><Skeleton className="h-6 w-16" /></TableCell>
+                <TableCell className="text-center"><Skeleton className="h-4 w-8 mx-auto" /></TableCell>
+                <TableCell className="text-center"><Skeleton className="h-4 w-8 mx-auto" /></TableCell>
               </TableRow>
             ))
           ) : (
             providers.map((provider) => (
-              <TableRow key={provider.id}>
+              <TableRow 
+                key={provider.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => handleRowClick(provider)}
+              >
                 <TableCell>
                   {provider.logo_url ? (
                     <img 
@@ -355,37 +433,108 @@ export const ProvidersSettings = () => {
                   )}
                 </TableCell>
                 <TableCell className="font-medium">{provider.name}</TableCell>
-                <TableCell>{provider.abbreviation || "-"}</TableCell>
-                <TableCell>
+                <TableCell onClick={(e) => e.stopPropagation()}>
                   <div className="flex items-center gap-2">
-                    <div 
-                      className="h-6 w-12 rounded border"
-                      style={{ backgroundColor: provider.color }}
+                    <Switch 
+                      checked={provider.is_active}
+                      onCheckedChange={() => handleToggleStatus(provider, {} as React.MouseEvent)}
                     />
+                    <Badge variant={provider.is_active ? "default" : "secondary"}>
+                      {provider.is_active ? "Aktiv" : "Inaktiv"}
+                    </Badge>
                   </div>
                 </TableCell>
-                <TableCell className="text-right">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(provider)}
-                    className="mr-2"
-                  >
-                    <Pencil className="h-4 w-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(provider.id)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
+                <TableCell className="text-center font-medium">
+                  {provider.project_count || 0}
+                </TableCell>
+                <TableCell className="text-center font-medium">
+                  {provider.active_rockets_count || 0}
                 </TableCell>
               </TableRow>
             ))
           )}
         </TableBody>
       </Table>
+
+      {/* Detail Dialog */}
+      <Dialog open={isDetailOpen} onOpenChange={setIsDetailOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Provider Details</DialogTitle>
+          </DialogHeader>
+          {selectedProvider && (
+            <div className="space-y-6">
+              <div className="flex items-start gap-4">
+                {selectedProvider.logo_url ? (
+                  <img 
+                    src={selectedProvider.logo_url} 
+                    alt={selectedProvider.name} 
+                    className="h-20 w-20 object-contain rounded border"
+                  />
+                ) : (
+                  <div 
+                    className="h-20 w-20 rounded flex items-center justify-center text-white font-semibold text-lg"
+                    style={{ backgroundColor: selectedProvider.color }}
+                  >
+                    {selectedProvider.abbreviation || selectedProvider.name.slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+                <div className="flex-1">
+                  <h3 className="text-2xl font-semibold">{selectedProvider.name}</h3>
+                  <p className="text-sm text-muted-foreground mt-1">Kürzel: {selectedProvider.abbreviation}</p>
+                  <div className="flex items-center gap-2 mt-2">
+                    <div 
+                      className="h-6 w-16 rounded border"
+                      style={{ backgroundColor: selectedProvider.color }}
+                    />
+                    <span className="text-sm text-muted-foreground">{selectedProvider.color}</span>
+                  </div>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-3 gap-4">
+                <div className="p-4 border rounded-lg">
+                  <p className="text-sm text-muted-foreground">Status</p>
+                  <Badge variant={selectedProvider.is_active ? "default" : "secondary"} className="mt-2">
+                    {selectedProvider.is_active ? "Aktiv" : "Inaktiv"}
+                  </Badge>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <p className="text-sm text-muted-foreground">Projekte</p>
+                  <p className="text-2xl font-bold mt-1">{selectedProvider.project_count || 0}</p>
+                </div>
+                <div className="p-4 border rounded-lg">
+                  <p className="text-sm text-muted-foreground">Aktive Raketen</p>
+                  <p className="text-2xl font-bold mt-1">{selectedProvider.active_rockets_count || 0}</p>
+                </div>
+              </div>
+
+              <div className="flex gap-2 justify-end pt-4 border-t">
+                <Button variant="outline" onClick={handleDetailDialogClose}>
+                  Schließen
+                </Button>
+                <Button 
+                  variant="outline" 
+                  onClick={() => {
+                    handleEdit(selectedProvider);
+                  }}
+                >
+                  Bearbeiten
+                </Button>
+                <Button 
+                  variant="destructive" 
+                  onClick={() => {
+                    handleDelete(selectedProvider.id);
+                    handleDetailDialogClose();
+                  }}
+                >
+                  Löschen
+                </Button>
+              </div>
+            </div>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
