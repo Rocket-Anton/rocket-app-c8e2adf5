@@ -731,19 +731,43 @@ function KarteContent() {
                   <DropdownMenuContent align="end" className="w-56 z-[1001] bg-background">
                     <DropdownMenuLabel>Adressen anzeigen</DropdownMenuLabel>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => setFilterMode('all')}>
+                    <DropdownMenuItem onClick={() => {
+                      setFilterMode('all');
+                      // Listen-Auswahl zurücksetzen wenn Adressfilter geändert wird
+                      if (selectedListIds.size > 0) {
+                        setSelectedListIds(new Set());
+                        setListAddressIds(new Set());
+                        handleListExpanded([]);
+                      }
+                    }}>
                       <div className="flex items-center gap-2 w-full">
                         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'all' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'all' ? 'font-medium' : ''}>Alle Adressen</span>
                       </div>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterMode('unassigned')}>
+                    <DropdownMenuItem onClick={() => {
+                      setFilterMode('unassigned');
+                      // Listen-Auswahl zurücksetzen wenn Adressfilter geändert wird
+                      if (selectedListIds.size > 0) {
+                        setSelectedListIds(new Set());
+                        setListAddressIds(new Set());
+                        handleListExpanded([]);
+                      }
+                    }}>
                       <div className="flex items-center gap-2 w-full">
                         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'unassigned' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'unassigned' ? 'font-medium' : ''}>Ohne Laufliste</span>
                       </div>
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setFilterMode('no-rocket')}>
+                    <DropdownMenuItem onClick={() => {
+                      setFilterMode('no-rocket');
+                      // Listen-Auswahl zurücksetzen wenn Adressfilter geändert wird
+                      if (selectedListIds.size > 0) {
+                        setSelectedListIds(new Set());
+                        setListAddressIds(new Set());
+                        handleListExpanded([]);
+                      }
+                    }}>
                       <div className="flex items-center gap-2 w-full">
                         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'no-rocket' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'no-rocket' ? 'font-medium' : ''}>Ohne Rakete</span>
