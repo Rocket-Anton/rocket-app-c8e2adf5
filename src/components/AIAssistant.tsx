@@ -4,7 +4,6 @@ import { supabase } from "@/integrations/supabase/client";
 import { Bot, Loader2, X, Mic, Square, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import { useSidebar } from "@/components/ui/sidebar";
 
 interface Message {
   role: "user" | "assistant";
@@ -16,9 +15,10 @@ interface AIAssistantProps {
   open: boolean;
   onClose: () => void;
   onShowAddresses?: (addressIds: number[]) => void;
+  sidebarCollapsed?: boolean;
 }
 
-export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps) {
+export function AIAssistant({ open, onClose, onShowAddresses, sidebarCollapsed = true }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -29,7 +29,6 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
-  const { state } = useSidebar();
 
   useEffect(() => {
     if (scrollRef.current) {
@@ -206,7 +205,7 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
     stopRecording();
   };
 
-  const sidebarOffset = state === "collapsed" ? "right-6" : "right-[calc(1.5rem+14rem)]";
+  const sidebarOffset = sidebarCollapsed ? "right-6" : "right-[calc(1.5rem+14rem)]";
   
   return (
     <>

@@ -1,10 +1,11 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { CreateListModal } from "@/components/CreateListModal";
 import { ListsSidebar } from "@/components/ListsSidebar";
+import { AIAssistant } from "@/components/AIAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
@@ -62,7 +63,9 @@ const statusColorMap: Record<string, string> = {
   "gewerbe": "#f97316"
 };
 
-export default function Karte() {
+function KarteContent() {
+  const { state: sidebarState } = useSidebar();
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -633,7 +636,7 @@ export default function Karte() {
   };
 
   return (
-    <SidebarProvider>
+    <>
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
@@ -805,6 +808,21 @@ export default function Karte() {
           onListExpanded={handleListExpanded}
         />
       </div>
+
+      {/* AI Assistant */}
+      <AIAssistant
+        open={showAIAssistant}
+        onClose={() => setShowAIAssistant(!showAIAssistant)}
+        sidebarCollapsed={sidebarState === "collapsed"}
+      />
+    </>
+  );
+}
+
+export default function Karte() {
+  return (
+    <SidebarProvider>
+      <KarteContent />
     </SidebarProvider>
   );
 }
