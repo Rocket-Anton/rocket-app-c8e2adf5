@@ -5,6 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Switch } from "@/components/ui/switch";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
@@ -256,21 +258,41 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
             <div className="space-y-2">
               <Label htmlFor="user-select">Rakete auswählen</Label>
               <Select value={selectedUser} onValueChange={setSelectedUser}>
-                <SelectTrigger id="user-select" className="w-full justify-start h-9 bg-background font-normal pr-8 border border-border focus-visible:ring-0 focus-visible:border-border">
-                  <SelectValue placeholder="Rakete wählen..." />
+                <SelectTrigger id="user-select" className="w-full justify-between h-9 bg-background font-normal border border-border focus-visible:ring-0 focus-visible:border-border [&>svg]:hidden">
+                  <div className="flex items-center justify-between w-full">
+                    <span className="text-muted-foreground text-sm">
+                      {selectedUser 
+                        ? profiles.find(p => p.id === selectedUser)?.name 
+                        : "Rakete wählen..."}
+                    </span>
+                    <ChevronRight className="h-4 w-4 opacity-50 flex-shrink-0" />
+                  </div>
                 </SelectTrigger>
                 <SelectContent className="z-[1003] bg-background">
-                  {profiles.map((profile) => (
-                    <SelectItem key={profile.id} value={profile.id}>
-                      <div className="flex items-center gap-2">
-                        <div
-                          className="w-3 h-3 rounded-full"
-                          style={{ backgroundColor: profile.color }}
-                        />
-                        {profile.name}
-                      </div>
-                    </SelectItem>
-                  ))}
+                  {profiles.map((profile) => {
+                    const initials = profile.name
+                      .split(' ')
+                      .map(n => n[0])
+                      .join('')
+                      .toUpperCase()
+                      .slice(0, 2);
+                    
+                    return (
+                      <SelectItem key={profile.id} value={profile.id}>
+                        <div className="flex items-center gap-2">
+                          <Avatar className="w-6 h-6">
+                            <AvatarFallback 
+                              className="text-xs font-medium"
+                              style={{ backgroundColor: profile.color, color: 'white' }}
+                            >
+                              {initials}
+                            </AvatarFallback>
+                          </Avatar>
+                          {profile.name}
+                        </div>
+                      </SelectItem>
+                    );
+                  })}
                 </SelectContent>
               </Select>
             </div>
