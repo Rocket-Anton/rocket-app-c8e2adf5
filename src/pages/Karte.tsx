@@ -336,28 +336,13 @@ export default function Karte() {
         // TODO: Implement rocket filter
       }
       
-      // Use list color if assigned, otherwise use status color
+      // Use list color if assigned, otherwise always gray for unassigned
       let color: string;
       if (isAssigned && addressListColors.has(address.id)) {
         color = addressListColors.get(address.id)!;
       } else {
-        // Calculate overall status based on units
-        const statusCounts: Record<string, number> = {};
-        address.units.forEach(unit => {
-          statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
-        });
-
-        // Determine primary status (most common)
-        let primaryStatus = "offen";
-        let maxCount = 0;
-        Object.entries(statusCounts).forEach(([status, count]) => {
-          if (count > maxCount) {
-            maxCount = count;
-            primaryStatus = status;
-          }
-        });
-
-        color = statusColorMap[primaryStatus] || "#6b7280";
+        // Unassigned addresses are always gray
+        color = "#9ca3af";
       }
       
       const currentZoom = map.getZoom();
@@ -457,28 +442,13 @@ export default function Karte() {
         if (isAssigned) return;
       }
       
-      // Use list color if assigned, otherwise use status color
+      // Use list color if assigned, otherwise always gray for unassigned
       let color: string;
       if (isAssigned && addressListColors.has(address.id)) {
         color = addressListColors.get(address.id)!;
       } else {
-        // Calculate overall status based on units
-        const statusCounts: Record<string, number> = {};
-        address.units.forEach(unit => {
-          statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
-        });
-
-        // Determine primary status (most common)
-        let primaryStatus = "offen";
-        let maxCount = 0;
-        Object.entries(statusCounts).forEach(([status, count]) => {
-          if (count > maxCount) {
-            maxCount = count;
-            primaryStatus = status;
-          }
-        });
-
-        color = statusColorMap[primaryStatus] || "#6b7280";
+        // Unassigned addresses are always gray
+        color = "#9ca3af";
       }
       
       const currentZoom = map.getZoom();
