@@ -360,17 +360,6 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                             </div>
                           </div>
                         )}
-
-                        {/* Delete Button */}
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className="w-full gap-2 text-destructive hover:text-destructive"
-                          onClick={() => setDeletingListId(list.id)}
-                        >
-                          <Trash2 className="h-3 w-3" />
-                          Löschen
-                        </Button>
                       </div>
                     </CollapsibleContent>
                   </div>
@@ -388,10 +377,15 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
         open={!!editingList}
         onClose={() => setEditingList(null)}
         list={editingList}
+        allLists={lists}
         onSuccess={() => {
           setEditingList(null);
           fetchLists();
           fetchStatusCounts();
+        }}
+        onDelete={() => {
+          setDeletingListId(editingList.id);
+          setEditingList(null);
         }}
       />
     )}
