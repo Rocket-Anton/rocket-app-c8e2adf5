@@ -460,12 +460,12 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
             </div>
 
             {selectedLists.size > 0 && (
-              <div className="flex items-center justify-between text-[11px] text-muted-foreground mt-1 px-1">
-                <button onClick={toggleSelectAll} className="hover:text-foreground underline-offset-2 hover:underline">
-                  Alle
-                </button>
-                <button onClick={handleDeselectAll} className="hover:text-foreground underline-offset-2 hover:underline">
-                  Aufheben
+              <div className="flex items-center justify-end text-[11px] text-muted-foreground mt-1 px-1">
+                <button 
+                  onClick={toggleSelectAll} 
+                  className="hover:text-foreground underline-offset-2 hover:underline"
+                >
+                  {selectedLists.size === getFilteredAndSortedLists().length ? 'Aufheben' : 'Alle'}
                 </button>
               </div>
             )}
