@@ -109,28 +109,34 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
   const statusCounts: Record<string, number> = {};
   let neukunden = 0;
   let bestandskunden = 0;
+  let hasContactedUnits = false;
 
   addresses.forEach(address => {
     address.units.forEach(unit => {
       statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
       if (unit.status === "neukunde") neukunden++;
       if (unit.status === "bestandskunde") bestandskunden++;
+      // Check if any unit has a status other than "offen"
+      if (unit.status !== "offen") hasContactedUnits = true;
     });
   });
 
   const customerTotal = neukunden + bestandskunden;
   const customerQuote = totalUnits > 0 ? ((customerTotal / totalUnits) * 100).toFixed(1) : "0";
 
-  // Find latest contact date
-  const lastContact = addresses
-    .filter(addr => addr.lastUpdated)
-    .reduce((latest: Date | null, addr) => {
-      if (!addr.lastUpdated) return latest;
-      if (!latest) return addr.lastUpdated;
-      return addr.lastUpdated > latest ? addr.lastUpdated : latest;
-    }, null);
+  // Find latest contact date - only if there are contacted units
+  const lastContact = hasContactedUnits
+    ? addresses
+        .filter(addr => addr.lastUpdated)
+        .reduce((latest: Date | null, addr) => {
+          if (!addr.lastUpdated) return latest;
+          if (!latest) return addr.lastUpdated;
+          return addr.lastUpdated > latest ? addr.lastUpdated : latest;
+        }, null)
+    : null;
 
-  const formatLastContact = (date: Date | null) => {
+  const formatLastContact = (date: Date | null, hasContact: boolean) => {
+    if (!hasContact) return "Noch kein Kontakt";
     if (!date) return "Noch kein Kontakt";
     return new Intl.DateTimeFormat('de-DE', {
       day: '2-digit',
@@ -185,7 +191,7 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
       {/* Last Contact */}
       <div className="bg-muted/30 rounded-lg p-3 border border-border/50 mb-3">
         <p className="text-xs text-muted-foreground mb-1">Letzter Kontakt</p>
-        <p className="text-lg font-semibold text-foreground">{formatLastContact(lastContact)}</p>
+        <p className="text-lg font-semibold text-foreground">{formatLastContact(lastContact, hasContactedUnits)}</p>
       </div>
 
       <Separator className="mb-3" />
