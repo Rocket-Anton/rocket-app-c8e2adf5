@@ -495,7 +495,7 @@ function KarteContent() {
       // Fit bounds to all addresses from selected lists
       const bounds = L.latLngBounds([]);
       addresses.forEach((a) => {
-        if (addressIds.has(a.id)) {
+        if (addressIds.has(a.id) && a.coordinates && a.coordinates[0] !== 0 && a.coordinates[1] !== 0) {
           bounds.extend([a.coordinates[1], a.coordinates[0]]);
         }
       });
@@ -504,19 +504,17 @@ function KarteContent() {
         const center = bounds.getCenter();
         const currentZoom = map.getZoom();
         map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
-        if (showListsSidebar) {
-          const rightSidebarWidth = window.innerWidth >= 640 ? 380 : 320;
-          map.panBy([-(rightSidebarWidth / 2), 0], { animate: false });
-        }
+        // Offset center between left and right sidebars
+        const leftWidth = sidebarState === 'collapsed' ? 88 : 224; // px
+        const rightWidth = showListsSidebar ? (window.innerWidth >= 640 ? 380 : 320) : 0;
+        const offsetX = (leftWidth / 2) - (rightWidth / 2);
+        if (offsetX !== 0) map.panBy([offsetX, 0], { animate: false });
       }
     } else {
-      // Clear focus and restore previous view if available
+      // Clear focus when no lists selected
       setListAddressIds(new Set());
-      if (previousViewRef.current) {
-        const { center, zoom } = previousViewRef.current;
-        map.setView(center as L.LatLngExpression, zoom, { animate: true });
-        previousViewRef.current = null;
-      }
+      // Do not modify zoom or center on deselection
+      previousViewRef.current = null;
     }
   };
 
