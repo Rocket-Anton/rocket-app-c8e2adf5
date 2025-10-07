@@ -285,16 +285,17 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
             <div className="flex items-center justify-between gap-4">
               <div className="flex items-center gap-3">
                 <SheetTitle>Lauflisten</SheetTitle>
-                {selectedLists.size >= 1 && (
-                  <Button
-                    size="icon"
-                    variant="ghost"
-                    onClick={() => setShowBulkDeleteConfirm(true)}
-                    className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
-                  >
-                    <Trash className="h-4 w-4" />
-                  </Button>
-                )}
+                <Button
+                  size="icon"
+                  variant="ghost"
+                  onClick={() => setShowBulkDeleteConfirm(true)}
+                  className={cn(
+                    "h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10 transition-opacity",
+                    selectedLists.size >= 1 ? "opacity-100" : "opacity-0 pointer-events-none"
+                  )}
+                >
+                  <Trash2 className="h-5 w-5" />
+                </Button>
               </div>
               {selectedLists.size >= 2 && (
                 <Button
