@@ -301,7 +301,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                   variant="ghost"
                   onClick={() => setShowBulkDeleteConfirm(true)}
                   className={cn(
-                    "h-8 w-8 mr-2 text-destructive hover:text-destructive hover:bg-destructive/10 transition-opacity",
+                    "h-8 w-8 mr-6 text-destructive hover:text-destructive hover:bg-destructive/10 transition-opacity",
                     selectedLists.size >= 1 ? "opacity-100" : "opacity-0 pointer-events-none"
                   )}
                 >
