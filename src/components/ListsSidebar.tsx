@@ -334,15 +334,15 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
 
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
-                          <div className="space-y-2">
-                            <div className="text-xs font-medium text-muted-foreground">Statusverteilung</div>
-                            <div className="grid grid-cols-2 gap-2">
+                          <div className="space-y-1.5">
+                            <div className="text-xs font-medium text-foreground">Statusverteilung</div>
+                            <div className="grid grid-cols-2 gap-x-4 gap-y-1">
                               {Object.entries(statusCounts[list.id])
                                 .sort(([, a], [, b]) => b - a)
                                 .map(([status, count]) => (
-                                  <div key={status} className="flex items-center gap-2 text-xs">
-                                    <div className="w-2 h-2 rounded-full bg-muted-foreground" />
-                                    <span className="text-muted-foreground capitalize">
+                                  <div key={status} className="flex items-center gap-1.5 text-xs">
+                                    <div className="w-2 h-2 rounded-full bg-muted-foreground flex-shrink-0" />
+                                    <span className="text-foreground capitalize">
                                       {status.replace('-', ' ')}: {count}
                                     </span>
                                   </div>
