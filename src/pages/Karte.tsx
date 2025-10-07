@@ -315,7 +315,8 @@ export default function Karte() {
       // Check which addresses are inside the polygon
       const polygon = layer.getLatLngs()[0];
       const selectedAddrs = addresses.filter(address => {
-        const point = L.latLng(address.coordinates[1], address.coordinates[0]);
+        const c = refinedCoords.get(address.id) || address.coordinates;
+        const point = L.latLng(c[1], c[0]);
         return isPointInPolygon(point, polygon);
       });
       
@@ -407,7 +408,7 @@ export default function Karte() {
         mapInstance.current = null;
       }
     };
-  }, [addresses]);
+  }, [addresses, refinedCoords]);
 
   // Toggle drawing mode
   const toggleDrawingMode = () => {
@@ -501,7 +502,8 @@ export default function Karte() {
         iconAnchor: [size / 2, size / 2],
       });
 
-      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
+      const chosen = refinedCoords.get(address.id) || address.coordinates;
+      const marker = L.marker([chosen[1], chosen[0]], { 
         icon: customIcon 
       }).addTo(map);
       

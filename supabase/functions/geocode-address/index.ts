@@ -219,8 +219,14 @@ serve(async (req) => {
       });
     }
 
-    // 2) Präzise via Overpass um den Seed
-    let point = await overpassAround(seed.seed, body);
+    // 2) Präzise via Overpass um den Seed (robust against timeouts)
+    let point = null as { lat:number; lng:number } | null;
+    try {
+      point = await overpassAround(seed.seed, body);
+    } catch (e) {
+      console.error('Overpass error, will use polygon centroid fallback:', e);
+      point = null;
+    }
 
     // 3) Fallback: Nominatim-Polygon-Centroid (Gebäude)
     if (!point) {
@@ -244,3 +250,4 @@ serve(async (req) => {
     });
   }
 });
+
