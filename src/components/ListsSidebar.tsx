@@ -377,7 +377,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                   placeholder="Listen durchsuchen..."
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9"
+                  className="pl-9 border-border focus:border-foreground/30 bg-muted/20 focus:bg-muted/30 focus-visible:ring-0 focus-visible:ring-offset-0 focus:outline-none focus:ring-0"
                 />
               </div>
               <DropdownMenu>
