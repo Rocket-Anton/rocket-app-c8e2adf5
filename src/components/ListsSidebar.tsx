@@ -53,7 +53,7 @@ interface ListStatusCounts {
 interface ListsSidebarProps {
   open: boolean;
   onClose: () => void;
-  onListExpanded: (listId: string | null) => void;
+  onListExpanded: (listIds: string[]) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -148,22 +148,20 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     const newExpanded = new Set(expandedLists);
     const wasExpanded = newExpanded.has(listId);
     
+    const newSelected = new Set(selectedLists);
     if (wasExpanded) {
       // Collapsing the list - remove from expanded and deselect
       newExpanded.delete(listId);
-      const newSelected = new Set(selectedLists);
       newSelected.delete(listId);
-      setSelectedLists(newSelected);
-      onListExpanded(null); // No list expanded, return to normal filter
     } else {
       // Expanding the list - add to expanded and select
       newExpanded.add(listId);
-      const newSelected = new Set(selectedLists);
       newSelected.add(listId);
-      setSelectedLists(newSelected);
-      onListExpanded(listId); // Show only this list's addresses
     }
+
     setExpandedLists(newExpanded);
+    setSelectedLists(newSelected);
+    onListExpanded(Array.from(newSelected));
   };
 
   const toggleSelectList = (listId: string) => {
@@ -174,6 +172,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
       newSelected.add(listId);
     }
     setSelectedLists(newSelected);
+    onListExpanded(Array.from(newSelected));
   };
 
   const handleDeleteList = async (listId: string) => {
@@ -347,19 +346,26 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
 
   const handleSelectAll = () => {
     const filtered = getFilteredAndSortedLists();
-    setSelectedLists(new Set(filtered.map(l => l.id)));
+    const allIds = filtered.map(l => l.id);
+    const newSet = new Set(allIds);
+    setSelectedLists(newSet);
+    onListExpanded(allIds);
   };
 
   const handleDeselectAll = () => {
     setSelectedLists(new Set());
+    onListExpanded([]);
   };
 
   const toggleSelectAll = () => {
     const filtered = getFilteredAndSortedLists();
     if (selectedLists.size === filtered.length) {
       setSelectedLists(new Set());
+      onListExpanded([]);
     } else {
-      setSelectedLists(new Set(filtered.map(l => l.id)));
+      const allIds = filtered.map(l => l.id);
+      setSelectedLists(new Set(allIds));
+      onListExpanded(allIds);
     }
   };
 

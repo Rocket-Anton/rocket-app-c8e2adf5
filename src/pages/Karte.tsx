@@ -80,7 +80,7 @@ export default function Karte() {
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
-  const [expandedListId, setExpandedListId] = useState<string | null>(null);
+  const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
   const previousViewRef = useRef<{ center: L.LatLngExpression; zoom: number } | null>(null);
 
@@ -317,21 +317,17 @@ export default function Karte() {
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
       
-      // If a list is expanded, only show addresses from that list
-      if (expandedListId && listAddressIds.size > 0) {
+      // If lists are selected, only show addresses from those lists
+      if (selectedListIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
-          return; // Skip addresses not in the expanded list
+          return; // Skip addresses not in any selected list
         }
-      } else if (expandedListId) {
-        // List is expanded but no addresses loaded yet - skip all
-        return;
       } else {
-        // No list expanded - apply normal filters
+        // No lists selected - apply normal filters
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
           // Show only unassigned addresses or addresses in lists without rocket
-          // For now, we'll need to load this info separately
-          // TODO: Implement rocket filter
+          // TODO: Implement rocket filter flag
         }
       }
       
@@ -442,49 +438,51 @@ export default function Karte() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDrawingMode]);
 
-  // Load addresses for a specific list
-  const loadListAddresses = async (listId: string) => {
+  // Load addresses for specific lists (union)
+  const loadAddressesForLists = async (listIds: string[]) => {
+    if (listIds.length === 0) return new Set<number>();
     const { data, error } = await supabase
       .from('lauflisten_addresses')
       .select('address_id')
-      .eq('laufliste_id', listId);
+      .in('laufliste_id', listIds);
 
     if (error) {
-      console.error('Error loading list addresses:', error);
+      console.error('Error loading lists addresses:', error);
       return new Set<number>();
     }
 
     return new Set(data?.map(item => item.address_id) || []);
   };
 
-  // Handle list expansion - show only list's addresses and zoom to them
-  const handleListExpanded = async (listId: string | null) => {
+  // Handle selection change from sidebar (one or multiple lists)
+  const handleListExpanded = (listIds: string[]) => {
     const map = mapInstance.current;
-    if (!map) {
-      setExpandedListId(listId);
-      return;
-    }
 
-    if (listId) {
-      // Save current view once when entering list focus
+    // Update selected list IDs immediately for filtering
+    setSelectedListIds(new Set(listIds));
+
+    if (!map) return;
+
+    if (listIds.length > 0) {
+      // Save current view once when entering focus mode
       if (!previousViewRef.current) {
         previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() };
       }
-      setExpandedListId(listId);
-      const addressIds = await loadListAddresses(listId);
-      setListAddressIds(addressIds);
 
-      // Fit immediately to the list's addresses
-      const bounds = L.latLngBounds([]);
-      addresses.forEach((a) => {
-        if (addressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
+      // Load all addresses for the selected lists and fit bounds
+      loadAddressesForLists(listIds).then((addressIds) => {
+        setListAddressIds(addressIds);
+
+        const bounds = L.latLngBounds([]);
+        addresses.forEach((a) => {
+          if (addressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
+        });
+        if (bounds.isValid()) {
+          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+        }
       });
-      if (bounds.isValid()) {
-        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
-      }
     } else {
-      // Clear list focus and restore previous view if available
-      setExpandedListId(null);
+      // Clear focus and restore previous view if available
       setListAddressIds(new Set());
       if (previousViewRef.current) {
         const { center, zoom } = previousViewRef.current;
@@ -510,16 +508,13 @@ export default function Karte() {
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
       
-      // If a list is expanded, only show addresses from that list
-      if (expandedListId && listAddressIds.size > 0) {
+      // If lists are selected, only show addresses from those lists
+      if (selectedListIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
-          return; // Skip addresses not in the expanded list
+          return; // Skip addresses not in any selected list
         }
-      } else if (expandedListId) {
-        // List is expanded but no addresses loaded yet - skip all
-        return;
       } else {
-        // No list expanded - apply normal filters
+        // No lists selected - apply normal filters
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
           // Show only unassigned addresses or addresses in lists without rocket
@@ -599,7 +594,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses, expandedListId, listAddressIds]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
