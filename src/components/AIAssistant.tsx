@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Bot, Loader2, X, Mic, Square, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { useSidebar } from "@/components/ui/sidebar";
 
 interface Message {
   role: "user" | "assistant";
@@ -23,16 +24,38 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
   const [isLocked, setIsLocked] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [slideOffset, setSlideOffset] = useState(0);
+  const [userFirstName, setUserFirstName] = useState<string>("");
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+  const { state } = useSidebar();
 
   useEffect(() => {
     if (scrollRef.current) {
       scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
     }
   }, [messages]);
+
+  // Fetch user profile
+  useEffect(() => {
+    const fetchProfile = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+        
+        if (profile?.name) {
+          const firstName = profile.name.split(' ')[0];
+          setUserFirstName(firstName);
+        }
+      }
+    };
+    fetchProfile();
+  }, []);
 
   const startRecording = async () => {
     try {
@@ -183,19 +206,24 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
     stopRecording();
   };
 
+  const sidebarOffset = state === "collapsed" ? "right-6" : "right-[calc(1.5rem+14rem)]";
+  
   return (
     <>
       {/* 3D Floating Action Button */}
       {!open && (
         <button
           onClick={() => onClose()}
-          className="fixed bottom-6 right-6 h-16 w-16 rounded-full shadow-2xl z-50 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-110 hover:shadow-blue-500/50 group animate-in zoom-in"
+          className={cn(
+            "fixed bottom-6 h-14 w-14 rounded-full shadow-2xl z-50 bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600 hover:from-blue-500 hover:via-blue-600 hover:to-blue-700 transition-all duration-300 hover:scale-110 hover:shadow-blue-500/50 group animate-in zoom-in",
+            sidebarOffset
+          )}
           style={{
             boxShadow: '0 10px 30px rgba(59, 130, 246, 0.5), 0 0 0 8px rgba(59, 130, 246, 0.1), inset 0 -5px 15px rgba(0, 0, 0, 0.2), inset 0 5px 15px rgba(255, 255, 255, 0.3)'
           }}
         >
           <div className="relative w-full h-full flex items-center justify-center">
-            <Bot className="h-7 w-7 text-white drop-shadow-lg group-hover:scale-110 transition-transform" />
+            <Bot className="h-6 w-6 text-white drop-shadow-lg group-hover:scale-110 transition-transform" />
             <div className="absolute inset-0 rounded-full bg-gradient-to-t from-transparent to-white/20" />
           </div>
         </button>
@@ -203,15 +231,20 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
 
       {/* Floating Chat Window */}
       {open && (
-        <div className="fixed bottom-6 right-6 w-96 h-[500px] flex flex-col bg-background rounded-2xl shadow-2xl border z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
+        <div className={cn(
+          "fixed bottom-6 w-80 h-[420px] flex flex-col bg-background rounded-2xl shadow-2xl border z-50 animate-in slide-in-from-bottom-4 fade-in duration-300",
+          sidebarOffset
+        )}>
           {/* Header */}
           <div className="flex items-center justify-between p-3 border-b bg-background rounded-t-2xl">
             <div className="flex items-center gap-2">
-              <div className="w-9 h-9 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow">
-                <Bot className="h-5 w-5 text-white" />
+              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center shadow">
+                <Bot className="h-4 w-4 text-white" />
               </div>
               <div>
-                <h2 className="font-semibold text-sm">Rocket Assistent</h2>
+                <h2 className="font-semibold text-sm">
+                  {userFirstName ? `Hey ${userFirstName}!` : "Rocket Assistent"}
+                </h2>
                 <p className="text-xs text-muted-foreground">Bereit zu helfen</p>
               </div>
             </div>
@@ -226,12 +259,12 @@ export function AIAssistant({ open, onClose, onShowAddresses }: AIAssistantProps
           {/* Messages */}
           <ScrollArea className="flex-1 px-3" ref={scrollRef}>
             {messages.length === 0 ? (
-              <div className="flex flex-col items-center justify-center h-full text-center py-6">
-                <div className="w-14 h-14 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-3 shadow">
-                  <Bot className="h-7 w-7 text-white" />
+              <div className="flex flex-col items-center justify-center h-full text-center py-4">
+                <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-blue-600 flex items-center justify-center mb-2 shadow">
+                  <Bot className="h-6 w-6 text-white" />
                 </div>
-                <h3 className="font-semibold text-base mb-1">Wie kann ich helfen?</h3>
-                <p className="text-xs text-muted-foreground px-4">
+                <h3 className="font-semibold text-sm mb-1">Wie kann ich helfen?</h3>
+                <p className="text-xs text-muted-foreground px-4 leading-relaxed">
                   Halte die Mikrofon-Taste gedrückt und stelle deine Frage
                 </p>
               </div>
