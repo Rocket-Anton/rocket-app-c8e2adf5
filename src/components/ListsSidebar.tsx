@@ -47,6 +47,19 @@ interface ListsSidebarProps {
   onClose: () => void;
 }
 
+const statusColors: Record<string, string> = {
+  "offen": "#6b7280",
+  "nicht-angetroffen": "#eab308",
+  "karte-eingeworfen": "#f59e0b",
+  "potenzial": "#22c55e",
+  "neukunde": "#3b82f6",
+  "bestandskunde": "#10b981",
+  "kein-interesse": "#ef4444",
+  "termin": "#a855f7",
+  "nicht-vorhanden": "#9ca3af",
+  "gewerbe": "#f97316"
+};
+
 export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const [lists, setLists] = useState<Laufliste[]>([]);
   const [loading, setLoading] = useState(true);
@@ -369,25 +382,29 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                       <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
-                          <div className="space-y-1.5">
-                            <div className="text-sm font-semibold text-foreground">Statusverteilung</div>
+                          <div className="space-y-1">
+                            <div className="text-sm font-semibold text-foreground mb-1.5">Statusverteilung</div>
                             <div className="space-y-0">
                               {Object.entries(statusCounts[list.id])
                                 .sort(([, a], [, b]) => b - a)
                                 .map(([status, count], index) => {
                                   const totalUnits = list.unit_count;
                                   const percentage = totalUnits > 0 ? ((count / totalUnits) * 100).toFixed(0) : "0";
+                                  const statusColor = statusColors[status] || "#6b7280";
                                   return (
                                     <div 
                                       key={status} 
                                       className={cn(
-                                        "grid grid-cols-[1fr_2.5rem_2.5rem] gap-2 items-center text-sm px-2 py-1.5 transition-colors",
+                                        "grid grid-cols-[1fr_2.5rem_2.5rem] gap-2 items-center text-xs px-2 py-0.5 transition-colors",
                                         index % 2 === 1 && "bg-muted/30",
                                         "hover:bg-muted/50"
                                       )}
                                     >
                                       <div className="flex items-center gap-2">
-                                        <div className="w-3 h-3 rounded-full bg-muted-foreground flex-shrink-0" />
+                                        <div 
+                                          className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
+                                          style={{ backgroundColor: statusColor }}
+                                        />
                                         <span className="text-foreground capitalize">
                                           {status.replace('-', ' ')}
                                         </span>
