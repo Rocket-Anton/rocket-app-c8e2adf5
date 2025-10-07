@@ -195,20 +195,19 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
 
       console.log('List created:', laufliste);
 
-      // Geocode addresses that don't have valid coordinates
+      // Geocode all addresses in parallel for maximum speed
+      console.log('Starting parallel geocoding for', addresses.length, 'addresses');
       const geocodedAddresses = await Promise.all(
         addresses.map(async (addr) => {
           // Check if coordinates are valid
           if (hasValidCoordinates(addr.coordinates)) {
-            console.log(`Address ${addr.street} ${addr.houseNumber} already has valid coordinates`);
             return {
               ...addr,
               coordinates: { lng: addr.coordinates[0], lat: addr.coordinates[1] }
             };
           }
 
-          // Geocode the address
-          console.log(`Geocoding address: ${addr.street} ${addr.houseNumber}`);
+          // Geocode the address (parallel execution)
           const result = await geocodeAddress(
             addr.street,
             addr.houseNumber,
@@ -217,7 +216,6 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
           );
 
           if (result.coordinates) {
-            console.log(`Geocoded: ${addr.street} ${addr.houseNumber} ->`, result.coordinates);
             return {
               ...addr,
               coordinates: result.coordinates
@@ -232,6 +230,7 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
           }
         })
       );
+      console.log('Parallel geocoding completed');
 
       // Add addresses to laufliste
       const addressInserts = geocodedAddresses.map(addr => ({

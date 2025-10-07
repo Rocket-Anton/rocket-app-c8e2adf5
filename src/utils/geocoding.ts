@@ -62,7 +62,7 @@ export function hasValidCoordinates(coordinates: [number, number] | { lat: numbe
   return coordinates.lat !== 0 && coordinates.lng !== 0;
 }
 
-// Batch geocode addresses with delay to respect rate limits
+// Batch geocode addresses in parallel (fast, no rate limit delays)
 export async function geocodeAddressesBatch(
   addresses: Array<{
     street: string;
@@ -72,32 +72,28 @@ export async function geocodeAddressesBatch(
     coordinates?: [number, number];
   }>
 ): Promise<Array<{ lat: number; lng: number } | null>> {
-  const results: Array<{ lat: number; lng: number } | null> = [];
-  
-  for (const address of addresses) {
-    // Skip if already has valid coordinates
-    if (address.coordinates && hasValidCoordinates(address.coordinates)) {
-      results.push({
-        lng: address.coordinates[0],
-        lat: address.coordinates[1]
-      });
-      continue;
-    }
+  // Process all addresses in parallel for maximum speed
+  const results = await Promise.all(
+    addresses.map(async (address) => {
+      // Skip if already has valid coordinates
+      if (address.coordinates && hasValidCoordinates(address.coordinates)) {
+        return {
+          lng: address.coordinates[0],
+          lat: address.coordinates[1]
+        };
+      }
 
-    const result = await geocodeAddress(
-      address.street,
-      address.houseNumber,
-      address.postalCode,
-      address.city
-    );
+      // Geocode in parallel - the edge function handles rate limiting internally
+      const result = await geocodeAddress(
+        address.street,
+        address.houseNumber,
+        address.postalCode,
+        address.city
+      );
 
-    results.push(result.coordinates);
-
-    // Wait 1 second between requests to respect Nominatim's rate limit
-    if (addresses.indexOf(address) < addresses.length - 1) {
-      await new Promise(resolve => setTimeout(resolve, 1000));
-    }
-  }
+      return result.coordinates;
+    })
+  );
 
   return results;
 }
