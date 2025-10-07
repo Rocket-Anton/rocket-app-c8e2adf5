@@ -29,10 +29,14 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
   const [slideOffset, setSlideOffset] = useState(0);
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [greeting, setGreeting] = useState<string>("Wie kann ich dir heute helfen?");
+  const [audioLevel, setAudioLevel] = useState(0);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
+  const audioContextRef = useRef<AudioContext | null>(null);
+  const analyserRef = useRef<AnalyserNode | null>(null);
+  const animationFrameRef = useRef<number | null>(null);
 
   const greetings = [
     "Wie kann ich dir heute helfen?",
@@ -78,7 +82,42 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
 
   const startRecording = async () => {
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        audio: {
+          echoCancellation: true,
+          noiseSuppression: true,
+          autoGainControl: true
+        }
+      });
+      
+      // Setup audio analysis for visual feedback
+      const audioContext = new AudioContext();
+      const analyser = audioContext.createAnalyser();
+      const source = audioContext.createMediaStreamSource(stream);
+      
+      analyser.fftSize = 256;
+      source.connect(analyser);
+      
+      audioContextRef.current = audioContext;
+      analyserRef.current = analyser;
+      
+      // Monitor audio levels
+      const bufferLength = analyser.frequencyBinCount;
+      const dataArray = new Uint8Array(bufferLength);
+      
+      const updateAudioLevel = () => {
+        if (!analyserRef.current) return;
+        
+        analyserRef.current.getByteFrequencyData(dataArray);
+        const average = dataArray.reduce((a, b) => a + b) / bufferLength;
+        const normalizedLevel = Math.min(average / 128, 1);
+        setAudioLevel(normalizedLevel);
+        
+        animationFrameRef.current = requestAnimationFrame(updateAudioLevel);
+      };
+      
+      updateAudioLevel();
+      
       const mediaRecorder = new MediaRecorder(stream);
       mediaRecorderRef.current = mediaRecorder;
       audioChunksRef.current = [];
@@ -90,6 +129,15 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
       };
 
       mediaRecorder.onstop = async () => {
+        // Stop audio analysis
+        if (animationFrameRef.current) {
+          cancelAnimationFrame(animationFrameRef.current);
+        }
+        if (audioContextRef.current) {
+          audioContextRef.current.close();
+        }
+        setAudioLevel(0);
+        
         const audioBlob = new Blob(audioChunksRef.current, { type: 'audio/webm' });
         await sendAudioMessage(audioBlob);
         stream.getTracks().forEach(track => track.stop());
@@ -364,20 +412,34 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                   onClick={handleClick}
                   disabled={isLoading}
                   className={cn(
-                    "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all select-none",
+                    "w-14 h-14 rounded-full flex items-center justify-center shadow-lg transition-all select-none relative",
                     isRecording 
-                      ? "bg-red-500 hover:bg-red-600 scale-110" 
+                      ? "bg-red-500 hover:bg-red-600" 
                       : "bg-blue-500 hover:bg-blue-600",
                     isLoading && "opacity-50 cursor-not-allowed"
                   )}
                   style={{
-                    transform: !isLocked && isRecording ? `translateY(-${Math.min(slideOffset, 80)}px) scale(1.1)` : undefined
+                    transform: !isLocked && isRecording 
+                      ? `translateY(-${Math.min(slideOffset, 80)}px) scale(${1.1 + audioLevel * 0.4})` 
+                      : isRecording 
+                      ? `scale(${1 + audioLevel * 0.5})`
+                      : 'scale(1)',
+                    transition: isRecording ? 'transform 0.05s ease-out' : 'transform 0.3s ease-out'
                   }}
                 >
+                  {isRecording && (
+                    <div 
+                      className="absolute inset-0 rounded-full bg-red-400 animate-pulse"
+                      style={{
+                        opacity: audioLevel * 0.4,
+                        transform: `scale(${1 + audioLevel * 0.3})`
+                      }}
+                    />
+                  )}
                   {isLoading ? (
-                    <Loader2 className="h-6 w-6 text-white animate-spin" />
+                    <Loader2 className="h-6 w-6 text-white animate-spin relative z-10" />
                   ) : (
-                    <Mic className="h-6 w-6 text-white" />
+                    <Mic className="h-6 w-6 text-white relative z-10" />
                   )}
                 </button>
               </div>
