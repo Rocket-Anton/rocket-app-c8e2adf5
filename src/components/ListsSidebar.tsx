@@ -283,7 +283,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
         <SheetContent side="right" className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">
-              <SheetTitle>Lauflisten</SheetTitle>
+              <SheetTitle>Lauflisten ({lists.length})</SheetTitle>
               <div className="flex items-center gap-2">
                 {selectedLists.size >= 2 && (
                   <Button
