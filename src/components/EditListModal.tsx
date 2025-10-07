@@ -168,6 +168,7 @@ export function EditListModal({ open, onClose, list, onSuccess, onDelete, allLis
     try {
       let finalName = name.trim();
       const wasAssigned = !!list.assigned_to;
+      const isNowAssigned = assignToUser && selectedUser;
       const isNowUnassigned = !assignToUser;
 
       // If removing assignment, generate new "Laufliste X" name
@@ -183,6 +184,25 @@ export function EditListModal({ open, onClose, list, onSuccess, onDelete, allLis
         } else {
           const count = (data?.length || 0) + 1;
           finalName = `Laufliste ${count}`;
+        }
+      }
+
+      // If assigning to user (or changing user), generate new user-based name
+      if ((!wasAssigned || list.assigned_to !== selectedUser) && isNowAssigned) {
+        const profile = profiles.find(p => p.id === selectedUser);
+        if (profile) {
+          // Count existing lists for this user to get next number
+          const { data, error } = await supabase
+            .from('lauflisten')
+            .select('id')
+            .eq('assigned_to', selectedUser);
+
+          if (error) {
+            console.error('Error counting user lists:', error);
+          } else {
+            const count = (data?.length || 0) + 1;
+            finalName = `${profile.name} ${count}`;
+          }
         }
       }
 
@@ -238,13 +258,11 @@ export function EditListModal({ open, onClose, list, onSuccess, onDelete, allLis
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="z.B. Jakob Burkart 1"
-              disabled={!assignToUser}
+              disabled
             />
-            {!assignToUser && (
-              <p className="text-xs text-muted-foreground">
-                Name wird automatisch gesetzt für unzugewiesene Listen
-              </p>
-            )}
+            <p className="text-xs text-muted-foreground">
+              Name wird automatisch basierend auf Zuweisung gesetzt
+            </p>
           </div>
 
           {/* Assign to User */}
