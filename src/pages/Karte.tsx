@@ -504,11 +504,11 @@ function KarteContent() {
         const center = bounds.getCenter();
         const currentZoom = map.getZoom();
         map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
-        // Offset center between left and right sidebars
-        const leftWidth = sidebarState === 'collapsed' ? 88 : 224; // px
-        const rightWidth = showListsSidebar ? (window.innerWidth >= 640 ? 380 : 320) : 0;
-        const offsetX = (leftWidth / 2) - (rightWidth / 2);
-        if (offsetX !== 0) map.panBy([offsetX, 0], { animate: false });
+        // When the right Lists sidebar is open (overlays the map), shift the visual center left by half its width
+        if (showListsSidebar) {
+          const rightWidth = window.innerWidth >= 640 ? 380 : 320; // must match ListsSidebar widths
+          map.panBy([-(rightWidth / 2), 0], { animate: false });
+        }
       }
     } else {
       // Clear focus when no lists selected
