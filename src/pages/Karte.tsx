@@ -378,7 +378,7 @@ export default function Karte() {
                   size="icon"
                   title="Laufliste"
                 >
-                  <img src={runningIcon} alt="Laufliste" className="h-4 w-4" />
+                  <img src={runningIcon} alt="Laufliste" className="h-6 w-6" />
                 </Button>
                 
                 <Button
