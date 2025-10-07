@@ -23,14 +23,24 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
   }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("File change triggered");
     const file = e.target.files?.[0];
+    console.log("Selected file:", file);
     if (file) {
+      console.log("File type:", file.type, "Size:", file.size);
       const reader = new FileReader();
       reader.onload = () => {
+        console.log("File loaded successfully");
         setImage(reader.result as string);
         setIsDialogOpen(true);
+        console.log("Dialog should open now");
+      };
+      reader.onerror = (error) => {
+        console.error("FileReader error:", error);
       };
       reader.readAsDataURL(file);
+    } else {
+      console.log("No file selected");
     }
   };
 
@@ -168,7 +178,12 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
         <Button
           type="button"
           variant="outline"
-          onClick={() => fileInputRef.current?.click()}
+          onClick={() => {
+            if (fileInputRef.current) {
+              fileInputRef.current.value = '';
+              fileInputRef.current.click();
+            }
+          }}
         >
           <Upload className="h-4 w-4 mr-2" />
           Logo hochladen
