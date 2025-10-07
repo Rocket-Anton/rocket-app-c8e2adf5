@@ -8,6 +8,7 @@ import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager from "./modal/HorizontalModalPager";
 import confetti from 'canvas-confetti';
 import { supabase } from "@/integrations/supabase/client";
+import { orderFormSchema, noteSchema, customerNameSchema } from "@/utils/validation";
 import {
   Dialog,
   DialogContent,
@@ -89,6 +90,27 @@ interface AddressDetailModalProps {
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  
+  // Get authenticated user context
+  const [currentUser, setCurrentUser] = useState<{id: string, name: string} | null>(null);
+  
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .maybeSingle();
+        setCurrentUser({ 
+          id: user.id, 
+          name: profile?.name || user.email?.split('@')[0] || 'Unbekannt'
+        });
+      }
+    };
+    fetchUser();
+  }, []);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     skipSnaps: false,
@@ -242,22 +264,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       coordinates: [7.0815, 50.9207]
     }
   ]);
-  const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([
-    {
-      id: 1,
-      author: "Abdullah Kater",
-      timestamp: "16.07.25 18:41",
-      content: "Möchte Nix.",
-      permanent: false
-    },
-    {
-      id: 2,
-      author: "Abdullah Kater", 
-      timestamp: "16.07.25 18:41",
-      content: "",
-      permanent: false
-    }
-  ]);
+  const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRef = useRef<HTMLDivElement | null>(null);
   const unitCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -578,7 +585,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {
           id: Date.now(),
           status: statusLabel,
-          changedBy: "Abdullah Kater",
+          changedBy: currentUser?.name || "Unbekannt",
           changedAt: timestamp
         },
         ...(prev[k] || [])
@@ -631,7 +638,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {
           id: Date.now(),
           status: statusLabel,
-          changedBy: "Abdullah Kater",
+          changedBy: currentUser?.name || "Unbekannt",
           changedAt: timestamp
         },
         ...(prev[pendingStatusUpdate] || [])
@@ -649,13 +656,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   };
 
   const handleAddNote = () => {
-    if (newNoteText.trim() === "") return;
+    // Validate note content
+    const validation = noteSchema.safeParse({ content: newNoteText.trim() });
+    if (!validation.success) {
+      toast({ 
+        title: "Validierungsfehler", 
+        description: validation.error.errors[0].message,
+        variant: "destructive"
+      });
+      return;
+    }
     
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     
     const newNote = {
       id: Date.now(),
-      author: "Abdullah Kater",
+      author: currentUser?.name || "Unbekannt",
       timestamp: timestamp,
       content: newNoteText.trim()
     };
@@ -718,7 +734,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const timestamp = new Date().toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: '2-digit' }) + ' ' + new Date().toLocaleTimeString('de-DE', { hour: '2-digit', minute: '2-digit' });
     const newNote = {
       id: Date.now(),
-      author: "Abdullah Kater",
+      author: currentUser?.name || "Unbekannt",
       timestamp: timestamp,
       content: `Kein Interesse: ${reasonText}`,
       permanent: true
@@ -740,7 +756,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {
           id: Date.now(),
           status: statusLabel,
-          changedBy: "Abdullah Kater",
+          changedBy: currentUser?.name || "Unbekannt",
           changedAt: statusTimestamp
         },
         ...(prev[k] || [])
@@ -780,7 +796,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {
           id: Date.now(),
           status: `${statusLabel} (${potenzialRating} ⭐)`,
-          changedBy: "Abdullah Kater",
+          changedBy: currentUser?.name || "Unbekannt",
           changedAt: timestamp
         },
         ...(prev[k] || [])
@@ -827,7 +843,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       floor: "",
       position: "",
       status: "offen",
-      addedBy: "Abdullah Kater",
+      addedBy: currentUser?.name || "Unbekannt",
       addedAt: timestamp
     }));
 
@@ -874,7 +890,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unit = targetAddress.units.find(u => u.id === unitId);
     if (unit) {
       unit.deleted = true;
-      unit.deletedBy = "Abdullah Kater";
+      unit.deletedBy = currentUser?.name || "Unbekannt";
       unit.deletedAt = timestamp;
     }
 
@@ -904,17 +920,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   // Handle order confirmation
   const handleConfirmOrder = () => {
-    // Validate required fields
-    const missingFields = [];
-    if (!orderForm.vorname) missingFields.push("Vorname");
-    if (!orderForm.nachname) missingFields.push("Nachname");
-    if (!orderForm.tarif) missingFields.push("Tarif");
-    
-    if (missingFields.length > 0) {
+    // Validate order form with zod schema
+    const validation = orderFormSchema.safeParse(orderForm);
+    if (!validation.success) {
       toast({
-        title: "Pflichtfelder fehlen",
-        description: `Bitte füllen Sie aus: ${missingFields.join(", ")}`,
-        className: "bg-red-500 text-white border-0",
+        title: "Validierungsfehler",
+        description: validation.error.errors[0].message,
+        variant: "destructive",
         duration: 3000,
       });
       return;
@@ -941,14 +953,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     // Create order record with address information
     const newOrder = {
       id: Date.now(),
-      vorname: orderForm.vorname,
-      nachname: orderForm.nachname,
+      vorname: orderForm.vorname.trim(),
+      nachname: orderForm.nachname.trim(),
       tarif: orderForm.tarif,
       zusaetze: orderForm.zusaetze,
       adresse: `${targetAddress.street} ${targetAddress.houseNumber}, ${targetAddress.postalCode} ${targetAddress.city}`,
       wohneinheit: orderUnitId,
       createdAt: timestamp,
-      createdBy: "Abdullah Kater"
+      createdBy: currentUser?.name || "Unbekannt"
     };
     
     console.log("Neuer Auftrag erstellt:", newOrder);
@@ -975,7 +987,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const historyEntry = {
       id: Date.now(),
       status: statusLabel,
-      changedBy: "Abdullah Kater",
+      changedBy: currentUser?.name || "Unbekannt",
       changedAt: timestamp
     };
     
@@ -990,9 +1002,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     // Add note about the order
     const orderNote = {
       id: Date.now() + 1,
-      author: "Abdullah Kater",
+      author: currentUser?.name || "Unbekannt",
       timestamp: shortTimestamp,
-      content: `Auftrag erstellt:\nTarif: ${orderForm.tarif}${orderForm.zusaetze.length > 0 ? '\nZusätze: ' + orderForm.zusaetze.join(', ') : ''}\nKunde: ${orderForm.vorname} ${orderForm.nachname}`,
+      content: `Auftrag erstellt:\nTarif: ${orderForm.tarif}${orderForm.zusaetze.length > 0 ? '\nZusätze: ' + orderForm.zusaetze.join(', ') : ''}\nKunde: ${orderForm.vorname.trim()} ${orderForm.nachname.trim()}`,
       permanent: true
     };
     setNotes(prev => [orderNote, ...prev]);

@@ -5,3 +5,9 @@ verify_jwt = true
 
 [functions.ai-address-assistant-v2]
 verify_jwt = true
+
+[functions.reset-addresses]
+verify_jwt = true
+
+[functions.geocode-address]
+verify_jwt = true
