@@ -12,6 +12,8 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
@@ -562,23 +564,25 @@ export default function Karte() {
                       <MapPin className={`h-4 w-4 ${filterMode !== 'all' ? '' : 'text-muted-foreground'}`} />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuContent align="end" className="w-56 z-[1001] bg-background">
+                    <DropdownMenuLabel>Adressen anzeigen</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => setFilterMode('all')}>
                       <div className="flex items-center gap-2 w-full">
                         {filterMode === 'all' && <div className="w-2 h-2 rounded-full bg-primary" />}
-                        <span>Alle Adressen anzeigen</span>
+                        <span className={filterMode === 'all' ? 'font-medium' : ''}>Alle Adressen</span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setFilterMode('unassigned')}>
                       <div className="flex items-center gap-2 w-full">
                         {filterMode === 'unassigned' && <div className="w-2 h-2 rounded-full bg-primary" />}
-                        <span>Nur unzugewiesene Adressen</span>
+                        <span className={filterMode === 'unassigned' ? 'font-medium' : ''}>Ohne Laufliste</span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setFilterMode('no-rocket')}>
                       <div className="flex items-center gap-2 w-full">
                         {filterMode === 'no-rocket' && <div className="w-2 h-2 rounded-full bg-primary" />}
-                        <span>Ohne Rakete zugewiesen</span>
+                        <span className={filterMode === 'no-rocket' ? 'font-medium' : ''}>Ohne Rakete</span>
                       </div>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
