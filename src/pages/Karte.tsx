@@ -366,7 +366,7 @@ export default function Karte() {
 
             {/* Map Container */}
             <div className="flex-1 overflow-hidden relative z-0">
-              <div className="h-full w-full" ref={mapContainer} />
+              <div className={`h-full w-full ${isDrawingMode ? 'cursor-crosshair' : ''}`} ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
               <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
