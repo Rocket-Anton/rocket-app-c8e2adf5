@@ -4,13 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
   Table,
   TableBody,
   TableCell,
@@ -29,63 +22,35 @@ import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 
-interface Project {
-  id: string;
-  name: string;
-  description: string | null;
-  provider_id: string | null;
-  created_at: string;
-  providers?: { name: string };
-}
-
 interface Provider {
   id: string;
   name: string;
+  description: string | null;
+  created_at: string;
 }
 
-export const ProjectsSettings = () => {
-  const [projects, setProjects] = useState<Project[]>([]);
+export const ProvidersSettings = () => {
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [editingProject, setEditingProject] = useState<Project | null>(null);
-  const [formData, setFormData] = useState({ name: "", description: "", provider_id: "" });
+  const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
+  const [formData, setFormData] = useState({ name: "", description: "" });
 
   useEffect(() => {
-    loadProjects();
+    loadProviders();
   }, []);
 
-  const loadProjects = async () => {
+  const loadProviders = async () => {
     try {
-      // Load providers
-      const providersResponse = await supabase
+      const { data, error } = await supabase
         .from("providers")
-        .select("id, name")
-        .order("name");
-
-      if (providersResponse.error) throw providersResponse.error;
-      setProviders(providersResponse.data || []);
-
-      // Load projects
-      const projectsResponse = await supabase
-        .from("projects")
-        .select("id, name, description, provider_id, created_at")
+        .select("*")
         .order("created_at", { ascending: false });
 
-      if (projectsResponse.error) throw projectsResponse.error;
-      
-      // Enrich with provider names
-      const enrichedProjects: Project[] = (projectsResponse.data || []).map((proj: any) => {
-        const provider = providersResponse.data?.find(p => p.id === proj.provider_id);
-        return {
-          ...proj,
-          providers: provider ? { name: provider.name } : undefined
-        };
-      });
-      
-      setProjects(enrichedProjects);
+      if (error) throw error;
+      setProviders(data || []);
     } catch (error: any) {
-      toast.error("Fehler beim Laden der Projekte");
+      toast.error("Fehler beim Laden der Provider");
       console.error(error);
     } finally {
       setLoading(false);
@@ -99,64 +64,61 @@ export const ProjectsSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
-      if (editingProject) {
+      if (editingProvider) {
         const { error } = await supabase
-          .from("projects")
+          .from("providers")
           .update({
             name: formData.name,
             description: formData.description,
-            provider_id: formData.provider_id || null,
           })
-          .eq("id", editingProject.id);
+          .eq("id", editingProvider.id);
 
         if (error) throw error;
-        toast.success("Projekt aktualisiert");
+        toast.success("Provider aktualisiert");
       } else {
         const { error } = await supabase
-          .from("projects")
+          .from("providers")
           .insert({
             name: formData.name,
             description: formData.description,
-            provider_id: formData.provider_id || null,
             created_by: user.id,
           });
 
         if (error) throw error;
-        toast.success("Projekt erstellt");
+        toast.success("Provider erstellt");
       }
 
-      setFormData({ name: "", description: "", provider_id: "" });
+      setFormData({ name: "", description: "" });
       setIsCreateOpen(false);
-      setEditingProject(null);
-      loadProjects();
+      setEditingProvider(null);
+      loadProviders();
     } catch (error: any) {
       toast.error("Fehler beim Speichern");
       console.error(error);
     }
   };
 
-  const handleEdit = (project: Project) => {
-    setEditingProject(project);
+  const handleEdit = (provider: Provider) => {
+    setEditingProvider(provider);
     setFormData({
-      name: project.name,
-      description: project.description || "",
-      provider_id: project.provider_id || "",
+      name: provider.name,
+      description: provider.description || "",
     });
     setIsCreateOpen(true);
   };
 
   const handleDelete = async (id: string) => {
-    if (!confirm("Projekt wirklich löschen?")) return;
+    if (!confirm("Provider wirklich löschen?")) return;
 
     try {
       const { error } = await supabase
-        .from("projects")
+        .from("providers")
         .delete()
         .eq("id", id);
 
       if (error) throw error;
-      toast.success("Projekt gelöscht");
-      loadProjects();
+      toast.success("Provider gelöscht");
+      loadProviders();
     } catch (error: any) {
       toast.error("Fehler beim Löschen");
       console.error(error);
@@ -165,8 +127,8 @@ export const ProjectsSettings = () => {
 
   const handleDialogClose = () => {
     setIsCreateOpen(false);
-    setEditingProject(null);
-    setFormData({ name: "", description: "", provider_id: "" });
+    setEditingProvider(null);
+    setFormData({ name: "", description: "" });
   };
 
   if (loading) {
@@ -176,18 +138,18 @@ export const ProjectsSettings = () => {
   return (
     <div>
       <div className="flex justify-between items-center mb-4">
-        <h2 className="text-2xl font-semibold">Projekte</h2>
+        <h2 className="text-2xl font-semibold">Provider</h2>
         <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
           <DialogTrigger asChild>
-            <Button onClick={() => setEditingProject(null)}>
+            <Button onClick={() => setEditingProvider(null)}>
               <Plus className="w-4 h-4 mr-2" />
-              Neues Projekt
+              Neuer Provider
             </Button>
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
               <DialogTitle>
-                {editingProject ? "Projekt bearbeiten" : "Neues Projekt"}
+                {editingProvider ? "Provider bearbeiten" : "Neuer Provider"}
               </DialogTitle>
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
@@ -201,27 +163,6 @@ export const ProjectsSettings = () => {
                   }
                   required
                 />
-              </div>
-              <div>
-                <Label htmlFor="provider">Provider</Label>
-                <Select
-                  value={formData.provider_id}
-                  onValueChange={(value) =>
-                    setFormData({ ...formData, provider_id: value })
-                  }
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Provider wählen" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="">Kein Provider</SelectItem>
-                    {providers.map((provider) => (
-                      <SelectItem key={provider.id} value={provider.id}>
-                        {provider.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
               </div>
               <div>
                 <Label htmlFor="description">Beschreibung</Label>
@@ -248,34 +189,32 @@ export const ProjectsSettings = () => {
         <TableHeader>
           <TableRow>
             <TableHead>Name</TableHead>
-            <TableHead>Provider</TableHead>
             <TableHead>Beschreibung</TableHead>
             <TableHead>Erstellt am</TableHead>
             <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
-          {projects.map((project) => (
-            <TableRow key={project.id}>
-              <TableCell className="font-medium">{project.name}</TableCell>
-              <TableCell>{project.providers?.name || "-"}</TableCell>
-              <TableCell>{project.description || "-"}</TableCell>
+          {providers.map((provider) => (
+            <TableRow key={provider.id}>
+              <TableCell className="font-medium">{provider.name}</TableCell>
+              <TableCell>{provider.description || "-"}</TableCell>
               <TableCell>
-                {new Date(project.created_at).toLocaleDateString("de-DE")}
+                {new Date(provider.created_at).toLocaleDateString("de-DE")}
               </TableCell>
               <TableCell className="text-right">
                 <div className="flex gap-2 justify-end">
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleEdit(project)}
+                    onClick={() => handleEdit(provider)}
                   >
                     <Pencil className="w-4 h-4" />
                   </Button>
                   <Button
                     variant="ghost"
                     size="sm"
-                    onClick={() => handleDelete(project.id)}
+                    onClick={() => handleDelete(provider.id)}
                   >
                     <Trash2 className="w-4 h-4" />
                   </Button>

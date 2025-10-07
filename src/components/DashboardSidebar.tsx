@@ -341,6 +341,29 @@ export const DashboardSidebar = () => {
                       >
                         <SidebarMenuButton
                           size="sm"
+                          onClick={() => navigate("/settings/providers")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/providers" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Provider</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
                           onClick={() => navigate("/settings/projects")}
                           className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
                         >
@@ -368,6 +391,52 @@ export const DashboardSidebar = () => {
                           className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/addresses" ? "bg-sidebar-accent" : ""}`}
                         >
                           <span className="text-base">Adressen</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/tarife")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/tarife" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Tarife</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/raketen")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-2.5 ${location.pathname === "/settings/raketen" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-base">Raketen</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </div>
