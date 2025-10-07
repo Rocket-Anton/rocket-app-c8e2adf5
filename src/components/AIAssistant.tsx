@@ -5,6 +5,7 @@ import { Bot, Loader2, X, Mic, Square, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import rokkiAvatar from "@/assets/rokki-avatar.png";
+import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 
 interface Message {
   role: "user" | "assistant";
@@ -327,18 +328,10 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                       )}
                     >
                       {msg.audioUrl ? (
-                        <div className="flex items-center gap-2">
-                          <Mic className="h-4 w-4 flex-shrink-0" />
-                          <audio 
-                            controls 
-                            className="h-8 max-w-full"
-                            style={{
-                              filter: msg.role === "user" ? "invert(1)" : "none"
-                            }}
-                          >
-                            <source src={msg.audioUrl} type="audio/webm" />
-                          </audio>
-                        </div>
+                        <VoiceMessagePlayer 
+                          audioUrl={msg.audioUrl} 
+                          isUserMessage={msg.role === "user"}
+                        />
                       ) : (
                         <p className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</p>
                       )}
