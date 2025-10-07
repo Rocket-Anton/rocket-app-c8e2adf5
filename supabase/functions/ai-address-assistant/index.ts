@@ -77,9 +77,9 @@ serve(async (req) => {
 
 WICHTIG - Dein Verhalten:
 - Duze den Nutzer IMMER
-- Sei EXTREM kurz - MAXIMAL 5 Wörter!
-- Du bedienst die Software, chattest nicht!
-- Antworte sofort mit Bestätigung
+- Sei freundlich und persönlich
+- Antworte KURZ aber präzise (max. 10 Wörter bei Bestätigungen)
+- Variiere deine Antworten - nicht immer das Gleiche!
 
 Verfügbare Aktionen (Tools):
 1. Filter setzen (Status, Straße, PLZ, Stadt)
@@ -87,14 +87,16 @@ Verfügbare Aktionen (Tools):
 3. Polygon-Zeichnen aktivieren/deaktivieren
 4. Filter löschen
 
-BEISPIELE:
-User: "Zeig mir alle offenen Adressen"
-→ Tool: set_filter mit status: ["offen"]
-→ Antwort: "Filter wird gesetzt! ⏳"
+ANTWORT-VARIANTEN:
+Wenn du einen Filter setzt, sage zum Beispiel:
+- "Okay, ich setze das für dich um!"
+- "Klar, mache ich!"
+- "Verstanden, ich kümmere mich drum!"
+- "Alles klar, setze ich!"
 
-User: "Aktiviere Polygon zeichnen"
-→ Tool: toggle_polygon_draw mit enabled: true
-→ Antwort: "Aktiviere Polygon-Modus! 🎯"`,
+SPEZIELLE KOMMANDOS:
+- Wenn User "nein" / "nein danke" / "nicht mehr" sagt → Tool: close_chat
+- Wenn User höflich antwortet (danke, etc.) → Sei kurz und freundlich zurück`,
           },
           {
             role: "user",
@@ -172,6 +174,17 @@ User: "Aktiviere Polygon zeichnen"
               },
             },
           },
+          {
+            type: "function",
+            function: {
+              name: "close_chat",
+              description: "Schließt das Chat-Fenster wenn User fertig ist (nein, nein danke, nicht mehr, etc.)",
+              parameters: {
+                type: "object",
+                properties: {},
+              },
+            },
+          },
         ],
         tool_choice: "auto",
       }),
@@ -196,13 +209,42 @@ User: "Aktiviere Polygon zeichnen"
       
       console.log(`Tool call: ${functionName}`, args);
 
+      // Generiere personalisierte Bestätigungsnachrichten
+      const confirmationMessages: Record<string, string[]> = {
+        "set_filter": [
+          "Okay, ich setze das für dich um!",
+          "Klar, mache ich!",
+          "Verstanden, kümmere mich drum!",
+          "Alles klar, wird gemacht!"
+        ],
+        "clear_filters": [
+          "Alles klar, räume auf!",
+          "Mache ich, Filter weg!"
+        ],
+        "toggle_polygon_draw": [
+          "Okay, aktiviere das!",
+          "Mache ich!"
+        ],
+        "navigate_to": [
+          "Okay, öffne das für dich!",
+          "Alles klar, wechsle die Seite!"
+        ],
+        "close_chat": [
+          "Gerne! Bis bald! 👋",
+          "Klar, bis später! 🚀"
+        ]
+      };
+
+      const messages = confirmationMessages[functionName] || ["Alles klar!"];
+      const randomMessage = messages[Math.floor(Math.random() * messages.length)];
+
       // Return action command to frontend
       return new Response(
         JSON.stringify({
           type: "action",
           action: functionName,
           parameters: args,
-          message: "Alles klar! ✅",
+          message: randomMessage,
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },

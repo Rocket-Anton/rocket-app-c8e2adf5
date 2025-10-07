@@ -94,6 +94,11 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     
     try {
       console.log("📱 Requesting microphone access...");
+      
+      // Sofort als "Recording" markieren für besseres UX
+      setIsRecording(true);
+      console.log("🔴 Recording UI started immediately");
+      
       const stream = await navigator.mediaDevices.getUserMedia({ 
         audio: {
           echoCancellation: true,
@@ -159,10 +164,10 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
       };
 
       mediaRecorder.start();
-      setIsRecording(true);
-      console.log("🔴 Recording started");
+      console.log("🎙️ MediaRecorder started");
     } catch (error) {
       console.error("❌ Error accessing microphone:", error);
+      setIsRecording(false); // Zurücksetzen bei Fehler
       toast.error("Mikrofon konnte nicht aktiviert werden");
     }
   };
@@ -191,8 +196,8 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     const audioUrl = URL.createObjectURL(audioBlob);
     setMessages((prev) => [...prev, { role: "user", content: "🎤 Sprachnachricht", audioUrl }]);
     
-    // Sofortige Reaktion - "Einen Moment..."
-    setMessages((prev) => [...prev, { role: "assistant", content: "Einen Moment... ⏳" }]);
+    // Sofortige Reaktion
+    setMessages((prev) => [...prev, { role: "assistant", content: "Einen Moment, ich höre mir deine Nachricht jetzt an... 👂" }]);
     setIsLoading(true);
 
     try {
@@ -210,18 +215,26 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
 
         console.log("AI Response:", data);
 
-        // Entferne "Einen Moment..." Nachricht
-        setMessages((prev) => prev.slice(0, -1));
+        // Die "Einen Moment" Nachricht bleibt stehen - keine Löschung!
 
         if (data.type === "action") {
           // Handle action commands from AI
           const { action, parameters, message } = data;
           
-          // Erst die Bestätigungs-Nachricht anzeigen
+          // Bestätigungs-Nachricht anzeigen
           setMessages((prev) => [...prev, { role: "assistant", content: message }]);
+          
+          // Bei close_chat - Fenster schließen
+          if (action === "close_chat") {
+            setTimeout(() => {
+              onClose(); // Chat schließen
+            }, 1000);
+            return;
+          }
           
           // Dann Aktion ausführen
           setTimeout(() => {
+            let confirmationMsg = "";
             switch (action) {
               case "set_filter":
                 if (onSetFilter) {
@@ -233,22 +246,53 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
                     houseNumber: parameters.house_number,
                   });
                 }
-                // Bestätigung nach Aktion
-                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Erledigt! Filter wurden gesetzt." }]);
+                // Persönliche Bestätigung
+                if (parameters.status && parameters.status.length > 0) {
+                  const statusLabels = parameters.status.map((s: string) => {
+                    const labels: Record<string, string> = {
+                      "offen": "offene",
+                      "potenzial": "Potenzial",
+                      "neukunde": "Neukunden",
+                      "bestandskunde": "Bestandskunden",
+                      "termin": "Termin",
+                      "nicht-angetroffen": "nicht angetroffene",
+                      "kein-interesse": "kein Interesse",
+                      "karte-eingeworfen": "Karte eingeworfen"
+                    };
+                    return labels[s] || s;
+                  }).join(", ");
+                  confirmationMsg = `✅ Perfekt! Du siehst jetzt alle ${statusLabels} Adressen.`;
+                } else {
+                  confirmationMsg = "✅ Erledigt! Filter wurden angewendet.";
+                }
                 break;
               case "clear_filters":
                 if (onClearFilters) onClearFilters();
-                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Filter zurückgesetzt!" }]);
+                confirmationMsg = "✅ Alles klar! Alle Filter wurden zurückgesetzt.";
                 break;
               case "toggle_polygon_draw":
                 if (onTogglePolygon) onTogglePolygon(parameters.enabled);
-                setMessages((prev) => [...prev, { role: "assistant", content: `✅ Polygon-Modus ${parameters.enabled ? 'aktiviert' : 'deaktiviert'}!` }]);
+                confirmationMsg = parameters.enabled 
+                  ? "✅ Polygon-Zeichnen ist jetzt aktiviert! Zeichne einen Bereich auf der Karte." 
+                  : "✅ Polygon-Modus deaktiviert.";
                 break;
               case "navigate_to":
                 if (onNavigate) onNavigate(parameters.page);
-                setMessages((prev) => [...prev, { role: "assistant", content: "✅ Navigation gestartet!" }]);
+                const pageNames: Record<string, string> = {
+                  "laufliste": "Laufliste",
+                  "karte": "Karte",
+                  "dashboard": "Dashboard"
+                };
+                confirmationMsg = `✅ Ich habe die ${pageNames[parameters.page]} für dich geöffnet!`;
                 break;
             }
+            
+            setMessages((prev) => [...prev, { role: "assistant", content: confirmationMsg }]);
+            
+            // Folgefrage nach kurzer Pause
+            setTimeout(() => {
+              setMessages((prev) => [...prev, { role: "assistant", content: "Soll ich noch was für dich tun? 😊" }]);
+            }, 800);
           }, 300);
         } else if (data.type === "tool_result") {
           const resultCount = data.results?.length || 0;
@@ -272,15 +316,24 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
           }
 
           setMessages((prev) => [...prev, { role: "assistant", content: responseText, results: data.results }]);
+          
+          // Folgefrage
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { role: "assistant", content: "Brauchst du noch was? 😊" }]);
+          }, 800);
         } else {
           setMessages((prev) => [...prev, { role: "assistant", content: data.message || "Keine Antwort erhalten" }]);
+          
+          // Folgefrage
+          setTimeout(() => {
+            setMessages((prev) => [...prev, { role: "assistant", content: "Kann ich noch etwas für dich tun? 😊" }]);
+          }, 800);
         }
       };
     } catch (error) {
       console.error("Error:", error);
       toast.error("Fehler bei der Kommunikation mit dem Assistenten");
-      setMessages((prev) => prev.slice(0, -1)); // Remove "Einen Moment..."
-      setMessages((prev) => [...prev, { role: "assistant", content: "Entschuldigung, es ist ein Fehler aufgetreten." }]);
+      setMessages((prev) => [...prev, { role: "assistant", content: "Entschuldigung, es ist ein Fehler aufgetreten. 😕" }]);
     } finally {
       setIsLoading(false);
     }
