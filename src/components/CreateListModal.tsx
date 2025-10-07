@@ -231,31 +231,6 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
             </div>
           </div>
 
-          {/* Color Display */}
-          <div className="space-y-2">
-            <Label>Zugewiesene Farbe</Label>
-            <div className="flex items-center gap-3 p-3 bg-muted rounded-lg">
-              {selectedColor ? (
-                <>
-                  <div
-                    className="w-8 h-8 rounded-full border-2 border-background shadow-sm"
-                    style={{ backgroundColor: selectedColor }}
-                  />
-                  <span className="text-sm text-foreground">
-                    {LIST_COLORS.find(c => c.value === selectedColor)?.label || 'Farbe ausgewählt'}
-                  </span>
-                </>
-              ) : (
-                <span className="text-sm text-muted-foreground">Keine verfügbaren Farben</span>
-              )}
-            </div>
-            {usedColors.length > 0 && (
-              <p className="text-xs text-muted-foreground">
-                {usedColors.length} von {LIST_COLORS.length} Farben bereits verwendet
-              </p>
-            )}
-          </div>
-
           {/* Assign to User */}
           <div className="flex items-center justify-between">
             <Label htmlFor="assign-user">An Rakete zuweisen</Label>

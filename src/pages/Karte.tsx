@@ -484,9 +484,13 @@ export default function Karte() {
         {/* Create List Modal */}
         <CreateListModal
           open={showCreateListModal}
-          onClose={() => setShowCreateListModal(false)}
+          onClose={() => {
+            setShowCreateListModal(false);
+            setShowStatsPopup(true);
+          }}
           addresses={selectedAddresses}
           onSuccess={() => {
+            setShowCreateListModal(false);
             loadAssignedAddresses();
             setSelectedAddresses([]);
             // Remove drawn polygon
