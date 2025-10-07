@@ -52,6 +52,7 @@ interface ListStatusCounts {
 interface ListsSidebarProps {
   open: boolean;
   onClose: () => void;
+  onListExpanded: (listId: string | null) => void;
 }
 
 const statusColors: Record<string, string> = {
@@ -69,7 +70,7 @@ const statusColors: Record<string, string> = {
 
 type SortOption = 'newest' | 'oldest' | 'size-asc' | 'size-desc';
 
-export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
+export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProps) {
   const [lists, setLists] = useState<Laufliste[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedLists, setExpandedLists] = useState<Set<string>>(new Set());
@@ -144,10 +145,14 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
 
   const toggleList = (listId: string) => {
     const newExpanded = new Set(expandedLists);
-    if (newExpanded.has(listId)) {
+    const wasExpanded = newExpanded.has(listId);
+    
+    if (wasExpanded) {
       newExpanded.delete(listId);
+      onListExpanded(null); // No list expanded, return to normal filter
     } else {
       newExpanded.add(listId);
+      onListExpanded(listId); // Show only this list's addresses
     }
     setExpandedLists(newExpanded);
   };
@@ -333,7 +338,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onClose}>
+      <Sheet open={open} onOpenChange={onClose} modal={false}>
         <SheetContent side="right" className="w-[400px] sm:w-[540px]">
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">

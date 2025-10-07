@@ -79,6 +79,8 @@ export default function Karte() {
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
   const [addresses, setAddresses] = useState<Address[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
+  const [expandedListId, setExpandedListId] = useState<string | null>(null);
+  const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
 
   // Auth check
   useEffect(() => {
@@ -428,7 +430,34 @@ export default function Karte() {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [isDrawingMode]);
 
-  // Re-render markers when filter changes
+  // Load addresses for a specific list
+  const loadListAddresses = async (listId: string) => {
+    const { data, error } = await supabase
+      .from('lauflisten_addresses')
+      .select('address_id')
+      .eq('laufliste_id', listId);
+
+    if (error) {
+      console.error('Error loading list addresses:', error);
+      return new Set<number>();
+    }
+
+    return new Set(data?.map(item => item.address_id) || []);
+  };
+
+  // Handle list expansion - show only list's addresses and zoom to them
+  const handleListExpanded = async (listId: string | null) => {
+    setExpandedListId(listId);
+    
+    if (listId) {
+      const addressIds = await loadListAddresses(listId);
+      setListAddressIds(addressIds);
+    } else {
+      setListAddressIds(new Set());
+    }
+  };
+
+  // Re-render markers when filter changes or list is expanded
   useEffect(() => {
     if (!mapInstance.current) return;
     
@@ -438,16 +467,23 @@ export default function Karte() {
     
     const map = mapInstance.current;
     const markers: L.Marker[] = [];
+    const bounds = L.latLngBounds([]);
+    let visibleAddressCount = 0;
     
     addresses.forEach((address) => {
-      // Apply filter logic
       const isAssigned = assignedAddressIds.has(address.id);
       
-      if (filterMode === 'unassigned' && isAssigned) return;
-      if (filterMode === 'no-rocket') {
-        // Show only unassigned addresses or addresses in lists without rocket
-        // For now, show unassigned for simplicity
-        if (isAssigned) return;
+      // If a list is expanded, only show addresses from that list
+      if (expandedListId) {
+        if (!listAddressIds.has(address.id)) return;
+      } else {
+        // Apply normal filter logic
+        if (filterMode === 'unassigned' && isAssigned) return;
+        if (filterMode === 'no-rocket') {
+          // Show only unassigned addresses or addresses in lists without rocket
+          // For now, show unassigned for simplicity
+          if (isAssigned) return;
+        }
       }
       
       // Use list color if assigned, otherwise always gray for unassigned
@@ -493,6 +529,8 @@ export default function Karte() {
       }).addTo(map);
       
       markers.push(marker);
+      bounds.extend([address.coordinates[1], address.coordinates[0]]);
+      visibleAddressCount++;
 
       // Create popup content
       const unitsInfo = address.units.map(unit => 
@@ -685,6 +723,7 @@ export default function Karte() {
           addresses={selectedAddresses}
           onSuccess={() => {
             setShowCreateListModal(false);
+            loadAddresses(); // Reload addresses to update filter
             loadAssignedAddresses();
             setSelectedAddresses([]);
             // Remove drawn polygon
@@ -700,6 +739,7 @@ export default function Karte() {
         <ListsSidebar
           open={showListsSidebar}
           onClose={() => setShowListsSidebar(false)}
+          onListExpanded={handleListExpanded}
         />
       </div>
     </SidebarProvider>
