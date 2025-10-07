@@ -4,7 +4,7 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon, Plus, Minus, Filter, Layers, Maximize2, PersonStanding } from "lucide-react";
+import { Pentagon, Filter, Layers, Maximize2, PersonStanding } from "lucide-react";
 import { toast } from "sonner";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
@@ -129,9 +129,6 @@ export default function Karte() {
   const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
   const [selectedAddresses, setSelectedAddresses] = useState<typeof mockAddresses>([]);
   const [showStatsPopup, setShowStatsPopup] = useState(false);
-  const [currentZoom, setCurrentZoom] = useState(16);
-  const [maxZoom] = useState(19);
-  const [minZoom] = useState(10);
 
   // Function to create marker icon based on zoom level
   const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
@@ -303,7 +300,6 @@ export default function Karte() {
     // Update marker sizes on zoom
     map.on('zoomend', () => {
       const zoom = map.getZoom();
-      setCurrentZoom(zoom);
       mockAddresses.forEach((address, index) => {
         const marker = markers[index];
         if (marker) {
@@ -341,19 +337,6 @@ export default function Karte() {
     }
   };
 
-  // Zoom controls
-  const handleZoomIn = () => {
-    if (mapInstance.current && currentZoom < maxZoom) {
-      mapInstance.current.zoomIn();
-    }
-  };
-
-  const handleZoomOut = () => {
-    if (mapInstance.current && currentZoom > minZoom) {
-      mapInstance.current.zoomOut();
-    }
-  };
-
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
     let inside = false;
@@ -386,82 +369,53 @@ export default function Karte() {
               <div className="h-full w-full" ref={mapContainer} />
               
               {/* Map Controls - Right Side */}
-              <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-2">
-                {/* Zoom Controls */}
-                <div className="flex flex-col gap-0.5">
-                  <Button
-                    onClick={handleZoomIn}
-                    disabled={currentZoom >= maxZoom}
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                    size="icon"
-                    title="Zoom in"
-                  >
-                    <Plus className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                  
-                  <Button
-                    onClick={handleZoomOut}
-                    disabled={currentZoom <= minZoom}
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0 disabled:opacity-40 disabled:cursor-not-allowed"
-                    size="icon"
-                    title="Zoom out"
-                  >
-                    <Minus className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                </div>
-
-                {/* Other Controls */}
-                <div className="flex flex-col gap-0.5">
-                  <Button
-                    onClick={toggleDrawingMode}
-                    variant={isDrawingMode ? "default" : "outline"}
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0 data-[active=true]:bg-[#22c55e] data-[active=true]:text-white"
-                    size="icon"
-                    title="Laufliste"
-                    data-active={isDrawingMode}
-                  >
-                    <PersonStanding className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0"
-                    size="icon"
-                    title="Polygon zeichnen"
-                    onClick={toggleDrawingMode}
-                  >
-                    <Pentagon className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0"
-                    size="icon"
-                    title="Filter"
-                  >
-                    <Filter className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0"
-                    size="icon"
-                    title="Ebenen"
-                  >
-                    <Layers className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                  
-                  <Button
-                    variant="outline"
-                    className="shadow-lg bg-white hover:bg-white/90 border-border w-11 h-11 p-0"
-                    size="icon"
-                    title="Vollbild"
-                  >
-                    <Maximize2 className="h-5 w-5 text-[#22c55e]" />
-                  </Button>
-                </div>
+              <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
+                <Button
+                  onClick={toggleDrawingMode}
+                  variant={isDrawingMode ? "default" : "outline"}
+                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  size="icon"
+                  title="Laufliste"
+                >
+                  <PersonStanding className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  size="icon"
+                  title="Polygon zeichnen"
+                  onClick={toggleDrawingMode}
+                >
+                  <Pentagon className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  size="icon"
+                  title="Filter"
+                >
+                  <Filter className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  size="icon"
+                  title="Ebenen"
+                >
+                  <Layers className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  size="icon"
+                  title="Vollbild"
+                >
+                  <Maximize2 className="h-4 w-4" />
+                </Button>
               </div>
             </div>
           </div>
