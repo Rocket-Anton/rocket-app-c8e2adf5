@@ -375,8 +375,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
 
   return (
     <>
-      <Sheet open={open} onOpenChange={onClose} modal={false}>
-        <SheetContent side="right" className="w-[320px] sm:w-[380px]">
+      <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={false}>
+        <SheetContent 
+          side="right" 
+          className="w-[320px] sm:w-[380px]"
+          onInteractOutside={(e) => e.preventDefault()}
+          onEscapeKeyDown={(e) => e.preventDefault()}
+        >
           <SheetHeader>
             <div className="flex items-center justify-between gap-4">
               <SheetTitle>Lauflisten ({lists.length})</SheetTitle>

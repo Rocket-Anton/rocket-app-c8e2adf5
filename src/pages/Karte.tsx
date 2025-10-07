@@ -477,15 +477,6 @@ function KarteContent() {
   const handleListExpanded = async (listIds: string[]) => {
     const map = mapInstance.current;
 
-    // Wenn Listen ausgewählt werden, Filter zurücksetzen
-    if (listIds.length > 0) {
-      setStatusFilter([]);
-      setStreetFilter("");
-      setCityFilter("");
-      setPostalCodeFilter("");
-      setHouseNumberFilter("");
-    }
-
     // Update selected list IDs immediately for filtering
     setSelectedListIds(new Set(listIds));
 
@@ -510,8 +501,9 @@ function KarteContent() {
       });
       
       if (bounds.isValid()) {
-        const rightPad = showListsSidebar ? 420 : 50;
-        map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
+        const center = bounds.getCenter();
+        const currentZoom = map.getZoom();
+        map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
       }
     } else {
       // Clear focus and restore previous view if available
@@ -536,8 +528,9 @@ function KarteContent() {
       if (listAddressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
     });
     if (bounds.isValid()) {
-      const rightPad = showListsSidebar ? 420 : 50;
-      map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
+      const center = bounds.getCenter();
+      const currentZoom = map.getZoom();
+      map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
     }
   }, [showListsSidebar]);
 
@@ -657,6 +650,11 @@ function KarteContent() {
     });
     
     markersRef.current = markers;
+    console.log('Visible markers after filters:', visibleAddressCount, {
+      selectedListCount: selectedListIds.size,
+      listAddressIdsSize: listAddressIds.size,
+      filters: { statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, filterMode }
+    });
   }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter]);
 
   // Helper function to check if a point is inside a polygon
