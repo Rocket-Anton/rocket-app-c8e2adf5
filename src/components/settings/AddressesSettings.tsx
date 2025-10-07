@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -210,9 +211,6 @@ export const AddressesSettings = () => {
     });
   };
 
-  if (loading) {
-    return <div>Lädt...</div>;
-  }
 
   return (
     <div>
@@ -336,35 +334,48 @@ export const AddressesSettings = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {addresses.map((address) => (
-            <TableRow key={address.id}>
-              <TableCell className="font-medium">{address.street}</TableCell>
-              <TableCell>{address.house_number}</TableCell>
-              <TableCell>{address.postal_code}</TableCell>
-              <TableCell>{address.city}</TableCell>
-              <TableCell>
-                {address.projects?.name || "-"}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(address)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(address.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
+          {loading ? (
+            Array.from({ length: 5 }).map((_, i) => (
+              <TableRow key={i}>
+                <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-12" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-16" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-24" /></TableCell>
+                <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+              </TableRow>
+            ))
+          ) : (
+            addresses.map((address) => (
+              <TableRow key={address.id}>
+                <TableCell className="font-medium">{address.street}</TableCell>
+                <TableCell>{address.house_number}</TableCell>
+                <TableCell>{address.postal_code}</TableCell>
+                <TableCell>{address.city}</TableCell>
+                <TableCell>
+                  {address.projects?.name || "-"}
+                </TableCell>
+                <TableCell className="text-right">
+                  <div className="flex gap-2 justify-end">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleEdit(address)}
+                    >
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={() => handleDelete(address.id)}
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))
+          )}
         </TableBody>
       </Table>
     </div>

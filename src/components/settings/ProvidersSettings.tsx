@@ -3,6 +3,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Skeleton } from "@/components/ui/skeleton";
 import {
   Table,
   TableBody,
@@ -131,9 +132,6 @@ export const ProvidersSettings = () => {
     setFormData({ name: "", description: "" });
   };
 
-  if (loading) {
-    return <div>Lädt...</div>;
-  }
 
   return (
     <div>
@@ -194,35 +192,41 @@ export const ProvidersSettings = () => {
             <TableHead className="text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
-          {providers.map((provider) => (
-            <TableRow key={provider.id}>
-              <TableCell className="font-medium">{provider.name}</TableCell>
-              <TableCell>{provider.description || "-"}</TableCell>
-              <TableCell>
-                {new Date(provider.created_at).toLocaleDateString("de-DE")}
-              </TableCell>
-              <TableCell className="text-right">
-                <div className="flex gap-2 justify-end">
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleEdit(provider)}
-                  >
-                    <Pencil className="w-4 h-4" />
-                  </Button>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => handleDelete(provider.id)}
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+              <TableBody>
+                {loading ? (
+                  Array.from({ length: 5 }).map((_, i) => (
+                    <TableRow key={i}>
+                      <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-full" /></TableCell>
+                      <TableCell><Skeleton className="h-4 w-8" /></TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  providers.map((provider) => (
+                    <TableRow key={provider.id}>
+                      <TableCell className="font-medium">{provider.name}</TableCell>
+                      <TableCell>{provider.description || "-"}</TableCell>
+                      <TableCell className="text-right">
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleEdit(provider)}
+                          className="mr-2"
+                        >
+                          <Pencil className="h-4 w-4" />
+                        </Button>
+                        <Button
+                          variant="ghost"
+                          size="sm"
+                          onClick={() => handleDelete(provider.id)}
+                        >
+                          <Trash2 className="h-4 w-4" />
+                        </Button>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                )}
+              </TableBody>
       </Table>
     </div>
   );
