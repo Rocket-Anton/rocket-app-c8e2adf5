@@ -1746,14 +1746,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
                 <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                     <SelectValue placeholder="Tarif auswählen" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background z-[10000]">
-                    <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
-                    <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
-                    <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
-                    <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                  <SelectContent className="bg-background border border-border z-[10000]">
+                    <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
+                    <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
+                    <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>
+                    <SelectItem value="1000/250 Mbit/s" className="text-orange-600 dark:text-orange-400 font-medium">1000/250 Mbit/s</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -2446,14 +2446,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <div>
                 <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
                 <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
-                  <SelectTrigger className="w-full">
+                  <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                     <SelectValue placeholder="Tarif auswählen" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background z-[10000]">
-                    <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
-                    <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
-                    <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
-                    <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                  <SelectContent className="bg-background border border-border z-[10000]">
+                    <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
+                    <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
+                    <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>
+                    <SelectItem value="1000/250 Mbit/s" className="text-orange-600 dark:text-orange-400 font-medium">1000/250 Mbit/s</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -3156,14 +3156,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <div>
               <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
               <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                   <SelectValue placeholder="Tarif auswählen" />
                 </SelectTrigger>
-                <SelectContent className="bg-background z-[10000]">
-                  <SelectItem value="100/20 Mbit/s">100/20 Mbit/s</SelectItem>
-                  <SelectItem value="300/60 Mbit/s">300/60 Mbit/s</SelectItem>
-                  <SelectItem value="1000/250 Mbit/s">1000/250 Mbit/s</SelectItem>
-                  <SelectItem value="500/100 Mbit/s">500/100 Mbit/s</SelectItem>
+                <SelectContent className="bg-background border border-border z-[10000]">
+                  <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
+                  <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
+                  <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>
+                  <SelectItem value="1000/250 Mbit/s" className="text-orange-600 dark:text-orange-400 font-medium">1000/250 Mbit/s</SelectItem>
                 </SelectContent>
               </Select>
             </div>
