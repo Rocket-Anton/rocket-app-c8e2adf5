@@ -72,6 +72,7 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
       return;
     }
 
+    console.log('Loaded profiles:', data);
     setProfiles(data || []);
   };
 
