@@ -42,6 +42,7 @@ interface Project {
 interface Provider {
   id: string;
   name: string;
+  abbreviation: string;
 }
 
 export const ProjectsSettings = () => {
@@ -61,7 +62,7 @@ export const ProjectsSettings = () => {
       // Load providers
       const providersResponse = await supabase
         .from("providers")
-        .select("id, name")
+        .select("id, name, abbreviation")
         .order("name");
 
       if (providersResponse.error) throw providersResponse.error;
@@ -100,11 +101,23 @@ export const ProjectsSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
+      // Get provider abbreviation if provider is selected
+      let projectName = formData.name;
+      if (formData.provider_id && !editingProject) {
+        const selectedProvider = providers.find(p => p.id === formData.provider_id);
+        if (selectedProvider && selectedProvider.abbreviation) {
+          // Only prepend if name doesn't already start with the abbreviation
+          if (!projectName.startsWith(selectedProvider.abbreviation + "-")) {
+            projectName = `${selectedProvider.abbreviation}-${projectName}`;
+          }
+        }
+      }
+
       if (editingProject) {
         const { error } = await supabase
           .from("projects")
           .update({
-            name: formData.name,
+            name: projectName,
             description: formData.description,
             provider_id: formData.provider_id || null,
           })
@@ -116,7 +129,7 @@ export const ProjectsSettings = () => {
         const { error } = await supabase
           .from("projects")
           .insert({
-            name: formData.name,
+            name: projectName,
             description: formData.description,
             provider_id: formData.provider_id || null,
             created_by: user.id,

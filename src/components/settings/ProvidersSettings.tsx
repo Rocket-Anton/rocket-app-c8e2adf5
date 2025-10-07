@@ -28,10 +28,9 @@ import { ColorPickerPopover } from "./ColorPickerPopover";
 interface Provider {
   id: string;
   name: string;
-  description: string | null;
   logo_url: string | null;
   color: string;
-  abbreviation: string | null;
+  abbreviation: string;
   created_at: string;
 }
 
@@ -42,7 +41,6 @@ export const ProvidersSettings = () => {
   const [editingProvider, setEditingProvider] = useState<Provider | null>(null);
   const [formData, setFormData] = useState({ 
     name: "", 
-    description: "", 
     logo_url: "", 
     color: "#3b82f6", 
     abbreviation: "" 
@@ -118,10 +116,9 @@ export const ProvidersSettings = () => {
           .from("providers")
           .update({
             name: formData.name,
-            description: formData.description,
             logo_url: finalLogoUrl || null,
             color: formData.color,
-            abbreviation: formData.abbreviation || null,
+            abbreviation: formData.abbreviation,
           })
           .eq("id", editingProvider.id);
 
@@ -132,10 +129,9 @@ export const ProvidersSettings = () => {
           .from("providers")
           .insert({
             name: formData.name,
-            description: formData.description,
             logo_url: finalLogoUrl || null,
             color: formData.color,
-            abbreviation: formData.abbreviation || null,
+            abbreviation: formData.abbreviation,
             created_by: user.id,
           });
 
@@ -143,7 +139,7 @@ export const ProvidersSettings = () => {
         toast.success("Provider erstellt");
       }
 
-      setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+      setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
       setLogoBlob(null);
       setSuggestedColors([]);
       setIsCreateOpen(false);
@@ -159,7 +155,6 @@ export const ProvidersSettings = () => {
     setEditingProvider(provider);
     setFormData({
       name: provider.name,
-      description: provider.description || "",
       logo_url: provider.logo_url || "",
       color: provider.color || "#3b82f6",
       abbreviation: provider.abbreviation || "",
@@ -188,7 +183,7 @@ export const ProvidersSettings = () => {
   const handleDialogClose = () => {
     setIsCreateOpen(false);
     setEditingProvider(null);
-    setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+    setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
     setLogoBlob(null);
     setSuggestedColors([]);
   };
@@ -233,7 +228,7 @@ export const ProvidersSettings = () => {
               </div>
 
               <div>
-                <Label htmlFor="abbreviation">Kürzel</Label>
+                <Label htmlFor="abbreviation">Kürzel *</Label>
                 <Input
                   id="abbreviation"
                   value={formData.abbreviation}
@@ -242,6 +237,7 @@ export const ProvidersSettings = () => {
                   }
                   maxLength={10}
                   placeholder="z.B. TK, AOK"
+                  required
                 />
               </div>
 
@@ -251,17 +247,6 @@ export const ProvidersSettings = () => {
                   color={formData.color}
                   onChange={(color) => setFormData({ ...formData, color })}
                   suggestedColors={suggestedColors}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="description">Beschreibung</Label>
-                <Textarea
-                  id="description"
-                  value={formData.description}
-                  onChange={(e) =>
-                    setFormData({ ...formData, description: e.target.value })
-                  }
                 />
               </div>
 
@@ -283,7 +268,6 @@ export const ProvidersSettings = () => {
             <TableHead className="w-[200px]">Name</TableHead>
             <TableHead className="w-[100px]">Kürzel</TableHead>
             <TableHead className="w-[80px]">Farbe</TableHead>
-            <TableHead className="flex-1">Beschreibung</TableHead>
             <TableHead className="w-[120px] text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
@@ -295,7 +279,6 @@ export const ProvidersSettings = () => {
                 <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                 <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                 <TableCell><Skeleton className="h-6 w-12 rounded" /></TableCell>
-                <TableCell><Skeleton className="h-4 w-full" /></TableCell>
                 <TableCell className="text-right"><Skeleton className="h-8 w-16 ml-auto" /></TableCell>
               </TableRow>
             ))
@@ -328,7 +311,6 @@ export const ProvidersSettings = () => {
                     />
                   </div>
                 </TableCell>
-                <TableCell>{provider.description || "-"}</TableCell>
                 <TableCell className="text-right">
                   <Button
                     variant="ghost"
