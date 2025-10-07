@@ -37,6 +37,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
+  const scrollViewportRef = useRef<HTMLDivElement>(null);
   const startYRef = useRef(0);
   const audioContextRef = useRef<AudioContext | null>(null);
   const analyserRef = useRef<AnalyserNode | null>(null);
@@ -50,9 +51,13 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
     "Hey! Was steht heute an?",
   ];
 
+  // Auto-scroll to bottom when messages change
   useEffect(() => {
-    if (scrollRef.current) {
-      scrollRef.current.scrollTop = scrollRef.current.scrollHeight;
+    if (scrollViewportRef.current) {
+      const viewport = scrollViewportRef.current.querySelector('[data-radix-scroll-area-viewport]');
+      if (viewport) {
+        viewport.scrollTop = viewport.scrollHeight;
+      }
     }
   }, [messages]);
 
@@ -442,7 +447,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
           </div>
 
           {/* Messages */}
-          <ScrollArea className="flex-1 px-3" ref={scrollRef}>
+          <ScrollArea className="flex-1 px-3" ref={scrollViewportRef}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center py-4">
                 <div className="w-16 h-16 rounded-full overflow-hidden shadow-lg mb-3 ring-2 ring-blue-500/20 hover-scale">
