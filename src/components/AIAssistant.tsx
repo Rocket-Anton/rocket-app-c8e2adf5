@@ -10,6 +10,7 @@ interface Message {
   role: "user" | "assistant";
   content: string;
   results?: any[];
+  audioUrl?: string;
 }
 
 interface AIAssistantProps {
@@ -105,7 +106,8 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
   };
 
   const sendAudioMessage = async (audioBlob: Blob) => {
-    setMessages((prev) => [...prev, { role: "user", content: "🎤 Sprachnachricht" }]);
+    const audioUrl = URL.createObjectURL(audioBlob);
+    setMessages((prev) => [...prev, { role: "user", content: "🎤 Sprachnachricht", audioUrl }]);
     setIsLoading(true);
 
     try {
@@ -302,7 +304,22 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                           : "bg-muted rounded-tl-sm"
                       )}
                     >
-                      <p className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</p>
+                      {msg.audioUrl ? (
+                        <div className="flex items-center gap-2">
+                          <Mic className="h-4 w-4 flex-shrink-0" />
+                          <audio 
+                            controls 
+                            className="h-8 max-w-full"
+                            style={{
+                              filter: msg.role === "user" ? "invert(1)" : "none"
+                            }}
+                          >
+                            <source src={msg.audioUrl} type="audio/webm" />
+                          </audio>
+                        </div>
+                      ) : (
+                        <p className="text-sm leading-relaxed whitespace-pre-line">{msg.content}</p>
+                      )}
                     </div>
                   </div>
                 ))}
