@@ -245,7 +245,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
           <img 
             src={rokkiAvatar} 
             alt="Rokki" 
-            className="w-full h-full object-cover scale-[1.8] object-[center_35%] group-hover:scale-[1.9] transition-transform duration-300"
+            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
           />
         </button>
       )}
@@ -263,7 +263,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                 <img 
                   src={rokkiAvatar} 
                   alt="Rokki" 
-                  className="w-full h-full object-cover scale-[1.8] object-[center_35%]"
+                  className="w-full h-full object-cover"
                 />
               </div>
               <div>
@@ -289,15 +289,12 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
                   <img 
                     src={rokkiAvatar} 
                     alt="Rokki" 
-                    className="w-full h-full object-cover scale-[1.8] object-[center_35%]"
+                    className="w-full h-full object-cover"
                   />
                 </div>
                 <h3 className="font-semibold text-sm mb-1">
                   {userFirstName ? `Hey ${userFirstName}! 👋` : "Hey! 👋"}
                 </h3>
-                <p className="text-xs text-muted-foreground px-4 leading-relaxed">
-                  {greeting}
-                </p>
                 <p className="text-xs text-muted-foreground px-4 mt-1">
                   Halte die Mikrofon-Taste gedrückt 🎤
                 </p>
