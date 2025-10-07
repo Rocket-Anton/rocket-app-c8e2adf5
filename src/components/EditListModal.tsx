@@ -33,20 +33,8 @@ interface EditListModalProps {
   onSuccess: () => void;
 }
 
-const LIST_COLORS = [
-  { value: '#3b82f6', label: 'Blau' },
-  { value: '#10b981', label: 'Grün' },
-  { value: '#f59e0b', label: 'Orange' },
-  { value: '#ef4444', label: 'Rot' },
-  { value: '#8b5cf6', label: 'Lila' },
-  { value: '#ec4899', label: 'Pink' },
-  { value: '#14b8a6', label: 'Türkis' },
-  { value: '#f97316', label: 'Koralle' },
-];
-
 export function EditListModal({ open, onClose, list, onSuccess }: EditListModalProps) {
   const [name, setName] = useState(list.name);
-  const [selectedColor, setSelectedColor] = useState(list.color);
   const [assignToUser, setAssignToUser] = useState(!!list.assigned_to);
   const [selectedUser, setSelectedUser] = useState<string>(list.assigned_to || "");
   const [profiles, setProfiles] = useState<Profile[]>([]);
@@ -55,8 +43,11 @@ export function EditListModal({ open, onClose, list, onSuccess }: EditListModalP
   useEffect(() => {
     if (open) {
       fetchProfiles();
+      setName(list.name);
+      setAssignToUser(!!list.assigned_to);
+      setSelectedUser(list.assigned_to || "");
     }
-  }, [open]);
+  }, [open, list]);
 
   const fetchProfiles = async () => {
     const { data, error } = await supabase
@@ -73,11 +64,6 @@ export function EditListModal({ open, onClose, list, onSuccess }: EditListModalP
   };
 
   const handleSave = async () => {
-    if (!name.trim()) {
-      toast.error('Bitte geben Sie einen Namen ein');
-      return;
-    }
-
     if (assignToUser && !selectedUser) {
       toast.error('Bitte wählen Sie eine Rakete aus');
       return;
@@ -86,11 +72,30 @@ export function EditListModal({ open, onClose, list, onSuccess }: EditListModalP
     setLoading(true);
 
     try {
+      let finalName = name.trim();
+      const wasAssigned = !!list.assigned_to;
+      const isNowUnassigned = !assignToUser;
+
+      // If removing assignment, generate new "Laufliste X" name
+      if (wasAssigned && isNowUnassigned) {
+        // Count existing unassigned lists to get next number
+        const { data, error } = await supabase
+          .from('lauflisten')
+          .select('id')
+          .is('assigned_to', null);
+
+        if (error) {
+          console.error('Error counting unassigned lists:', error);
+        } else {
+          const count = (data?.length || 0) + 1;
+          finalName = `Laufliste ${count}`;
+        }
+      }
+
       const { error } = await supabase
         .from('lauflisten')
         .update({
-          name: name.trim(),
-          color: selectedColor,
+          name: finalName,
           assigned_to: assignToUser ? selectedUser : null,
         })
         .eq('id', list.id);
@@ -138,28 +143,14 @@ export function EditListModal({ open, onClose, list, onSuccess }: EditListModalP
               id="list-name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="z.B. Laufliste 1"
+              placeholder="z.B. Jakob Burkart 1"
+              disabled={!assignToUser}
             />
-          </div>
-
-          {/* Color Selection */}
-          <div className="space-y-2">
-            <Label>Farbe</Label>
-            <div className="flex gap-2 flex-wrap">
-              {LIST_COLORS.map((color) => (
-                <button
-                  key={color.value}
-                  onClick={() => setSelectedColor(color.value)}
-                  className={`w-10 h-10 rounded-full border-2 transition-all ${
-                    selectedColor === color.value
-                      ? 'border-foreground scale-110'
-                      : 'border-border hover:scale-105'
-                  }`}
-                  style={{ backgroundColor: color.value }}
-                  title={color.label}
-                />
-              ))}
-            </div>
+            {!assignToUser && (
+              <p className="text-xs text-muted-foreground">
+                Name wird automatisch gesetzt für unzugewiesene Listen
+              </p>
+            )}
           </div>
 
           {/* Assign to User */}
