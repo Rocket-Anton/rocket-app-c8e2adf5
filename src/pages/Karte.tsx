@@ -428,6 +428,18 @@ export default function Karte() {
     }
   };
 
+  // Handle ESC key to cancel drawing mode
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isDrawingMode) {
+        toggleDrawingMode();
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isDrawingMode]);
+
   // Re-render markers when filter changes
   useEffect(() => {
     if (!mapInstance.current) return;
