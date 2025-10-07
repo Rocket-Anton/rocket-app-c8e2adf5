@@ -392,8 +392,8 @@ export function MapFilterSidebar({
               setDateFilterMode("");
             }
           }}>
-            <DialogContent className="sm:max-w-md">
-              <div className="space-y-4">
+            <DialogContent className="sm:max-w-[480px]">
+              <div className="space-y-3">
                 {/* Quick Select Buttons - nur bei "Vor" */}
                 {dateFilterMode === "vor" && (
                   <div className="grid grid-cols-3 gap-2">
@@ -408,7 +408,7 @@ export function MapFilterSidebar({
                         variant="outline"
                         size="sm"
                         className={cn(
-                          "h-10 text-sm font-medium",
+                          "h-10 text-sm font-medium transition-all",
                           quickDateOption === option.value
                             ? "bg-blue-500 hover:bg-blue-600 text-white border-blue-500"
                             : "bg-blue-50 hover:bg-blue-100 text-blue-600 border-blue-200"
@@ -433,8 +433,8 @@ export function MapFilterSidebar({
                   </div>
                 )}
 
-                {/* Calendar */}
-                <div className="flex justify-center">
+                {/* Calendar - mit mehr Abstand nach oben wenn "nach" */}
+                <div className={cn("flex justify-center", dateFilterMode === "nach" && "mt-6")}>
                   <Calendar
                     mode="single"
                     selected={lastModifiedDate}
@@ -458,23 +458,39 @@ export function MapFilterSidebar({
                     locale={de}
                     weekStartsOn={1}
                     initialFocus
-                    className="pointer-events-auto rounded-md"
+                    className="pointer-events-auto rounded-md w-full"
                   />
                 </div>
 
-                {/* Done Button */}
-                <Button
-                  type="button"
-                  className="w-full h-12 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl"
-                  onClick={() => {
-                    if (!lastModifiedDate && !quickDateOption) {
+                {/* Action Buttons */}
+                <div className="flex gap-2 pt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    className="flex-1 h-11 text-base font-medium rounded-xl transition-all hover:bg-muted"
+                    onClick={() => {
+                      setLastModifiedDate(undefined);
+                      setQuickDateOption("");
+                      setDateFilterType("");
                       setDateFilterMode("");
-                    }
-                    setDatePickerOpen(false);
-                  }}
-                >
-                  Fertig
-                </Button>
+                      setDatePickerOpen(false);
+                    }}
+                  >
+                    Abbrechen
+                  </Button>
+                  <Button
+                    type="button"
+                    className="flex-1 h-11 bg-blue-500 hover:bg-blue-600 text-white text-base font-medium rounded-xl transition-all"
+                    onClick={() => {
+                      if (!lastModifiedDate && !quickDateOption) {
+                        setDateFilterMode("");
+                      }
+                      setDatePickerOpen(false);
+                    }}
+                  >
+                    Fertig
+                  </Button>
+                </div>
               </div>
             </DialogContent>
           </Dialog>
