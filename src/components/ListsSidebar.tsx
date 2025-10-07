@@ -35,6 +35,12 @@ interface Laufliste {
   } | null;
 }
 
+interface ListStatusCounts {
+  [key: string]: {
+    [status: string]: number;
+  };
+}
+
 interface ListsSidebarProps {
   open: boolean;
   onClose: () => void;
@@ -48,10 +54,12 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const [editingList, setEditingList] = useState<Laufliste | null>(null);
   const [deletingListId, setDeletingListId] = useState<string | null>(null);
   const [showMergeConfirm, setShowMergeConfirm] = useState(false);
+  const [statusCounts, setStatusCounts] = useState<ListStatusCounts>({});
 
   useEffect(() => {
     if (open) {
       fetchLists();
+      fetchStatusCounts();
     }
   }, [open]);
 
@@ -76,6 +84,34 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
     }
 
     setLoading(false);
+  };
+
+  const fetchStatusCounts = async () => {
+    const { data, error } = await supabase
+      .from('lauflisten_addresses')
+      .select('laufliste_id, units');
+
+    if (error) {
+      console.error('Error fetching status counts:', error);
+      return;
+    }
+
+    // Calculate status counts for each list
+    const counts: ListStatusCounts = {};
+    data?.forEach((item) => {
+      const listId = item.laufliste_id;
+      if (!counts[listId]) {
+        counts[listId] = {};
+      }
+
+      const units = item.units as any[];
+      units.forEach((unit: any) => {
+        const status = unit.status;
+        counts[listId][status] = (counts[listId][status] || 0) + 1;
+      });
+    });
+
+    setStatusCounts(counts);
   };
 
   const toggleList = (listId: string) => {
@@ -118,6 +154,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
 
       toast.success('Laufliste gelöscht');
       fetchLists();
+      fetchStatusCounts();
     } catch (error) {
       console.error('Error deleting list:', error);
       toast.error('Fehler beim Löschen der Laufliste');
@@ -185,6 +222,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
       setSelectedLists(new Set());
       setShowMergeConfirm(false);
       fetchLists();
+      fetchStatusCounts();
     } catch (error) {
       console.error('Error merging lists:', error);
       toast.error('Fehler beim Zusammenführen der Listen');
@@ -247,10 +285,17 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                         <CollapsibleTrigger className="flex items-center justify-between flex-1 group">
                           <h3 className="font-semibold text-foreground">{list.name}</h3>
                           <div className="flex items-center gap-2">
-                            <div
-                              className="w-5 h-5 rounded-full border-2 border-background"
-                              style={{ backgroundColor: list.color }}
-                            />
+                            <Button
+                              size="icon"
+                              variant="ghost"
+                              className="h-7 w-7"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setEditingList(list);
+                              }}
+                            >
+                              <Edit2 className="h-3.5 w-3.5 text-muted-foreground" />
+                            </Button>
                             <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
                           </div>
                         </CollapsibleTrigger>
@@ -297,26 +342,35 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                           </Badge>
                         </div>
 
-                        <div className="flex gap-2 pt-2">
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 gap-2"
-                            onClick={() => setEditingList(list)}
-                          >
-                            <Edit2 className="h-3 w-3" />
-                            Bearbeiten
-                          </Button>
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="flex-1 gap-2 text-destructive hover:text-destructive"
-                            onClick={() => setDeletingListId(list.id)}
-                          >
-                            <Trash2 className="h-3 w-3" />
-                            Löschen
-                          </Button>
-                        </div>
+                        {/* Status Distribution */}
+                        {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
+                          <div className="space-y-2">
+                            <div className="text-xs font-medium text-muted-foreground">Statusverteilung</div>
+                            <div className="grid grid-cols-2 gap-2">
+                              {Object.entries(statusCounts[list.id])
+                                .sort(([, a], [, b]) => b - a)
+                                .map(([status, count]) => (
+                                  <div key={status} className="flex items-center gap-2 text-xs">
+                                    <div className="w-2 h-2 rounded-full bg-muted-foreground" />
+                                    <span className="text-muted-foreground capitalize">
+                                      {status.replace('-', ' ')}: {count}
+                                    </span>
+                                  </div>
+                                ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Delete Button */}
+                        <Button
+                          size="sm"
+                          variant="outline"
+                          className="w-full gap-2 text-destructive hover:text-destructive"
+                          onClick={() => setDeletingListId(list.id)}
+                        >
+                          <Trash2 className="h-3 w-3" />
+                          Löschen
+                        </Button>
                       </div>
                     </CollapsibleContent>
                   </div>
@@ -337,6 +391,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
         onSuccess={() => {
           setEditingList(null);
           fetchLists();
+          fetchStatusCounts();
         }}
       />
     )}
