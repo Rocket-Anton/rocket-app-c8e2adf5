@@ -31,99 +31,21 @@ L.Icon.Default.mergeOptions({
   shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
 });
 
-// Mock addresses - same as in LauflistenContent
-const mockAddresses = [
-  { 
-    id: 1, 
-    street: "Am Alten Turm", 
-    houseNumber: "1", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0810, 50.9206] as [number, number],
-    lastUpdated: new Date('2025-10-05'),
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "offen" },
-      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
-    ]
-  },
-  { 
-    id: 2, 
-    street: "Am Alten Turm", 
-    houseNumber: "2", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0812, 50.9206] as [number, number],
-    lastUpdated: new Date('2025-09-28'),
-    units: [
-      { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
-      { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
-    ]
-  },
-  { 
-    id: 3, 
-    street: "Am Alten Turm", 
-    houseNumber: "4", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0814, 50.9207] as [number, number],
-    lastUpdated: new Date('2025-10-01'),
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
-      { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
-    ]
-  },
-  { 
-    id: 4, 
-    street: "Am Alten Turm", 
-    houseNumber: "5", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0815, 50.9207] as [number, number],
-    lastUpdated: new Date('2025-09-15'),
-    units: [
-      { id: 1, floor: "EG", position: "Mitte", status: "offen" },
-    ]
-  },
-  { 
-    id: 5, 
-    street: "Am Alten Turm", 
-    houseNumber: "7", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0816, 50.9207] as [number, number],
-    lastUpdated: new Date('2025-10-03'),
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "potenzial" },
-      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
-      { id: 3, floor: "2. OG", position: "Links", status: "offen" },
-    ]
-  },
-  { 
-    id: 6, 
-    street: "Am Alten Turm", 
-    houseNumber: "9", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0817, 50.9207] as [number, number],
-    lastUpdated: new Date('2025-09-20'),
-    units: [
-      { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
-    ]
-  },
-  { 
-    id: 7, 
-    street: "Am Alten Turm", 
-    houseNumber: "11", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0819, 50.9207] as [number, number],
-    lastUpdated: new Date('2025-10-06'),
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "termin" },
-      { id: 2, floor: "1. OG", position: "Links", status: "neukunde" },
-    ]
-  },
-];
+interface Address {
+  id: number;
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+  coordinates: [number, number];
+  lastUpdated?: Date;
+  units: Array<{
+    id: number;
+    floor: string;
+    position: string;
+    status: string;
+  }>;
+}
 
 const statusColorMap: Record<string, string> = {
   "offen": "#6b7280",
@@ -147,13 +69,14 @@ export default function Karte() {
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
   const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
-  const [selectedAddresses, setSelectedAddresses] = useState<typeof mockAddresses>([]);
+  const [selectedAddresses, setSelectedAddresses] = useState<Address[]>([]);
   const [showStatsPopup, setShowStatsPopup] = useState(false);
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showListsSidebar, setShowListsSidebar] = useState(false);
   const [assignedAddressIds, setAssignedAddressIds] = useState<Set<number>>(new Set());
   const [addressListColors, setAddressListColors] = useState<Map<number, string>>(new Map());
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
+  const [addresses, setAddresses] = useState<Address[]>([]);
 
   // Auth check
   useEffect(() => {
@@ -176,7 +99,7 @@ export default function Karte() {
   }, [navigate]);
 
   // Function to create marker icon based on zoom level
-  const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {
+  const createMarkerIcon = (address: Address, zoom: number) => {
     // Calculate overall status based on units
     const statusCounts: Record<string, number> = {};
     address.units.forEach(unit => {
@@ -231,10 +154,61 @@ export default function Karte() {
     });
   };
 
-  // Load assigned addresses from database
+  // Load addresses and assigned addresses from database
   useEffect(() => {
+    loadAddresses();
     loadAssignedAddresses();
   }, []);
+
+  const loadAddresses = async () => {
+    const { data, error } = await supabase
+      .from('lauflisten_addresses')
+      .select('*');
+
+    if (error) {
+      console.error('Error loading addresses:', error);
+      return;
+    }
+
+    if (!data || data.length === 0) {
+      console.log('No addresses found in database');
+      setAddresses([]);
+      return;
+    }
+
+    // Transform database addresses to Address format
+    const loadedAddresses: Address[] = data.map((addr: any) => {
+      // Handle both {lat, lng} and [lng, lat] coordinate formats
+      let coords: [number, number];
+      if (addr.coordinates) {
+        if (Array.isArray(addr.coordinates)) {
+          coords = addr.coordinates as [number, number];
+        } else if (typeof addr.coordinates === 'object') {
+          coords = [
+            addr.coordinates.lng || addr.coordinates.lon || 0,
+            addr.coordinates.lat || 0
+          ] as [number, number];
+        } else {
+          coords = [0, 0];
+        }
+      } else {
+        coords = [0, 0];
+      }
+
+      return {
+        id: addr.address_id,
+        street: addr.street,
+        houseNumber: addr.house_number,
+        postalCode: addr.postal_code,
+        city: addr.city,
+        coordinates: coords,
+        units: addr.units || []
+      };
+    });
+
+    console.log('Loaded addresses:', loadedAddresses);
+    setAddresses(loadedAddresses);
+  };
 
   const loadAssignedAddresses = async () => {
     const { data, error } = await supabase
@@ -310,7 +284,7 @@ export default function Karte() {
       
       // Check which addresses are inside the polygon
       const polygon = layer.getLatLngs()[0];
-      const selectedAddrs = mockAddresses.filter(address => {
+      const selectedAddrs = addresses.filter(address => {
         const point = L.latLng(address.coordinates[1], address.coordinates[0]);
         return isPointInPolygon(point, polygon);
       });
@@ -325,11 +299,11 @@ export default function Karte() {
       toast.success(`${selectedAddrs.length} Adressen ausgewählt`);
     });
 
-    // Add markers for each address (excluding assigned ones)
+    // Add markers for each address
     const bounds = L.latLngBounds([]);
     const markers: L.Marker[] = [];
 
-    mockAddresses.forEach((address) => {
+    addresses.forEach((address) => {
       // Apply filter logic
       const isAssigned = assignedAddressIds.has(address.id);
       
@@ -382,7 +356,7 @@ export default function Karte() {
     // Update marker sizes on zoom
     map.on('zoomend', () => {
       const zoom = map.getZoom();
-      mockAddresses.forEach((address, index) => {
+      addresses.forEach((address, index) => {
         const marker = markers[index];
         if (marker) {
           const newIcon = createMarkerIcon(address, zoom);
@@ -392,7 +366,7 @@ export default function Karte() {
     });
 
     // Fit map to show all markers
-    if (mockAddresses.length > 0) {
+    if (addresses.length > 0) {
       map.fitBounds(bounds, { padding: [50, 50] });
     }
 
@@ -402,7 +376,7 @@ export default function Karte() {
         mapInstance.current = null;
       }
     };
-  }, []);
+  }, [addresses]);
 
   // Toggle drawing mode
   const toggleDrawingMode = () => {
@@ -447,7 +421,7 @@ export default function Karte() {
     const map = mapInstance.current;
     const markers: L.Marker[] = [];
     
-    mockAddresses.forEach((address) => {
+    addresses.forEach((address) => {
       // Apply filter logic
       const isAssigned = assignedAddressIds.has(address.id);
       
@@ -520,7 +494,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {

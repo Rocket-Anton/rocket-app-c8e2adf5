@@ -9,6 +9,7 @@ import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { ChevronRight } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { geocodeAddress, hasValidCoordinates } from "@/utils/geocoding";
 
 interface Address {
   id: number;
@@ -194,8 +195,46 @@ export function CreateListModal({ open, onClose, addresses, onSuccess }: CreateL
 
       console.log('List created:', laufliste);
 
+      // Geocode addresses that don't have valid coordinates
+      const geocodedAddresses = await Promise.all(
+        addresses.map(async (addr) => {
+          // Check if coordinates are valid
+          if (hasValidCoordinates(addr.coordinates)) {
+            console.log(`Address ${addr.street} ${addr.houseNumber} already has valid coordinates`);
+            return {
+              ...addr,
+              coordinates: { lng: addr.coordinates[0], lat: addr.coordinates[1] }
+            };
+          }
+
+          // Geocode the address
+          console.log(`Geocoding address: ${addr.street} ${addr.houseNumber}`);
+          const result = await geocodeAddress(
+            addr.street,
+            addr.houseNumber,
+            addr.postalCode,
+            addr.city
+          );
+
+          if (result.coordinates) {
+            console.log(`Geocoded: ${addr.street} ${addr.houseNumber} ->`, result.coordinates);
+            return {
+              ...addr,
+              coordinates: result.coordinates
+            };
+          } else {
+            console.warn(`Failed to geocode: ${addr.street} ${addr.houseNumber}`);
+            // Use fallback coordinates (0, 0) if geocoding fails
+            return {
+              ...addr,
+              coordinates: { lng: 0, lat: 0 }
+            };
+          }
+        })
+      );
+
       // Add addresses to laufliste
-      const addressInserts = addresses.map(addr => ({
+      const addressInserts = geocodedAddresses.map(addr => ({
         laufliste_id: laufliste.id,
         address_id: addr.id,
         street: addr.street,
