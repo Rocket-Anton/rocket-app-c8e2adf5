@@ -88,6 +88,12 @@ export const ProvidersSettings = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate logo is uploaded for new providers
+    if (!editingProvider && !logoBlob) {
+      toast.error("Bitte laden Sie ein Logo hoch");
+      return;
+    }
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
@@ -162,6 +168,8 @@ export const ProvidersSettings = () => {
       color: provider.color || "#3b82f6",
       abbreviation: provider.abbreviation || "",
     });
+    // Set selectedColorOption to "other" when editing
+    setSelectedColorOption("other");
     setIsCreateOpen(true);
   };
 
@@ -245,44 +253,46 @@ export const ProvidersSettings = () => {
                 />
               </div>
 
-              <div>
-                <Label>Farbe</Label>
-                <div className="space-y-2">
-                  {suggestedColors.map((color, index) => (
-                    <label key={index} className="flex items-center gap-3 cursor-pointer">
-                      <input
-                        type="radio"
-                        name="colorOption"
-                        value={`color-${index}`}
-                        checked={selectedColorOption === `color-${index}`}
-                        onChange={() => {
+              {suggestedColors.length > 0 && (
+                <div>
+                  <Label>Farbe</Label>
+                  <div className="grid grid-cols-3 gap-3 mt-2">
+                    {suggestedColors.map((color, index) => (
+                      <button
+                        key={index}
+                        type="button"
+                        onClick={() => {
                           setSelectedColorOption(`color-${index}`);
                           setFormData({ ...formData, color });
                         }}
-                        className="w-4 h-4"
-                      />
-                      <div className="flex items-center gap-2">
+                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                          selectedColorOption === `color-${index}`
+                            ? 'border-primary bg-primary/5'
+                            : 'border-border hover:border-primary/50'
+                        }`}
+                      >
                         <div 
-                          className="h-6 w-12 rounded border"
+                          className="h-12 w-full rounded"
                           style={{ backgroundColor: color }}
                         />
-                        <span>Farbe {index + 1}</span>
-                      </div>
-                    </label>
-                  ))}
-                  <label className="flex items-center gap-3 cursor-pointer">
-                    <input
-                      type="radio"
-                      name="colorOption"
-                      value="other"
-                      checked={selectedColorOption === "other"}
-                      onChange={() => setSelectedColorOption("other")}
-                      className="w-4 h-4"
-                    />
-                    <span>Andere</span>
-                  </label>
+                        <span className="text-sm font-medium">Farbe {index + 1}</span>
+                      </button>
+                    ))}
+                    <button
+                      type="button"
+                      onClick={() => setSelectedColorOption("other")}
+                      className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                        selectedColorOption === "other"
+                          ? 'border-primary bg-primary/5'
+                          : 'border-border hover:border-primary/50'
+                      }`}
+                    >
+                      <div className="h-12 w-full rounded bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500" />
+                      <span className="text-sm font-medium">Andere</span>
+                    </button>
+                  </div>
                   {selectedColorOption === "other" && (
-                    <div className="ml-7">
+                    <div className="mt-4">
                       <ColorPickerPopover
                         color={formData.color}
                         onChange={(color) => setFormData({ ...formData, color })}
@@ -291,7 +301,7 @@ export const ProvidersSettings = () => {
                     </div>
                   )}
                 </div>
-              </div>
+              )}
 
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={handleDialogClose}>
