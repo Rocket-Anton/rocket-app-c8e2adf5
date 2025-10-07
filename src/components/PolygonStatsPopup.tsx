@@ -12,6 +12,7 @@ interface Address {
   postalCode: string;
   city: string;
   coordinates: [number, number];
+  lastUpdated?: Date;
   units: Array<{
     id: number;
     floor: string;
@@ -120,6 +121,24 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
   const customerTotal = neukunden + bestandskunden;
   const customerQuote = totalUnits > 0 ? ((customerTotal / totalUnits) * 100).toFixed(1) : "0";
 
+  // Find latest contact date
+  const lastContact = addresses
+    .filter(addr => addr.lastUpdated)
+    .reduce((latest: Date | null, addr) => {
+      if (!addr.lastUpdated) return latest;
+      if (!latest) return addr.lastUpdated;
+      return addr.lastUpdated > latest ? addr.lastUpdated : latest;
+    }, null);
+
+  const formatLastContact = (date: Date | null) => {
+    if (!date) return "Noch kein Kontakt";
+    return new Intl.DateTimeFormat('de-DE', {
+      day: '2-digit',
+      month: '2-digit',
+      year: 'numeric'
+    }).format(date);
+  };
+
   // Prepare data for pie chart
   const chartData = Object.entries(statusCounts)
     .sort((a, b) => b[1] - a[1])
@@ -159,6 +178,14 @@ export function PolygonStatsPopup({ addresses, onClose, onCreateList, onAddToExi
           <p className="text-xs text-muted-foreground mb-1">Kunden-Quote</p>
           <p className="text-2xl font-semibold text-foreground">{customerQuote}%</p>
         </div>
+      </div>
+
+      <Separator className="mb-3" />
+
+      {/* Last Contact */}
+      <div className="bg-muted/30 rounded-lg p-3 border border-border/50 mb-3">
+        <p className="text-xs text-muted-foreground mb-1">Letzter Kontakt</p>
+        <p className="text-lg font-semibold text-foreground">{formatLastContact(lastContact)}</p>
       </div>
 
       <Separator className="mb-3" />

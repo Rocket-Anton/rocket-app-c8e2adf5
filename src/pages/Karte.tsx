@@ -31,6 +31,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0810, 50.9206] as [number, number],
+    lastUpdated: new Date('2025-10-05'),
     units: [
       { id: 1, floor: "EG", position: "Links", status: "offen" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -43,6 +44,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0812, 50.9206] as [number, number],
+    lastUpdated: new Date('2025-09-28'),
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
       { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
@@ -55,6 +57,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0814, 50.9207] as [number, number],
+    lastUpdated: new Date('2025-10-01'),
     units: [
       { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
       { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
@@ -67,6 +70,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0815, 50.9207] as [number, number],
+    lastUpdated: new Date('2025-09-15'),
     units: [
       { id: 1, floor: "EG", position: "Mitte", status: "offen" },
     ]
@@ -78,6 +82,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0816, 50.9207] as [number, number],
+    lastUpdated: new Date('2025-10-03'),
     units: [
       { id: 1, floor: "EG", position: "Links", status: "potenzial" },
       { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
@@ -91,6 +96,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0817, 50.9207] as [number, number],
+    lastUpdated: new Date('2025-09-20'),
     units: [
       { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
     ]
@@ -102,6 +108,7 @@ const mockAddresses = [
     postalCode: "51107", 
     city: "Köln",
     coordinates: [7.0819, 50.9207] as [number, number],
+    lastUpdated: new Date('2025-10-06'),
     units: [
       { id: 1, floor: "EG", position: "Links", status: "termin" },
       { id: 2, floor: "1. OG", position: "Links", status: "neukunde" },
