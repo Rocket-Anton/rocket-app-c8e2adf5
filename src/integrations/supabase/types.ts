@@ -23,6 +23,7 @@ export type Database = {
           house_number: string
           id: number
           postal_code: string
+          project_id: string | null
           street: string
           units: Json
         }
@@ -34,6 +35,7 @@ export type Database = {
           house_number: string
           id?: number
           postal_code: string
+          project_id?: string | null
           street: string
           units?: Json
         }
@@ -45,10 +47,19 @@ export type Database = {
           house_number?: string
           id?: number
           postal_code?: string
+          project_id?: string | null
           street?: string
           units?: Json
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "addresses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       daily_goals: {
         Row: {
