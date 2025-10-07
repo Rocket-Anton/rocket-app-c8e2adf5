@@ -319,19 +319,6 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
 
                     <CollapsibleContent>
                       <div className="px-4 pb-4 space-y-3 border-t border-border pt-3">
-                        {list.profiles && (
-                          <div className="flex items-center gap-2">
-                            <User className="h-4 w-4 text-muted-foreground" />
-                            <div className="flex items-center gap-2">
-                              <div
-                                className="w-3 h-3 rounded-full"
-                                style={{ backgroundColor: list.profiles.color }}
-                              />
-                              <span className="text-sm text-muted-foreground">{list.profiles.name}</span>
-                            </div>
-                          </div>
-                        )}
-
                         {/* Status Distribution */}
                         {statusCounts[list.id] && Object.keys(statusCounts[list.id]).length > 0 && (
                           <div className="space-y-1.5">
