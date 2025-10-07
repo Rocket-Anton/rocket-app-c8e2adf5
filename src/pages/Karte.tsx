@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
@@ -642,7 +643,12 @@ export default function Karte() {
               
               {/* Map Controls - Right Side */}
               {!isLoadingAddresses && (
-                <div className="absolute top-4 right-4 z-[1000] flex flex-col gap-0.5">
+                <div 
+                  className={cn(
+                    "absolute top-4 z-[1000] flex flex-col gap-0.5 transition-all duration-300",
+                    showListsSidebar ? "right-[400px]" : "right-4"
+                  )}
+                >
                 <Button
                   onClick={() => setShowListsSidebar(true)}
                   variant="outline"
