@@ -182,7 +182,7 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="relative h-80 bg-muted rounded-lg overflow-hidden">
+            <div className="relative h-64 bg-muted rounded-lg overflow-hidden">
               {image && (
                 <Cropper
                   image={image}
