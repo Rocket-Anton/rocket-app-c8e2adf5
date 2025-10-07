@@ -6,6 +6,7 @@ import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { CreateListModal } from "@/components/CreateListModal";
 import { ListsSidebar } from "@/components/ListsSidebar";
 import { AIAssistant } from "@/components/AIAssistant";
+import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
@@ -66,6 +67,7 @@ const statusColorMap: Record<string, string> = {
 function KarteContent() {
   const { state: sidebarState } = useSidebar();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
@@ -86,6 +88,18 @@ function KarteContent() {
   const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
   const previousViewRef = useRef<{ center: L.LatLngExpression; zoom: number } | null>(null);
+  
+  // Map filter states
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [streetFilter, setStreetFilter] = useState("");
+  const [cityFilter, setCityFilter] = useState("");
+  const [postalCodeFilter, setPostalCodeFilter] = useState("");
+  const [houseNumberFilter, setHouseNumberFilter] = useState("");
+
+  // Get unique values for filter dropdowns
+  const uniqueStreets = Array.from(new Set(addresses.map(a => a.street)));
+  const uniqueCities = Array.from(new Set(addresses.map(a => a.city)));
+  const uniquePostalCodes = Array.from(new Set(addresses.map(a => a.postalCode)));
 
   // Auth check
   useEffect(() => {
@@ -533,6 +547,20 @@ function KarteContent() {
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
       
+      // Apply status filter
+      if (statusFilter.length > 0) {
+        const hasMatchingStatus = address.units.some(unit => 
+          statusFilter.includes(unit.status)
+        );
+        if (!hasMatchingStatus) return;
+      }
+      
+      // Apply address filters
+      if (streetFilter && !address.street.toLowerCase().includes(streetFilter.toLowerCase())) return;
+      if (cityFilter && !address.city.toLowerCase().includes(cityFilter.toLowerCase())) return;
+      if (postalCodeFilter && address.postalCode !== postalCodeFilter) return;
+      if (houseNumberFilter && address.houseNumber !== houseNumberFilter) return;
+      
       // List selection or normal filters
       if (selectedListIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
@@ -619,7 +647,7 @@ function KarteContent() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
@@ -725,12 +753,13 @@ function KarteContent() {
                 </Button>
                 
                 <Button
-                  variant="outline"
-                  className="shadow-lg bg-white hover:bg-white/90 border-border"
+                  variant={statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? "default" : "outline"}
+                  className={`shadow-lg border-border ${statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
                   size="icon"
                   title="Filter"
+                  onClick={() => setShowFilterSidebar(!showFilterSidebar)}
                 >
-                  <Filter className="h-4 w-4 text-muted-foreground" />
+                  <Filter className={`h-4 w-4 ${statusFilter.length > 0 || streetFilter || cityFilter || postalCodeFilter || houseNumberFilter ? '' : 'text-muted-foreground'}`} />
                 </Button>
                 
                 <Button
@@ -807,6 +836,25 @@ function KarteContent() {
           onClose={() => setShowListsSidebar(false)}
           onListExpanded={handleListExpanded}
         />
+
+        {/* Filter Sidebar */}
+        <MapFilterSidebar
+          open={showFilterSidebar}
+          onClose={() => setShowFilterSidebar(false)}
+          statusFilter={statusFilter}
+          setStatusFilter={setStatusFilter}
+          streetFilter={streetFilter}
+          setStreetFilter={setStreetFilter}
+          cityFilter={cityFilter}
+          setCityFilter={setCityFilter}
+          postalCodeFilter={postalCodeFilter}
+          setPostalCodeFilter={setPostalCodeFilter}
+          houseNumberFilter={houseNumberFilter}
+          setHouseNumberFilter={setHouseNumberFilter}
+          uniqueStreets={uniqueStreets}
+          uniqueCities={uniqueCities}
+          uniquePostalCodes={uniquePostalCodes}
+        />
       </div>
 
       {/* AI Assistant */}
@@ -814,6 +862,30 @@ function KarteContent() {
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
         showListsSidebar={showListsSidebar}
+        onSetFilter={(filters) => {
+          if (filters.status) setStatusFilter(filters.status);
+          if (filters.street) setStreetFilter(filters.street);
+          if (filters.city) setCityFilter(filters.city);
+          if (filters.postalCode) setPostalCodeFilter(filters.postalCode);
+          if (filters.houseNumber) setHouseNumberFilter(filters.houseNumber);
+          setShowFilterSidebar(true);
+        }}
+        onClearFilters={() => {
+          setStatusFilter([]);
+          setStreetFilter("");
+          setCityFilter("");
+          setPostalCodeFilter("");
+          setHouseNumberFilter("");
+        }}
+        onTogglePolygon={(enabled) => {
+          if (enabled !== isDrawingMode) {
+            toggleDrawingMode();
+          }
+        }}
+        onNavigate={(page) => {
+          if (page === "laufliste") navigate("/");
+          else if (page === "dashboard") navigate("/dashboard");
+        }}
       />
     </>
   );

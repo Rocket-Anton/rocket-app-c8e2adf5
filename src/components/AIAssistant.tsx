@@ -18,10 +18,14 @@ interface AIAssistantProps {
   open: boolean;
   onClose: () => void;
   onShowAddresses?: (addressIds: number[]) => void;
+  onSetFilter?: (filters: { status?: string[]; street?: string; postalCode?: string; city?: string; houseNumber?: string }) => void;
+  onClearFilters?: () => void;
+  onTogglePolygon?: (enabled: boolean) => void;
+  onNavigate?: (page: "laufliste" | "karte" | "dashboard") => void;
   showListsSidebar?: boolean;
 }
 
-export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar = false }: AIAssistantProps) {
+export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onClearFilters, onTogglePolygon, onNavigate, showListsSidebar = false }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -191,7 +195,35 @@ export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar =
 
         console.log("AI Response:", data);
 
-        if (data.type === "tool_result") {
+        if (data.type === "action") {
+          // Handle action commands from AI
+          const { action, parameters, message } = data;
+          
+          switch (action) {
+            case "set_filter":
+              if (onSetFilter) {
+                onSetFilter({
+                  status: parameters.status,
+                  street: parameters.street,
+                  postalCode: parameters.postal_code,
+                  city: parameters.city,
+                  houseNumber: parameters.house_number,
+                });
+              }
+              break;
+            case "clear_filters":
+              if (onClearFilters) onClearFilters();
+              break;
+            case "toggle_polygon_draw":
+              if (onTogglePolygon) onTogglePolygon(parameters.enabled);
+              break;
+            case "navigate_to":
+              if (onNavigate) onNavigate(parameters.page);
+              break;
+          }
+
+          setMessages((prev) => [...prev, { role: "assistant", content: message }]);
+        } else if (data.type === "tool_result") {
           const resultCount = data.results?.length || 0;
           let responseText = data.message || `${resultCount} Adressen gefunden`;
 

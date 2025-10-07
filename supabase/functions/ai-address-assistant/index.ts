@@ -73,26 +73,30 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Du bist Rokki 🚀, der freundliche KI-Assistent für die Adressverwaltung von Rocket Promotions!
+            content: `Du bist Rokki 🚀, der KI-Assistent von Rocket Promotions!
 
 WICHTIG - Dein Verhalten:
-- Duze den Nutzer IMMER (niemals siezen!)
-- Verwende regelmäßig passende Emojis 😊🎯✨ für gute Laune
-- Sei enthusiastisch und hilfsbereit
-- Halte deine Antworten kurz und prägnant
-- Zeige Persönlichkeit und Energie! 💪
+- Duze den Nutzer IMMER
+- Sei kurz und prägnant - MAXIMAL 1-2 Sätze!
+- Nutze Emojis sparsam
+- Du bedienst die Software, chattest nicht!
+
+Verfügbare Aktionen (Tools):
+1. Filter setzen (Status, Straße, PLZ, Stadt)
+2. Zur Laufliste navigieren
+3. Polygon-Zeichnen aktivieren/deaktivieren
+4. Filter löschen
 
 Verfügbare Adressen: ${JSON.stringify(addresses)}
 
-Du kannst helfen bei:
-- Adressen nach Straße, Hausnummer, PLZ oder Stadt zu suchen 🔍
-- Adressen nach Status zu filtern (z.B. "offen", "potenzial", "neukunde", etc.) 📊
-- Spezifische Adressen anzuzeigen 📍
+BEISPIELE:
+User: "Zeig mir alle offenen Adressen"
+→ Tool: set_filter mit status: "offen"
+→ Antwort: "Alles klar! ✅"
 
-Beispiele für gute Antworten:
-- "Klar! 🎯 Ich zeige dir alle offenen Adressen..."
-- "Super! ✨ Ich habe X Adressen in [Stadt] gefunden..."
-- "Perfekt! 🚀 Hier sind die Ergebnisse..."`,
+User: "Aktiviere Polygon zeichnen"
+→ Tool: toggle_polygon_draw mit enabled: true
+→ Antwort: "Polygon-Modus aktiv! 🎯"`,
           },
           {
             role: "user",
@@ -103,15 +107,23 @@ Beispiele für gute Antworten:
           {
             type: "function",
             function: {
-              name: "search_address",
-              description: "Sucht Adressen nach Straße, Hausnummer, PLZ oder Stadt",
+              name: "set_filter",
+              description: "Setzt Filter für die Karte (Status, Adresse, etc.)",
               parameters: {
                 type: "object",
                 properties: {
+                  status: {
+                    type: "array",
+                    items: {
+                      type: "string",
+                      enum: ["offen", "nicht-angetroffen", "karte-eingeworfen", "potenzial", "neukunde", "bestandskunde", "kein-interesse", "termin", "nicht-vorhanden", "gewerbe"]
+                    },
+                    description: "Status-Filter"
+                  },
                   street: { type: "string", description: "Straßenname" },
-                  house_number: { type: "string", description: "Hausnummer" },
                   postal_code: { type: "string", description: "Postleitzahl" },
                   city: { type: "string", description: "Stadt" },
+                  house_number: { type: "string", description: "Hausnummer" },
                 },
               },
             },
@@ -119,18 +131,46 @@ Beispiele für gute Antworten:
           {
             type: "function",
             function: {
-              name: "filter_by_status",
-              description: "Filtert Adressen nach Unit-Status",
+              name: "clear_filters",
+              description: "Entfernt alle aktiven Filter",
+              parameters: {
+                type: "object",
+                properties: {},
+              },
+            },
+          },
+          {
+            type: "function",
+            function: {
+              name: "toggle_polygon_draw",
+              description: "Aktiviert oder deaktiviert den Polygon-Zeichnen-Modus",
               parameters: {
                 type: "object",
                 properties: {
-                  status: {
-                    type: "string",
-                    enum: ["offen", "nicht-angetroffen", "karte-eingeworfen", "potenzial", "neukunde", "bestandskunde", "kein-interesse", "termin", "nicht-vorhanden", "gewerbe"],
-                    description: "Der gewünschte Status",
+                  enabled: {
+                    type: "boolean",
+                    description: "true zum Aktivieren, false zum Deaktivieren"
                   },
                 },
-                required: ["status"],
+                required: ["enabled"],
+              },
+            },
+          },
+          {
+            type: "function",
+            function: {
+              name: "navigate_to",
+              description: "Navigiert zu einer anderen Seite",
+              parameters: {
+                type: "object",
+                properties: {
+                  page: {
+                    type: "string",
+                    enum: ["laufliste", "karte", "dashboard"],
+                    description: "Zielseite"
+                  },
+                },
+                required: ["page"],
               },
             },
           },
@@ -158,42 +198,13 @@ Beispiele für gute Antworten:
       
       console.log(`Tool call: ${functionName}`, args);
 
-      let results: any[] = [];
-
-      if (functionName === "search_address") {
-        // Filter addresses based on criteria
-        results = addresses.filter((addr: any) => {
-          const matchStreet = !args.street || addr.street.toLowerCase().includes(args.street.toLowerCase());
-          const matchHouseNumber = !args.house_number || addr.house_number === args.house_number;
-          const matchPostalCode = !args.postal_code || addr.postal_code === args.postal_code;
-          const matchCity = !args.city || addr.city.toLowerCase().includes(args.city.toLowerCase());
-          return matchStreet && matchHouseNumber && matchPostalCode && matchCity;
-        });
-      } else if (functionName === "filter_by_status") {
-        // Filter by unit status
-        results = addresses.filter((addr: any) => {
-          if (!addr.units || !Array.isArray(addr.units)) return false;
-          return addr.units.some((unit: any) => unit.status === args.status);
-        });
-      }
-
-      console.log(`Found ${results.length} matching addresses`);
-
+      // Return action command to frontend
       return new Response(
         JSON.stringify({
-          type: "tool_result",
-          function: functionName,
-          args,
-          results: results.map(r => ({
-            id: r.id,
-            street: r.street,
-            house_number: r.house_number,
-            postal_code: r.postal_code,
-            city: r.city,
-            coordinates: r.coordinates,
-            units: r.units,
-          })),
-          message: data.choices[0].message.content || `${results.length} Adressen gefunden`,
+          type: "action",
+          action: functionName,
+          parameters: args,
+          message: "Alles klar! ✅",
         }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
