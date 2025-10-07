@@ -380,6 +380,14 @@ export default function Karte() {
         </div>
       `);
 
+      // Zoom to marker on click
+      marker.on('click', () => {
+        map.setView([chosen[1], chosen[0]], 18, {
+          animate: true,
+          duration: 0.5
+        });
+      });
+
       bounds.extend([chosen[1], chosen[0]]);
     });
 
@@ -524,6 +532,15 @@ export default function Karte() {
           </div>
         </div>
       `);
+
+      // Zoom to marker on click
+      const c = refinedCoords.get(address.id) || address.coordinates;
+      marker.on('click', () => {
+        map.setView([c[1], c[0]], 18, {
+          animate: true,
+          duration: 0.5
+        });
+      });
     });
     
     markersRef.current = markers;
