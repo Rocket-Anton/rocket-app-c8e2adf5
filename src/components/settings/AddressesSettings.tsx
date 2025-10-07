@@ -65,48 +65,48 @@ export const AddressesSettings = () => {
   const loadData = async () => {
     try {
       // Load projects
-      const { data: projectsData, error: projectsError } = await supabase
+      const projectsResponse = await supabase
         .from("projects")
         .select("id, name")
         .order("name");
 
-      if (projectsError) throw projectsError;
-      setProjects(projectsData || []);
+      if (projectsResponse.error) throw projectsResponse.error;
+      setProjects(projectsResponse.data || []);
 
-      // Load addresses - select all fields
-      const query = supabase
-        .from("addresses")
-        .select("*");
-
-      let addressesQuery = query.order("created_at", { ascending: false });
-
-      if (filterProject !== "all") {
-        if (filterProject === "none") {
-          addressesQuery = addressesQuery.is("project_id", null);
-        } else {
-          addressesQuery = addressesQuery.eq("project_id", filterProject);
-        }
+      // Load addresses based on filter
+      let addressesResponse;
+      
+      if (filterProject === "all") {
+        addressesResponse = await supabase
+          .from("addresses")
+          .select("id, street, house_number, postal_code, city, project_id")
+          .order("created_at", { ascending: false });
+      } else if (filterProject === "none") {
+        addressesResponse = await supabase
+          .from("addresses")
+          .select("id, street, house_number, postal_code, city, project_id")
+          .is("project_id", null)
+          .order("created_at", { ascending: false });
+      } else {
+        addressesResponse = await supabase
+          .from("addresses")
+          .select("id, street, house_number, postal_code, city, project_id")
+          .eq("project_id", filterProject)
+          .order("created_at", { ascending: false });
       }
 
-      const { data: addressesData, error: addressesError } = await addressesQuery;
-
-      if (addressesError) throw addressesError;
+      if (addressesResponse.error) throw addressesResponse.error;
       
       // Enrich with project names
-      const enrichedAddresses = (addressesData as any[])?.map(addr => {
-        const project = projectsData?.find(p => p.id === addr.project_id);
+      const enrichedAddresses: Address[] = (addressesResponse.data || []).map((addr: any) => {
+        const project = projectsResponse.data?.find(p => p.id === addr.project_id);
         return {
-          id: addr.id,
-          street: addr.street,
-          house_number: addr.house_number,
-          postal_code: addr.postal_code,
-          city: addr.city,
-          project_id: addr.project_id,
+          ...addr,
           projects: project ? { name: project.name } : undefined
-        } as Address;
+        };
       });
       
-      setAddresses(enrichedAddresses || []);
+      setAddresses(enrichedAddresses);
     } catch (error: any) {
       toast.error("Fehler beim Laden der Daten");
       console.error(error);
@@ -122,13 +122,13 @@ export const AddressesSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
-      const addressData = {
+      const addressData: any = {
         street: formData.street,
         house_number: formData.house_number,
         postal_code: formData.postal_code,
         city: formData.city,
         project_id: formData.project_id || null,
-        coordinates: { lat: 0, lng: 0 }, // Default coordinates
+        coordinates: { lat: 0, lng: 0 },
         units: [],
       };
 
