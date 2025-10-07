@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Bot, Loader2, X, Mic, Square, ChevronUp } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
-import rokkiAvatar from "@/assets/rokki-avatar.png";
+import rokkiAvatar from "@/assets/rokki-avatar.webp";
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
 
 interface Message {
