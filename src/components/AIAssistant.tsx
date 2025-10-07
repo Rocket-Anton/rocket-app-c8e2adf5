@@ -15,10 +15,10 @@ interface AIAssistantProps {
   open: boolean;
   onClose: () => void;
   onShowAddresses?: (addressIds: number[]) => void;
-  sidebarCollapsed?: boolean;
+  showListsSidebar?: boolean;
 }
 
-export function AIAssistant({ open, onClose, onShowAddresses, sidebarCollapsed = true }: AIAssistantProps) {
+export function AIAssistant({ open, onClose, onShowAddresses, showListsSidebar = false }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -205,7 +205,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, sidebarCollapsed =
     stopRecording();
   };
 
-  const sidebarOffset = sidebarCollapsed ? "right-6" : "right-[calc(1.5rem+14rem)]";
+  const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-4";
   
   return (
     <>

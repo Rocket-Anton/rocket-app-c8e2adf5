@@ -813,7 +813,7 @@ function KarteContent() {
       <AIAssistant
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
-        sidebarCollapsed={sidebarState === "collapsed"}
+        showListsSidebar={showListsSidebar}
       />
     </>
   );
