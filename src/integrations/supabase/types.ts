@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      addresses: {
+        Row: {
+          city: string
+          coordinates: Json
+          created_at: string
+          created_by: string | null
+          house_number: string
+          id: number
+          postal_code: string
+          street: string
+          units: Json
+        }
+        Insert: {
+          city: string
+          coordinates: Json
+          created_at?: string
+          created_by?: string | null
+          house_number: string
+          id?: number
+          postal_code: string
+          street: string
+          units?: Json
+        }
+        Update: {
+          city?: string
+          coordinates?: Json
+          created_at?: string
+          created_by?: string | null
+          house_number?: string
+          id?: number
+          postal_code?: string
+          street?: string
+          units?: Json
+        }
+        Relationships: []
+      }
       lauflisten: {
         Row: {
           address_count: number | null

@@ -165,7 +165,7 @@ export default function Karte() {
   const loadAddresses = async () => {
     setIsLoadingAddresses(true);
     const { data, error } = await supabase
-      .from('lauflisten_addresses')
+      .from('addresses')
       .select('*');
 
     if (error) {
@@ -201,7 +201,7 @@ export default function Karte() {
       }
 
       return {
-        id: addr.address_id,
+        id: addr.id,
         street: addr.street,
         houseNumber: addr.house_number,
         postalCode: addr.postal_code,
@@ -380,9 +380,12 @@ export default function Karte() {
       });
     });
 
-    // Fit map to show all markers
+    // Fit map to show all markers with padding
     if (addresses.length > 0) {
-      map.fitBounds(bounds, { padding: [50, 50] });
+      map.fitBounds(bounds, { 
+        padding: [50, 50],
+        maxZoom: 15 // Limit initial zoom to avoid being too close
+      });
     }
 
     return () => {
