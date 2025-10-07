@@ -5,9 +5,10 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
 import { CreateListModal } from "@/components/CreateListModal";
 import { ListsSidebar } from "@/components/ListsSidebar";
+import { AIAssistant } from "@/components/AIAssistant";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
+import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin, Bot } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -75,6 +76,8 @@ export default function Karte() {
   const [showStatsPopup, setShowStatsPopup] = useState(false);
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showListsSidebar, setShowListsSidebar] = useState(false);
+  const [showAIAssistant, setShowAIAssistant] = useState(false);
+  const [aiFilteredAddressIds, setAIFilteredAddressIds] = useState<Set<number>>(new Set());
   const [assignedAddressIds, setAssignedAddressIds] = useState<Set<number>>(new Set());
   const [addressListColors, setAddressListColors] = useState<Map<number, string>>(new Map());
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
@@ -458,6 +461,9 @@ export default function Karte() {
   const handleListExpanded = async (listIds: string[]) => {
     const map = mapInstance.current;
 
+    // Clear AI filter when manual selection is made
+    setAIFilteredAddressIds(new Set());
+
     // Update selected list IDs immediately for filtering
     setSelectedListIds(new Set(listIds));
 
@@ -481,10 +487,10 @@ export default function Karte() {
         }
       });
       
-        if (bounds.isValid()) {
-          const rightPad = showListsSidebar ? 420 : 50;
-          map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
-        }
+      if (bounds.isValid()) {
+        const rightPad = showListsSidebar ? 420 : 50;
+        map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
+      }
     } else {
       // Clear focus and restore previous view if available
       setListAddressIds(new Set());
@@ -493,6 +499,39 @@ export default function Karte() {
         map.setView(center as L.LatLngExpression, zoom, { animate: true });
         previousViewRef.current = null;
       }
+    }
+  };
+
+  // Handle AI filtered addresses
+  const handleAIShowAddresses = (addressIds: number[]) => {
+    const map = mapInstance.current;
+    
+    // Clear manual list selection
+    setSelectedListIds(new Set());
+    setListAddressIds(new Set());
+
+    // Set AI filtered addresses
+    const idsSet = new Set(addressIds);
+    setAIFilteredAddressIds(idsSet);
+
+    if (!map || addressIds.length === 0) return;
+
+    // Save current view
+    if (!previousViewRef.current) {
+      previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() };
+    }
+
+    // Fit bounds to AI filtered addresses
+    const bounds = L.latLngBounds([]);
+    addresses.forEach((a) => {
+      if (idsSet.has(a.id)) {
+        bounds.extend([a.coordinates[1], a.coordinates[0]]);
+      }
+    });
+
+    if (bounds.isValid()) {
+      const rightPad = showAIAssistant ? 470 : 50;
+      map.fitBounds(bounds, { paddingTopLeft: [50, 50], paddingBottomRight: [rightPad, 50], maxZoom: 15 });
     }
   };
 
@@ -528,13 +567,17 @@ export default function Karte() {
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
       
-      // If lists are selected, only show addresses from those lists
-      if (selectedListIds.size > 0) {
+      // Priority: AI filter > List selection > Normal filters
+      if (aiFilteredAddressIds.size > 0) {
+        if (!aiFilteredAddressIds.has(address.id)) {
+          return; // Skip addresses not in AI filter
+        }
+      } else if (selectedListIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
           return; // Skip addresses not in any selected list
         }
       } else {
-        // No lists selected - apply normal filters
+        // No filters active - apply normal filters
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
           // Show only unassigned addresses or addresses in lists without rocket
@@ -614,7 +657,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, aiFilteredAddressIds]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
@@ -664,6 +707,16 @@ export default function Karte() {
                     showListsSidebar ? "right-[400px]" : "right-4"
                   )}
                 >
+                <Button
+                  onClick={() => setShowAIAssistant(true)}
+                  variant="outline"
+                  className="shadow-lg bg-white hover:bg-white/90 border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                  size="icon"
+                  title="KI-Assistent"
+                >
+                  <Bot className="h-4 w-4 text-muted-foreground" />
+                </Button>
+
                 <Button
                   onClick={() => setShowListsSidebar(true)}
                   variant="outline"
@@ -801,6 +854,16 @@ export default function Karte() {
           open={showListsSidebar}
           onClose={() => setShowListsSidebar(false)}
           onListExpanded={handleListExpanded}
+        />
+
+        {/* AI Assistant */}
+        <AIAssistant
+          open={showAIAssistant}
+          onClose={() => {
+            setShowAIAssistant(false);
+            setAIFilteredAddressIds(new Set());
+          }}
+          onShowAddresses={handleAIShowAddresses}
         />
       </div>
     </SidebarProvider>
