@@ -272,7 +272,7 @@ export function MapFilterSidebar({
           <label className="text-sm font-medium">Sortierung</label>
           <div className="relative">
             <Select value={sortierung} onValueChange={setSortierung}>
-              <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400">
+              <SelectTrigger className="bg-background h-9 focus:ring-0 focus-visible:ring-0 focus:border-gray-400 border border-input">
                 <SelectValue>
                   <span className={cn(
                     "text-sm",
