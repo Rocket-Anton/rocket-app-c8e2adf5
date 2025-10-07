@@ -50,6 +50,7 @@ interface MapFilterSidebarProps {
   uniqueCities: string[];
   uniquePostalCodes: string[];
   addresses: any[];
+  showListsSidebar?: boolean;
 }
 
 export function MapFilterSidebar({
@@ -69,6 +70,7 @@ export function MapFilterSidebar({
   uniqueCities,
   uniquePostalCodes,
   addresses,
+  showListsSidebar = false,
 }: MapFilterSidebarProps) {
   const [statusOpen, setStatusOpen] = useState(false);
   const [streetInput, setStreetInput] = useState(streetFilter);
@@ -128,7 +130,10 @@ export function MapFilterSidebar({
   return (
     <div 
       ref={sidebarRef}
-      className="fixed right-4 top-20 w-80 bg-background border rounded-lg shadow-lg z-40 animate-in slide-in-from-right-4 fade-in duration-300 max-h-[calc(100vh-100px)] flex flex-col"
+      className={cn(
+        "fixed top-20 w-80 bg-background border rounded-lg shadow-lg z-40 animate-in slide-in-from-right-4 fade-in duration-300 max-h-[calc(100vh-100px)] flex flex-col transition-all",
+        showListsSidebar ? "right-[400px]" : "right-4"
+      )}
     >
       {/* Header */}
       <div className="flex items-center justify-between p-4 border-b flex-shrink-0">

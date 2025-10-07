@@ -923,6 +923,7 @@ function KarteContent() {
           uniqueCities={uniqueCities}
           uniquePostalCodes={uniquePostalCodes}
           addresses={addresses}
+          showListsSidebar={showListsSidebar}
         />
       </div>
 
