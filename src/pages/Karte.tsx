@@ -455,7 +455,7 @@ export default function Karte() {
   };
 
   // Handle selection change from sidebar (one or multiple lists)
-  const handleListExpanded = (listIds: string[]) => {
+  const handleListExpanded = async (listIds: string[]) => {
     const map = mapInstance.current;
 
     // Update selected list IDs immediately for filtering
@@ -470,17 +470,20 @@ export default function Karte() {
       }
 
       // Load all addresses for the selected lists and fit bounds
-      loadAddressesForLists(listIds).then((addressIds) => {
-        setListAddressIds(addressIds);
+      const addressIds = await loadAddressesForLists(listIds);
+      setListAddressIds(addressIds);
 
-        const bounds = L.latLngBounds([]);
-        addresses.forEach((a) => {
-          if (addressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
-        });
-        if (bounds.isValid()) {
-          map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      // Fit bounds to all addresses from selected lists
+      const bounds = L.latLngBounds([]);
+      addresses.forEach((a) => {
+        if (addressIds.has(a.id)) {
+          bounds.extend([a.coordinates[1], a.coordinates[0]]);
         }
       });
+      
+      if (bounds.isValid()) {
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 15 });
+      }
     } else {
       // Clear focus and restore previous view if available
       setListAddressIds(new Set());

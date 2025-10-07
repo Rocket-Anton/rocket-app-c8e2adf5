@@ -349,11 +349,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     const allIds = filtered.map(l => l.id);
     const newSet = new Set(allIds);
     setSelectedLists(newSet);
+    setExpandedLists(newSet); // Also expand all lists
     onListExpanded(allIds);
   };
 
   const handleDeselectAll = () => {
     setSelectedLists(new Set());
+    setExpandedLists(new Set()); // Also collapse all lists
     onListExpanded([]);
   };
 
@@ -361,10 +363,12 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     const filtered = getFilteredAndSortedLists();
     if (selectedLists.size === filtered.length) {
       setSelectedLists(new Set());
+      setExpandedLists(new Set()); // Collapse all
       onListExpanded([]);
     } else {
       const allIds = filtered.map(l => l.id);
       setSelectedLists(new Set(allIds));
+      setExpandedLists(new Set(allIds)); // Expand all
       onListExpanded(allIds);
     }
   };
