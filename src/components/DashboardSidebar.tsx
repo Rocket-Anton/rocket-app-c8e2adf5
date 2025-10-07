@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Settings, Moon } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Settings, Moon, LogOut } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
@@ -19,10 +19,54 @@ import {
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 
 export const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  
+  // Get authenticated user
+  const [currentUser, setCurrentUser] = useState<{id: string, name: string, initials: string} | null>(null);
+  
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .maybeSingle();
+        
+        const userName = profile?.name || user.email?.split('@')[0] || 'Unbekannt';
+        const initials = userName
+          .split(' ')
+          .map(n => n[0])
+          .join('')
+          .toUpperCase()
+          .slice(0, 2);
+        
+        setCurrentUser({ 
+          id: user.id, 
+          name: userName,
+          initials
+        });
+      }
+    };
+    fetchUser();
+  }, []);
+  
+  const handleLogout = async () => {
+    try {
+      await supabase.auth.signOut();
+      toast.success("Erfolgreich abgemeldet");
+      navigate("/auth");
+    } catch (error) {
+      console.error('Logout error:', error);
+      toast.error("Fehler beim Abmelden");
+    }
+  };
   
   // Auto-expand based on current route
   const isInLauflistenSection = location.pathname === "/" || location.pathname === "/karte";
@@ -285,11 +329,20 @@ export const DashboardSidebar = () => {
         </SidebarContent>
 
         {state !== "collapsed" ? (
-          <SidebarFooter className="border-t border-sidebar-border">
-            <div className="p-2">
-              <div className="text-sm">
-                <div className="font-medium text-sidebar-foreground">Oleg Stemnev</div>
-                <button className="text-xs text-sidebar-foreground/70 hover:text-sidebar-foreground">
+          <SidebarFooter className="border-t border-sidebar-border p-3">
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm flex-shrink-0">
+                {currentUser?.initials || 'U'}
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="font-medium text-sidebar-foreground text-sm truncate">
+                  {currentUser?.name || 'Lädt...'}
+                </div>
+                <button 
+                  onClick={handleLogout}
+                  className="text-xs text-sidebar-foreground/70 hover:text-sidebar-foreground hover:underline flex items-center gap-1"
+                >
+                  <LogOut className="w-3 h-3" />
                   Abmelden
                 </button>
               </div>
@@ -298,17 +351,17 @@ export const DashboardSidebar = () => {
         ) : (
           <SidebarFooter className="border-t border-sidebar-border px-2 py-4">
             <div className="flex flex-col items-center space-y-3">
-              <div className="w-14 h-14 bg-sidebar-accent rounded-full flex items-center justify-center text-sidebar-accent-foreground font-semibold text-base">
-                OS
+              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary font-semibold text-sm">
+                {currentUser?.initials || 'U'}
               </div>
               <Button
+                onClick={handleLogout}
                 variant="ghost"
                 size="icon"
-                className="h-10 w-10 hover:bg-sidebar-accent text-sidebar-foreground"
+                className="h-9 w-9 hover:bg-sidebar-accent text-sidebar-foreground"
+                title="Abmelden"
               >
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5-5-5h5v-8H9.83l3-3-3-3H15v8z" />
-                </svg>
+                <LogOut className="w-4 h-4" />
               </Button>
             </div>
           </SidebarFooter>
