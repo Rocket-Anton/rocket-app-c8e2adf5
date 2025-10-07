@@ -7,7 +7,13 @@ import { CreateListModal } from "@/components/CreateListModal";
 import { ListsSidebar } from "@/components/ListsSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
-import { Pentagon, Filter, Layers, Maximize2, ClipboardList } from "lucide-react";
+import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import L from "leaflet";
@@ -144,6 +150,8 @@ export default function Karte() {
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showListsSidebar, setShowListsSidebar] = useState(false);
   const [assignedAddressIds, setAssignedAddressIds] = useState<Set<number>>(new Set());
+  const [addressListColors, setAddressListColors] = useState<Map<number, string>>(new Map());
+  const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
 
   // Auth check
   useEffect(() => {
@@ -233,7 +241,7 @@ export default function Karte() {
   const loadAssignedAddresses = async () => {
     const { data, error } = await supabase
       .from('lauflisten_addresses')
-      .select('address_id');
+      .select('address_id, laufliste_id, lauflisten(color, assigned_to)');
 
     if (error) {
       console.error('Error loading assigned addresses:', error);
@@ -241,7 +249,16 @@ export default function Karte() {
     }
 
     const ids = new Set(data?.map(item => item.address_id) || []);
+    const colorMap = new Map<number, string>();
+    
+    data?.forEach(item => {
+      if (item.lauflisten && Array.isArray(item.lauflisten) && item.lauflisten[0]) {
+        colorMap.set(item.address_id, item.lauflisten[0].color);
+      }
+    });
+    
     setAssignedAddressIds(ids);
+    setAddressListColors(colorMap);
   };
 
   useEffect(() => {
@@ -309,25 +326,40 @@ export default function Karte() {
     const markers: L.Marker[] = [];
 
     mockAddresses.forEach((address) => {
-      // Skip addresses that are already assigned to a list
-      if (assignedAddressIds.has(address.id)) return;
-      // Calculate overall status based on units
-      const statusCounts: Record<string, number> = {};
-      address.units.forEach(unit => {
-        statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
-      });
+      // Apply filter logic
+      const isAssigned = assignedAddressIds.has(address.id);
+      
+      if (filterMode === 'unassigned' && isAssigned) return;
+      if (filterMode === 'no-rocket') {
+        // Show only unassigned addresses or addresses in lists without rocket
+        // For now, we'll need to load this info separately
+        // TODO: Implement rocket filter
+      }
+      
+      // Use list color if assigned, otherwise use status color
+      let color: string;
+      if (isAssigned && addressListColors.has(address.id)) {
+        color = addressListColors.get(address.id)!;
+      } else {
+        // Calculate overall status based on units
+        const statusCounts: Record<string, number> = {};
+        address.units.forEach(unit => {
+          statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
+        });
 
-      // Determine primary status (most common)
-      let primaryStatus = "offen";
-      let maxCount = 0;
-      Object.entries(statusCounts).forEach(([status, count]) => {
-        if (count > maxCount) {
-          maxCount = count;
-          primaryStatus = status;
-        }
-      });
+        // Determine primary status (most common)
+        let primaryStatus = "offen";
+        let maxCount = 0;
+        Object.entries(statusCounts).forEach(([status, count]) => {
+          if (count > maxCount) {
+            maxCount = count;
+            primaryStatus = status;
+          }
+        });
 
-      const color = statusColorMap[primaryStatus] || "#6b7280";
+        color = statusColorMap[primaryStatus] || "#6b7280";
+      }
+      
       const currentZoom = map.getZoom();
       const customIcon = createMarkerIcon(address, currentZoom);
 
@@ -403,6 +435,109 @@ export default function Karte() {
     }
   };
 
+  // Re-render markers when filter changes
+  useEffect(() => {
+    if (!mapInstance.current) return;
+    
+    // Clear existing markers
+    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current = [];
+    
+    const map = mapInstance.current;
+    const markers: L.Marker[] = [];
+    
+    mockAddresses.forEach((address) => {
+      // Apply filter logic
+      const isAssigned = assignedAddressIds.has(address.id);
+      
+      if (filterMode === 'unassigned' && isAssigned) return;
+      if (filterMode === 'no-rocket') {
+        // Show only unassigned addresses or addresses in lists without rocket
+        // For now, show unassigned for simplicity
+        if (isAssigned) return;
+      }
+      
+      // Use list color if assigned, otherwise use status color
+      let color: string;
+      if (isAssigned && addressListColors.has(address.id)) {
+        color = addressListColors.get(address.id)!;
+      } else {
+        // Calculate overall status based on units
+        const statusCounts: Record<string, number> = {};
+        address.units.forEach(unit => {
+          statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
+        });
+
+        // Determine primary status (most common)
+        let primaryStatus = "offen";
+        let maxCount = 0;
+        Object.entries(statusCounts).forEach(([status, count]) => {
+          if (count > maxCount) {
+            maxCount = count;
+            primaryStatus = status;
+          }
+        });
+
+        color = statusColorMap[primaryStatus] || "#6b7280";
+      }
+      
+      const currentZoom = map.getZoom();
+      
+      // Create marker icon with the determined color
+      const size = 32;
+      const fontSize = 14;
+      const borderWidth = 3;
+      
+      const customIcon = L.divIcon({
+        className: "custom-address-marker",
+        html: `
+          <div style="
+            width: ${size}px;
+            height: ${size}px;
+            background: ${color};
+            color: white;
+            border-radius: 50%;
+            border: ${borderWidth}px solid white;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: ${fontSize}px;
+            font-weight: 700;
+          ">
+            ${address.units.length}
+          </div>
+        `,
+        iconSize: [size, size],
+        iconAnchor: [size / 2, size / 2],
+      });
+
+      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
+        icon: customIcon 
+      }).addTo(map);
+      
+      markers.push(marker);
+
+      // Create popup content
+      const unitsInfo = address.units.map(unit => 
+        `<div style="font-size: 11px; color: #666; padding: 2px 0;">${unit.floor} ${unit.position}</div>`
+      ).join('');
+
+      marker.bindPopup(`
+        <div style="padding: 8px; font-size: 12px; min-width: 150px;">
+          <div style="font-weight: 600; margin-bottom: 6px; color: ${color};">${address.street} ${address.houseNumber}</div>
+          <div style="color: #666; margin-bottom: 6px;">${address.postalCode} ${address.city}</div>
+          <div style="border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;">
+            <div style="font-weight: 500; font-size: 11px; margin-bottom: 4px; color: #374151;">Wohneinheiten (${address.units.length}):</div>
+            ${unitsInfo}
+          </div>
+        </div>
+      `);
+    });
+    
+    markersRef.current = markers;
+  }, [filterMode, assignedAddressIds, addressListColors]);
+
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
     let inside = false;
@@ -445,6 +580,39 @@ export default function Karte() {
                 >
                   <ClipboardList className="h-4 w-4 text-muted-foreground" />
                 </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant={filterMode !== 'all' ? "default" : "outline"}
+                      className={`shadow-lg border-border ${filterMode !== 'all' ? 'bg-primary text-primary-foreground hover:bg-primary/90' : 'bg-white hover:bg-white/90'}`}
+                      size="icon"
+                      title="Adressfilter"
+                    >
+                      <MapPin className={`h-4 w-4 ${filterMode !== 'all' ? '' : 'text-muted-foreground'}`} />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56">
+                    <DropdownMenuItem onClick={() => setFilterMode('all')}>
+                      <div className="flex items-center gap-2 w-full">
+                        {filterMode === 'all' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <span>Alle Adressen anzeigen</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterMode('unassigned')}>
+                      <div className="flex items-center gap-2 w-full">
+                        {filterMode === 'unassigned' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <span>Nur unzugewiesene Adressen</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => setFilterMode('no-rocket')}>
+                      <div className="flex items-center gap-2 w-full">
+                        {filterMode === 'no-rocket' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <span>Ohne Rakete zugewiesen</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 <Button
                   variant={isDrawingMode ? "default" : "outline"}
