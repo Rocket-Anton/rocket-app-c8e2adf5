@@ -378,7 +378,7 @@ export default function Karte() {
                   size="icon"
                   title="Laufliste"
                 >
-                  <img src={runningIcon} alt="Laufliste" className="h-6 w-6" />
+                  <img src={runningIcon} alt="Laufliste" className="h-6 w-6 opacity-60" />
                 </Button>
                 
                 <Button
@@ -388,7 +388,7 @@ export default function Karte() {
                   title="Polygon zeichnen"
                   onClick={toggleDrawingMode}
                 >
-                  <Pentagon className="h-4 w-4" />
+                  <Pentagon className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 
                 <Button
@@ -397,7 +397,7 @@ export default function Karte() {
                   size="icon"
                   title="Filter"
                 >
-                  <Filter className="h-4 w-4" />
+                  <Filter className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 
                 <Button
@@ -406,7 +406,7 @@ export default function Karte() {
                   size="icon"
                   title="Ebenen"
                 >
-                  <Layers className="h-4 w-4" />
+                  <Layers className="h-4 w-4 text-muted-foreground" />
                 </Button>
                 
                 <Button
@@ -415,7 +415,7 @@ export default function Karte() {
                   size="icon"
                   title="Vollbild"
                 >
-                  <Maximize2 className="h-4 w-4" />
+                  <Maximize2 className="h-4 w-4 text-muted-foreground" />
                 </Button>
               </div>
             </div>
