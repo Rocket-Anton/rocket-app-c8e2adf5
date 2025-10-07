@@ -16,7 +16,7 @@ import {
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, User, ChevronDown, Edit2, Trash2, Merge } from "lucide-react";
+import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash } from "lucide-react";
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
@@ -55,6 +55,7 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const [editingList, setEditingList] = useState<Laufliste | null>(null);
   const [deletingListId, setDeletingListId] = useState<string | null>(null);
   const [showMergeConfirm, setShowMergeConfirm] = useState(false);
+  const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [statusCounts, setStatusCounts] = useState<ListStatusCounts>({});
 
   useEffect(() => {
@@ -230,6 +231,39 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedLists.size === 0) return;
+
+    try {
+      const selectedListsArray = Array.from(selectedLists);
+
+      // Delete all address assignments for these lists
+      const { error: deleteAddressesError } = await supabase
+        .from('lauflisten_addresses')
+        .delete()
+        .in('laufliste_id', selectedListsArray);
+
+      if (deleteAddressesError) throw deleteAddressesError;
+
+      // Delete the lists
+      const { error: deleteListsError } = await supabase
+        .from('lauflisten')
+        .delete()
+        .in('id', selectedListsArray);
+
+      if (deleteListsError) throw deleteListsError;
+
+      toast.success(`${selectedLists.size} Lauflisten gelöscht`);
+      setSelectedLists(new Set());
+      setShowBulkDeleteConfirm(false);
+      fetchLists();
+      fetchStatusCounts();
+    } catch (error) {
+      console.error('Error deleting lists:', error);
+      toast.error('Fehler beim Löschen der Lauflisten');
+    }
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onClose}>
@@ -237,17 +271,30 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
           <SheetHeader>
             <div className="flex items-center justify-between">
               <SheetTitle>Lauflisten</SheetTitle>
-              {selectedLists.size > 1 && (
-                <Button
-                  size="sm"
-                  variant="default"
-                  onClick={() => setShowMergeConfirm(true)}
-                  className="gap-2"
-                >
-                  <Merge className="h-4 w-4" />
-                  Zusammenführen ({selectedLists.size})
-                </Button>
-              )}
+              <div className="flex gap-2">
+                {selectedLists.size >= 2 && (
+                  <Button
+                    size="sm"
+                    variant="default"
+                    onClick={() => setShowMergeConfirm(true)}
+                    className="gap-2"
+                  >
+                    <Merge className="h-4 w-4" />
+                    Zusammenführen ({selectedLists.size})
+                  </Button>
+                )}
+                {selectedLists.size >= 3 && (
+                  <Button
+                    size="sm"
+                    variant="destructive"
+                    onClick={() => setShowBulkDeleteConfirm(true)}
+                    className="gap-2"
+                  >
+                    <Trash className="h-4 w-4" />
+                    Löschen ({selectedLists.size})
+                  </Button>
+                )}
+              </div>
             </div>
           </SheetHeader>
 
@@ -417,6 +464,27 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
           <AlertDialogCancel>Abbrechen</AlertDialogCancel>
           <AlertDialogAction onClick={handleMergeLists}>
             Zusammenführen
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+
+    {/* Bulk Delete Confirmation */}
+    <AlertDialog open={showBulkDeleteConfirm} onOpenChange={setShowBulkDeleteConfirm}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>{selectedLists.size} Lauflisten löschen?</AlertDialogTitle>
+          <AlertDialogDescription>
+            Alle Adressen werden aus diesen Listen entfernt. Die Adressen selbst bleiben erhalten und können erneut zugewiesen werden.
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+          <AlertDialogAction
+            onClick={handleBulkDelete}
+            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+          >
+            Löschen
           </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
