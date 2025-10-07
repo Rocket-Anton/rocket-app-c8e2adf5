@@ -1,0 +1,229 @@
+import { useState, useCallback, useRef } from "react";
+import Cropper, { Area } from "react-easy-crop";
+import { Button } from "@/components/ui/button";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { Slider } from "@/components/ui/slider";
+import { Upload, ZoomIn, ZoomOut } from "lucide-react";
+
+interface LogoUploaderProps {
+  onLogoProcessed: (blob: Blob, colors: string[]) => void;
+  currentLogoUrl?: string;
+}
+
+export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderProps) => {
+  const [image, setImage] = useState<string | null>(null);
+  const [crop, setCrop] = useState({ x: 0, y: 0 });
+  const [zoom, setZoom] = useState(1);
+  const [croppedAreaPixels, setCroppedAreaPixels] = useState<Area | null>(null);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const onCropComplete = useCallback((croppedArea: Area, croppedAreaPixels: Area) => {
+    setCroppedAreaPixels(croppedAreaPixels);
+  }, []);
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImage(reader.result as string);
+        setIsDialogOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  const extractColors = async (imageSrc: string): Promise<string[]> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      img.crossOrigin = "anonymous";
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve([]);
+          return;
+        }
+
+        canvas.width = img.width;
+        canvas.height = img.height;
+        ctx.drawImage(img, 0, 0);
+
+        const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        const data = imageData.data;
+        const colorMap = new Map<string, number>();
+
+        // Sample every 10th pixel for performance
+        for (let i = 0; i < data.length; i += 40) {
+          const r = data[i];
+          const g = data[i + 1];
+          const b = data[i + 2];
+          const a = data[i + 3];
+
+          // Skip transparent pixels
+          if (a < 128) continue;
+
+          const hex = `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+          colorMap.set(hex, (colorMap.get(hex) || 0) + 1);
+        }
+
+        // Get top 5 most frequent colors
+        const sortedColors = Array.from(colorMap.entries())
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([color]) => color);
+
+        resolve(sortedColors);
+      };
+      img.src = imageSrc;
+    });
+  };
+
+  const getCroppedImg = async (
+    imageSrc: string,
+    pixelCrop: Area
+  ): Promise<Blob> => {
+    const image = new Image();
+    image.src = imageSrc;
+
+    return new Promise((resolve, reject) => {
+      image.onload = () => {
+        const canvas = document.createElement("canvas");
+        const ctx = canvas.getContext("2d");
+
+        if (!ctx) {
+          reject(new Error("No 2d context"));
+          return;
+        }
+
+        // Set canvas size to desired output size
+        canvas.width = pixelCrop.width;
+        canvas.height = pixelCrop.height;
+
+        ctx.drawImage(
+          image,
+          pixelCrop.x,
+          pixelCrop.y,
+          pixelCrop.width,
+          pixelCrop.height,
+          0,
+          0,
+          pixelCrop.width,
+          pixelCrop.height
+        );
+
+        canvas.toBlob((blob) => {
+          if (blob) {
+            resolve(blob);
+          } else {
+            reject(new Error("Canvas is empty"));
+          }
+        }, "image/png");
+      };
+    });
+  };
+
+  const handleSave = async () => {
+    if (!image || !croppedAreaPixels) return;
+
+    try {
+      const croppedBlob = await getCroppedImg(image, croppedAreaPixels);
+      const colors = await extractColors(image);
+      onLogoProcessed(croppedBlob, colors);
+      setIsDialogOpen(false);
+      setImage(null);
+    } catch (error) {
+      console.error("Error processing image:", error);
+    }
+  };
+
+  return (
+    <>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/*"
+        onChange={handleFileChange}
+        className="hidden"
+      />
+      
+      <div className="flex items-center gap-4">
+        <div className="relative">
+          {currentLogoUrl ? (
+            <div className="h-20 w-20 rounded-full overflow-hidden border-2 border-border">
+              <img 
+                src={currentLogoUrl} 
+                alt="Logo Preview" 
+                className="h-full w-full object-cover"
+              />
+            </div>
+          ) : (
+            <div className="h-20 w-20 rounded-full bg-muted flex items-center justify-center border-2 border-border">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+            </div>
+          )}
+        </div>
+        
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => fileInputRef.current?.click()}
+        >
+          <Upload className="h-4 w-4 mr-2" />
+          Logo hochladen
+        </Button>
+      </div>
+
+      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Logo bearbeiten</DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-4">
+            <div className="relative h-80 bg-muted rounded-lg overflow-hidden">
+              {image && (
+                <Cropper
+                  image={image}
+                  crop={crop}
+                  zoom={zoom}
+                  aspect={1}
+                  cropShape="round"
+                  showGrid={false}
+                  onCropChange={setCrop}
+                  onCropComplete={onCropComplete}
+                  onZoomChange={setZoom}
+                />
+              )}
+            </div>
+
+            <div className="space-y-2">
+              <div className="flex items-center gap-2">
+                <ZoomOut className="h-4 w-4" />
+                <Slider
+                  value={[zoom]}
+                  onValueChange={(value) => setZoom(value[0])}
+                  min={1}
+                  max={3}
+                  step={0.1}
+                  className="flex-1"
+                />
+                <ZoomIn className="h-4 w-4" />
+              </div>
+            </div>
+          </div>
+
+          <DialogFooter>
+            <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+              Abbrechen
+            </Button>
+            <Button type="button" onClick={handleSave}>
+              Übernehmen
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+    </>
+  );
+};

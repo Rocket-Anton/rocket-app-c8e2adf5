@@ -22,6 +22,8 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { LogoUploader } from "./LogoUploader";
+import { ColorPickerPopover } from "./ColorPickerPopover";
 
 interface Provider {
   id: string;
@@ -45,6 +47,8 @@ export const ProvidersSettings = () => {
     color: "#3b82f6", 
     abbreviation: "" 
   });
+  const [logoBlob, setLogoBlob] = useState<Blob | null>(null);
+  const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
 
   useEffect(() => {
     loadProviders();
@@ -67,6 +71,20 @@ export const ProvidersSettings = () => {
     }
   };
 
+  const handleLogoProcessed = (blob: Blob, colors: string[]) => {
+    setLogoBlob(blob);
+    setSuggestedColors(colors);
+    
+    // Create object URL for preview
+    const objectUrl = URL.createObjectURL(blob);
+    setFormData(prev => ({ ...prev, logo_url: objectUrl }));
+    
+    // Set first color as default if no color selected
+    if (colors.length > 0 && formData.color === "#3b82f6") {
+      setFormData(prev => ({ ...prev, color: colors[0] }));
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -74,13 +92,34 @@ export const ProvidersSettings = () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
+      let finalLogoUrl = formData.logo_url;
+
+      // Upload logo if there's a new blob
+      if (logoBlob) {
+        const fileName = `${user.id}-${Date.now()}.png`;
+        const { data: uploadData, error: uploadError } = await supabase.storage
+          .from('provider-logos')
+          .upload(fileName, logoBlob, {
+            contentType: 'image/png',
+            upsert: true
+          });
+
+        if (uploadError) throw uploadError;
+
+        const { data: { publicUrl } } = supabase.storage
+          .from('provider-logos')
+          .getPublicUrl(fileName);
+
+        finalLogoUrl = publicUrl;
+      }
+
       if (editingProvider) {
         const { error } = await supabase
           .from("providers")
           .update({
             name: formData.name,
             description: formData.description,
-            logo_url: formData.logo_url || null,
+            logo_url: finalLogoUrl || null,
             color: formData.color,
             abbreviation: formData.abbreviation || null,
           })
@@ -94,7 +133,7 @@ export const ProvidersSettings = () => {
           .insert({
             name: formData.name,
             description: formData.description,
-            logo_url: formData.logo_url || null,
+            logo_url: finalLogoUrl || null,
             color: formData.color,
             abbreviation: formData.abbreviation || null,
             created_by: user.id,
@@ -105,6 +144,8 @@ export const ProvidersSettings = () => {
       }
 
       setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+      setLogoBlob(null);
+      setSuggestedColors([]);
       setIsCreateOpen(false);
       setEditingProvider(null);
       loadProviders();
@@ -148,6 +189,8 @@ export const ProvidersSettings = () => {
     setIsCreateOpen(false);
     setEditingProvider(null);
     setFormData({ name: "", description: "", logo_url: "", color: "#3b82f6", abbreviation: "" });
+    setLogoBlob(null);
+    setSuggestedColors([]);
   };
 
 
@@ -170,6 +213,14 @@ export const ProvidersSettings = () => {
             </DialogHeader>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
+                <Label>Logo</Label>
+                <LogoUploader 
+                  onLogoProcessed={handleLogoProcessed}
+                  currentLogoUrl={formData.logo_url}
+                />
+              </div>
+
+              <div>
                 <Label htmlFor="name">Name *</Label>
                 <Input
                   id="name"
@@ -180,6 +231,7 @@ export const ProvidersSettings = () => {
                   required
                 />
               </div>
+
               <div>
                 <Label htmlFor="abbreviation">Kürzel</Label>
                 <Input
@@ -192,41 +244,16 @@ export const ProvidersSettings = () => {
                   placeholder="z.B. TK, AOK"
                 />
               </div>
+
               <div>
-                <Label htmlFor="color">Farbe</Label>
-                <div className="flex gap-2 items-center">
-                  <Input
-                    id="color"
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) =>
-                      setFormData({ ...formData, color: e.target.value })
-                    }
-                    className="w-20 h-10 cursor-pointer"
-                  />
-                  <Input
-                    type="text"
-                    value={formData.color}
-                    onChange={(e) =>
-                      setFormData({ ...formData, color: e.target.value })
-                    }
-                    className="flex-1"
-                    placeholder="#3b82f6"
-                  />
-                </div>
-              </div>
-              <div>
-                <Label htmlFor="logo_url">Logo URL</Label>
-                <Input
-                  id="logo_url"
-                  type="url"
-                  value={formData.logo_url}
-                  onChange={(e) =>
-                    setFormData({ ...formData, logo_url: e.target.value })
-                  }
-                  placeholder="https://example.com/logo.png"
+                <Label>Farbe</Label>
+                <ColorPickerPopover
+                  color={formData.color}
+                  onChange={(color) => setFormData({ ...formData, color })}
+                  suggestedColors={suggestedColors}
                 />
               </div>
+
               <div>
                 <Label htmlFor="description">Beschreibung</Label>
                 <Textarea
@@ -237,6 +264,7 @@ export const ProvidersSettings = () => {
                   }
                 />
               </div>
+
               <div className="flex gap-2 justify-end">
                 <Button type="button" variant="outline" onClick={handleDialogClose}>
                   Abbrechen
