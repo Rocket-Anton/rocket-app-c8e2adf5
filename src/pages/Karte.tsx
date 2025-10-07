@@ -575,19 +575,19 @@ export default function Karte() {
                     <DropdownMenuSeparator />
                     <DropdownMenuItem onClick={() => setFilterMode('all')}>
                       <div className="flex items-center gap-2 w-full">
-                        {filterMode === 'all' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'all' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'all' ? 'font-medium' : ''}>Alle Adressen</span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setFilterMode('unassigned')}>
                       <div className="flex items-center gap-2 w-full">
-                        {filterMode === 'unassigned' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'unassigned' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'unassigned' ? 'font-medium' : ''}>Ohne Laufliste</span>
                       </div>
                     </DropdownMenuItem>
                     <DropdownMenuItem onClick={() => setFilterMode('no-rocket')}>
                       <div className="flex items-center gap-2 w-full">
-                        {filterMode === 'no-rocket' && <div className="w-2 h-2 rounded-full bg-primary" />}
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: filterMode === 'no-rocket' ? 'hsl(var(--primary))' : 'transparent' }} />
                         <span className={filterMode === 'no-rocket' ? 'font-medium' : ''}>Ohne Rakete</span>
                       </div>
                     </DropdownMenuItem>
