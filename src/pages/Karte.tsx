@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
@@ -130,6 +131,7 @@ const statusColorMap: Record<string, string> = {
 };
 
 export default function Karte() {
+  const navigate = useNavigate();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<L.Map | null>(null);
@@ -142,6 +144,26 @@ export default function Karte() {
   const [showCreateListModal, setShowCreateListModal] = useState(false);
   const [showListsSidebar, setShowListsSidebar] = useState(false);
   const [assignedAddressIds, setAssignedAddressIds] = useState<Set<number>>(new Set());
+
+  // Auth check
+  useEffect(() => {
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        navigate("/auth");
+      }
+    };
+
+    checkAuth();
+
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (!session) {
+        navigate("/auth");
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, [navigate]);
 
   // Function to create marker icon based on zoom level
   const createMarkerIcon = (address: typeof mockAddresses[0], zoom: number) => {

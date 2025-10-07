@@ -2,8 +2,12 @@ import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { LauflistenContent } from "./LauflistenContent";
 import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
+import { Button } from "./ui/button";
+import { LogIn } from "lucide-react";
 
 export const Dashboard = () => {
+  const navigate = useNavigate();
   const [todayOrderCount, setTodayOrderCount] = useState(() => {
     // Initialisiere aus localStorage
     const today = new Date().toDateString();
@@ -44,10 +48,18 @@ export const Dashboard = () => {
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
-          <LauflistenContent 
-            onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} 
-            orderCount={todayOrderCount}
-          />
+          <div className="relative h-full">
+            <div className="absolute top-4 right-4 z-10">
+              <Button onClick={() => navigate("/auth")} variant="outline" size="sm">
+                <LogIn className="w-4 h-4 mr-2" />
+                Anmelden
+              </Button>
+            </div>
+            <LauflistenContent 
+              onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} 
+              orderCount={todayOrderCount}
+            />
+          </div>
         </SidebarInset>
       </div>
     </SidebarProvider>
