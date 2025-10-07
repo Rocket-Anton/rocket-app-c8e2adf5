@@ -256,7 +256,7 @@ export const ProvidersSettings = () => {
               {suggestedColors.length > 0 && (
                 <div>
                   <Label>Farbe</Label>
-                  <div className="grid grid-cols-3 gap-3 mt-2">
+                  <div className="flex flex-wrap gap-2 mt-2">
                     {suggestedColors.map((color, index) => (
                       <button
                         key={index}
@@ -265,30 +265,30 @@ export const ProvidersSettings = () => {
                           setSelectedColorOption(`color-${index}`);
                           setFormData({ ...formData, color });
                         }}
-                        className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                        className={`flex flex-col items-center gap-1.5 p-2 rounded-md border-2 transition-all ${
                           selectedColorOption === `color-${index}`
                             ? 'border-primary bg-primary/5'
                             : 'border-border hover:border-primary/50'
                         }`}
                       >
                         <div 
-                          className="h-12 w-full rounded"
+                          className="h-8 w-16 rounded"
                           style={{ backgroundColor: color }}
                         />
-                        <span className="text-sm font-medium">Farbe {index + 1}</span>
+                        <span className="text-xs font-medium">Farbe {index + 1}</span>
                       </button>
                     ))}
                     <button
                       type="button"
                       onClick={() => setSelectedColorOption("other")}
-                      className={`flex flex-col items-center gap-2 p-3 rounded-lg border-2 transition-all ${
+                      className={`flex flex-col items-center gap-1.5 p-2 rounded-md border-2 transition-all ${
                         selectedColorOption === "other"
                           ? 'border-primary bg-primary/5'
                           : 'border-border hover:border-primary/50'
                       }`}
                     >
-                      <div className="h-12 w-full rounded bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500" />
-                      <span className="text-sm font-medium">Andere</span>
+                      <div className="h-8 w-16 rounded bg-gradient-to-br from-red-500 via-yellow-500 to-blue-500" />
+                      <span className="text-xs font-medium">Andere</span>
                     </button>
                   </div>
                   {selectedColorOption === "other" && (

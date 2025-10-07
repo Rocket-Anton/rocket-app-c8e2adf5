@@ -98,7 +98,7 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
 
         // Group similar colors together to get distinct colors
         const distinctColors: string[] = [];
-        const colorThreshold = 30; // Threshold for color similarity
+        const colorThreshold = 60; // Increased threshold to group more similar colors together
         
         for (const color of sortedColors) {
           const rgb = {
@@ -127,8 +127,8 @@ export const LogoUploader = ({ onLogoProcessed, currentLogoUrl }: LogoUploaderPr
             distinctColors.push(color);
           }
           
-          // Limit to max 5 distinct colors
-          if (distinctColors.length >= 5) break;
+          // Limit to max 3 distinct colors
+          if (distinctColors.length >= 3) break;
         }
 
         console.log("Extracted distinct colors:", distinctColors);
