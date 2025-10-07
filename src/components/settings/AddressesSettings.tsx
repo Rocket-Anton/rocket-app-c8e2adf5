@@ -322,15 +322,15 @@ export const AddressesSettings = () => {
         </Dialog>
       </div>
 
-      <Table>
+      <Table className="table-fixed w-full">
         <TableHeader>
           <TableRow>
-            <TableHead>Straße</TableHead>
-            <TableHead>Nr.</TableHead>
-            <TableHead>PLZ</TableHead>
-            <TableHead>Stadt</TableHead>
-            <TableHead>Projekt</TableHead>
-            <TableHead className="text-right">Aktionen</TableHead>
+            <TableHead className="w-2/5">Straße</TableHead>
+            <TableHead className="w-1/12">Nr.</TableHead>
+            <TableHead className="w-1/12">PLZ</TableHead>
+            <TableHead className="w-1/5">Stadt</TableHead>
+            <TableHead className="w-1/5">Projekt</TableHead>
+            <TableHead className="w-[120px] text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

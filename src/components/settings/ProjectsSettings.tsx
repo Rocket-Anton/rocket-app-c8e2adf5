@@ -242,13 +242,13 @@ export const ProjectsSettings = () => {
         </Dialog>
       </div>
 
-      <Table>
+      <Table className="table-fixed w-full">
         <TableHeader>
           <TableRow>
-            <TableHead>Name</TableHead>
-            <TableHead>Beschreibung</TableHead>
-            <TableHead>Provider</TableHead>
-            <TableHead className="text-right">Aktionen</TableHead>
+            <TableHead className="w-1/4">Name</TableHead>
+            <TableHead className="w-2/5">Beschreibung</TableHead>
+            <TableHead className="w-1/5">Provider</TableHead>
+            <TableHead className="w-[120px] text-right">Aktionen</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>
