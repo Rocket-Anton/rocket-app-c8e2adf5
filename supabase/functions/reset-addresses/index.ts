@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Insert new addresses with correct user
+    // Define addresses to create
     const addresses = [
       { street: 'Am Pfarracker', house_number: '33 A', postal_code: '33619', city: 'Bielefeld' },
       { street: 'Am Pfarracker', house_number: '33 B', postal_code: '33619', city: 'Bielefeld' },
@@ -47,23 +47,56 @@ Deno.serve(async (req) => {
       { street: 'Am Pfarracker', house_number: '35 A', postal_code: '33619', city: 'Bielefeld' },
     ];
 
-    const { data, error } = await supabase
-      .from('addresses')
-      .insert(addresses.map(addr => ({
-        ...addr,
-        coordinates: { lat: 52.0302, lng: 8.5325 },
-        units: [{ status: 'nicht_bearbeitet' }], // Minimum 1 WE pro Adresse
-        created_by: user.id,
-      })))
-      .select();
+    // Geocode each address and insert
+    const insertedAddresses = [];
+    
+    for (const addr of addresses) {
+      try {
+        // Call geocode function
+        const { data: geocodeData, error: geocodeError } = await supabase.functions.invoke('geocode-address', {
+          body: {
+            street: addr.street,
+            houseNumber: addr.house_number,
+            postalCode: addr.postal_code,
+            city: addr.city,
+          },
+        });
 
-    if (error) throw error;
+        let coordinates = { lat: 52.0302, lng: 8.5325 }; // Fallback
+        
+        if (!geocodeError && geocodeData?.coordinates) {
+          coordinates = geocodeData.coordinates;
+          console.log(`Geocoded ${addr.street} ${addr.house_number}:`, coordinates);
+        } else {
+          console.error(`Geocoding failed for ${addr.street} ${addr.house_number}:`, geocodeError);
+        }
 
-    return new Response(JSON.stringify({ success: true, addresses: data }), {
+        // Insert address with geocoded coordinates
+        const { data, error } = await supabase
+          .from('addresses')
+          .insert({
+            ...addr,
+            coordinates,
+            units: [{ status: 'nicht_bearbeitet' }],
+            created_by: user.id,
+          })
+          .select()
+          .single();
+
+        if (error) throw error;
+        insertedAddresses.push(data);
+        
+      } catch (err: any) {
+        console.error(`Error processing ${addr.street} ${addr.house_number}:`, err);
+      }
+    }
+
+    return new Response(JSON.stringify({ success: true, addresses: insertedAddresses }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
 
   } catch (error: any) {
+    console.error('Error in reset-addresses:', error);
     return new Response(JSON.stringify({ error: error.message }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
