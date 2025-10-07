@@ -22,6 +22,7 @@ import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import "leaflet-draw/dist/leaflet.draw.css";
 import "leaflet-draw";
+import { geocodeAddressesBatch } from "@/utils/geocoding";
 
 // Fix for default marker icons
 delete (L.Icon.Default.prototype as any)._getIconUrl;
@@ -77,6 +78,7 @@ export default function Karte() {
   const [addressListColors, setAddressListColors] = useState<Map<number, string>>(new Map());
   const [filterMode, setFilterMode] = useState<'all' | 'unassigned' | 'no-rocket'>('all');
   const [addresses, setAddresses] = useState<Address[]>([]);
+  const [refinedCoords, setRefinedCoords] = useState<Map<number, [number, number]>>(new Map());
 
   // Auth check
   useEffect(() => {
@@ -239,6 +241,34 @@ export default function Karte() {
     setAddressListColors(colorMap);
   };
 
+  // Refine coordinates with rooftop geocoding (uses edge function, rate-limited)
+  useEffect(() => {
+    let cancelled = false;
+    const run = async () => {
+      if (addresses.length === 0) return;
+      try {
+        const results = await geocodeAddressesBatch(addresses.map(a => ({
+          street: a.street,
+          houseNumber: a.houseNumber,
+          postalCode: a.postalCode,
+          city: a.city,
+          coordinates: a.coordinates,
+        })));
+        if (cancelled) return;
+        const map = new Map<number, [number, number]>();
+        addresses.forEach((a, i) => {
+          const r = results[i];
+          if (r) map.set(a.id, [r.lng, r.lat]);
+        });
+        setRefinedCoords(map);
+      } catch (e) {
+        console.error('Failed to refine coordinates:', e);
+      }
+    };
+    run();
+    return () => { cancelled = true; };
+  }, [addresses]);
+
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current) return;
 
@@ -326,7 +356,8 @@ export default function Karte() {
       const currentZoom = map.getZoom();
       const customIcon = createMarkerIcon(address, currentZoom);
 
-      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
+      const chosen = refinedCoords.get(address.id) || address.coordinates;
+      const marker = L.marker([chosen[1], chosen[0]], { 
         icon: customIcon 
       }).addTo(map);
       
@@ -348,7 +379,7 @@ export default function Karte() {
         </div>
       `);
 
-      bounds.extend([address.coordinates[1], address.coordinates[0]]);
+      bounds.extend([chosen[1], chosen[0]]);
     });
 
     markersRef.current = markers;
@@ -494,7 +525,7 @@ export default function Karte() {
     });
     
     markersRef.current = markers;
-  }, [filterMode, assignedAddressIds, addressListColors, addresses]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, refinedCoords]);
 
   // Helper function to check if a point is inside a polygon
   const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {

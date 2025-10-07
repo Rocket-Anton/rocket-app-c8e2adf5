@@ -14,6 +14,42 @@ interface GeocodeRequest {
   city: string;
 }
 
+function centroidOfPolygon(coords: number[][]): { lat: number; lng: number } {
+  // coords: [ [lon, lat], ... ]
+  let area = 0;
+  let cx = 0;
+  let cy = 0;
+  for (let i = 0, j = coords.length - 1; i < coords.length; j = i++) {
+    const [x1, y1] = coords[j];
+    const [x2, y2] = coords[i];
+    const f = x1 * y2 - x2 * y1;
+    area += f;
+    cx += (x1 + x2) * f;
+    cy += (y1 + y2) * f;
+  }
+  area *= 0.5;
+  if (area === 0) return { lat: coords[0][1], lng: coords[0][0] };
+  return { lng: cx / (6 * area), lat: cy / (6 * area) };
+}
+
+function centroidOfGeoJSON(geojson: any): { lat: number; lng: number } | null {
+  try {
+    if (!geojson) return null;
+    if (geojson.type === 'Polygon') {
+      const ring = geojson.coordinates[0];
+      return centroidOfPolygon(ring);
+    }
+    if (geojson.type === 'MultiPolygon') {
+      // Take first polygon for simplicity
+      const ring = geojson.coordinates[0][0];
+      return centroidOfPolygon(ring);
+    }
+    return null;
+  } catch (_) {
+    return null;
+  }
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -34,8 +70,8 @@ serve(async (req) => {
 
     // Use Nominatim API with building-specific parameters
     // addressdetails=1 for more detailed response
-    // layer=address forces address-level results (buildings, not streets)
-    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1&layer=address`;
+    // polygon_geojson=1 to get building geometry when available for rooftop precision
+    const nominatimUrl = `https://nominatim.openstreetmap.org/search?q=${encodedQuery}&format=json&limit=1&addressdetails=1&polygon_geojson=1`;
 
     console.log('Calling Nominatim API:', nominatimUrl);
 
@@ -68,10 +104,17 @@ serve(async (req) => {
     }
 
     const result = data[0];
-    const coordinates = {
+    // Prefer polygon centroid when available for rooftop precision
+    let coordinates = {
       lat: parseFloat(result.lat),
       lng: parseFloat(result.lon)
     };
+    if (result.geojson) {
+      const centroid = centroidOfGeoJSON(result.geojson);
+      if (centroid) {
+        coordinates = centroid;
+      }
+    }
 
     console.log('Geocoded coordinates:', coordinates);
 
