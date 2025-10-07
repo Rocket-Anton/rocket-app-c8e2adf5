@@ -1,11 +1,12 @@
 import { useState, useEffect, useRef } from "react";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { supabase } from "@/integrations/supabase/client";
-import { Bot, Loader2, X, Mic, Square, ChevronUp } from "lucide-react";
+import { Bot, Loader2, X, Mic, Square, ChevronUp, Send } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import rokkiAvatar from "@/assets/rokki-avatar.png";
 import { VoiceMessagePlayer } from "./VoiceMessagePlayer";
+import confetti from "canvas-confetti";
 
 interface Message {
   role: "user" | "assistant";
@@ -34,6 +35,8 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   const [userFirstName, setUserFirstName] = useState<string>("");
   const [greeting, setGreeting] = useState<string>("Wie kann ich dir heute helfen?");
   const [audioLevel, setAudioLevel] = useState(0);
+  const [textInput, setTextInput] = useState("");
+  const [showCelebration, setShowCelebration] = useState(false);
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
   const audioChunksRef = useRef<Blob[]>([]);
   const scrollRef = useRef<HTMLDivElement>(null);
@@ -194,6 +197,110 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
       setIsRecording(false);
       setIsLocked(false);
       setSlideOffset(0);
+    }
+  };
+
+  const sendTextMessage = async (text: string) => {
+    if (!text.trim()) return;
+
+    try {
+      console.log("Sending text message...");
+      
+      // Add user message
+      setMessages(prev => [...prev, { 
+        role: "user", 
+        content: text 
+      }]);
+
+      // Add loading message
+      setMessages(prev => [...prev, { 
+        role: "assistant", 
+        content: "Einen Moment... 🤔" 
+      }]);
+
+      setIsLoading(true);
+      setTextInput("");
+      
+      const { data, error } = await supabase.functions.invoke('ai-address-assistant-v2', {
+        body: { 
+          text: text
+        }
+      });
+
+      if (error) {
+        console.error("Supabase function error:", error);
+        throw error;
+      }
+
+      console.log("Received response:", data);
+
+      // Remove loading message
+      setMessages(prev => prev.slice(0, -1));
+
+      if (data.type === 'action') {
+        const { action, parameters, message } = data;
+        
+        // Add assistant message with confirmation
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: message 
+        }]);
+        
+        // Execute action
+        setTimeout(() => {
+          switch (action) {
+            case 'set_filter':
+              if (onSetFilter) onSetFilter(parameters);
+              break;
+            case 'clear_filters':
+              if (onClearFilters) onClearFilters();
+              break;
+            case 'toggle_polygon_draw':
+              if (onTogglePolygon) onTogglePolygon(parameters.enabled);
+              break;
+            case 'navigate_to':
+              if (onNavigate) onNavigate(parameters.page);
+              break;
+            case 'close_chat':
+              onClose();
+              return;
+            case 'goal_set':
+              // Goal is already set in edge function
+              break;
+          }
+          
+          // Follow-up
+          setTimeout(() => {
+            setMessages(prev => [...prev, { role: "assistant", content: "Kann ich noch etwas für dich tun? 😊" }]);
+          }, 800);
+        }, 300);
+      } else {
+        // Add assistant text response
+        setMessages(prev => [...prev, { 
+          role: "assistant", 
+          content: data.message 
+        }]);
+        
+        // Follow-up
+        setTimeout(() => {
+          setMessages(prev => [...prev, { role: "assistant", content: "Brauchst du noch was? 😊" }]);
+        }, 800);
+      }
+
+      setIsLoading(false);
+    } catch (error) {
+      console.error("Error sending text message:", error);
+      setIsLoading(false);
+      
+      setMessages(prev => [
+        ...prev.slice(0, -1),
+        { 
+          role: "assistant", 
+          content: "Entschuldigung, ich hatte ein Problem beim Verarbeiten deiner Nachricht. Versuche es bitte nochmal." 
+        }
+      ]);
+      
+      toast.error("Nachricht konnte nicht verarbeitet werden");
     }
   };
 
@@ -516,11 +623,38 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
             )}
           </ScrollArea>
 
-          {/* Voice Input - WhatsApp Style */}
+          {/* Input Area - Text + Voice */}
           <div className="p-3 border-t bg-background rounded-b-2xl">
-            <div className="relative flex items-center justify-center">
-              
-              <div className="relative">
+            <div className="flex items-center gap-2">
+              {/* Text Input */}
+              <div className="flex-1 relative">
+                <input
+                  type="text"
+                  value={textInput}
+                  onChange={(e) => setTextInput(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' && !e.shiftKey && !isLoading) {
+                      e.preventDefault();
+                      sendTextMessage(textInput);
+                    }
+                  }}
+                  placeholder="Nachricht eingeben..."
+                  disabled={isLoading || isRecording}
+                  className="w-full h-11 px-4 pr-10 rounded-xl border border-input bg-background text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all disabled:opacity-50"
+                />
+                {textInput.trim() && !isRecording && (
+                  <button
+                    onClick={() => sendTextMessage(textInput)}
+                    disabled={isLoading}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 p-1.5 rounded-lg bg-blue-500 hover:bg-blue-600 text-white transition-all disabled:opacity-50"
+                  >
+                    <Send className="w-4 h-4" />
+                  </button>
+                )}
+              </div>
+
+              {/* Voice Input Button */}
+              <div className="relative flex-shrink-0">
                 {!isLocked && isRecording && slideOffset > 0 && (
                   <div className="absolute bottom-full mb-2 left-1/2 -translate-x-1/2 flex flex-col items-center gap-1">
                     <ChevronUp className={cn(

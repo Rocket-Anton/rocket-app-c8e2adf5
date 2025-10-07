@@ -1,1 +1,7 @@
 project_id = "tpoxhrbweavvjszlqryp"
+
+[functions.ai-address-assistant]
+verify_jwt = true
+
+[functions.ai-address-assistant-v2]
+verify_jwt = true

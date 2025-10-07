@@ -50,6 +50,33 @@ export type Database = {
         }
         Relationships: []
       }
+      daily_goals: {
+        Row: {
+          created_at: string
+          goal_date: string
+          id: string
+          planned_hours: number | null
+          target_orders: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          goal_date?: string
+          id?: string
+          planned_hours?: number | null
+          target_orders?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          goal_date?: string
+          id?: string
+          planned_hours?: number | null
+          target_orders?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lauflisten: {
         Row: {
           address_count: number | null
@@ -158,12 +185,52 @@ export type Database = {
         }
         Relationships: []
       }
+      user_activities: {
+        Row: {
+          activity_type: string
+          created_at: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      get_today_stats: {
+        Args: { p_user_id: string }
+        Returns: {
+          goal_hours: number
+          goal_orders: number
+          orders_today: number
+          status_changes_today: number
+        }[]
+      }
+      get_user_conversion_rate: {
+        Args: { p_user_id: string }
+        Returns: {
+          conversion_rate: number
+          total_orders: number
+          total_status_changes: number
+        }[]
+      }
     }
     Enums: {
       [_ in never]: never
