@@ -15,8 +15,15 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import { Input } from "@/components/ui/input";
 import { supabase } from "@/integrations/supabase/client";
-import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash } from "lucide-react";
+import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUpDown } from "lucide-react";
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
@@ -60,6 +67,8 @@ const statusColors: Record<string, string> = {
   "gewerbe": "#f97316"
 };
 
+type SortOption = 'newest' | 'oldest' | 'size-asc' | 'size-desc';
+
 export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const [lists, setLists] = useState<Laufliste[]>([]);
   const [loading, setLoading] = useState(true);
@@ -70,6 +79,8 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
   const [showMergeConfirm, setShowMergeConfirm] = useState(false);
   const [showBulkDeleteConfirm, setShowBulkDeleteConfirm] = useState(false);
   const [statusCounts, setStatusCounts] = useState<ListStatusCounts>({});
+  const [searchQuery, setSearchQuery] = useState("");
+  const [sortBy, setSortBy] = useState<SortOption>('newest');
 
   useEffect(() => {
     if (open) {
@@ -279,6 +290,47 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
     }
   };
 
+  const getFilteredAndSortedLists = () => {
+    let filtered = lists;
+
+    // Filter by search query
+    if (searchQuery.trim()) {
+      const query = searchQuery.toLowerCase();
+      filtered = filtered.filter(list => 
+        list.name.toLowerCase().includes(query) ||
+        list.profiles?.name.toLowerCase().includes(query)
+      );
+    }
+
+    // Sort
+    const sorted = [...filtered];
+    switch (sortBy) {
+      case 'newest':
+        sorted.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+        break;
+      case 'oldest':
+        sorted.sort((a, b) => new Date(a.created_at).getTime() - new Date(b.created_at).getTime());
+        break;
+      case 'size-asc':
+        sorted.sort((a, b) => a.address_count - b.address_count);
+        break;
+      case 'size-desc':
+        sorted.sort((a, b) => b.address_count - a.address_count);
+        break;
+    }
+
+    return sorted;
+  };
+
+  const getSortLabel = () => {
+    switch (sortBy) {
+      case 'newest': return 'Neueste';
+      case 'oldest': return 'Älteste';
+      case 'size-asc': return 'Größe ↑';
+      case 'size-desc': return 'Größe ↓';
+    }
+  };
+
   return (
     <>
       <Sheet open={open} onOpenChange={onClose}>
@@ -311,9 +363,44 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                 </Button>
               </div>
             </div>
+
+            {/* Search and Sort */}
+            <div className="flex items-center gap-2 mt-4">
+              <div className="relative flex-1">
+                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                <Input
+                  placeholder="Listen durchsuchen..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-9"
+                />
+              </div>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="sm" className="gap-2 shrink-0">
+                    <ArrowUpDown className="h-4 w-4" />
+                    {getSortLabel()}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-[180px]">
+                  <DropdownMenuItem onClick={() => setSortBy('newest')}>
+                    Neueste zuerst
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('oldest')}>
+                    Älteste zuerst
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('size-asc')}>
+                    Kleinste zuerst
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setSortBy('size-desc')}>
+                    Größte zuerst
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </SheetHeader>
 
-          <ScrollArea className="h-[calc(100vh-80px)] mt-6">
+          <ScrollArea className="h-[calc(100vh-160px)] mt-6">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-muted-foreground">Lädt...</div>
@@ -326,9 +413,17 @@ export function ListsSidebar({ open, onClose }: ListsSidebarProps) {
                 Zeichnen Sie ein Polygon auf der Karte, um eine Liste zu erstellen
               </p>
             </div>
+          ) : getFilteredAndSortedLists().length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <Search className="h-12 w-12 text-muted-foreground mb-4" />
+              <p className="text-muted-foreground">Keine Listen gefunden</p>
+              <p className="text-sm text-muted-foreground mt-2">
+                Versuchen Sie eine andere Suche
+              </p>
+            </div>
           ) : (
             <div className="space-y-3">
-              {lists.map((list) => (
+              {getFilteredAndSortedLists().map((list) => (
                 <Collapsible
                   key={list.id}
                   open={expandedLists.has(list.id)}
