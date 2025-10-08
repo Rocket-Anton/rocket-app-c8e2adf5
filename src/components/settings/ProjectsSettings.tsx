@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -323,21 +323,21 @@ export const ProjectsSettings = () => {
                 const isProviderExpanded = expandedProviders.has(providerId);
                 
                 return (
-                  <>
+                  <React.Fragment key={providerId}>
                     {/* Provider Row */}
                     <TableRow 
-                      key={`provider-${providerId}`}
-                      className="cursor-pointer hover:bg-muted/30 h-10 font-semibold bg-blue-50 dark:bg-blue-950/20"
+                      className="cursor-pointer hover:bg-muted/30 h-10 font-semibold"
                       onClick={() => toggleProvider(providerId)}
                     >
-                      <TableCell className="py-2 border-l-4 border-l-blue-500" colSpan={27}>
-                        <div className="flex items-center gap-2 pl-1">
+                      <TableCell className="py-2 relative" colSpan={27}>
+                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 ${isProviderExpanded ? 'w-1 h-full' : 'w-0.5 h-4 rounded-full'} bg-blue-500`} />
+                        <div className={`flex items-center gap-2 ${isProviderExpanded ? 'pl-4' : 'pl-3'}`}>
                           {isProviderExpanded ? (
-                            <ChevronDown className="w-4 h-4 text-blue-600" />
+                            <ChevronDown className="w-4 h-4 text-muted-foreground" />
                           ) : (
-                            <ChevronRight className="w-4 h-4 text-blue-600" />
+                            <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           )}
-                          <span className="text-sm text-blue-600 font-semibold">{providerData.name}</span>
+                          <span className="text-sm font-semibold text-foreground">{providerData.name}</span>
                           <Badge variant="secondary" className="text-xs h-5 px-2 bg-blue-500 text-white">
                             {totalProjects}
                           </Badge>
@@ -351,28 +351,28 @@ export const ProjectsSettings = () => {
                       const isStatusExpanded = expandedStatus.has(statusKey);
                       
                       return (
-                          <>
-                            <TableRow 
-                              key={`status-${statusKey}`}
-                              className={`cursor-pointer hover:bg-muted/20 h-9 bg-muted/10 border-l-4 ${getStatusBorderColor(status)}`}
-                              onClick={() => toggleStatus(statusKey)}
-                            >
-                              <TableCell className="py-2 pl-2" colSpan={27}>
-                                <div className="flex items-center gap-2">
-                                  {isStatusExpanded ? (
-                                    <ChevronDown className="w-3 h-3" />
-                                  ) : (
-                                    <ChevronRight className="w-3 h-3" />
-                                  )}
-                                  <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
-                                    {status}
-                                  </Badge>
-                                  <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
-                                    {statusProjects.length}
-                                  </Badge>
-                                </div>
-                              </TableCell>
-                            </TableRow>
+                        <React.Fragment key={statusKey}>
+                          <TableRow 
+                            className={`cursor-pointer hover:bg-muted/20 h-9 bg-muted/10 relative`}
+                            onClick={() => toggleStatus(statusKey)}
+                          >
+                            <TableCell className="py-2 pl-8" colSpan={27}>
+                              <div className={`absolute left-0 top-1/2 -translate-y-1/2 ${isStatusExpanded ? 'w-1 h-full' : 'w-0.5 h-4 rounded-full'} ${getStatusBorderColor(status).replace('border-l-', 'bg-')}`} />
+                              <div className="flex items-center gap-2">
+                                {isStatusExpanded ? (
+                                  <ChevronDown className="w-4 h-4 text-muted-foreground" />
+                                ) : (
+                                  <ChevronRight className="w-4 h-4 text-muted-foreground" />
+                                )}
+                                <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
+                                  {status}
+                                </Badge>
+                                <span className={`text-xs font-medium ${getStatusTextColor(status)}`}>
+                                  {statusProjects.length}
+                                </span>
+                              </div>
+                            </TableCell>
+                          </TableRow>
                           
                           {/* Project Rows (only if status is expanded) */}
                           {isStatusExpanded && statusProjects.map((project) => (
@@ -381,7 +381,7 @@ export const ProjectsSettings = () => {
                               className="cursor-pointer hover:bg-muted/50 h-9"
                               onClick={() => navigate(`/settings/projects/${project.id}`)}
                             >
-                              <TableCell className="py-2 pl-3 text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
+                              <TableCell className="py-2 text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
                                 {project.name}
                               </TableCell>
                               <TableCell className="py-2 text-xs">
@@ -420,10 +420,10 @@ export const ProjectsSettings = () => {
                               <TableCell className="py-2 text-xs text-right">-</TableCell>
                             </TableRow>
                           ))}
-                        </>
+                        </React.Fragment>
                       );
                     })}
-                  </>
+                  </React.Fragment>
                 );
               })
             )}
