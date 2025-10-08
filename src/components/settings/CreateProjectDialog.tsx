@@ -202,6 +202,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         const { data, error } = await supabase.functions.invoke('city-lookup', { body: { city } });
         if (!error && data?.matches?.length) {
           const match = data.matches[0];
+          
+          // Update city name with correctly capitalized version from API
+          if (match?.city && match.city !== city) {
+            setCity(match.city);
+          }
+          
           if (match?.state) setFederalState((prev) => prev || match.state);
           if (Array.isArray(match?.postalCodes)) {
             setPostalCodeSuggestions(match.postalCodes);
