@@ -269,18 +269,18 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
   return (
     <div className="flex flex-col h-full max-h-[80vh]">
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-2">
-        <div className="space-y-6">
+      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-2 pointer-events-auto">
+        <div className="space-y-6 pointer-events-auto">
           {/* Provider */}
-          <div className="space-y-2">
+          <div className="space-y-2 pointer-events-auto">
             <Label className="text-sm font-medium">
               Provider<span className="text-red-500 ml-1">*</span>
             </Label>
             <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-              <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
                 <SelectValue placeholder="Provider auswählen" />
               </SelectTrigger>
-              <SelectContent className="bg-background z-50">
+              <SelectContent className="bg-background z-[100] pointer-events-auto">
                 {activeProviders.map((provider) => (
                   <SelectItem key={provider.id} value={provider.id}>
                     {provider.name}
@@ -299,7 +299,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={areaName}
           onChange={(e) => setAreaName(e.target.value)}
           placeholder="z.B. Lurup 1"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
         {projectName && (
           <p className="text-xs text-muted-foreground mt-1.5 ml-1">
@@ -309,15 +309,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Bundesland */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Bundesland<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={federalState} onValueChange={setFederalState}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Bundesland auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {FEDERAL_STATES.map((state) => (
               <SelectItem key={state} value={state}>
                 {state}
@@ -328,15 +328,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Status */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Status<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Status auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {STATUS_OPTIONS.map((option) => (
               <SelectItem key={option} value={option}>
                 {option}
@@ -355,7 +355,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Ort eingeben"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
@@ -366,20 +366,20 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           placeholder="PLZ eingeben"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Vermarktungsart */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Vermarktungsart<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={marketingType} onValueChange={setMarketingType}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Vermarktungsart auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {MARKETING_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.value}
@@ -390,13 +390,13 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Ansprechpartner Provider */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">Ansprechpartner Provider</Label>
         <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
             <SelectValue placeholder="Ansprechpartner auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {providerContacts.length === 0 ? (
               <SelectItem value="none">Keine Ansprechpartner vorhanden</SelectItem>
             ) : (
@@ -420,7 +420,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={rocketCount}
           onChange={(e) => setRocketCount(e.target.value)}
           placeholder="0"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
@@ -433,7 +433,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
-              className="w-full justify-start text-left font-normal bg-background border-input hover:border-primary/50 transition-colors h-11"
+              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
             >
               <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
@@ -441,7 +441,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+          <PopoverContent className="w-auto p-0 bg-background z-[100] pointer-events-auto" align="start">
             <Calendar
               mode="single"
               selected={startDate}
@@ -462,7 +462,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
-              className="w-full justify-start text-left font-normal bg-background border-input hover:border-primary/50 transition-colors h-11"
+              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
             >
               <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
               <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
@@ -470,7 +470,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+          <PopoverContent className="w-auto p-0 bg-background z-[100] pointer-events-auto" align="start">
             <Calendar
               mode="single"
               selected={endDate}
@@ -492,7 +492,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={unitCount}
           onChange={(e) => setUnitCount(e.target.value)}
           placeholder="0"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
@@ -504,7 +504,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={existingCustomerCount}
           onChange={(e) => setExistingCustomerCount(e.target.value)}
           placeholder="0"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
@@ -516,20 +516,20 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={saleableUnits}
           onChange={(e) => setSaleableUnits(e.target.value)}
           placeholder="0"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Art Quote */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Art Quote<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={quotaType} onValueChange={setQuotaType}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Art Quote auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {QUOTA_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.value}
@@ -550,7 +550,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           value={targetQuota}
           onChange={(e) => setTargetQuota(e.target.value)}
           placeholder="0.00"
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
@@ -562,18 +562,18 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           onChange={(e) => setImportantInfo(e.target.value)}
           placeholder="Wichtige Informationen eingeben..."
           rows={4}
-          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
         />
       </div>
 
       {/* Projektleiter Neu */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">Projektleiter</Label>
         <Select value={projectManager} onValueChange={setProjectManager}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Projektleiter auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {projectManagers.length === 0 ? (
               <SelectItem value="none">Keine Projektleiter verfügbar</SelectItem>
             ) : (
@@ -588,15 +588,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Telegram Gruppe erstellen */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Telegram Gruppe erstellen<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={telegramGroupCreate} onValueChange={setTelegramGroupCreate}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {TG_GROUP_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.value}
@@ -607,15 +607,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Jobbooster posten */}
-      <div className="space-y-2">
+      <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
           Jobbooster posten<span className="text-red-500 ml-1">*</span>
         </Label>
         <Select value={postJobBooster} onValueChange={setPostJobBooster}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-50">
+          <SelectContent className="bg-background z-[100] pointer-events-auto">
             {YES_NO_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.value}
@@ -630,7 +630,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <h3 className="text-base font-semibold">Provisionen</h3>
         
         {/* Projekt mit Bonus */}
-        <div className="space-y-2">
+        <div className="space-y-2 pointer-events-auto">
           <Label className="text-sm font-medium">
             Projekt mit Bonus<span className="text-red-500 ml-1">*</span>
           </Label>
@@ -638,10 +638,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             value={projectWithBonus ? "Ja" : "Nein"} 
             onValueChange={(val) => setProjectWithBonus(val === "Ja")}
           >
-            <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
               <SelectValue placeholder="Option auswählen" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[100] pointer-events-auto">
               {YES_NO_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
                   {option.value}
@@ -652,17 +652,17 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </div>
 
         {/* Provisionen (Tarife dropdown) */}
-        <div className="space-y-2">
+        <div className="space-y-2 pointer-events-auto">
           <Label className="text-sm font-medium">Provisionen</Label>
           <Select 
             value={selectedTariffs[0] || ""} 
             onValueChange={(val) => setSelectedTariffs([val])}
             disabled={!selectedProvider}
           >
-            <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50">
+            <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
               <SelectValue placeholder="Provisionen auswählen" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-50">
+            <SelectContent className="bg-background z-[100] pointer-events-auto">
               {tariffs.length === 0 ? (
                 <SelectItem value="none">Keine Tarife verfügbar</SelectItem>
               ) : (
@@ -690,7 +690,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             onChange={(e) => setTenderInfo(e.target.value)}
             placeholder="Informationen für die Ausschreibung eingeben..."
             rows={6}
-            className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
+            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
           />
         </div>
       </div>
