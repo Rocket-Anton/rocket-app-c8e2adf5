@@ -12,6 +12,8 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectAddListDialog } from "@/components/settings/ProjectAddListDialog";
 import { toast } from "sonner";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Progress } from "@/components/ui/progress";
 
 interface Project {
   id: string;
@@ -51,6 +53,8 @@ const ProjectDetail = () => {
   const [addListDialogOpen, setAddListDialogOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
   const [currentTab, setCurrentTab] = useState("details");
+  const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
+  const [listToDelete, setListToDelete] = useState<string | null>(null);
 
   const calculateDaysRemaining = () => {
     if (!project?.end_date) return null;
@@ -125,25 +129,51 @@ const ProjectDetail = () => {
     }
   };
 
-  const handleDeleteList = async (listId: string) => {
-    if (!confirm('Möchten Sie diese Adressliste wirklich löschen?')) {
-      return;
-    }
+  const handleDeleteList = async () => {
+    if (!listToDelete) return;
 
     try {
-      const { error } = await supabase
+      // First, get all addresses from this list
+      const { data: listAddresses, error: fetchError } = await supabase
+        .from("addresses")
+        .select("id")
+        .eq("list_id", listToDelete);
+
+      if (fetchError) throw fetchError;
+
+      // Delete all addresses associated with this list
+      if (listAddresses && listAddresses.length > 0) {
+        const addressIds = listAddresses.map(addr => addr.id);
+        const { error: deleteAddressesError } = await supabase
+          .from("addresses")
+          .delete()
+          .in("id", addressIds);
+
+        if (deleteAddressesError) throw deleteAddressesError;
+      }
+
+      // Then delete the list itself
+      const { error: deleteListError } = await supabase
         .from("project_address_lists")
         .delete()
-        .eq("id", listId);
+        .eq("id", listToDelete);
 
-      if (error) throw error;
+      if (deleteListError) throw deleteListError;
 
-      toast.success('Adressliste erfolgreich gelöscht');
+      toast.success('Adressliste und alle zugehörigen Adressen erfolgreich gelöscht');
       loadLists();
     } catch (error: any) {
       console.error('Delete error:', error);
       toast.error(`Löschen fehlgeschlagen: ${error.message}`);
+    } finally {
+      setDeleteDialogOpen(false);
+      setListToDelete(null);
     }
+  };
+
+  const openDeleteDialog = (listId: string) => {
+    setListToDelete(listId);
+    setDeleteDialogOpen(true);
   };
 
   const handleExport = async () => {
@@ -469,15 +499,33 @@ const ProjectDetail = () => {
                                           )}
                                         </div>
                                       )}
-                                      <p className="text-xs text-muted-foreground mt-2">
-                                        Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
-                                          day: '2-digit', 
-                                          month: '2-digit', 
-                                          year: 'numeric',
-                                          hour: '2-digit',
-                                          minute: '2-digit'
-                                        })}
-                                      </p>
+                                       <p className="text-xs text-muted-foreground mt-2">
+                                         Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
+                                           day: '2-digit', 
+                                           month: '2-digit', 
+                                           year: 'numeric',
+                                           hour: '2-digit',
+                                           minute: '2-digit'
+                                         })}
+                                       </p>
+                                       {(list.status === 'analyzing' || list.status === 'importing') && (
+                                         <div className="mt-3">
+                                           <div className="flex items-center justify-between text-xs mb-1">
+                                             <span className="text-muted-foreground">
+                                               {list.status === 'analyzing' ? 'Analysiere...' : 'Importiere...'}
+                                             </span>
+                                             {list.upload_stats?.total && (
+                                               <span className="text-muted-foreground">
+                                                 {list.upload_stats.successful || 0} / {list.upload_stats.total}
+                                               </span>
+                                             )}
+                                           </div>
+                                           <Progress 
+                                             value={list.upload_stats?.total ? ((list.upload_stats.successful || 0) / list.upload_stats.total) * 100 : 0} 
+                                             className="h-2"
+                                           />
+                                         </div>
+                                       )}
                                     </div>
                                     <div className="flex gap-2 ml-4">
                                       <Button variant="outline" size="sm">
@@ -491,7 +539,7 @@ const ProjectDetail = () => {
                                       <Button 
                                         variant="outline" 
                                         size="sm"
-                                        onClick={() => handleDeleteList(list.id)}
+                                        onClick={() => openDeleteDialog(list.id)}
                                       >
                                         <Trash2 className="w-4 h-4" />
                                       </Button>
@@ -518,6 +566,23 @@ const ProjectDetail = () => {
             onOpenChange={setAddListDialogOpen}
             onSuccess={loadLists}
           />
+
+          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Adressliste löschen?</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Wirklich alle Adressen dieser Liste löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction onClick={handleDeleteList} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Löschen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
         </SidebarInset>
       </div>
     </SidebarProvider>
