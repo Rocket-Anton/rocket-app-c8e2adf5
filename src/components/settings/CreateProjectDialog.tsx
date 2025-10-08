@@ -1537,7 +1537,14 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         onClick={handleSubmit}
         className="h-11 px-6 bg-primary hover:bg-primary/90 transition-colors"
       >
-        {loading ? "Erstelle..." : "Projekt erstellen"}
+        {loading ? (
+          <div className="flex items-center gap-2">
+            <Loader2 className="w-4 h-4 animate-spin" />
+            <span>Erstelle...</span>
+          </div>
+        ) : (
+          "Projekt erstellen"
+        )}
       </Button>
     </div>
   </div>

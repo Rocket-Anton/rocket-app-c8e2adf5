@@ -129,6 +129,8 @@ export const TenderInfoGenerator = ({
 
   const handleStopAndGenerate = async () => {
     setIsProcessing(true);
+    toast.info("Deine Sprachmemo wird ausgewertet. Einen Moment bitte...");
+    
     try {
       const audioBlob = await stopRecording();
       
@@ -141,6 +143,7 @@ export const TenderInfoGenerator = ({
         
         if (!base64Audio) {
           toast.error("Fehler beim Verarbeiten der Aufnahme");
+          setIsProcessing(false);
           return;
         }
 
@@ -163,6 +166,7 @@ export const TenderInfoGenerator = ({
         if (error) {
           console.error("Fehler:", error);
           toast.error("Fehler bei der Textgenerierung");
+          setIsProcessing(false);
           return;
         }
 
@@ -171,11 +175,11 @@ export const TenderInfoGenerator = ({
           toast.success("Text erfolgreich generiert");
           setImprovementInstruction("");
         }
+        setIsProcessing(false);
       };
     } catch (error) {
       console.error("Fehler:", error);
       toast.error("Fehler bei der Verarbeitung");
-    } finally {
       setIsProcessing(false);
     }
   };
@@ -375,11 +379,11 @@ export const TenderInfoGenerator = ({
         )}
         
         {/* Processing indicator */}
-        {isProcessing && !value && (
-          <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-border bg-background/95 backdrop-blur-sm rounded-b-md flex items-center justify-center px-3">
+        {isProcessing && (
+          <div className="absolute bottom-0 left-0 right-0 h-14 border-t border-border bg-background/95 backdrop-blur-sm rounded-b-md flex items-center justify-center px-3">
             <div className="flex items-center gap-2 text-primary">
               <Loader2 className="w-4 h-4 animate-spin" />
-              <span className="text-sm font-medium">Sprachnachricht wird ausgewertet...</span>
+              <span className="text-sm font-medium">Deine Sprachmemo wird ausgewertet. Einen Moment bitte...</span>
             </div>
           </div>
         )}
