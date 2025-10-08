@@ -122,9 +122,9 @@ export function calculateWorkingDays(
   totalDays: number;
   weekdays: number;
   saturdays: number;
-  sundays: number;
   holidays: Holiday[];
   workingDays: number;
+  effectiveDays: number;
 } {
   const start = new Date(startDate);
   start.setHours(0, 0, 0, 0);
@@ -132,7 +132,7 @@ export function calculateWorkingDays(
   end.setHours(0, 0, 0, 0);
   
   if (start > end) {
-    return { totalDays: 0, weekdays: 0, saturdays: 0, sundays: 0, holidays: [], workingDays: 0 };
+    return { totalDays: 0, weekdays: 0, saturdays: 0, holidays: [], workingDays: 0, effectiveDays: 0 };
   }
   
   const totalDays = Math.ceil((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)) + 1;
@@ -167,29 +167,27 @@ export function calculateWorkingDays(
   // Zähle Tage
   let weekdays = 0;
   let saturdays = 0;
-  let sundays = 0;
   
   const day = new Date(start);
   while (day <= end) {
     const dayOfWeek = day.getDay();
-    if (dayOfWeek === 0) {
-      sundays++;
-    } else if (dayOfWeek === 6) {
+    if (dayOfWeek === 6) {
       saturdays++;
-    } else {
+    } else if (dayOfWeek !== 0) {
       weekdays++;
     }
     day.setDate(day.getDate() + 1);
   }
   
   const workingDays = weekdays - holidaysInRange.length;
+  const effectiveDays = workingDays + (saturdays * 0.5);
   
   return {
     totalDays,
     weekdays,
     saturdays,
-    sundays,
     holidays: holidaysInRange,
     workingDays,
+    effectiveDays,
   };
 }

@@ -195,6 +195,13 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     };
   }, [city]);
 
+  // Auto-Befüllung: Gebiet Name = Ort (kann überschrieben werden)
+  useEffect(() => {
+    if (city && !areaName) {
+      setAreaName(city);
+    }
+  }, [city, areaName]);
+
   // Berechne Werktage, Samstage und Feiertage
   const workingDaysInfo = useMemo(() => {
     if (!dateRange?.from || !dateRange?.to || !federalState) {
@@ -582,10 +589,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               <span className="text-muted-foreground">Samstage:</span>
               <span className="font-medium">{workingDaysInfo.saturdays}</span>
             </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Sonntage:</span>
-              <span className="font-medium">{workingDaysInfo.sundays}</span>
-            </div>
             {workingDaysInfo.holidays.length > 0 && (
               <>
                 <div className="flex justify-between text-orange-600 dark:text-orange-400">
@@ -601,7 +604,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             )}
             <div className="flex justify-between pt-2 border-t font-semibold text-primary">
               <span>Effektive Arbeitstage:</span>
-              <span>{workingDaysInfo.workingDays}</span>
+              <span>{workingDaysInfo.effectiveDays.toFixed(1)}</span>
             </div>
           </div>
         )}
