@@ -163,93 +163,103 @@ export const TenderInfoGenerator = ({
 
   return (
     <div className="space-y-3">
-      <div className="flex gap-2">
-        {!isRecording ? (
-          <Button
-            type="button"
-            variant="outline"
-            onClick={startRecording}
-            disabled={isProcessing || isConfirmed}
-            className="flex items-center gap-2"
-          >
-            <Mic className="w-4 h-4" />
-            Diktieren
-          </Button>
-        ) : (
-          <Button
-            type="button"
-            variant="destructive"
-            onClick={handleStopAndGenerate}
-            disabled={isProcessing}
-            className="flex items-center gap-2"
-          >
-            {isProcessing ? (
-              <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Verarbeite...
-              </>
-            ) : (
-              <>
-                <StopCircle className="w-4 h-4" />
-                Stoppen & Generieren
-              </>
-            )}
-          </Button>
-        )}
+      {/* Textarea with dictation button inside */}
+      <div className="relative">
+        <Textarea
+          value={value}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="Informationen für die Ausschreibung eingeben oder diktieren..."
+          rows={6}
+          disabled={isConfirmed || isProcessing}
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none pr-28 pb-12"
+        />
         
-        {value && !isConfirmed && (
-          <Button
-            type="button"
-            variant="default"
-            onClick={handleConfirm}
-            disabled={isProcessing}
-            className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
-          >
-            <Check className="w-4 h-4" />
-            Text bestätigen
-          </Button>
-        )}
+        {/* Bottom bar with dictation button */}
+        <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-border bg-muted/30 rounded-b-md flex items-center justify-end px-3 gap-2">
+          {!isRecording ? (
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              onClick={startRecording}
+              disabled={isProcessing || isConfirmed}
+              className="flex items-center gap-1.5 h-7"
+            >
+              <Mic className="w-3.5 h-3.5" />
+              <span className="text-xs">Diktieren</span>
+            </Button>
+          ) : (
+            <Button
+              type="button"
+              variant="destructive"
+              size="sm"
+              onClick={handleStopAndGenerate}
+              disabled={isProcessing}
+              className="flex items-center gap-1.5 h-7 animate-pulse"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span className="text-xs">Verarbeite...</span>
+                </>
+              ) : (
+                <>
+                  <StopCircle className="w-3.5 h-3.5" />
+                  <span className="text-xs">Stoppen & Generieren</span>
+                </>
+              )}
+            </Button>
+          )}
+        </div>
       </div>
 
-      <Textarea
-        value={value}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="Informationen für die Ausschreibung eingeben oder diktieren..."
-        rows={6}
-        disabled={isConfirmed}
-        className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
-      />
-
+      {/* Improvement section - shown after text is generated */}
       {value && !isConfirmed && (
         <div className="space-y-2 p-3 bg-muted/30 rounded-lg border">
-          <label className="text-sm font-medium">Text verbessern</label>
-          <div className="flex gap-2">
-            <Textarea
-              value={improvementInstruction}
-              onChange={(e) => setImprovementInstruction(e.target.value)}
-              placeholder="z.B. 'Mache es kürzer' oder 'Betone mehr die Vorteile'"
-              rows={2}
-              disabled={isProcessing}
-              className="flex-1 bg-background"
-            />
+          <label className="text-sm font-medium">Anweisungen zur Anpassung</label>
+          <Textarea
+            value={improvementInstruction}
+            onChange={(e) => setImprovementInstruction(e.target.value)}
+            placeholder="z.B. 'Mache es kürzer' oder 'Betone mehr die Vorteile'"
+            rows={2}
+            disabled={isProcessing}
+            className="bg-background"
+          />
+          <div className="flex gap-2 justify-end">
             <Button
               type="button"
               variant="outline"
               onClick={handleImprove}
               disabled={isProcessing || !improvementInstruction.trim()}
-              className="self-end flex items-center gap-2"
+              className="flex items-center gap-2"
             >
               {isProcessing ? (
-                <Loader2 className="w-4 h-4 animate-spin" />
+                <>
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                  Anpasse...
+                </>
               ) : (
-                <Wand2 className="w-4 h-4" />
+                <>
+                  <Wand2 className="w-4 h-4" />
+                  Anpassen
+                </>
               )}
-              Verbessern
+            </Button>
+            <Button
+              type="button"
+              variant="default"
+              onClick={handleConfirm}
+              disabled={isProcessing}
+              className="flex items-center gap-2 bg-green-600 hover:bg-green-700"
+            >
+              <Check className="w-4 h-4" />
+              Bestätigen
             </Button>
           </div>
         </div>
       )}
 
+      {/* Confirmation indicator */}
       {isConfirmed && (
         <div className="flex items-center gap-2 p-2 bg-green-100 dark:bg-green-900/20 rounded text-sm text-green-800 dark:text-green-400">
           <Check className="w-4 h-4" />
