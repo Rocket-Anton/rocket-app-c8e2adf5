@@ -7,6 +7,26 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { toast } from "sonner";
+import { z } from "zod";
+
+const authSchema = z.object({
+  email: z.string()
+    .trim()
+    .email('Ungültige E-Mail-Adresse')
+    .max(255, 'E-Mail darf maximal 255 Zeichen haben'),
+  password: z.string()
+    .min(8, 'Passwort muss mindestens 8 Zeichen haben')
+    .max(128, 'Passwort darf maximal 128 Zeichen haben')
+    .regex(/[A-Z]/, 'Mindestens ein Großbuchstabe erforderlich')
+    .regex(/[a-z]/, 'Mindestens ein Kleinbuchstabe erforderlich')
+    .regex(/[0-9]/, 'Mindestens eine Zahl erforderlich'),
+  name: z.string()
+    .trim()
+    .min(1, 'Name ist erforderlich')
+    .max(100, 'Name darf maximal 100 Zeichen haben')
+    .regex(/^[a-zA-ZäöüÄÖÜß\s\-']+$/, 'Name enthält ungültige Zeichen')
+    .optional()
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -38,12 +58,26 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signUp({
+      // Validate inputs
+      const validationResult = authSchema.safeParse({
         email,
         password,
+        name
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.signUp({
+        email: validationResult.data.email,
+        password: validationResult.data.password,
         options: {
           data: {
-            name: name,
+            name: validationResult.data.name,
           },
           emailRedirectTo: `${window.location.origin}/karte`,
         },
@@ -53,8 +87,7 @@ const Auth = () => {
 
       toast.success("Account erfolgreich erstellt!");
     } catch (error: any) {
-      console.error("Signup error:", error);
-      toast.error(error.message || "Fehler beim Erstellen des Accounts");
+      toast.error("Ein Fehler ist aufgetreten. Bitte versuchen Sie es später erneut.");
     } finally {
       setLoading(false);
     }
@@ -65,17 +98,29 @@ const Auth = () => {
     setLoading(true);
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      // Validate inputs
+      const validationResult = authSchema.omit({ name: true }).safeParse({
         email,
-        password,
+        password
+      });
+
+      if (!validationResult.success) {
+        const firstError = validationResult.error.errors[0];
+        toast.error(firstError.message);
+        setLoading(false);
+        return;
+      }
+
+      const { error } = await supabase.auth.signInWithPassword({
+        email: validationResult.data.email,
+        password: validationResult.data.password,
       });
 
       if (error) throw error;
 
       toast.success("Erfolgreich angemeldet!");
     } catch (error: any) {
-      console.error("Login error:", error);
-      toast.error(error.message || "Fehler beim Anmelden");
+      toast.error("Anmeldung fehlgeschlagen. Bitte überprüfen Sie Ihre Zugangsdaten.");
     } finally {
       setLoading(false);
     }
@@ -160,8 +205,10 @@ const Auth = () => {
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     required
-                    minLength={6}
                   />
+                  <p className="text-xs text-muted-foreground">
+                    Mindestens 8 Zeichen, ein Großbuchstabe, ein Kleinbuchstabe und eine Zahl
+                  </p>
                 </div>
                 <Button type="submit" className="w-full" disabled={loading}>
                   {loading ? "Wird erstellt..." : "Account erstellen"}

@@ -25,24 +25,30 @@ Deno.serve(async (req) => {
     const openAiApiKey = Deno.env.get('OPENAI_API_KEY');
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
 
     if (!openAiApiKey || !lovableApiKey) {
       throw new Error('API keys not configured');
     }
 
-    // Initialize Supabase
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
-
     // Get authenticated user
     const authHeader = req.headers.get('Authorization');
-    let userId: string | null = null;
-    
-    if (authHeader) {
-      const token = authHeader.replace('Bearer ', '');
-      const { data: { user } } = await supabase.auth.getUser(token);
-      userId = user?.id || null;
+    if (!authHeader) {
+      throw new Error('Unauthorized');
     }
+
+    // Initialize Supabase with user's auth token (enforces RLS)
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: {
+        headers: { Authorization: authHeader }
+      }
+    });
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      throw new Error('Unauthorized');
+    }
+    const userId = user.id;
 
     let userMessage = text || '';
 
@@ -111,10 +117,11 @@ Benutzer-Kontext:
       console.log('User context:', userContext);
     }
 
-    // Fetch address data
+    // Fetch address data (RLS enforced - only user's addresses)
     const { data: addressData, error: addressError } = await supabase
       .from('addresses')
       .select('*')
+      .eq('created_by', userId)
       .limit(100);
 
     if (addressError) {
