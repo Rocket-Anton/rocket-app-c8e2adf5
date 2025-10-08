@@ -254,7 +254,7 @@ export const ProjectAddListDialog = ({
 
       if (data?.status === 'completed') {
         setProgress(100);
-        const stats = (data.upload_stats as any) || {};
+        const stats = (data.upload_stats as any) || { successful: 0 };
         toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${stats.successful || 0} Adressen hinzugefügt`);
         onSuccess();
         onOpenChange(false);
