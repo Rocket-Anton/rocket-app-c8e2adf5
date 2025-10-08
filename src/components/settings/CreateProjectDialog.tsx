@@ -84,7 +84,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [telegramGroupExists, setTelegramGroupExists] = useState<string | undefined>(undefined);
   const [postJobBooster, setPostJobBooster] = useState<string | undefined>(undefined);
   const [tenderInfo, setTenderInfo] = useState("");
-  const [projectWithBonus, setProjectWithBonus] = useState(false);
+  const [projectWithBonus, setProjectWithBonus] = useState<boolean | undefined>(undefined);
   const [selectedTariffs, setSelectedTariffs] = useState<string[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
 
@@ -202,14 +202,14 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           existing_customer_count: existingCustomerCount ? parseInt(existingCustomerCount) : null,
           saleable_units: saleableUnits ? parseInt(saleableUnits) : null,
           quota_type: quotaType || null,
-          target_quota: parseFloat(targetQuota),
+          target_quota: parseInt(targetQuota, 10),
           important_info: importantInfo || null,
           project_manager_id: projectManager || null,
           telegram_group_create: telegramGroupCreate || null,
           telegram_group_exists: telegramGroupExists || null,
           post_job_booster: postJobBooster || null,
           tender_info: tenderInfo || null,
-          project_with_bonus: projectWithBonus,
+          project_with_bonus: projectWithBonus ?? null,
           coordinates: coordinates,
           created_by: user.id,
         })
@@ -283,7 +283,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               <SelectTrigger id="provider" className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
                 <SelectValue placeholder="Provider auswählen" />
               </SelectTrigger>
-              <SelectContent className="bg-background z-[100] pointer-events-auto">
+              <SelectContent className="bg-background pointer-events-auto">
                 {activeProviders.map((provider) => (
                   <SelectItem key={provider.id} value={provider.id}>
                     {provider.name}
@@ -321,7 +321,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Bundesland auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {FEDERAL_STATES.map((state) => (
               <SelectItem key={state} value={state}>
                 {state}
@@ -340,7 +340,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Status auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {STATUS_OPTIONS.map((option) => (
               <SelectItem key={option} value={option}>
                 {option}
@@ -383,7 +383,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Vermarktungsart auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {MARKETING_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.value}
@@ -400,7 +400,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
             <SelectValue placeholder="Ansprechpartner auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {providerContacts.length === 0 ? (
               <SelectItem value="none">Keine Ansprechpartner vorhanden</SelectItem>
             ) : (
@@ -445,7 +445,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background z-[100] pointer-events-auto" align="start">
+          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
             <Calendar
               mode="single"
               selected={startDate}
@@ -474,7 +474,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               </span>
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background z-[100] pointer-events-auto" align="start">
+          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
             <Calendar
               mode="single"
               selected={endDate}
@@ -533,7 +533,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Art Quote auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {QUOTA_TYPES.map((type) => (
               <SelectItem key={type.value} value={type.value}>
                 {type.value}
@@ -550,10 +550,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Input
           type="number"
-          step="0.01"
+          step="1"
+          min="0"
+          max="100"
           value={targetQuota}
-          onChange={(e) => setTargetQuota(e.target.value)}
-          placeholder="0.00"
+          onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
+          placeholder="0"
           className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
@@ -577,7 +579,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Projektleiter auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {projectManagers.length === 0 ? (
               <SelectItem value="none">Keine Projektleiter verfügbar</SelectItem>
             ) : (
@@ -600,7 +602,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {TG_GROUP_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.value}
@@ -619,7 +621,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background z-[100] pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto">
             {YES_NO_OPTIONS.map((option) => (
               <SelectItem key={option.value} value={option.value}>
                 {option.value}
@@ -639,7 +641,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             Projekt mit Bonus<span className="text-red-500 ml-1">*</span>
           </Label>
           <Select 
-            value={projectWithBonus ? "Ja" : "Nein"} 
+            value={projectWithBonus === undefined ? undefined : (projectWithBonus ? "Ja" : "Nein")} 
             onValueChange={(val) => setProjectWithBonus(val === "Ja")}
           >
             <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
@@ -666,7 +668,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
               <SelectValue placeholder="Provisionen auswählen" />
             </SelectTrigger>
-            <SelectContent className="bg-background z-[100] pointer-events-auto">
+            <SelectContent className="bg-background pointer-events-auto">
               {tariffs.length === 0 ? (
                 <SelectItem value="none">Keine Tarife verfügbar</SelectItem>
               ) : (
