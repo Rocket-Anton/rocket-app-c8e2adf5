@@ -83,19 +83,17 @@ serve(async (req) => {
       if (/STRASSE|STRA[SßS]E|STR\.|STREET/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'street';
       }
-      // House number recognition
-      else if (/^(HAUS|HN|NR|NUMMER|HOUSE|NO\.?|NUMBER)$/i.test(normalizedHeader)) {
+      // House number recognition (includes HAUSNR)
+      else if (/^(HAUS|HN|NR|NUMMER|HOUSE|NO\.?|NUMBER|HAUSNR)$/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number';
+      }
+      // House number add-on (ADRZUSATZ, Zusatz) - to be combined with house number
+      else if (/ZUSATZ|ADRZUSATZ|ADD.*ON|SUFFIX/i.test(normalizedHeader)) {
+        suggestedMapping[header] = 'house_number_addon';
       }
       // Combined house number + add-on
       else if (/HN.*ZU|HAUS.*ZUSATZ|HNR.*ZU/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number_combined';
-        questions.push({
-          column: header,
-          question: `Enthält die Spalte "${header}" Hausnummer + Zusatz kombiniert (z.B. "3/1")?`,
-          options: ['Ja, kombiniert (z.B. "3/1")', 'Nur Hausnummer', 'Ignorieren'],
-          type: 'radio',
-        });
       }
       // Postal code recognition
       else if (/PLZ|POST|ZIP/i.test(normalizedHeader)) {
@@ -109,19 +107,13 @@ serve(async (req) => {
       else if (/ORTSCHAFT|LOCALITY|TEILORT|ORTSTEIL/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'locality';
       }
-      // Residential units (WE)
+      // Residential units (WE, WOHNEINHEI)
       else if (/^(WE|WOHNEINHEI|WOHNUNGEN|RESIDENTIAL)$/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_residential';
       }
-      // Commercial units (GE)
-      else if (/^(GE|GEWERBE|GESCHÄFT|COMMERCIAL)$/i.test(normalizedHeader)) {
+      // Commercial units (GE, GEWERBEEIN)
+      else if (/^(GE|GEWERBE|GESCHÄFT|COMMERCIAL|GEWERBEEIN)$/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_commercial';
-        questions.push({
-          column: header,
-          question: 'Sollen Geschäftseinheiten auch angelegt werden?',
-          options: ['Ja, als separate Units mit Status "Gewerbe"', 'Nein, ignorieren'],
-          type: 'radio',
-        });
       }
       // Combined WE count (WEANZ)
       else if (/WEANZ|WE.*ANZ|ANZAHL.*WE/i.test(normalizedHeader)) {
@@ -154,10 +146,9 @@ serve(async (req) => {
           type: 'radio',
         });
       }
-      // Ignore columns
-      else if (/LANDKREIS|DISTRICT|KREIS|REGION/i.test(normalizedHeader)) {
+      // Ignore columns (Landkreis, Zusammen, etc.)
+      else if (/LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'ignore';
-        unmappedColumns.push(header);
       }
       // Unknown columns
       else {
