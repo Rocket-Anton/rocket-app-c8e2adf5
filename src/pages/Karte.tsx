@@ -10,6 +10,7 @@ import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
+import mapPreview from "@/assets/map-preview.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -749,32 +750,12 @@ function KarteContent() {
                              : 'border-border bg-background'
                          }`}
                        >
-                          <div className="w-full h-12 rounded-md overflow-hidden bg-white relative border border-gray-300">
-                            {/* Street map preview - river and road like reference */}
-                            <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
-                              {/* Background */}
-                              <rect width="100" height="100" fill="#ffffff"/>
-                              
-                              {/* Light land areas */}
-                              <path d="M0,20 C20,15 40,25 60,20 C75,17 88,18 100,15 L100,0 L0,0 Z" fill="#f6faf5"/>
-                              <path d="M0,85 C25,80 40,88 60,85 C75,83 90,84 100,82 L100,100 L0,100 Z" fill="#f6faf5"/>
-                              
-                              {/* River */}
-                              <path d="M-10,30 C20,40 40,55 70,60 C90,63 110,55 120,50" stroke="#8ecafc" strokeWidth="10" fill="none" opacity="0.9"/>
-                              <path d="M-10,32 C20,42 40,57 70,62 C90,65 110,57 120,52" stroke="#bfe3ff" strokeWidth="6" fill="none" opacity="0.9"/>
-                              
-                              {/* Orange main road */}
-                              <path d="M0,10 L100,90" stroke="#ff9f43" strokeWidth="4" fill="none"/>
-                              
-                              {/* A few blocks */}
-                              <rect x="8" y="12" width="16" height="12" fill="#e0e0e0"/>
-                              <rect x="32" y="70" width="14" height="10" fill="#e0e0e0"/>
-                              <rect x="70" y="18" width="12" height="10" fill="#e0e0e0"/>
-                              
-                              {/* Small green patches */}
-                              <ellipse cx="30" cy="22" rx="6" ry="4" fill="#c8e6c9" opacity="0.9"/>
-                              <ellipse cx="78" cy="72" rx="5" ry="4" fill="#c8e6c9" opacity="0.9"/>
-                            </svg>
+                          <div className="w-full h-12 rounded-md overflow-hidden relative border border-gray-300">
+                            <img 
+                              src={mapPreview} 
+                              alt="Kartenvorschau" 
+                              className="w-full h-full object-cover"
+                            />
                           </div>
                          <span className={`text-xs ${mapStyle === 'streets' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
                            Karte
