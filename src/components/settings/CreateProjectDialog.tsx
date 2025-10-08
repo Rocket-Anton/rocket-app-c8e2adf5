@@ -592,25 +592,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </Select>
           </div>
 
-      {/* Gebiet Name */}
-      <div className="space-y-2">
-        <Label htmlFor="area-name" className="text-sm font-medium text-foreground">
-          Gebiet Name<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          id="area-name"
-          value={areaName}
-          onChange={(e) => setAreaName(e.target.value)}
-          placeholder="z.B. Lurup 1"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-        {projectName && (
-          <p className="text-xs text-muted-foreground mt-1.5 ml-1">
-            Projektname wird: <span className="font-semibold text-foreground">{projectName}</span>
-          </p>
-        )}
-      </div>
-
       {/* Ort */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">
@@ -626,6 +607,27 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           {cityLookupLoading ? "Suche Vorschläge…" : (cityCoordinates ? "Ort erkannt – Karte aktualisiert." : "Geben Sie einen Ort ein, um PLZ- und Bundesland-Vorschläge zu erhalten.")}
         </p>
       </div>
+
+      {/* Gebiet Name - nur anzeigen wenn Ort vorhanden */}
+      {city && city.trim().length > 0 && (
+        <div className="space-y-2">
+          <Label htmlFor="area-name" className="text-sm font-medium text-foreground">
+            Gebiet Name<span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Input
+            id="area-name"
+            value={areaName}
+            onChange={(e) => setAreaName(e.target.value)}
+            placeholder="z.B. Lurup 1"
+            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          />
+          {projectName && (
+            <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+              Projektname wird: <span className="font-semibold text-foreground">{projectName}</span>
+            </p>
+          )}
+        </div>
+      )}
 
       {/* PLZ mit Vorschlägen */}
       <div className="space-y-2">
