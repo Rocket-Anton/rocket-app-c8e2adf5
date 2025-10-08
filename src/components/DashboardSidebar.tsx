@@ -575,6 +575,22 @@ export const DashboardSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+
+          {/* SYSTEM Section */}
+          <SidebarGroup className="mt-0.5 pt-0.5 border-t border-sidebar-border">
+            {state !== "collapsed" && (
+              <div className="px-3 pb-0 -mt-0">
+                <span className="text-[10px] font-medium text-sidebar-foreground/60 uppercase tracking-wider">
+                  SYSTEM
+                </span>
+              </div>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0">
+                {/* Vorerst leer */}
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
         </SidebarContent>
 
         {state !== "collapsed" ? (
