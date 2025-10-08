@@ -1,22 +1,18 @@
 import { useEffect, useRef } from "react";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-
-// Fix default marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
 
 interface CityPreviewMapProps {
   center: { lat: number; lng: number } | null;
 }
 
+// Mapbox access token from environment/secrets
+mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTViZWNpeXYwOGdjMnFzNnd6M2N1bWRhIn0.placeholder";
+
 export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
   const mapRef = useRef<HTMLDivElement>(null);
-  const instance = useRef<L.Map | null>(null);
+  const instance = useRef<mapboxgl.Map | null>(null);
+  const markerRef = useRef<mapboxgl.Marker | null>(null);
 
   useEffect(() => {
     if (!mapRef.current) return;
@@ -26,23 +22,33 @@ export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
       instance.current = null;
     }
 
-    const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
-    instance.current = map;
-
-    const defaultCenter: [number, number] = center ? [center.lat, center.lng] : [51.1657, 10.4515]; // Germany
+    const defaultCenter: [number, number] = center ? [center.lng, center.lat] : [10.4515, 51.1657]; // Germany
     const zoom = center ? 11 : 5;
 
-    map.setView(defaultCenter, zoom);
+    const map = new mapboxgl.Map({
+      container: mapRef.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: defaultCenter,
+      zoom: zoom,
+      attributionControl: false
+    });
 
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '',
-    }).addTo(map);
+    map.addControl(new mapboxgl.NavigationControl());
 
     if (center) {
-      L.marker([center.lat, center.lng]).addTo(map);
+      const marker = new mapboxgl.Marker()
+        .setLngLat([center.lng, center.lat])
+        .addTo(map);
+      markerRef.current = marker;
     }
 
+    instance.current = map;
+
     return () => {
+      if (markerRef.current) {
+        markerRef.current.remove();
+        markerRef.current = null;
+      }
       if (instance.current) {
         instance.current.remove();
         instance.current = null;
@@ -52,4 +58,5 @@ export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
 
   return <div ref={mapRef} className="w-full h-40 rounded-md border" />;
 };
+
 export default CityPreviewMap;
