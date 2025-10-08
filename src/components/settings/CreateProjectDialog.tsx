@@ -573,16 +573,21 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <Label className="text-sm font-medium">
           Zielquote<span className="text-red-500 ml-1">*</span>
         </Label>
-        <Input
-          type="number"
-          step="1"
-          min="0"
-          max="100"
-          value={targetQuota}
-          onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
-          placeholder="0"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
+        <div className="relative">
+          <Input
+            type="number"
+            step="1"
+            min="0"
+            max="100"
+            value={targetQuota}
+            onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
+            placeholder="0"
+            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11 pr-8"
+          />
+          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+            %
+          </span>
+        </div>
       </div>
 
       {/* Wichtige Infos */}
