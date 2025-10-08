@@ -281,12 +281,37 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </Label>
             <Select value={selectedProvider} onValueChange={setSelectedProvider}>
               <SelectTrigger id="provider" className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-                <SelectValue placeholder="Provider auswählen" />
+                <SelectValue placeholder="Provider auswählen">
+                  {selectedProvider && (() => {
+                    const provider = activeProviders.find(p => p.id === selectedProvider);
+                    return provider ? (
+                      <div className="flex items-center gap-2">
+                        {provider.logo_url && (
+                          <img 
+                            src={provider.logo_url} 
+                            alt={provider.name}
+                            className="w-5 h-5 rounded-full object-cover"
+                          />
+                        )}
+                        <span>{provider.name}</span>
+                      </div>
+                    ) : null;
+                  })()}
+                </SelectValue>
               </SelectTrigger>
               <SelectContent className="bg-background pointer-events-auto">
                 {activeProviders.map((provider) => (
                   <SelectItem key={provider.id} value={provider.id}>
-                    {provider.name}
+                    <div className="flex items-center gap-2">
+                      {provider.logo_url && (
+                        <img 
+                          src={provider.logo_url} 
+                          alt={provider.name}
+                          className="w-5 h-5 rounded-full object-cover"
+                        />
+                      )}
+                      <span>{provider.name}</span>
+                    </div>
                   </SelectItem>
                 ))}
               </SelectContent>
@@ -321,7 +346,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Bundesland auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto">
+          <SelectContent className="bg-background pointer-events-auto" side="bottom">
             {FEDERAL_STATES.map((state) => (
               <SelectItem key={state} value={state}>
                 {state}
