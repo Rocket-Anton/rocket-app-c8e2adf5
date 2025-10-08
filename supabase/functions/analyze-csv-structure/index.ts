@@ -93,9 +93,10 @@ serve(async (req) => {
       else if (/^(HAUS|HN|NR|NUMMER|HOUSE|NO\.?|NUMBER|HAUSNR)$/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number';
       }
-      // House number add-on (ADRZUSATZ, Zusatz) - to be combined with house number
+      // House number add-on (ADRZUSATZ, Zusatz) - auto-combine with HAUSNR, don't show in UI
       else if (/ZUSATZ|ADRZUSATZ|ADD.*ON|SUFFIX/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number_addon';
+        continue; // Skip - will be automatically combined with house_number in backend
       }
       // Combined house number + add-on
       else if (/HN.*ZU|HAUS.*ZUSATZ|HNR.*ZU/i.test(normalizedHeader)) {
