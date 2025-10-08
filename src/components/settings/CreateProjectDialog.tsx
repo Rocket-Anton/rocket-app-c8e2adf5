@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -13,6 +13,7 @@ import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
+import { CityPreviewMap } from "@/components/CityPreviewMap";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -67,6 +68,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [status, setStatus] = useState<string | undefined>(undefined);
   const [city, setCity] = useState("");
   const [postalCode, setPostalCode] = useState("");
+  const [cityLookupLoading, setCityLookupLoading] = useState(false);
+  const [cityCoordinates, setCityCoordinates] = useState<{ lat: number; lng: number } | null>(null);
+  const [postalCodeSuggestions, setPostalCodeSuggestions] = useState<string[]>([]);
+  const cityDebounceRef = useRef<number | null>(null);
   const [marketingType, setMarketingType] = useState<string | undefined>(undefined);
   const [providerContact, setProviderContact] = useState<string | undefined>(undefined);
   const [rocketCount, setRocketCount] = useState("");
@@ -146,6 +151,43 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       return data || [];
     },
   });
+
+  // Auto-Vervollständigung: Ort -> Bundesland, PLZ-Vorschläge + Kartenpunkt
+  useEffect(() => {
+    if (cityDebounceRef.current) window.clearTimeout(cityDebounceRef.current);
+
+    if (!city || city.trim().length < 2) {
+      setPostalCodeSuggestions([]);
+      setCityCoordinates(null);
+      return;
+    }
+
+    cityDebounceRef.current = window.setTimeout(async () => {
+      setCityLookupLoading(true);
+      try {
+        const { data, error } = await supabase.functions.invoke('city-lookup', { body: { city } });
+        if (!error && data?.matches?.length) {
+          const match = data.matches[0];
+          if (match?.state) setFederalState((prev) => prev || match.state);
+          if (Array.isArray(match?.postalCodes)) setPostalCodeSuggestions(match.postalCodes);
+          setCityCoordinates(match?.coordinates ?? null);
+        } else {
+          setPostalCodeSuggestions([]);
+          setCityCoordinates(null);
+        }
+      } catch (e) {
+        console.error('city-lookup failed', e);
+        setPostalCodeSuggestions([]);
+        setCityCoordinates(null);
+      } finally {
+        setCityLookupLoading(false);
+      }
+    }, 350);
+
+    return () => {
+      if (cityDebounceRef.current) window.clearTimeout(cityDebounceRef.current);
+    };
+  }, [city]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -337,6 +379,44 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         )}
       </div>
 
+      {/* Ort */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">
+          Ort<span className="text-red-500 ml-1">*</span>
+        </Label>
+        <Input
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Ort eingeben"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          {cityLookupLoading ? "Suche Vorschläge…" : (cityCoordinates ? "Ort erkannt – Karte aktualisiert." : "Geben Sie einen Ort ein, um PLZ- und Bundesland-Vorschläge zu erhalten.")}
+        </p>
+      </div>
+
+      {/* PLZ mit Vorschlägen */}
+      <div className="space-y-2">
+        <Label className="text-sm font-medium">PLZ</Label>
+        <Input
+          value={postalCode}
+          onChange={(e) => setPostalCode(e.target.value)}
+          placeholder="PLZ eingeben"
+          list="plz-options"
+          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+        />
+        <datalist id="plz-options">
+          {postalCodeSuggestions.map((plz) => (
+            <option key={plz} value={plz} />
+          ))}
+        </datalist>
+      </div>
+
+      {/* Kleine Karten-Vorschau */}
+      <div className="pt-2">
+        <CityPreviewMap center={cityCoordinates} />
+      </div>
+
       {/* Bundesland */}
       <div className="space-y-2 pointer-events-auto">
         <Label className="text-sm font-medium">
@@ -378,30 +458,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             ))}
           </SelectContent>
         </Select>
-      </div>
-
-      {/* Ort */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Ort<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Ort eingeben"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-      </div>
-
-      {/* PLZ */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">PLZ</Label>
-        <Input
-          value={postalCode}
-          onChange={(e) => setPostalCode(e.target.value)}
-          placeholder="PLZ eingeben"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
       </div>
 
       {/* Vermarktungsart */}
