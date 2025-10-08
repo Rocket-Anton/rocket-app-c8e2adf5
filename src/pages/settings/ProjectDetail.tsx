@@ -15,6 +15,7 @@ import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { FailedAddressesDialog } from "@/components/settings/FailedAddressesDialog";
 
 interface Project {
   id: string;
@@ -56,6 +57,8 @@ const ProjectDetail = () => {
   const [currentTab, setCurrentTab] = useState("details");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listToDelete, setListToDelete] = useState<string | null>(null);
+  const [failedDialogOpen, setFailedDialogOpen] = useState(false);
+  const [failedListId, setFailedListId] = useState<string | null>(null);
 
   const calculateDaysRemaining = () => {
     if (!project?.end_date) return null;
@@ -130,6 +133,11 @@ const ProjectDetail = () => {
     }
   };
 
+  const openFailedDialog = (listId: string) => {
+    setFailedListId(listId);
+    setFailedDialogOpen(true);
+  };
+
   const handleDeleteList = async () => {
     if (!listToDelete) return;
 
@@ -171,8 +179,6 @@ const ProjectDetail = () => {
       setListToDelete(null);
     }
   };
-
-  const openDeleteDialog = (listId: string) => {
     setListToDelete(listId);
     setDeleteDialogOpen(true);
   };
@@ -487,16 +493,19 @@ const ProjectDetail = () => {
                                         </p>
                                       )}
                                       {list.upload_stats && (
-                                        <div className="flex gap-4 mt-2 text-sm">
+                                        <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
                                           <span className="text-muted-foreground">
-                                            Gesamt: <span className="font-medium text-foreground">{list.upload_stats.total || 0}</span>
+                                            Gesamt: <span className="font-medium text-foreground">{(list.upload_stats as any).total || 0}</span>
                                           </span>
                                           <span className="text-green-600 dark:text-green-500">
-                                            Erfolgreich: <span className="font-medium">{list.upload_stats.successful || 0}</span>
+                                            Erfolgreich: <span className="font-medium">{(list.upload_stats as any).successful || 0}</span>
                                           </span>
-                                          {list.upload_stats.failed > 0 && (
-                                            <span className="text-red-600 dark:text-red-500">
-                                              Fehler: <span className="font-medium">{list.upload_stats.failed}</span>
+                                          {(list.upload_stats as any).failed > 0 && (
+                                            <span className="flex items-center gap-2 text-red-600 dark:text-red-500">
+                                              Fehler: <span className="font-medium">{(list.upload_stats as any).failed}</span>
+                                              <Button variant="outline" size="sm" onClick={() => openFailedDialog(list.id)}>
+                                                Fehler ansehen
+                                              </Button>
                                             </span>
                                           )}
                                         </div>
@@ -566,23 +575,29 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
                   </Tabs>
-                </div>
-              ) : (
-                <p>Projekt nicht gefunden</p>
-              )}
-            </div>
           </div>
+        ) : (
+          <p>Projekt nicht gefunden</p>
+        )}
+      </div>
+    </div>
 
-          <ProjectAddListDialog
-            projectId={id!}
-            open={addListDialogOpen}
-            onOpenChange={setAddListDialogOpen}
-            onSuccess={loadLists}
-          />
+    <ProjectAddListDialog
+      projectId={id!}
+      open={addListDialogOpen}
+      onOpenChange={setAddListDialogOpen}
+      onSuccess={loadLists}
+    />
 
-          <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
+    <FailedAddressesDialog
+      listId={failedListId}
+      open={failedDialogOpen}
+      onOpenChange={setFailedDialogOpen}
+    />
+
+    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+      <AlertDialogContent>
+        <AlertDialogHeader>
                 <AlertDialogTitle>Adressliste löschen?</AlertDialogTitle>
                 <AlertDialogDescription>
                   Wirklich alle Adressen dieser Liste löschen? Diese Aktion kann nicht rückgängig gemacht werden.

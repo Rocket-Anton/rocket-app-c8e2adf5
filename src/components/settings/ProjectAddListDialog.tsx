@@ -254,7 +254,8 @@ export const ProjectAddListDialog = ({
 
       if (data?.status === 'completed') {
         setProgress(100);
-        toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${data.upload_stats?.successful || 0} Adressen hinzugefügt`);
+        const stats = (data.upload_stats as any) || {};
+        toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${stats.successful || 0} Adressen hinzugefügt`);
         onSuccess();
         onOpenChange(false);
         // Reset state
@@ -273,6 +274,9 @@ export const ProjectAddListDialog = ({
         setStep('mapping');
         setCurrentListId(null);
         clearInterval(interval);
+      } else {
+        // Smooth progress animation while waiting
+        setProgress((p) => (p < 95 ? p + 2 : p));
       }
     }, 2500);
 
@@ -312,7 +316,7 @@ export const ProjectAddListDialog = ({
               <Loader2 className="h-6 w-6 animate-spin text-primary flex-shrink-0" />
               <p className="text-lg truncate">Analysiere {file?.name}...</p>
             </div>
-            <Progress value={progress} className="w-full" />
+             <Progress value={progress} className="w-full" />
           </div>
         )}
 
