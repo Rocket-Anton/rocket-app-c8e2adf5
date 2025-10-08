@@ -220,7 +220,7 @@ function KarteContent() {
       antialias: true,
     });
 
-    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
+    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
     // 3D buildings layer
     map.on('style.load', () => {
