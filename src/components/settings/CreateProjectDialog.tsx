@@ -281,7 +281,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </Label>
             <Select value={selectedProvider} onValueChange={setSelectedProvider}>
               <SelectTrigger id="provider" className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-                <SelectValue placeholder="Provider auswählen">
+                <SelectValue placeholder="Provider auswählen" className="data-[placeholder]:text-muted-foreground">
                   {selectedProvider && (() => {
                     const provider = activeProviders.find(p => p.id === selectedProvider);
                     return provider ? (
@@ -344,7 +344,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={federalState} onValueChange={setFederalState}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Bundesland auswählen" />
+            <SelectValue placeholder="Bundesland auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent 
             className="bg-background pointer-events-auto max-h-[300px] overflow-y-auto" 
@@ -368,7 +368,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={status} onValueChange={setStatus}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Status auswählen" />
+            <SelectValue placeholder="Status auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {STATUS_OPTIONS.map((option) => (
@@ -411,7 +411,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={marketingType} onValueChange={setMarketingType}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Vermarktungsart auswählen" />
+            <SelectValue placeholder="Vermarktungsart auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {MARKETING_TYPES.map((type) => (
@@ -428,7 +428,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <Label className="text-sm font-medium">Ansprechpartner Provider</Label>
         <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
-            <SelectValue placeholder="Ansprechpartner auswählen" />
+            <SelectValue placeholder="Ansprechpartner auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {providerContacts.length === 0 ? (
@@ -561,7 +561,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={quotaType} onValueChange={setQuotaType}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Art Quote auswählen" />
+            <SelectValue placeholder="Art Quote auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {QUOTA_TYPES.map((type) => (
@@ -612,7 +612,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <Label className="text-sm font-medium">Projektleiter</Label>
         <Select value={projectManager} onValueChange={setProjectManager}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Projektleiter auswählen" />
+            <SelectValue placeholder="Projektleiter auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {projectManagers.length === 0 ? (
@@ -635,7 +635,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={telegramGroupCreate} onValueChange={setTelegramGroupCreate}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Option auswählen" />
+            <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {TG_GROUP_OPTIONS.map((option) => (
@@ -654,7 +654,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Label>
         <Select value={postJobBooster} onValueChange={setPostJobBooster}>
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Option auswählen" />
+            <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
           </SelectTrigger>
           <SelectContent className="bg-background pointer-events-auto">
             {YES_NO_OPTIONS.map((option) => (
@@ -680,7 +680,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             onValueChange={(val) => setProjectWithBonus(val === "Ja")}
           >
             <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-              <SelectValue placeholder="Option auswählen" />
+              <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
             </SelectTrigger>
             <SelectContent className="bg-background z-[100] pointer-events-auto">
               {YES_NO_OPTIONS.map((option) => (
@@ -701,7 +701,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             disabled={!selectedProvider}
           >
             <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
-              <SelectValue placeholder="Provisionen auswählen" />
+              <SelectValue placeholder="Provisionen auswählen" className="data-[placeholder]:text-muted-foreground" />
             </SelectTrigger>
             <SelectContent className="bg-background pointer-events-auto">
               {tariffs.length === 0 ? (
