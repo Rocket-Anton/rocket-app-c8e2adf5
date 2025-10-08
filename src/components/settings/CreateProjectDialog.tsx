@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
+import { Switch } from "@/components/ui/switch";
 import { CalendarIcon } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
@@ -44,8 +45,8 @@ const MARKETING_TYPES = [
 ];
 
 const QUOTA_TYPES = [
-  { value: 'Brutto', color: 'bg-purple-100 text-purple-800' },
-  { value: 'Netto', color: 'bg-cyan-100 text-cyan-800' },
+  { value: 'GesamtWE', color: 'bg-purple-100 text-purple-800' },
+  { value: 'SaleableWE', color: 'bg-cyan-100 text-cyan-800' },
 ];
 
 const YES_NO_OPTIONS = [
@@ -80,10 +81,22 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [shiftDate, setShiftDate] = useState<Date>();
   const [unitCount, setUnitCount] = useState("");
+  
+  // Bestandskunden
+  const [hasExistingCustomers, setHasExistingCustomers] = useState(false);
   const [existingCustomerCount, setExistingCustomerCount] = useState("");
-  const [saleableUnits, setSaleableUnits] = useState("");
+  const [canWriteExistingCustomers, setCanWriteExistingCustomers] = useState<string | undefined>(undefined);
+  
+  // WE Reduktion
+  const [hasWeReduction, setHasWeReduction] = useState(false);
+  const [weReductionCount, setWeReductionCount] = useState("");
+  
   const [quotaType, setQuotaType] = useState<string | undefined>(undefined);
   const [targetQuota, setTargetQuota] = useState("");
+  
+  // Raketen Vorschlag
+  const [acceptRocketSuggestion, setAcceptRocketSuggestion] = useState<boolean | undefined>(undefined);
+  
   const [importantInfo, setImportantInfo] = useState("");
   const [projectManager, setProjectManager] = useState<string | undefined>(undefined);
   const [telegramGroupCreate, setTelegramGroupCreate] = useState<string | undefined>(undefined);
@@ -210,11 +223,114 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     return calculateWorkingDays(dateRange.from, dateRange.to, federalState);
   }, [dateRange, federalState]);
 
+  // Berechne Saleable WE
+  const saleableUnits = useMemo(() => {
+    const units = parseInt(unitCount) || 0;
+    const existingCount = parseInt(existingCustomerCount) || 0;
+    const reductionCount = parseInt(weReductionCount) || 0;
+    
+    if (!hasExistingCustomers && !hasWeReduction) {
+      return null; // Nicht anzeigen
+    }
+    
+    let saleable = units;
+    
+    // Bestandskunden Logik
+    if (hasExistingCustomers && canWriteExistingCustomers === 'Nein') {
+      saleable -= existingCount;
+    }
+    
+    // WE Reduktion Logik
+    if (hasWeReduction) {
+      saleable -= reductionCount;
+    }
+    
+    return Math.max(0, saleable);
+  }, [unitCount, hasExistingCustomers, existingCustomerCount, canWriteExistingCustomers, hasWeReduction, weReductionCount]);
+
+  // Berechne Zielaufträge
+  const targetOrders = useMemo(() => {
+    if (!targetQuota || !quotaType) return null;
+    
+    const quota = parseFloat(targetQuota) / 100;
+    const units = parseInt(unitCount) || 0;
+    
+    if (quotaType === 'GesamtWE') {
+      return Math.round(units * quota);
+    } else if (quotaType === 'SaleableWE' && saleableUnits !== null) {
+      return Math.round(saleableUnits * quota);
+    }
+    
+    return null;
+  }, [targetQuota, quotaType, unitCount, saleableUnits]);
+
+  // Berechne tägliche Aufträge
+  const dailyOrdersNeeded = useMemo(() => {
+    if (!targetOrders || !workingDaysInfo?.effectiveDays) return null;
+    return (targetOrders / workingDaysInfo.effectiveDays).toFixed(1);
+  }, [targetOrders, workingDaysInfo]);
+
+  // Berechne Raketen Vorschlag
+  const rocketSuggestion = useMemo(() => {
+    const units = parseInt(unitCount) || 0;
+    if (!units) return null;
+    return Math.ceil(units / 400);
+  }, [unitCount]);
+
+  // Berechne durchschnittliche WE pro Rakete
+  const avgWePerRocket = useMemo(() => {
+    const units = parseInt(unitCount) || 0;
+    const rockets = acceptRocketSuggestion 
+      ? rocketSuggestion 
+      : parseInt(rocketCount) || 0;
+    
+    if (!units || !rockets) return null;
+    return Math.round(units / rockets);
+  }, [unitCount, rocketCount, acceptRocketSuggestion, rocketSuggestion]);
+
+  // Automatisch Raketen setzen wenn Vorschlag akzeptiert
+  useEffect(() => {
+    if (acceptRocketSuggestion && rocketSuggestion) {
+      setRocketCount(rocketSuggestion.toString());
+    }
+  }, [acceptRocketSuggestion, rocketSuggestion]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !postalCode || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo || !dateRange?.from || !dateRange?.to) {
+    // Validation
+    if (!selectedProvider || !areaName || !status || !city || !postalCode || !federalState || !marketingType || !unitCount || !telegramGroupCreate || !postJobBooster || !tenderInfo || !dateRange?.from || !dateRange?.to) {
       toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
+      return;
+    }
+    
+    if (hasExistingCustomers && !existingCustomerCount) {
+      toast.error("Bitte Anzahl der Bestandskunden eingeben");
+      return;
+    }
+    
+    if (hasExistingCustomers && !canWriteExistingCustomers) {
+      toast.error("Bitte angeben, ob Bestandskunden beschrieben werden können");
+      return;
+    }
+    
+    if (hasWeReduction && !weReductionCount) {
+      toast.error("Bitte Anzahl WE Reduktion eingeben");
+      return;
+    }
+    
+    if ((hasExistingCustomers || hasWeReduction) && !quotaType) {
+      toast.error("Bitte Art Quote auswählen");
+      return;
+    }
+    
+    if ((hasExistingCustomers || hasWeReduction) && !targetQuota) {
+      toast.error("Bitte Zielquote eingeben");
+      return;
+    }
+    
+    if (!rocketCount) {
+      toast.error("Bitte Anzahl Raketen angeben");
       return;
     }
 
@@ -262,10 +378,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           end_date: dateRange?.to?.toISOString() || null,
           shift_date: shiftDate?.toISOString() || null,
           unit_count: unitCount ? parseInt(unitCount) : null,
-          existing_customer_count: existingCustomerCount ? parseInt(existingCustomerCount) : null,
-          saleable_units: saleableUnits ? parseInt(saleableUnits) : null,
+          existing_customer_count: hasExistingCustomers && existingCustomerCount ? parseInt(existingCustomerCount) : null,
+          saleable_units: saleableUnits,
           quota_type: quotaType || null,
-          target_quota: parseInt(targetQuota, 10),
+          target_quota: targetQuota ? parseInt(targetQuota, 10) : null,
           important_info: importantInfo || null,
           project_manager_id: projectManager || null,
           telegram_group_create: telegramGroupCreate || null,
@@ -524,19 +640,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </Select>
       </div>
 
-      {/* Anzahl Raketen Soll */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Anzahl Raketen Soll<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          type="number"
-          value={rocketCount}
-          onChange={(e) => setRocketCount(e.target.value)}
-          placeholder="0"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-      </div>
 
       {/* Zeitraum (Start- und Enddatum) */}
       <div className="space-y-2">
@@ -629,69 +732,221 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         />
       </div>
 
-      {/* Anzahl der Bestandskunden */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Anzahl der Bestandskunden</Label>
-        <Input
-          type="number"
-          value={existingCustomerCount}
-          onChange={(e) => setExistingCustomerCount(e.target.value)}
-          placeholder="0"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+      {/* Bestandskunden Toggle */}
+      <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
+        <Label htmlFor="has-existing-customers" className="text-sm font-medium cursor-pointer">
+          Bestandskunden
+        </Label>
+        <Switch
+          id="has-existing-customers"
+          checked={hasExistingCustomers}
+          onCheckedChange={setHasExistingCustomers}
         />
       </div>
 
-      {/* Saleable WE */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">Saleable WE</Label>
-        <Input
-          type="number"
-          value={saleableUnits}
-          onChange={(e) => setSaleableUnits(e.target.value)}
-          placeholder="0"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+      {/* Bestandskunden Felder */}
+      {hasExistingCustomers && (
+        <>
+          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
+            <Label className="text-sm font-medium">
+              Anzahl der Bestandskunden<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              type="number"
+              value={existingCustomerCount}
+              onChange={(e) => setExistingCustomerCount(e.target.value)}
+              placeholder="0"
+              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+            />
+          </div>
+
+          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4 pointer-events-auto">
+            <Label className="text-sm font-medium">
+              Können Bestandskunden beschrieben werden?<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select value={canWriteExistingCustomers} onValueChange={setCanWriteExistingCustomers}>
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+                <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent className="bg-background pointer-events-auto">
+                {YES_NO_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </>
+      )}
+
+      {/* WE Reduktion Toggle */}
+      <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
+        <Label htmlFor="has-we-reduction" className="text-sm font-medium cursor-pointer">
+          WE Reduktion angeben
+        </Label>
+        <Switch
+          id="has-we-reduction"
+          checked={hasWeReduction}
+          onCheckedChange={setHasWeReduction}
         />
       </div>
 
-      {/* Art Quote */}
-      <div className="space-y-2 pointer-events-auto">
-        <Label className="text-sm font-medium">
-          Art Quote<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Select value={quotaType} onValueChange={setQuotaType}>
-          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Art Quote auswählen" className="data-[placeholder]:text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto">
-            {QUOTA_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Zielquote */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Zielquote<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <div className="relative">
+      {/* WE Reduktion Felder */}
+      {hasWeReduction && (
+        <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
+          <Label className="text-sm font-medium">
+            Anzahl WE Reduktion<span className="text-red-500 ml-1">*</span>
+          </Label>
           <Input
             type="number"
-            step="1"
-            min="0"
-            max="100"
-            value={targetQuota}
-            onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
+            value={weReductionCount}
+            onChange={(e) => setWeReductionCount(e.target.value)}
             placeholder="0"
-            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11 pr-8"
+            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
           />
-          <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-            %
-          </span>
         </div>
+      )}
+
+      {/* Saleable WE - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
+      {(hasExistingCustomers || hasWeReduction) && (
+        <div className="space-y-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
+          <Label className="text-sm font-medium text-primary">Saleable WE</Label>
+          <div className="text-2xl font-bold text-primary">
+            {saleableUnits !== null ? saleableUnits.toLocaleString() : '0'}
+          </div>
+        </div>
+      )}
+
+      {/* Art Quote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
+      {(hasExistingCustomers || hasWeReduction) && (
+        <div className="space-y-2 pointer-events-auto">
+          <Label className="text-sm font-medium">
+            Art Quote<span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Select value={quotaType} onValueChange={setQuotaType}>
+            <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+              <SelectValue placeholder="Art Quote auswählen" className="data-[placeholder]:text-muted-foreground" />
+            </SelectTrigger>
+            <SelectContent className="bg-background pointer-events-auto">
+              {QUOTA_TYPES.map((type) => (
+                <SelectItem key={type.value} value={type.value}>
+                  {type.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+
+      {/* Zielquote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
+      {(hasExistingCustomers || hasWeReduction) && (
+        <>
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Zielquote<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <div className="relative">
+              <Input
+                type="number"
+                step="1"
+                min="0"
+                max="100"
+                value={targetQuota}
+                onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
+                placeholder="0"
+                className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11 pr-8"
+              />
+              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
+                %
+              </span>
+            </div>
+          </div>
+
+          {/* Zielaufträge Anzeige */}
+          {targetOrders !== null && (
+            <div className="space-y-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
+              <Label className="text-sm font-medium text-green-700 dark:text-green-400">Zielaufträge</Label>
+              <div className="text-2xl font-bold text-green-700 dark:text-green-400">
+                {targetOrders.toLocaleString()}
+              </div>
+            </div>
+          )}
+
+          {/* Tägliche Aufträge Anzeige */}
+          {dailyOrdersNeeded && (
+            <div className="space-y-2 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+              <Label className="text-sm font-medium text-blue-700 dark:text-blue-400">Aufträge pro Tag benötigt</Label>
+              <div className="text-2xl font-bold text-blue-700 dark:text-blue-400">
+                {dailyOrdersNeeded}
+              </div>
+              <p className="text-xs text-blue-600 dark:text-blue-400">
+                Basierend auf {workingDaysInfo?.effectiveDays.toFixed(1)} effektiven Arbeitstagen
+              </p>
+            </div>
+          )}
+        </>
+      )}
+
+      {/* Anzahl Raketen Soll - mit Vorschlag */}
+      <div className="space-y-4 pt-4 border-t">
+        {rocketSuggestion && (
+          <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
+            <div className="flex items-center justify-between mb-3">
+              <div>
+                <Label className="text-sm font-medium text-amber-700 dark:text-amber-400">Empfohlene Anzahl Raketen</Label>
+                <div className="text-3xl font-bold text-amber-700 dark:text-amber-400 mt-1">
+                  {rocketSuggestion}
+                </div>
+                <p className="text-xs text-amber-600 dark:text-amber-400 mt-1">
+                  Basierend auf ~400 WE pro Rakete
+                </p>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-2 mt-3">
+              <Switch
+                id="accept-suggestion"
+                checked={acceptRocketSuggestion ?? false}
+                onCheckedChange={(checked) => {
+                  setAcceptRocketSuggestion(checked);
+                  if (!checked) {
+                    setRocketCount("");
+                  }
+                }}
+              />
+              <Label htmlFor="accept-suggestion" className="text-sm cursor-pointer text-amber-700 dark:text-amber-400">
+                Vorschlag annehmen
+              </Label>
+            </div>
+          </div>
+        )}
+
+        {(!acceptRocketSuggestion || !rocketSuggestion) && (
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Anzahl Raketen Soll{!rocketSuggestion && <span className="text-red-500 ml-1">*</span>}
+            </Label>
+            <Input
+              type="number"
+              value={rocketCount}
+              onChange={(e) => setRocketCount(e.target.value)}
+              placeholder="0"
+              disabled={acceptRocketSuggestion ?? false}
+              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11 disabled:opacity-50"
+            />
+          </div>
+        )}
+
+        {/* Durchschnittliche WE pro Rakete */}
+        {avgWePerRocket && (
+          <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
+            <Label className="text-sm font-medium text-purple-700 dark:text-purple-400">Durchschnittliche WE pro Rakete</Label>
+            <div className="text-2xl font-bold text-purple-700 dark:text-purple-400 mt-1">
+              {avgWePerRocket}
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Wichtige Infos */}
