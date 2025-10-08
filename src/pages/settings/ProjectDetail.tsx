@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2 } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -14,6 +14,7 @@ import { ProjectAddListDialog } from "@/components/settings/ProjectAddListDialog
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
 import { Progress } from "@/components/ui/progress";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 
 interface Project {
   id: string;
@@ -528,14 +529,25 @@ const ProjectDetail = () => {
                                        )}
                                     </div>
                                     <div className="flex gap-2 ml-4">
-                                      <Button variant="outline" size="sm">
-                                        <Download className="w-4 h-4 mr-2" />
-                                        Rohdatei
-                                      </Button>
-                                      <Button variant="outline" size="sm">
-                                        <Download className="w-4 h-4 mr-2" />
-                                        Rocket Export
-                                      </Button>
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="outline" size="sm">
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Export
+                                            <ChevronDown className="w-4 h-4 ml-2" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="bg-background z-50">
+                                          <DropdownMenuItem>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Rohdatei
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Rocket Export
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
                                       <Button 
                                         variant="outline" 
                                         size="sm"
