@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Moon, LogOut, Receipt, Rocket, FolderOpen, Package } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Moon, LogOut, Receipt, Rocket, FolderOpen, Package, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
@@ -587,7 +587,21 @@ export const DashboardSidebar = () => {
             )}
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0">
-                {/* Vorerst leer */}
+                {/* Einstellungen */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "hover:bg-sidebar-accent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Settings className="!w-4 !h-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Einstellungen</span>}
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
