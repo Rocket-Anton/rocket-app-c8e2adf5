@@ -16,12 +16,7 @@ Deno.serve(async (req) => {
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Delete all data using service role (bypasses RLS)
-    await supabase.from('lauflisten_addresses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('lauflisten').delete().neq('id', '00000000-0000-0000-0000-000000000000');
-    await supabase.from('addresses').delete().neq('id', 0);
-
-    // Get current user for created_by
+    // Get current user for authorization
     const authHeader = req.headers.get('Authorization')!;
     const token = authHeader.replace('Bearer ', '');
     const { data: { user } } = await supabase.auth.getUser(token);
@@ -32,6 +27,27 @@ Deno.serve(async (req) => {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
       });
     }
+
+    // Check if user has admin role
+    const { data: hasAdminRole, error: roleError } = await supabase.rpc('has_role', {
+      _user_id: user.id,
+      _role: 'admin'
+    });
+
+    if (roleError || !hasAdminRole) {
+      console.error('Admin check failed:', roleError);
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - admin role required' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log(`Admin user ${user.email} initiated database reset`);
+
+    // Delete all data using service role (bypasses RLS)
+    await supabase.from('lauflisten_addresses').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('lauflisten').delete().neq('id', '00000000-0000-0000-0000-000000000000');
+    await supabase.from('addresses').delete().neq('id', 0);
 
     // Define addresses to create
     const addresses = [
