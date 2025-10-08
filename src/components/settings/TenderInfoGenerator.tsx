@@ -5,6 +5,7 @@ import { Mic, StopCircle, Loader2, Wand2, Check, BookMarked } from "lucide-react
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
+import DOMPurify from 'dompurify';
 import {
   Dialog,
   DialogContent,

@@ -54,7 +54,7 @@ export type Database = {
           city: string
           coordinates: Json
           created_at: string
-          created_by: string | null
+          created_by: string
           house_number: string
           id: number
           list_id: string | null
@@ -69,7 +69,7 @@ export type Database = {
           city: string
           coordinates: Json
           created_at?: string
-          created_by?: string | null
+          created_by: string
           house_number: string
           id?: number
           list_id?: string | null
@@ -84,7 +84,7 @@ export type Database = {
           city?: string
           coordinates?: Json
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           house_number?: string
           id?: number
           list_id?: string | null
@@ -189,7 +189,7 @@ export type Database = {
           assigned_to: string | null
           color: string
           created_at: string
-          created_by: string | null
+          created_by: string
           factor: number | null
           id: string
           name: string
@@ -200,7 +200,7 @@ export type Database = {
           assigned_to?: string | null
           color: string
           created_at?: string
-          created_by?: string | null
+          created_by: string
           factor?: number | null
           id?: string
           name: string
@@ -211,7 +211,7 @@ export type Database = {
           assigned_to?: string | null
           color?: string
           created_at?: string
-          created_by?: string | null
+          created_by?: string
           factor?: number | null
           id?: string
           name?: string
