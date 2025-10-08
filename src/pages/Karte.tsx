@@ -737,21 +737,47 @@ function KarteContent() {
                       <Layers className="h-4 w-4 text-muted-foreground" />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end" className="w-56 z-[1001] bg-background">
-                    <DropdownMenuLabel>Kartenansicht</DropdownMenuLabel>
-                    <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => changeMapStyle('streets')}>
-                      <div className="flex items-center gap-2 w-full">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: mapStyle === 'streets' ? 'hsl(var(--primary))' : 'transparent' }} />
-                        <span className={mapStyle === 'streets' ? 'font-medium' : ''}>Straßenkarte</span>
-                      </div>
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => changeMapStyle('satellite')}>
-                      <div className="flex items-center gap-2 w-full">
-                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: mapStyle === 'satellite' ? 'hsl(var(--primary))' : 'transparent' }} />
-                        <span className={mapStyle === 'satellite' ? 'font-medium' : ''}>Satellit</span>
-                      </div>
-                    </DropdownMenuItem>
+                  <DropdownMenuContent align="end" className="w-64 p-3 z-[1001] bg-background">
+                    <DropdownMenuLabel className="text-center pb-2">Kartentyp</DropdownMenuLabel>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => changeMapStyle('streets')}
+                        className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border-2 transition-all hover:bg-muted/50 ${
+                          mapStyle === 'streets' 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border bg-background'
+                        }`}
+                      >
+                        <div className="w-full h-16 rounded-md overflow-hidden bg-gradient-to-br from-gray-100 via-gray-200 to-gray-300 relative">
+                          <div className="absolute inset-0 bg-[linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0),linear-gradient(45deg,#f0f0f0_25%,transparent_25%,transparent_75%,#f0f0f0_75%,#f0f0f0)] bg-[length:8px_8px] bg-[position:0_0,4px_4px] opacity-30"></div>
+                          <svg className="absolute inset-0 w-full h-full opacity-40" viewBox="0 0 100 100">
+                            <path d="M10,50 Q30,30 50,50 T90,50" stroke="#999" strokeWidth="2" fill="none"/>
+                            <path d="M20,20 L80,20 L80,80 L20,80 Z" stroke="#666" strokeWidth="1" fill="none"/>
+                          </svg>
+                        </div>
+                        <span className={`text-xs ${mapStyle === 'streets' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
+                          Standard
+                        </span>
+                      </button>
+                      
+                      <button
+                        onClick={() => changeMapStyle('satellite')}
+                        className={`flex flex-col items-center gap-1.5 p-2 rounded-lg border-2 transition-all hover:bg-muted/50 ${
+                          mapStyle === 'satellite' 
+                            ? 'border-primary bg-primary/5' 
+                            : 'border-border bg-background'
+                        }`}
+                      >
+                        <div className="w-full h-16 rounded-md overflow-hidden bg-gradient-to-br from-green-800 via-green-700 to-green-900 relative">
+                          <div className="absolute inset-0 bg-gradient-to-br from-gray-400/20 via-transparent to-gray-800/30"></div>
+                          <div className="absolute top-0 right-0 w-8 h-8 bg-gray-500/30 blur-sm"></div>
+                          <div className="absolute bottom-1 left-1 w-6 h-6 bg-gray-400/20 rounded-sm"></div>
+                        </div>
+                        <span className={`text-xs ${mapStyle === 'satellite' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
+                          Satellit
+                        </span>
+                      </button>
+                    </div>
                   </DropdownMenuContent>
                 </DropdownMenu>
                 
