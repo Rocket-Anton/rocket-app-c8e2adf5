@@ -655,32 +655,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       <div className="space-y-4 pt-6 border-t">
         <h3 className="text-lg font-semibold">Upload</h3>
         
-        {/* Präsentation */}
-        <div className="space-y-2">
-          <Label>Präsentation</Label>
-          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
-            <div className="text-center">
-              <div className="text-4xl text-muted-foreground mb-2">+</div>
-              <p className="text-sm text-muted-foreground">Datei hochladen</p>
-            </div>
-          </div>
-        </div>
-
         {/* Straßenliste */}
         <div className="space-y-2">
           <Label>Straßenliste</Label>
-          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
-            <div className="text-center">
-              <div className="text-4xl text-muted-foreground mb-2">+</div>
-              <p className="text-sm text-muted-foreground">Datei hochladen</p>
-            </div>
-          </div>
-        </div>
-
-        {/* Tarife-PDF */}
-        <div className="space-y-2">
-          <Label>Tarife-PDF</Label>
-          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
+          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer">
             <div className="text-center">
               <div className="text-4xl text-muted-foreground mb-2">+</div>
               <p className="text-sm text-muted-foreground">Datei hochladen</p>
