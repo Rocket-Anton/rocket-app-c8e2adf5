@@ -473,7 +473,7 @@ const ProjectDetail = () => {
                             <DropdownMenu>
                               <DropdownMenuTrigger asChild>
                                 <Button 
-                                  disabled={exporting || lists.length === 0}
+                                  disabled={exporting}
                                   variant="outline"
                                   size="sm"
                                 >
@@ -487,11 +487,17 @@ const ProjectDetail = () => {
                                 </Button>
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background z-50">
-                                <DropdownMenuItem onClick={() => handleExport('raw')}>
+                                <DropdownMenuItem 
+                                  onClick={() => handleExport('raw')}
+                                  disabled={exporting}
+                                >
                                   <Download className="w-4 h-4 mr-2" />
                                   Rohdatei
                                 </DropdownMenuItem>
-                                <DropdownMenuItem onClick={() => handleExport('rocket')}>
+                                <DropdownMenuItem 
+                                  onClick={() => handleExport('rocket')}
+                                  disabled={exporting}
+                                >
                                   <Download className="w-4 h-4 mr-2" />
                                   Rocket Export
                                 </DropdownMenuItem>
