@@ -597,34 +597,6 @@ const ProjectDetail = () => {
                                          </div>
                                        )}
                                     </div>
-                                    <div className="flex gap-2 ml-4">
-                                       <DropdownMenu>
-                                         <DropdownMenuTrigger asChild>
-                                           <Button variant="outline" size="sm">
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Export
-                                             <ChevronDown className="w-4 h-4 ml-2" />
-                                           </Button>
-                                         </DropdownMenuTrigger>
-                                         <DropdownMenuContent className="bg-background z-50">
-                                           <DropdownMenuItem onClick={() => handleExport('raw', list.id)}>
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Rohdatei
-                                           </DropdownMenuItem>
-                                           <DropdownMenuItem onClick={() => handleExport('rocket', list.id)}>
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Rocket Export
-                                           </DropdownMenuItem>
-                                         </DropdownMenuContent>
-                                       </DropdownMenu>
-                                      <Button 
-                                        variant="outline" 
-                                        size="sm"
-                                        onClick={() => openDeleteDialog(list.id)}
-                                      >
-                                        <Trash2 className="w-4 h-4" />
-                                      </Button>
-                                    </div>
                                   </div>
                                 </div>
                               ))}
