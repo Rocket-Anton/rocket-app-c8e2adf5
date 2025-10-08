@@ -252,6 +252,8 @@ export const ProjectAddListDialog = ({
       setCsvData([]);
       setCsvHeaders([]);
       setFinalMapping({});
+      setQuestionAnswers({});
+      setMappingQuestions([]);
     } catch (error: any) {
       console.error('Import error:', error);
       toast.error(`Import fehlgeschlagen: ${error.message}`);
@@ -383,15 +385,15 @@ export const ProjectAddListDialog = ({
                 <h3 className="font-semibold">Bitte bestätigen:</h3>
                 {mappingQuestions.map((question) => (
                   <div key={question.column} className="border rounded-lg p-4 space-y-3">
-                    <Label>{question.question}</Label>
+                    <Label className="text-base font-semibold">{question.question}</Label>
                     <RadioGroup
-                      value={questionAnswers[question.column]}
+                      value={questionAnswers[question.column] || ""}
                       onValueChange={(value) => handleQuestionAnswer(question.column, value)}
                     >
                       {question.options.map((option: string) => (
                         <div key={option} className="flex items-center space-x-2">
                           <RadioGroupItem value={option} id={`${question.column}-${option}`} />
-                          <Label htmlFor={`${question.column}-${option}`} className="cursor-pointer">
+                          <Label htmlFor={`${question.column}-${option}`} className="cursor-pointer font-normal">
                             {option}
                           </Label>
                         </div>
