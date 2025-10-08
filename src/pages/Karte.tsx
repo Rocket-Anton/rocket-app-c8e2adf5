@@ -493,8 +493,18 @@ function KarteContent() {
       const size = 24;
       const fontSize = 11;
       const el = document.createElement('div');
-      el.style.cssText = `width:${size}px;height:${size}px;background:${color};color:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;`;
+      el.style.cssText = `width:${size}px;height:${size}px;background:${color};color:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;cursor:pointer;`;
       el.textContent = String(address.units.length);
+
+      // Add click handler to zoom to address
+      el.addEventListener('click', () => {
+        map.flyTo({
+          center: [address.coordinates[0], address.coordinates[1]],
+          zoom: 18,
+          pitch: 45,
+          duration: 1500,
+        });
+      });
 
       const marker = new mapboxgl.Marker({ element: el })
         .setLngLat([address.coordinates[0], address.coordinates[1]])
