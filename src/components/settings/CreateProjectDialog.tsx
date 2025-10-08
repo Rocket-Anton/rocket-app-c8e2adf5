@@ -269,8 +269,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
   return (
     <div className="flex flex-col h-full max-h-[80vh]">
-      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-2 pointer-events-auto">
-        <div className="pt-4 pb-6 border-b mb-6"></div>
+      {/* Fixed divider line */}
+      <div className="px-6 pt-2 pb-4 border-b"></div>
+      
+      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 pointer-events-auto">
         <div className="space-y-6 pointer-events-auto">
           {/* Provider */}
           <div className="space-y-2 pointer-events-auto">
