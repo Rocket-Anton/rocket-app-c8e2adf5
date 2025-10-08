@@ -281,9 +281,11 @@ serve(async (req) => {
             console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
           } else {
             // Insert new address
-            const coordinates = (addr.coordinates.lat && addr.coordinates.lng)
-              ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
-              : null
+            // Always provide coordinates object (NOT NULL constraint)
+            const coordinates = {
+              lat: (addr as any).coordinates?.lat ?? null,
+              lng: (addr as any).coordinates?.lng ?? null,
+            }
 
             const { data: addressData, error: addressError } = await supabaseClient
               .from('addresses')
@@ -292,7 +294,7 @@ serve(async (req) => {
                 house_number: addr.houseNumber,
                 postal_code: suggestedPlz || addr.postalCode,
                 city: suggestedCity || addr.city,
-                coordinates: coordinates,
+                coordinates,
                 project_id: projectId,
                 list_id: listId || null,
                 created_by: user.id,
