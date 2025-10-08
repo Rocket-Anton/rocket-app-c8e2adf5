@@ -204,15 +204,15 @@ export const ProjectsSettings = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'In Planung':
-        return 'bg-blue-500 text-white';
+        return 'bg-blue-100 text-blue-800';
       case 'Läuft':
-        return 'bg-green-500 text-white';
+        return 'bg-green-100 text-green-800';
       case 'Laufend':
-        return 'bg-yellow-500 text-white';
+        return 'bg-yellow-100 text-yellow-800';
       case 'Abgeschlossen':
-        return 'bg-red-500 text-white';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-500 text-white';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
@@ -276,7 +276,7 @@ export const ProjectsSettings = () => {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-card overflow-auto pb-4">
+      <div className="border rounded-lg bg-card overflow-auto pb-4 border-b-2">
         <Table className="w-full min-w-max">
           <TableHeader className="bg-muted/30">
             <TableRow className="h-8">
@@ -396,7 +396,7 @@ export const ProjectsSettings = () => {
                                   value={project.status}
                                   onValueChange={(value) => handleStatusUpdate(project.id, value)}
                                 >
-                                  <SelectTrigger className={`w-auto h-7 border-0 rounded-md px-3 ${getStatusColor(project.status)} hover:opacity-80`}>
+                                  <SelectTrigger className={`w-auto h-7 border-0 rounded-md px-3 ${getStatusColor(project.status)}`}>
                                     <SelectValue>
                                       <span className="text-xs font-medium">{project.status.toUpperCase()}</span>
                                     </SelectValue>
