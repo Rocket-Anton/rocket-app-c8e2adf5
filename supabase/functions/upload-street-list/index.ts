@@ -66,7 +66,7 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
       const body = await req.json() as any
-      const { projectId, csvData, columnMapping } = body || {}
+      const { projectId, listId, csvData, columnMapping } = body || {}
 
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
@@ -229,6 +229,7 @@ serve(async (req) => {
               city: suggestedCity || addr.city,
               coordinates: coordinates,
               project_id: projectId,
+              list_id: listId || null,
               created_by: user.id,
               notiz: addr.notizAdresse,
             })

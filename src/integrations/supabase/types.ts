@@ -57,6 +57,7 @@ export type Database = {
           created_by: string | null
           house_number: string
           id: number
+          list_id: string | null
           locality: string | null
           notiz: string | null
           postal_code: string
@@ -71,6 +72,7 @@ export type Database = {
           created_by?: string | null
           house_number: string
           id?: number
+          list_id?: string | null
           locality?: string | null
           notiz?: string | null
           postal_code: string
@@ -85,6 +87,7 @@ export type Database = {
           created_by?: string | null
           house_number?: string
           id?: number
+          list_id?: string | null
           locality?: string | null
           notiz?: string | null
           postal_code?: string
@@ -93,6 +96,13 @@ export type Database = {
           units?: Json
         }
         Relationships: [
+          {
+            foreignKeyName: "addresses_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "project_address_lists"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "addresses_project_id_fkey"
             columns: ["project_id"]
@@ -310,6 +320,56 @@ export type Database = {
           },
           {
             foreignKeyName: "project_addons_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_address_lists: {
+        Row: {
+          column_mapping: Json | null
+          created_at: string
+          created_by: string
+          error_details: Json | null
+          file_name: string | null
+          id: string
+          name: string
+          project_id: string
+          status: string
+          updated_at: string
+          upload_stats: Json | null
+        }
+        Insert: {
+          column_mapping?: Json | null
+          created_at?: string
+          created_by: string
+          error_details?: Json | null
+          file_name?: string | null
+          id?: string
+          name: string
+          project_id: string
+          status?: string
+          updated_at?: string
+          upload_stats?: Json | null
+        }
+        Update: {
+          column_mapping?: Json | null
+          created_at?: string
+          created_by?: string
+          error_details?: Json | null
+          file_name?: string | null
+          id?: string
+          name?: string
+          project_id?: string
+          status?: string
+          updated_at?: string
+          upload_stats?: Json | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_address_lists_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
