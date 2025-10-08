@@ -270,6 +270,44 @@ export type Database = {
           },
         ]
       }
+      project_ai_instructions: {
+        Row: {
+          area_name: string | null
+          created_at: string
+          created_by: string
+          id: string
+          instruction_text: string
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          area_name?: string | null
+          created_at?: string
+          created_by: string
+          id?: string
+          instruction_text: string
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          area_name?: string | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          instruction_text?: string
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_ai_instructions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_tariffs: {
         Row: {
           created_at: string
@@ -419,6 +457,44 @@ export type Database = {
           },
           {
             foreignKeyName: "projects_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_ai_instructions: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          instruction_category: string | null
+          instruction_text: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          instruction_category?: string | null
+          instruction_text: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          instruction_category?: string | null
+          instruction_text?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_ai_instructions_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
@@ -613,6 +689,96 @@ export type Database = {
           id?: string
           metadata?: Json | null
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_ai_memory: {
+        Row: {
+          created_at: string
+          id: string
+          importance: number
+          last_referenced: string
+          memory_content: string
+          memory_type: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          importance?: number
+          last_referenced?: string
+          memory_content: string
+          memory_type: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          importance?: number
+          last_referenced?: string
+          memory_content?: string
+          memory_type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_conversations: {
+        Row: {
+          created_at: string
+          id: string
+          message_content: string
+          message_role: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          message_content: string
+          message_role: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          message_content?: string
+          message_role?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_daily_context: {
+        Row: {
+          context_date: string
+          created_at: string
+          id: string
+          mood_score: number | null
+          notes: string | null
+          total_contacts: number | null
+          total_orders: number | null
+          user_id: string
+          working_hours: number | null
+        }
+        Insert: {
+          context_date?: string
+          created_at?: string
+          id?: string
+          mood_score?: number | null
+          notes?: string | null
+          total_contacts?: number | null
+          total_orders?: number | null
+          user_id: string
+          working_hours?: number | null
+        }
+        Update: {
+          context_date?: string
+          created_at?: string
+          id?: string
+          mood_score?: number | null
+          notes?: string | null
+          total_contacts?: number | null
+          total_orders?: number | null
+          user_id?: string
+          working_hours?: number | null
         }
         Relationships: []
       }
