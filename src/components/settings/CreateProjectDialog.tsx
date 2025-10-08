@@ -276,11 +276,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <div className="space-y-6 pointer-events-auto">
           {/* Provider */}
           <div className="space-y-2 pointer-events-auto">
-            <Label className="text-sm font-medium">
+            <Label htmlFor="provider" className="text-sm font-medium text-foreground">
               Provider<span className="text-red-500 ml-1">*</span>
             </Label>
             <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+              <SelectTrigger id="provider" className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
                 <SelectValue placeholder="Provider auswählen" />
               </SelectTrigger>
               <SelectContent className="bg-background z-[100] pointer-events-auto">
@@ -295,10 +295,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Gebiet Name */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">
+        <Label htmlFor="area-name" className="text-sm font-medium text-foreground">
           Gebiet Name<span className="text-red-500 ml-1">*</span>
         </Label>
         <Input
+          id="area-name"
           value={areaName}
           onChange={(e) => setAreaName(e.target.value)}
           placeholder="z.B. Lurup 1"
