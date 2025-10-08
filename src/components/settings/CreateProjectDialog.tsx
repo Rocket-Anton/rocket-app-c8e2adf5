@@ -150,8 +150,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota) {
-      toast.error("Bitte füllen Sie alle Pflichtfelder aus");
+    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo) {
+      toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
       return;
     }
 
@@ -268,462 +268,424 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     : areaName || "";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
-      {/* Basic Information */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Grundinformationen</h3>
-        
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Provider *</Label>
-            <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-              <SelectTrigger>
-                <SelectValue placeholder="Provider auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {activeProviders.map((provider) => (
-                  <SelectItem key={provider.id} value={provider.id}>
-                    {provider.name}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+    <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] overflow-y-auto px-1">
+      {/* Provider */}
+      <div className="space-y-2">
+        <Label>Provider<span className="text-red-500">*</span></Label>
+        <Select value={selectedProvider} onValueChange={setSelectedProvider}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Provider" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {activeProviders.map((provider) => (
+              <SelectItem key={provider.id} value={provider.id}>
+                {provider.name}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
 
-          <div className="space-y-2">
-            <Label>Gebietsname *</Label>
-            <Input
-              value={areaName}
-              onChange={(e) => setAreaName(e.target.value)}
-              placeholder="Gebietsname eingeben"
-            />
-            {projectName && (
-              <p className="text-xs text-muted-foreground mt-1">
-                Projektname: <span className="font-medium">{projectName}</span>
-              </p>
+      {/* Gebiet Name */}
+      <div className="space-y-2">
+        <Label>Gebiet Name<span className="text-red-500">*</span></Label>
+        <Input
+          value={areaName}
+          onChange={(e) => setAreaName(e.target.value)}
+          placeholder="ZB. Lurup 1"
+          className="bg-background"
+        />
+        {projectName && (
+          <p className="text-xs text-muted-foreground">
+            Projektname: <span className="font-medium">{projectName}</span>
+          </p>
+        )}
+      </div>
+
+      {/* Bundesland */}
+      <div className="space-y-2">
+        <Label>Bundesland<span className="text-red-500">*</span></Label>
+        <Select value={federalState} onValueChange={setFederalState}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Bundesland" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {FEDERAL_STATES.map((state) => (
+              <SelectItem key={state} value={state}>
+                {state}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Status */}
+      <div className="space-y-2">
+        <Label>Status<span className="text-red-500">*</span></Label>
+        <Select value={status} onValueChange={setStatus}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Status" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {STATUS_OPTIONS.map((option) => (
+              <SelectItem key={option} value={option}>
+                {option}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Ort */}
+      <div className="space-y-2">
+        <Label>Ort<span className="text-red-500">*</span></Label>
+        <Input
+          value={city}
+          onChange={(e) => setCity(e.target.value)}
+          placeholder="Ort eingeben"
+          className="bg-background"
+        />
+      </div>
+
+      {/* PLZ */}
+      <div className="space-y-2">
+        <Label>PLZ</Label>
+        <Input
+          value={postalCode}
+          onChange={(e) => setPostalCode(e.target.value)}
+          placeholder="PLZ eingeben"
+          className="bg-background"
+        />
+      </div>
+
+      {/* Vermarktungsart */}
+      <div className="space-y-2">
+        <Label>Vermarktungsart<span className="text-red-500">*</span></Label>
+        <Select value={marketingType} onValueChange={setMarketingType}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Vermarktungsart" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {MARKETING_TYPES.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Ansprechpartner Provider */}
+      <div className="space-y-2">
+        <Label>Ansprechpartner Provider</Label>
+        <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select an Ansprechpartner" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {providerContacts.length === 0 ? (
+              <SelectItem value="none">Keine Ansprechpartner vorhanden</SelectItem>
+            ) : (
+              providerContacts.map((contact: any) => (
+                <SelectItem key={contact.id} value={contact.id}>
+                  {contact.first_name} {contact.last_name}
+                </SelectItem>
+              ))
             )}
-          </div>
-
-          <div className="space-y-2">
-            <Label>Bundesland</Label>
-            <Select value={federalState} onValueChange={setFederalState}>
-              <SelectTrigger>
-                <SelectValue placeholder="Bundesland auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {FEDERAL_STATES.map((state) => (
-                  <SelectItem key={state} value={state}>
-                    {state}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Status *</Label>
-            <Select value={status} onValueChange={setStatus}>
-              <SelectTrigger>
-                <SelectValue placeholder="Status auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {STATUS_OPTIONS.map((option) => (
-                  <SelectItem key={option} value={option}>
-                    {option}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Ort</Label>
-            <Input
-              value={city}
-              onChange={(e) => setCity(e.target.value)}
-              placeholder="Ort eingeben"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Postleitzahl</Label>
-            <Input
-              value={postalCode}
-              onChange={(e) => setPostalCode(e.target.value)}
-              placeholder="PLZ eingeben"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Vermarktungsart</Label>
-            <Select value={marketingType} onValueChange={setMarketingType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {MARKETING_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    <span className={cn("px-2 py-1 rounded text-xs font-medium", type.color)}>
-                      {type.value}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Ansprechpartner Provider</Label>
-            <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {providerContacts.length === 0 ? (
-                  <SelectItem value="none">Keine Ansprechpartner vorhanden</SelectItem>
-                ) : (
-                  providerContacts.map((contact: any) => (
-                    <SelectItem key={contact.id} value={contact.id}>
-                      {contact.first_name} {contact.last_name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Anzahl Raketen *</Label>
-            <Input
-              type="number"
-              value={rocketCount}
-              onChange={(e) => setRocketCount(e.target.value)}
-              placeholder="0"
-            />
-          </div>
-        </div>
+          </SelectContent>
+        </Select>
       </div>
 
-      {/* Dates */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Zeitraum</h3>
-        
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>Startdatum</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {startDate ? format(startDate, "dd.MM.yyyy") : "Auswählen"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={startDate}
-                  onSelect={setStartDate}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Enddatum</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {endDate ? format(endDate, "dd.MM.yyyy") : "Auswählen"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={endDate}
-                  onSelect={setEndDate}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Was auf Schicht</Label>
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" className="w-full justify-start text-left font-normal">
-                  <CalendarIcon className="mr-2 h-4 w-4" />
-                  {shiftDate ? format(shiftDate, "dd.MM.yyyy") : "Auswählen"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0" align="start">
-                <Calendar
-                  mode="single"
-                  selected={shiftDate}
-                  onSelect={setShiftDate}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
-        </div>
+      {/* Anzahl Raketen Soll */}
+      <div className="space-y-2">
+        <Label>Anzahl Raketen Soll<span className="text-red-500">*</span></Label>
+        <Input
+          type="number"
+          value={rocketCount}
+          onChange={(e) => setRocketCount(e.target.value)}
+          placeholder="0"
+          className="bg-background"
+        />
       </div>
 
-      {/* Units and Quota */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Kennzahlen</h3>
+      {/* Startdatum */}
+      <div className="space-y-2">
+        <Label>Startdatum<span className="text-red-500">*</span></Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {startDate ? format(startDate, "dd.MM.yyyy") : "Datum auswählen"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+            <Calendar
+              mode="single"
+              selected={startDate}
+              onSelect={setStartDate}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Enddatum */}
+      <div className="space-y-2">
+        <Label>Enddatum<span className="text-red-500">*</span></Label>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background">
+              <CalendarIcon className="mr-2 h-4 w-4" />
+              {endDate ? format(endDate, "dd.MM.yyyy") : "Datum auswählen"}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
+            <Calendar
+              mode="single"
+              selected={endDate}
+              onSelect={setEndDate}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
+      </div>
+
+      {/* Anzahl WE */}
+      <div className="space-y-2">
+        <Label>Anzahl WE<span className="text-red-500">*</span></Label>
+        <Input
+          type="number"
+          value={unitCount}
+          onChange={(e) => setUnitCount(e.target.value)}
+          placeholder="0"
+          className="bg-background"
+        />
+      </div>
+
+      {/* Anzahl der Bestandskunden */}
+      <div className="space-y-2">
+        <Label>Anzahl der Bestandskunden</Label>
+        <Input
+          type="number"
+          value={existingCustomerCount}
+          onChange={(e) => setExistingCustomerCount(e.target.value)}
+          placeholder="0"
+          className="bg-background"
+        />
+      </div>
+
+      {/* Saleable WE */}
+      <div className="space-y-2">
+        <Label>Saleable WE</Label>
+        <Input
+          type="number"
+          value={saleableUnits}
+          onChange={(e) => setSaleableUnits(e.target.value)}
+          placeholder="0"
+          className="bg-background"
+        />
+      </div>
+
+      {/* Art Quote */}
+      <div className="space-y-2">
+        <Label>Art Quote<span className="text-red-500">*</span></Label>
+        <Select value={quotaType} onValueChange={setQuotaType}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Art Quote" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {QUOTA_TYPES.map((type) => (
+              <SelectItem key={type.value} value={type.value}>
+                {type.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Zielquote */}
+      <div className="space-y-2">
+        <Label>Zielquote<span className="text-red-500">*</span></Label>
+        <Input
+          type="number"
+          step="0.01"
+          value={targetQuota}
+          onChange={(e) => setTargetQuota(e.target.value)}
+          placeholder="0.00"
+          className="bg-background"
+        />
+      </div>
+
+      {/* Wichtige Infos */}
+      <div className="space-y-2">
+        <Label>Wichtige Infos</Label>
+        <Textarea
+          value={importantInfo}
+          onChange={(e) => setImportantInfo(e.target.value)}
+          placeholder="Wichtige Informationen..."
+          rows={3}
+          className="bg-background"
+        />
+      </div>
+
+      {/* Projektleiter Neu */}
+      <div className="space-y-2">
+        <Label>Projektleiter Neu</Label>
+        <Select value={projectManager} onValueChange={setProjectManager}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Projektleiter" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {projectManagers.length === 0 ? (
+              <SelectItem value="none">Keine Projektleiter verfügbar</SelectItem>
+            ) : (
+              projectManagers.map((manager: any) => (
+                <SelectItem key={manager.id} value={manager.id}>
+                  {manager.name}
+                </SelectItem>
+              ))
+            )}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Telegram Gruppe erstellen */}
+      <div className="space-y-2">
+        <Label>Telegram Gruppe erstellen<span className="text-red-500">*</span></Label>
+        <Select value={telegramGroupCreate} onValueChange={setTelegramGroupCreate}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Telegram Gruppe erstellen" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {TG_GROUP_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Jobbooster posten */}
+      <div className="space-y-2">
+        <Label>Jobbooster posten<span className="text-red-500">*</span></Label>
+        <Select value={postJobBooster} onValueChange={setPostJobBooster}>
+          <SelectTrigger className="bg-background">
+            <SelectValue placeholder="Select a Jobbooster" />
+          </SelectTrigger>
+          <SelectContent className="bg-background z-50">
+            {YES_NO_OPTIONS.map((option) => (
+              <SelectItem key={option.value} value={option.value}>
+                {option.value}
+              </SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
+
+      {/* Provisionen Section */}
+      <div className="space-y-4 pt-6 border-t">
+        <h3 className="text-lg font-semibold">Provisionen</h3>
         
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label>Anzahl WE</Label>
-            <Input
-              type="number"
-              value={unitCount}
-              onChange={(e) => setUnitCount(e.target.value)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Anzahl Bestandskunden</Label>
-            <Input
-              type="number"
-              value={existingCustomerCount}
-              onChange={(e) => setExistingCustomerCount(e.target.value)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Saleable WE</Label>
-            <Input
-              type="number"
-              value={saleableUnits}
-              onChange={(e) => setSaleableUnits(e.target.value)}
-              placeholder="0"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Art Quote</Label>
-            <Select value={quotaType} onValueChange={setQuotaType}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {QUOTA_TYPES.map((type) => (
-                  <SelectItem key={type.value} value={type.value}>
-                    <span className={cn("px-2 py-1 rounded text-xs font-medium", type.color)}>
-                      {type.value}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Zielquote * (%)</Label>
-            <Input
-              type="number"
-              step="0.01"
-              value={targetQuota}
-              onChange={(e) => setTargetQuota(e.target.value)}
-              placeholder="0.00"
-            />
-          </div>
-
-          <div className="space-y-2">
-            <Label>Projektleiter</Label>
-            <Select value={projectManager} onValueChange={setProjectManager}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {projectManagers.length === 0 ? (
-                  <SelectItem value="none">Keine Projektleiter verfügbar</SelectItem>
-                ) : (
-                  projectManagers.map((manager: any) => (
-                    <SelectItem key={manager.id} value={manager.id}>
-                      {manager.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-
+        {/* Projekt mit Bonus */}
         <div className="space-y-2">
-          <Label>Wichtige Infos</Label>
-          <Textarea
-            value={importantInfo}
-            onChange={(e) => setImportantInfo(e.target.value)}
-            placeholder="Wichtige Informationen..."
-            rows={3}
-          />
+          <Label>Projekt mit Bonus<span className="text-red-500">*</span></Label>
+          <Select 
+            value={projectWithBonus ? "Ja" : "Nein"} 
+            onValueChange={(val) => setProjectWithBonus(val === "Ja")}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="Select a Projekt mit Bonus" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {YES_NO_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.value}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        {/* Provisionen (Tarife dropdown) */}
+        <div className="space-y-2">
+          <Label>Provisionen</Label>
+          <Select 
+            value={selectedTariffs[0] || ""} 
+            onValueChange={(val) => setSelectedTariffs([val])}
+            disabled={!selectedProvider}
+          >
+            <SelectTrigger className="bg-background">
+              <SelectValue placeholder="Select Provisionen" />
+            </SelectTrigger>
+            <SelectContent className="bg-background z-50">
+              {tariffs.length === 0 ? (
+                <SelectItem value="none">Keine Tarife verfügbar</SelectItem>
+              ) : (
+                tariffs.map((tariff: any) => (
+                  <SelectItem key={tariff.id} value={tariff.id}>
+                    {tariff.name}
+                  </SelectItem>
+                ))
+              )}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
-      {/* Telegram & Job Booster */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Kommunikation</h3>
-        
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label>Telegram-Gruppe erstellen</Label>
-            <Select value={telegramGroupCreate} onValueChange={setTelegramGroupCreate}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {TG_GROUP_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className={cn("px-2 py-1 rounded text-xs font-medium", option.color)}>
-                      {option.value}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>TG Gruppe existiert</Label>
-            <Select value={telegramGroupExists} onValueChange={setTelegramGroupExists}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {YES_NO_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className={cn("px-2 py-1 rounded text-xs font-medium", option.color)}>
-                      {option.value}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Job Booster posten</Label>
-            <Select value={postJobBooster} onValueChange={setPostJobBooster}>
-              <SelectTrigger>
-                <SelectValue placeholder="Auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {YES_NO_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    <span className={cn("px-2 py-1 rounded text-xs font-medium", option.color)}>
-                      {option.value}
-                    </span>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </div>
-      </div>
-
-      {/* Tender Info */}
-      <div className="space-y-4">
+      {/* Infos für Ausschreibung */}
+      <div className="space-y-4 pt-6 border-t">
         <h3 className="text-lg font-semibold">Infos für Ausschreibung</h3>
         
         <div className="space-y-2">
-          <Label>Info Text</Label>
+          <Label>Info Text<span className="text-red-500">*</span></Label>
           <Textarea
             value={tenderInfo}
             onChange={(e) => setTenderInfo(e.target.value)}
             placeholder="Informationen für die Ausschreibung..."
-            rows={4}
+            rows={6}
+            className="bg-background"
           />
         </div>
       </div>
 
-      {/* Provision Section */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Provisionen</h3>
+      {/* Upload Section */}
+      <div className="space-y-4 pt-6 border-t">
+        <h3 className="text-lg font-semibold">Upload</h3>
         
-        <div className="space-y-4">
-          <div className="flex items-center space-x-2">
-            <input
-              type="checkbox"
-              id="projectWithBonus"
-              checked={projectWithBonus}
-              onChange={(e) => setProjectWithBonus(e.target.checked)}
-              className="rounded border-gray-300"
-            />
-            <Label htmlFor="projectWithBonus" className="cursor-pointer">
-              Projekt mit Bonus
-            </Label>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Provision (Tarife)</Label>
-            <Select 
-              value={selectedTariffs[0] || ""} 
-              onValueChange={(val) => setSelectedTariffs([val])}
-              disabled={!selectedProvider}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Tarife auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {tariffs.length === 0 ? (
-                  <SelectItem value="none">Keine Tarife verfügbar</SelectItem>
-                ) : (
-                  tariffs.map((tariff: any) => (
-                    <SelectItem key={tariff.id} value={tariff.id}>
-                      {tariff.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
-          </div>
-
-          <div className="space-y-2">
-            <Label>Zusätze</Label>
-            <Select 
-              value={selectedAddons[0] || ""} 
-              onValueChange={(val) => setSelectedAddons([val])}
-              disabled={!selectedProvider}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Zusätze auswählen" />
-              </SelectTrigger>
-              <SelectContent>
-                {addons.length === 0 ? (
-                  <SelectItem value="none">Keine Zusätze verfügbar</SelectItem>
-                ) : (
-                  addons.map((addon: any) => (
-                    <SelectItem key={addon.id} value={addon.id}>
-                      {addon.name}
-                    </SelectItem>
-                  ))
-                )}
-              </SelectContent>
-            </Select>
+        {/* Präsentation */}
+        <div className="space-y-2">
+          <Label>Präsentation</Label>
+          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
+            <div className="text-center">
+              <div className="text-4xl text-muted-foreground mb-2">+</div>
+              <p className="text-sm text-muted-foreground">Datei hochladen</p>
+            </div>
           </div>
         </div>
-      </div>
 
-      {/* Street List Upload */}
-      <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Straßenliste</h3>
-        
+        {/* Straßenliste */}
         <div className="space-y-2">
-          <Label>Straßenliste hochladen</Label>
-          <Input type="file" accept=".xlsx,.xls" disabled />
-          <p className="text-xs text-muted-foreground">
-            Excel-Datei mit Adressdaten (wird später implementiert)
-          </p>
+          <Label>Straßenliste</Label>
+          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
+            <div className="text-center">
+              <div className="text-4xl text-muted-foreground mb-2">+</div>
+              <p className="text-sm text-muted-foreground">Datei hochladen</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Tarife-PDF */}
+        <div className="space-y-2">
+          <Label>Tarife-PDF</Label>
+          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors">
+            <div className="text-center">
+              <div className="text-4xl text-muted-foreground mb-2">+</div>
+              <p className="text-sm text-muted-foreground">Datei hochladen</p>
+            </div>
+          </div>
         </div>
       </div>
 

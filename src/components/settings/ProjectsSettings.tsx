@@ -172,7 +172,7 @@ export const ProjectsSettings = () => {
                 Neues Projekt
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-4xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-hidden">
               <DialogHeader>
                 <DialogTitle>Neues Projekt</DialogTitle>
               </DialogHeader>
