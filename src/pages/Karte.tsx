@@ -771,7 +771,7 @@ function KarteContent() {
                            </svg>
                          </div>
                          <span className={`text-xs ${mapStyle === 'streets' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
-                           Standard
+                           Default
                          </span>
                        </button>
                        
