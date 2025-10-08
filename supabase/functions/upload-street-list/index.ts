@@ -306,12 +306,15 @@ serve(async (req) => {
           // Insert units for this address (new or existing)
           const units = []
           for (let i = 0; i < addr.weCount; i++) {
+            const isVerbot = addr.status.toLowerCase() === 'verbot'
             units.push({
               address_id: addressId,
-              status: addr.status,
+              status: isVerbot ? 'Nicht vermarktbar' : addr.status,
+              marketable: !isVerbot,
               etage: addr.etage,
               lage: addr.lage,
               notiz: addr.notizWE,
+              system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
             })
           }
 
@@ -598,12 +601,15 @@ serve(async (req) => {
         // Insert units for this address (new or existing)
         const units = []
         for (let i = 0; i < addr.weCount; i++) {
+          const isVerbot = addr.status.toLowerCase() === 'verbot'
           units.push({
             address_id: addressId,
-            status: addr.status,
+            status: isVerbot ? 'Nicht vermarktbar' : addr.status,
+            marketable: !isVerbot,
             etage: addr.etage,
             lage: addr.lage,
             notiz: addr.notizWE,
+            system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
           })
         }
 

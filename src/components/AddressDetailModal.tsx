@@ -56,7 +56,8 @@ interface Address {
     id: number; 
     floor: string; 
     position: string; 
-    status: string; 
+    status: string;
+    marketable?: boolean;
     addedBy?: string; 
     addedAt?: string;
     deleted?: boolean;
@@ -67,7 +68,8 @@ interface Address {
     id: number; 
     floor: string; 
     position: string; 
-    status: string; 
+    status: string;
+    marketable?: boolean;
     addedBy?: string; 
     addedAt?: string;
     deleted?: boolean;
@@ -553,6 +555,24 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   const handleStatusChange = (addressId: number, unitId: number, newStatus: string) => {
     const k = `${addressId}:${unitId}`;
+    
+    // Check if unit is marketable
+    const targetAddress = allAddresses.length > 0 
+      ? allAddresses.find(addr => addr.id === addressId) 
+      : (currentAddress?.id === addressId ? currentAddress : null);
+    
+    const unit = targetAddress?.units?.find(u => u.id === unitId);
+    
+    // Prevent status change if unit is not marketable
+    if (unit && unit.marketable === false) {
+      toast({
+        title: "⚠️ Nicht vermarktbar",
+        description: "Diese Einheit kann nicht bearbeitet werden.",
+        className: "bg-red-500 text-white border-0",
+        duration: 2000,
+      });
+      return;
+    }
     
     console.log("handleStatusChange called with:", { addressId, unitId, newStatus });
     
@@ -1156,7 +1176,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
-              units.map((unit, index) => (
+              units.map((unit, index) => {
+                const isNotMarketable = unit.marketable === false;
+                
+                return (
                 <div key={unit.id} className="space-y-2 w-full">
                   {/* Trennlinie zwischen Wohneinheiten (nicht vor der ersten) */}
                   {unitCount > 1 && index > 0 && (
@@ -1166,13 +1189,21 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   {unitCount > 1 && (
                     <div className="mb-2">
                       <div className="flex items-center justify-between">
-                        <h3 className="font-semibold text-base">Wohneinheit {index + 1}</h3>
+                        <h3 className="font-semibold text-base">
+                          Wohneinheit {index + 1}
+                          {isNotMarketable && (
+                            <Badge variant="destructive" className="ml-2 text-xs">
+                              Nicht vermarktbar
+                            </Badge>
+                          )}
+                        </h3>
                         {unit.addedBy && unit.addedAt && (
                           <Button
                             variant="ghost"
                             size="icon"
                             className="h-8 w-8 text-destructive hover:text-destructive hover:bg-destructive/10"
                             onClick={() => handleDeleteUnitClick(addr.id, unit.id)}
+                            disabled={isNotMarketable}
                           >
                             <Trash2 className="h-4 w-4" />
                           </Button>
@@ -1187,16 +1218,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   )}
                 {/* Gray Container for Fields - Green background if Neukunde, Red if Kein Interesse */}
                     <div className={`rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full ${
-                      unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
-                        ? "bg-green-100 dark:bg-green-950/30" 
-                        : unitStatuses[`${addr.id}:${unit.id}`] === "kein-interesse"
-                        ? "bg-red-100 dark:bg-red-950/30"
-                        : "bg-muted/70"
+                      isNotMarketable 
+                        ? "bg-gray-100 dark:bg-gray-900/50"
+                        : unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
+                          ? "bg-green-100 dark:bg-green-950/30" 
+                          : unitStatuses[`${addr.id}:${unit.id}`] === "kein-interesse"
+                          ? "bg-red-100 dark:bg-red-950/30"
+                          : "bg-muted/70"
                     }`}>
-                    {unitCount > 1 ? (
+                    {unitCount > 1 && !isNotMarketable ? (
                       <div className="flex gap-3 min-w-0">
                         <div className="flex-[2] min-w-0">
-                          <Select defaultValue={unit.floor || undefined}>
+                          <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Stockwerk" />
                             </SelectTrigger>
@@ -1215,7 +1248,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
 
                         <div className="flex-1 min-w-0">
-                          <Select defaultValue={unit.position || undefined}>
+                          <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
                             <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue placeholder="Lage" />
                             </SelectTrigger>
@@ -1235,7 +1268,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <Select 
                             value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                             onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
-                            disabled={unitStatuses[`${addr.id}:${unit.id}`] === "neukunde"}
+                            disabled={unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" || isNotMarketable}
                           >
                             <SelectTrigger className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                               <SelectValue>
@@ -1250,17 +1283,19 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 })()}
                               </SelectValue>
                             </SelectTrigger>
-                            <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
-                              {statusOptions
-                                .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
-                                .map((status) => (
-                                  <SelectItem key={status.value} value={status.value}>
-                                    <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                                      {status.label}
-                                    </div>
-                                  </SelectItem>
-                                ))}
-                            </BoundedSelectContent>
+                            {!isNotMarketable && (
+                              <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
+                                {statusOptions
+                                  .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
+                                  .map((status) => (
+                                    <SelectItem key={status.value} value={status.value}>
+                                      <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                                        {status.label}
+                                      </div>
+                                    </SelectItem>
+                                  ))}
+                              </BoundedSelectContent>
+                            )}
                           </Select>
                         </div>
 
@@ -1270,6 +1305,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <Button 
                                 variant="outline" 
                                 className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative px-3"
+                                disabled={isNotMarketable}
                               >
                                 <span>Historie</span>
                                 <ChevronDown className="h-4 w-4 opacity-50" />
@@ -1414,8 +1450,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 handleAddAppointment(unit.id);
                               }}
                               className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
+                              disabled={isNotMarketable}
                             >
-                              <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
+                              <Plus className={`w-4 md:w-5 h-4 md:h-5 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
                             </button>
                             <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
                           </div>
@@ -1451,8 +1488,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </Collapsible>
                     </div>
 
-                    {/* Auftrag Button - Only show if not Neukunde */}
-                    {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && (
+                    {/* Auftrag Button - Only show if not Neukunde and marketable */}
+                    {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
                       <Button 
                         onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
                         className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
@@ -1463,7 +1500,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     )}
                   </div>
                 </div>
-              ))
+              );
+              })
             ) : (
               <div className="p-4 bg-muted/30 rounded-lg text-center text-muted-foreground">
                 Keine Wohneinheiten vorhanden

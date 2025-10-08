@@ -749,6 +749,7 @@ export type Database = {
           etage: string | null
           id: string
           lage: string | null
+          marketable: boolean
           notiz: string | null
           status: string
           system_notes: string | null
@@ -761,6 +762,7 @@ export type Database = {
           etage?: string | null
           id?: string
           lage?: string | null
+          marketable?: boolean
           notiz?: string | null
           status?: string
           system_notes?: string | null
@@ -773,6 +775,7 @@ export type Database = {
           etage?: string | null
           id?: string
           lage?: string | null
+          marketable?: boolean
           notiz?: string | null
           status?: string
           system_notes?: string | null
