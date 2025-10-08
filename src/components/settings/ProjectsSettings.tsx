@@ -204,45 +204,30 @@ export const ProjectsSettings = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'In Planung':
-        return 'bg-blue-100 text-blue-800 border-blue-300';
+        return 'bg-blue-100 text-blue-800';
       case 'Läuft':
-        return 'bg-green-100 text-green-800 border-green-300';
+        return 'bg-green-100 text-green-800';
       case 'Laufend':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
+        return 'bg-yellow-100 text-yellow-800';
       case 'Abgeschlossen':
-        return 'bg-red-100 text-red-800 border-red-300';
+        return 'bg-red-100 text-red-800';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-300';
+        return 'bg-gray-100 text-gray-800';
     }
   };
 
-  const getStatusBorderColor = (status: string) => {
+  const getStatusBgColor = (status: string) => {
     switch (status) {
       case 'In Planung':
-        return 'border-l-blue-500';
+        return 'bg-blue-500';
       case 'Läuft':
-        return 'border-l-green-500';
+        return 'bg-green-500';
       case 'Laufend':
-        return 'border-l-yellow-500';
+        return 'bg-yellow-500';
       case 'Abgeschlossen':
-        return 'border-l-red-500';
+        return 'bg-red-500';
       default:
-        return 'border-l-gray-500';
-    }
-  };
-
-  const getStatusTextColor = (status: string) => {
-    switch (status) {
-      case 'In Planung':
-        return 'text-blue-600';
-      case 'Läuft':
-        return 'text-green-600';
-      case 'Laufend':
-        return 'text-yellow-600';
-      case 'Abgeschlossen':
-        return 'text-red-600';
-      default:
-        return 'text-gray-600';
+        return 'bg-gray-500';
     }
   };
 
@@ -354,7 +339,7 @@ export const ProjectsSettings = () => {
                       onClick={() => toggleProvider(providerId)}
                     >
                       <TableCell className="py-2 relative" colSpan={27}>
-                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 ${isProviderExpanded ? 'w-1 h-full' : 'w-0.5 h-4 rounded-full'} bg-blue-500`} />
+                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 ${isProviderExpanded ? 'h-full' : 'h-6 rounded-full'} bg-blue-500`} />
                         <div className={`flex items-center gap-2 ${isProviderExpanded ? 'pl-4' : 'pl-3'}`}>
                           {isProviderExpanded ? (
                             <ChevronDown className="w-4 h-4 text-muted-foreground" />
@@ -362,7 +347,7 @@ export const ProjectsSettings = () => {
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           )}
                           <span className="text-sm font-semibold text-foreground">{providerData.name}</span>
-                          <Badge variant="secondary" className="text-xs h-5 px-2 bg-blue-500 text-white">
+                          <Badge className="text-xs h-5 px-2 bg-blue-500 text-white border-0">
                             {totalProjects}
                           </Badge>
                         </div>
@@ -381,19 +366,19 @@ export const ProjectsSettings = () => {
                             onClick={() => toggleStatus(statusKey)}
                           >
                             <TableCell className="py-2 pl-8" colSpan={27}>
-                              <div className={`absolute left-0 top-1/2 -translate-y-1/2 ${isStatusExpanded ? 'w-1 h-full' : 'w-0.5 h-4 rounded-full'} ${getStatusBorderColor(status).replace('border-l-', 'bg-')}`} />
+                              <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-full' : 'h-6 rounded-full'} ${getStatusBgColor(status)}`} />
                               <div className="flex items-center gap-2">
                                 {isStatusExpanded ? (
                                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                 ) : (
                                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                 )}
-                                <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
-                                  {status}
-                                </Badge>
-                                <span className={`text-xs font-medium ${getStatusTextColor(status)}`}>
-                                  {statusProjects.length}
+                                <span className={`text-sm font-medium px-2 py-0.5 rounded ${getStatusColor(status)}`}>
+                                  {status.toUpperCase()}
                                 </span>
+                                <Badge className={`text-xs h-5 px-2 border-0 text-white ${getStatusBgColor(status)}`}>
+                                  {statusProjects.length}
+                                </Badge>
                               </div>
                             </TableCell>
                           </TableRow>
@@ -413,15 +398,17 @@ export const ProjectsSettings = () => {
                                   value={project.status}
                                   onValueChange={(value) => handleStatusUpdate(project.id, value)}
                                 >
-                                  <SelectTrigger className={`w-[140px] h-7 border-0 ${getStatusColor(project.status)} hover:opacity-80`}>
-                                    <SelectValue />
+                                  <SelectTrigger className={`w-[140px] h-7 border-0 rounded px-2 ${getStatusColor(project.status)} hover:opacity-80`}>
+                                    <SelectValue>
+                                      <span className="text-xs font-medium">{project.status.toUpperCase()}</span>
+                                    </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {STATUS_OPTIONS.map((status) => (
                                       <SelectItem key={status} value={status} className="cursor-pointer">
-                                        <Badge variant="outline" className={`text-xs ${getStatusColor(status)}`}>
-                                          {status}
-                                        </Badge>
+                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${getStatusColor(status)}`}>
+                                          {status.toUpperCase()}
+                                        </span>
                                       </SelectItem>
                                     ))}
                                   </SelectContent>
