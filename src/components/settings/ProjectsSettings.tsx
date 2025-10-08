@@ -367,13 +367,13 @@ export const ProjectsSettings = () => {
                           >
                             <TableCell className="py-2" colSpan={27}>
                               <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-7' : 'h-4'} rounded-full ${getStatusBgColor(status)}`} />
-                              <div className="flex items-center gap-2 pl-12">
+                              <div className="flex items-center gap-2 pl-10">
                                 {isStatusExpanded ? (
                                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                 ) : (
                                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                 )}
-                                <span className="text-sm font-normal text-foreground">{status.toUpperCase()}</span>
+                                <span className="text-xs font-normal text-foreground">{status.toUpperCase()}</span>
                                 <Badge className={`text-xs h-5 px-2 border-0 text-white ${getStatusBgColor(status)}`}>
                                   {statusProjects.length}
                                 </Badge>
