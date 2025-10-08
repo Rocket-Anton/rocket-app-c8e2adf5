@@ -65,20 +65,42 @@ export const ProvidersSettings = () => {
       // Then get counts for each provider
       const providersWithCounts = await Promise.all(
         (providersData || []).map(async (provider) => {
-          const [projectsRes, raktenRes] = await Promise.all([
-            supabase
-              .from("projects")
-              .select("*", { count: "exact", head: true })
-              .eq("provider_id", provider.id),
-            supabase
-              .from("lauflisten")
-              .select("*", { count: "exact", head: true })
-          ]);
+          // Count projects for this provider
+          const { count: projectCount } = await supabase
+            .from("projects")
+            .select("*", { count: "exact", head: true })
+            .eq("provider_id", provider.id);
+
+          // Count lauflisten through projects -> addresses -> lauflisten_addresses
+          const { data: projectIds } = await supabase
+            .from("projects")
+            .select("id")
+            .eq("provider_id", provider.id);
+
+          let rocketCount = 0;
+          if (projectIds && projectIds.length > 0) {
+            const { data: addressIds } = await supabase
+              .from("addresses")
+              .select("id")
+              .in("project_id", projectIds.map(p => p.id));
+
+            if (addressIds && addressIds.length > 0) {
+              const { data: lauflistenLinks } = await supabase
+                .from("lauflisten_addresses")
+                .select("laufliste_id")
+                .in("address_id", addressIds.map(a => a.id));
+
+              if (lauflistenLinks && lauflistenLinks.length > 0) {
+                const uniqueLauflistenIds = [...new Set(lauflistenLinks.map(l => l.laufliste_id))];
+                rocketCount = uniqueLauflistenIds.length;
+              }
+            }
+          }
 
           return {
             ...provider,
-            project_count: projectsRes.count || 0,
-            active_rockets_count: raktenRes.count || 0
+            project_count: projectCount || 0,
+            active_rockets_count: rocketCount
           };
         })
       );
