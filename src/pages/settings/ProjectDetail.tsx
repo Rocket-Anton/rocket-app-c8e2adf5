@@ -4,12 +4,13 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { ProjectAddListDialog } from "@/components/settings/ProjectAddListDialog";
+import { toast } from "sonner";
 
 interface Project {
   id: string;
@@ -40,6 +41,7 @@ const ProjectDetail = () => {
   const [lists, setLists] = useState<AddressList[]>([]);
   const [loading, setLoading] = useState(true);
   const [addListDialogOpen, setAddListDialogOpen] = useState(false);
+  const [exporting, setExporting] = useState(false);
 
   useEffect(() => {
     loadProject();
@@ -82,6 +84,37 @@ const ProjectDetail = () => {
       setLists(data || []);
     } catch (error) {
       console.error("Error loading lists:", error);
+    }
+  };
+
+  const handleExport = async () => {
+    if (!id) return;
+    
+    setExporting(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('export-project-addresses', {
+        body: { projectId: id },
+      });
+
+      if (error) throw error;
+
+      // Create blob and download
+      const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+      const url = URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `rocket-app-export-${project?.name || id}.csv`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      URL.revokeObjectURL(url);
+
+      toast.success('Export erfolgreich heruntergeladen');
+    } catch (error: any) {
+      console.error('Export error:', error);
+      toast.error(`Export fehlgeschlagen: ${error.message}`);
+    } finally {
+      setExporting(false);
     }
   };
 
@@ -143,10 +176,25 @@ const ProjectDetail = () => {
                   </div>
                   
                   <div className="space-y-6">
-                    <div className="bg-card p-6 rounded-lg border">
-                      <p className="text-muted-foreground">
-                        {project.description || "Keine Beschreibung vorhanden"}
-                      </p>
+                    <div className="bg-card p-6 rounded-lg border flex items-start justify-between">
+                      <div className="flex-1">
+                        <p className="text-muted-foreground">
+                          {project.description || "Keine Beschreibung vorhanden"}
+                        </p>
+                      </div>
+                      <Button 
+                        onClick={handleExport}
+                        disabled={exporting}
+                        variant="outline"
+                        className="ml-4"
+                      >
+                        {exporting ? (
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        ) : (
+                          <Download className="w-4 h-4 mr-2" />
+                        )}
+                        Rocket App Export
+                      </Button>
                     </div>
 
                     <Card>

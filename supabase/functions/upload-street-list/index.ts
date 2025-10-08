@@ -83,6 +83,13 @@ serve(async (req) => {
         return (v === null || v === undefined) ? '' : String(v)
       }
 
+      // Normalize house number: convert letters to lowercase
+      const normalizeHouseNumber = (houseNumber: string): string => {
+        if (!houseNumber) return ''
+        // Replace any uppercase letters with lowercase
+        return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase())
+      }
+
       // Build map of addresses
       const addressMap = new Map<string, (ParsedAddress & { coordinates?: { lat: number | null; lng: number | null } })[]>()
       const errors: string[] = []
@@ -92,8 +99,13 @@ serve(async (req) => {
         let houseNumber = val(row, 'house_number').trim()
         const hCombined = val(row, 'house_number_combined').trim()
         const hAddon = val(row, 'house_number_addon').trim()
+        
         if (!houseNumber && hCombined) houseNumber = hCombined
         if (houseNumber && hAddon) houseNumber = `${houseNumber}${hAddon}`
+        
+        // Normalize house number (lowercase letters)
+        houseNumber = normalizeHouseNumber(houseNumber)
+        
         const postalCode = val(row, 'postal_code').trim()
         const city = val(row, 'city').trim()
 
