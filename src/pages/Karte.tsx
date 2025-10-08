@@ -691,15 +691,15 @@ function KarteContent() {
 
   return (
     <>
-      {/* Mobile Header */}
-      <MobileHeader 
-        selectedProjectIds={selectedProjectIds}
-        onProjectsChange={setSelectedProjectIds}
-      />
-      
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
+          {/* Mobile Header */}
+          <MobileHeader 
+            selectedProjectIds={selectedProjectIds}
+            onProjectsChange={setSelectedProjectIds}
+          />
+          
           <div className="flex flex-col h-full w-full">
             {/* Header */}
             <header className="hidden lg:flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
