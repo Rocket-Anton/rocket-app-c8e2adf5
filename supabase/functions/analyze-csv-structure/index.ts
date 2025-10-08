@@ -79,8 +79,14 @@ serve(async (req) => {
     for (const header of csvHeaders) {
       const normalizedHeader = header.toUpperCase().trim();
 
-      // Street recognition
-      if (/STRASSE|STRA[SßS]E|STR\.|STREET/i.test(normalizedHeader)) {
+      // Auto-ignore irrelevant columns first (don't show in UI)
+      if (/LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME|ZEILENPRÜF|CHECKSUM|NICHT ÄNDERN|DO NOT CHANGE/i.test(normalizedHeader)) {
+        suggestedMapping[header] = 'ignore';
+        continue; // Skip adding to unmappedColumns
+      }
+
+      // Street recognition (STRASSENNA, etc.)
+      if (/STRASSE|STRA[SßS]E|STR\.|STREET|STRASSENNA/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'street';
       }
       // House number recognition (includes HAUSNR)
@@ -99,11 +105,11 @@ serve(async (req) => {
       else if (/PLZ|POST|ZIP/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'postal_code';
       }
-      // City recognition
+      // City recognition (ORTSNAME is most important)
       else if (/^(ORT|CITY|STADT|ORTSNAME)$/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'city';
       }
-      // Locality (Ortschaft) recognition
+      // Locality (Ortschaft) recognition - secondary to city
       else if (/ORTSCHAFT|LOCALITY|TEILORT|ORTSTEIL/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'locality';
       }
@@ -146,11 +152,7 @@ serve(async (req) => {
           type: 'radio',
         });
       }
-      // Ignore columns (Landkreis, Zusammen, etc.)
-      else if (/LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME/i.test(normalizedHeader)) {
-        suggestedMapping[header] = 'ignore';
-      }
-      // Unknown columns
+      // Unknown columns - only show these for manual mapping
       else {
         unmappedColumns.push(header);
       }
