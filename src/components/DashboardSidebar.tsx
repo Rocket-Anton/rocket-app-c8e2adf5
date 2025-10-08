@@ -70,7 +70,7 @@ export const DashboardSidebar = () => {
   
   // Auto-expand based on current route
   const isInLauflistenSection = location.pathname === "/" || location.pathname === "/karte";
-  const isInProjekteSection = location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses");
+  const isInProjekteSection = location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses") || location.pathname === "/projects/karte";
   const isInProviderSection = location.pathname.startsWith("/settings/providers") || location.pathname.startsWith("/settings/tarife");
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(isInLauflistenSection);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
@@ -330,7 +330,7 @@ export const DashboardSidebar = () => {
                       state === "collapsed" 
                         ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
                         : "justify-between hover:bg-sidebar-accent"
-                    } ${(location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses")) ? "bg-sidebar-accent" : ""}`}
+                    } ${(location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses") || location.pathname === "/projects/karte") ? "bg-sidebar-accent" : ""}`}
                   >
                     <div className="flex items-center gap-2.5">
                       <FolderOpen className="!w-4 !h-4 flex-shrink-0" />
@@ -369,6 +369,29 @@ export const DashboardSidebar = () => {
                           className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
                         >
                           <span className="text-sm">Projekte</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/projects/karte")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/projects/karte" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Karte</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
 

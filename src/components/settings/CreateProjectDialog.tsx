@@ -161,6 +161,26 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
+      // Geocode the project location if city and postal code are provided
+      let coordinates = null;
+      if (city && postalCode) {
+        const { geocodeAddress } = await import("@/utils/geocoding");
+        const result = await geocodeAddress(
+          city, // Use city as street for project geocoding
+          "", // No house number for projects
+          postalCode,
+          city
+        );
+        
+        if (result.coordinates) {
+          coordinates = result.coordinates;
+          console.log("Project geocoded successfully:", coordinates);
+        } else {
+          console.warn("Failed to geocode project:", result.error);
+          // Continue anyway - geocoding is not critical for project creation
+        }
+      }
+
       // Insert project
       const { data: project, error: projectError } = await supabase
         .from("projects")
@@ -190,6 +210,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           post_job_booster: postJobBooster || null,
           tender_info: tenderInfo || null,
           project_with_bonus: projectWithBonus,
+          coordinates: coordinates,
           created_by: user.id,
         })
         .select()

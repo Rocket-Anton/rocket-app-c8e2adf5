@@ -307,6 +307,7 @@ export type Database = {
         Row: {
           area_name: string | null
           city: string | null
+          coordinates: Json | null
           created_at: string
           created_by: string
           description: string | null
@@ -340,6 +341,7 @@ export type Database = {
         Insert: {
           area_name?: string | null
           city?: string | null
+          coordinates?: Json | null
           created_at?: string
           created_by: string
           description?: string | null
@@ -373,6 +375,7 @@ export type Database = {
         Update: {
           area_name?: string | null
           city?: string | null
+          coordinates?: Json | null
           created_at?: string
           created_by?: string
           description?: string | null

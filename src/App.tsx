@@ -17,6 +17,7 @@ import RaketenDetail from "./pages/settings/RaketenDetail";
 import Abrechnen from "./pages/abrechnungen/Abrechnen";
 import Gutschriften from "./pages/abrechnungen/Gutschriften";
 import Kosten from "./pages/abrechnungen/Kosten";
+import ProjectsMap from "./pages/projects/ProjectsMap";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -37,6 +38,7 @@ const App = () => {
             <Route path="/settings/providers/:id" element={<ProviderDetail />} />
             <Route path="/settings/projects" element={<Projects />} />
             <Route path="/settings/projects/:id" element={<ProjectDetail />} />
+            <Route path="/projects/karte" element={<ProjectsMap />} />
             <Route path="/settings/addresses" element={<Addresses />} />
             <Route path="/settings/tarife" element={<Tarife />} />
             <Route path="/settings/tarife/:id" element={<TarifeDetail />} />
