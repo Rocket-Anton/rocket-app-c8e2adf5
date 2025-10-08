@@ -198,13 +198,17 @@ const ProjectDetail = () => {
     }
   };
 
-  const handleExport = async () => {
+  const handleExport = async (exportType: 'raw' | 'rocket', listId?: string) => {
     if (!id) return;
     
     setExporting(true);
     try {
       const { data, error } = await supabase.functions.invoke('export-project-addresses', {
-        body: { projectId: id },
+        body: { 
+          projectId: id, 
+          exportType,
+          listId // Optional: can be used to export specific list only
+        },
       });
 
       if (error) throw error;
@@ -214,7 +218,10 @@ const ProjectDetail = () => {
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
-      link.download = `rocket-app-export-${project?.name || id}.csv`;
+      const filename = exportType === 'raw' 
+        ? `rohdatei-export-${project?.name || id}.csv`
+        : `rocket-app-export-${project?.name || id}.csv`;
+      link.download = filename;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
@@ -463,19 +470,33 @@ const ProjectDetail = () => {
                             </CardDescription>
                           </div>
                           <div className="flex gap-2">
-                            <Button 
-                              onClick={handleExport}
-                              disabled={exporting || lists.length === 0}
-                              variant="outline"
-                              size="sm"
-                            >
-                              {exporting ? (
-                                <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
-                              ) : (
-                                <Download className="w-3.5 h-3.5 mr-2" />
-                              )}
-                              Rocket App Export
-                            </Button>
+                            <DropdownMenu>
+                              <DropdownMenuTrigger asChild>
+                                <Button 
+                                  disabled={exporting || lists.length === 0}
+                                  variant="outline"
+                                  size="sm"
+                                >
+                                  {exporting ? (
+                                    <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
+                                  ) : (
+                                    <Download className="w-3.5 h-3.5 mr-2" />
+                                  )}
+                                  Export
+                                  <ChevronDown className="w-3.5 h-3.5 ml-2" />
+                                </Button>
+                              </DropdownMenuTrigger>
+                              <DropdownMenuContent className="bg-background z-50">
+                                <DropdownMenuItem onClick={() => handleExport('raw')}>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Rohdatei
+                                </DropdownMenuItem>
+                                <DropdownMenuItem onClick={() => handleExport('rocket')}>
+                                  <Download className="w-4 h-4 mr-2" />
+                                  Rocket Export
+                                </DropdownMenuItem>
+                              </DropdownMenuContent>
+                            </DropdownMenu>
                             <Button onClick={() => setAddListDialogOpen(true)} size="sm">
                               <Plus className="w-3.5 h-3.5 mr-2" />
                               Listen hinzufügen
@@ -571,25 +592,25 @@ const ProjectDetail = () => {
                                        )}
                                     </div>
                                     <div className="flex gap-2 ml-4">
-                                      <DropdownMenu>
-                                        <DropdownMenuTrigger asChild>
-                                          <Button variant="outline" size="sm">
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Export
-                                            <ChevronDown className="w-4 h-4 ml-2" />
-                                          </Button>
-                                        </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="bg-background z-50">
-                                          <DropdownMenuItem>
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Rohdatei
-                                          </DropdownMenuItem>
-                                          <DropdownMenuItem>
-                                            <Download className="w-4 h-4 mr-2" />
-                                            Rocket Export
-                                          </DropdownMenuItem>
-                                        </DropdownMenuContent>
-                                      </DropdownMenu>
+                                       <DropdownMenu>
+                                         <DropdownMenuTrigger asChild>
+                                           <Button variant="outline" size="sm">
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Export
+                                             <ChevronDown className="w-4 h-4 ml-2" />
+                                           </Button>
+                                         </DropdownMenuTrigger>
+                                         <DropdownMenuContent className="bg-background z-50">
+                                           <DropdownMenuItem onClick={() => handleExport('raw', list.id)}>
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Rohdatei
+                                           </DropdownMenuItem>
+                                           <DropdownMenuItem onClick={() => handleExport('rocket', list.id)}>
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Rocket Export
+                                           </DropdownMenuItem>
+                                         </DropdownMenuContent>
+                                       </DropdownMenu>
                                       <Button 
                                         variant="outline" 
                                         size="sm"

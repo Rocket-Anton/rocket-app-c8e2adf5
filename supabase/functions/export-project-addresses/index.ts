@@ -30,7 +30,7 @@ serve(async (req) => {
       })
     }
 
-    const { projectId } = await req.json()
+    const { projectId, exportType = 'rocket' } = await req.json()
 
     if (!projectId) {
       return new Response(
@@ -69,69 +69,72 @@ serve(async (req) => {
 
     console.log(`Found ${addresses?.length || 0} addresses`)
 
-    // Format data for Rocket App
+    // Format data based on export type
     const csvRows: string[] = []
     
-    // Header
-    csvRows.push([
-      'STRASSE',
-      'HAUSNR',
-      'PLZ',
-      'ORT',
-      'ORTSCHAFT',
-      'WEANZ',
-      'LATITUDE',
-      'LONGITUDE',
-      'NOTIZ_ADRESSE',
-      'STATUS',
-      'ETAGE',
-      'LAGE',
-      'NOTIZ_WE'
-    ].join(';'))
+    if (exportType === 'raw') {
+      // Rohdatei export - original format
+      csvRows.push([
+        'STRASSE',
+        'HAUSNR',
+        'PLZ',
+        'ORT',
+        'ORTSCHAFT',
+        'WEANZ',
+        'LATITUDE',
+        'LONGITUDE',
+        'NOTIZ_ADRESSE',
+        'STATUS',
+        'ETAGE',
+        'LAGE',
+        'NOTIZ_WE'
+      ].join(';'))
+    } else {
+      // Rocket export - format with longitude/latitude at the end
+      csvRows.push([
+        'PLZ',
+        'ORT',
+        'STRASSE',
+        'HAUSNUMMER',
+        'WEANZ',
+        'WEBEZ',
+        'ETAGE',
+        'LAGE',
+        'NOTIZ_ADRESSE',
+        'NOTIZ_WE',
+        'STATUS',
+        'VP_ADRESSE',
+        'VP_WE',
+        'longitude',
+        'latitude'
+      ].join(';'))
+    }
 
     // Data rows
     for (const addr of addresses || []) {
       const units = Array.isArray(addr.units) ? addr.units : []
       const unitCount = units.length
 
-      if (unitCount === 0) {
-        // Address without units - export once
-        csvRows.push([
-          addr.street || '',
-          addr.house_number || '',
-          addr.postal_code || '',
-          addr.city || '',
-          addr.locality || '',
-          '1',
-          addr.coordinates?.lat || '',
-          addr.coordinates?.lng || '',
-          addr.notiz || '',
-          'Offen',
-          '',
-          '',
-          ''
-        ].join(';'))
-      } else if (unitCount === 1) {
-        // Single unit - export as one row with unit details
-        const unit = units[0]
-        csvRows.push([
-          addr.street || '',
-          addr.house_number || '',
-          addr.postal_code || '',
-          addr.city || '',
-          addr.locality || '',
-          '1',
-          addr.coordinates?.lat || '',
-          addr.coordinates?.lng || '',
-          addr.notiz || '',
-          unit.status || 'Offen',
-          unit.etage || '',
-          unit.lage || '',
-          unit.notiz || ''
-        ].join(';'))
-      } else {
-        // Multiple units - export as multiple rows (one per unit)
-        for (const unit of units) {
+      if (exportType === 'raw') {
+        // Rohdatei export - original format
+        if (unitCount === 0) {
+          csvRows.push([
+            addr.street || '',
+            addr.house_number || '',
+            addr.postal_code || '',
+            addr.city || '',
+            addr.locality || '',
+            '1',
+            addr.coordinates?.lat || '',
+            addr.coordinates?.lng || '',
+            addr.notiz || '',
+            'Offen',
+            '',
+            '',
+            ''
+          ].join(';'))
+        } else if (unitCount === 1) {
+          const unit = units[0]
           csvRows.push([
             addr.street || '',
             addr.house_number || '',
@@ -147,6 +150,84 @@ serve(async (req) => {
             unit.lage || '',
             unit.notiz || ''
           ].join(';'))
+        } else {
+          for (const unit of units) {
+            csvRows.push([
+              addr.street || '',
+              addr.house_number || '',
+              addr.postal_code || '',
+              addr.city || '',
+              addr.locality || '',
+              '1',
+              addr.coordinates?.lat || '',
+              addr.coordinates?.lng || '',
+              addr.notiz || '',
+              unit.status || 'Offen',
+              unit.etage || '',
+              unit.lage || '',
+              unit.notiz || ''
+            ].join(';'))
+          }
+        }
+      } else {
+        // Rocket export - format with longitude/latitude at the end
+        if (unitCount === 0) {
+          csvRows.push([
+            addr.postal_code || '',
+            addr.city || '',
+            addr.street || '',
+            addr.house_number || '',
+            '1',
+            '',
+            '',
+            '',
+            addr.notiz || '',
+            '',
+            'OFFEN',
+            '',
+            '',
+            addr.coordinates?.lng || '',
+            addr.coordinates?.lat || ''
+          ].join(';'))
+        } else if (unitCount === 1) {
+          const unit = units[0]
+          csvRows.push([
+            addr.postal_code || '',
+            addr.city || '',
+            addr.street || '',
+            addr.house_number || '',
+            '1',
+            '',
+            unit.etage || '',
+            unit.lage || '',
+            addr.notiz || '',
+            unit.notiz || '',
+            unit.status || 'OFFEN',
+            '',
+            '',
+            addr.coordinates?.lng || '',
+            addr.coordinates?.lat || ''
+          ].join(';'))
+        } else {
+          for (const unit of units) {
+            csvRows.push([
+              addr.postal_code || '',
+              addr.city || '',
+              addr.street || '',
+              addr.house_number || '',
+              '1',
+              '',
+              unit.etage || '',
+              unit.lage || '',
+              addr.notiz || '',
+              unit.notiz || '',
+              unit.status || 'OFFEN',
+              '',
+              '',
+              addr.coordinates?.lng || '',
+              addr.coordinates?.lat || ''
+            ].join(';'))
+          }
         }
       }
     }
@@ -155,11 +236,15 @@ serve(async (req) => {
 
     console.log(`Generated CSV with ${csvRows.length - 1} rows`)
 
+    const filename = exportType === 'raw' 
+      ? `rohdatei-export-${projectId}.csv`
+      : `rocket-app-export-${projectId}.csv`
+
     return new Response(csvContent, {
       headers: {
         ...corsHeaders,
         'Content-Type': 'text/csv; charset=utf-8',
-        'Content-Disposition': `attachment; filename="rocket-app-export-${projectId}.csv"`,
+        'Content-Disposition': `attachment; filename="${filename}"`,
       },
     })
 
