@@ -175,6 +175,22 @@ serve(async (req) => {
       }
     }
 
+    // Check if both residential and commercial units are present
+    const hasResidentialUnits = Object.values(suggestedMapping).includes('units_residential');
+    const hasCommercialUnits = Object.values(suggestedMapping).includes('units_commercial');
+
+    if (hasResidentialUnits && hasCommercialUnits) {
+      questions.push({
+        column: 'ge_calculation',
+        question: 'Wie sollen Geschäftseinheiten (GE) gezählt werden?',
+        options: [
+          'GE zu WE addieren (WE + GE = Gesamt)',
+          'GE sind Teil der WE (keine Addition)'
+        ],
+        type: 'radio',
+      });
+    }
+
     // Calculate confidence
     const mappedCount = Object.keys(suggestedMapping).length;
     const confidence = csvHeaders.length > 0 ? (mappedCount / csvHeaders.length) : 0;

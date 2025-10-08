@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Loader2, Upload, CheckCircle } from "lucide-react";
 import { toast } from "sonner";
 import Papa from "papaparse";
@@ -49,6 +50,8 @@ export const ProjectAddListDialog = ({
   const [csvData, setCsvData] = useState<any[]>([]);
   const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
   const [finalMapping, setFinalMapping] = useState<{[key: string]: string}>({});
+  const [mappingQuestions, setMappingQuestions] = useState<any[]>([]);
+  const [questionAnswers, setQuestionAnswers] = useState<{[key: string]: string}>({});
   const [savedMappingId, setSavedMappingId] = useState<string | null>(null);
   const [confidence, setConfidence] = useState(0);
   const [progress, setProgress] = useState(0);
@@ -130,6 +133,7 @@ export const ProjectAddListDialog = ({
       if (error) throw error;
 
       setFinalMapping(analysisData.suggested_mapping);
+      setMappingQuestions(analysisData.questions || []);
       setConfidence(analysisData.confidence);
       setSavedMappingId(analysisData.saved_mapping_id);
 
@@ -151,6 +155,13 @@ export const ProjectAddListDialog = ({
     }));
   };
 
+  const handleQuestionAnswer = (column: string, answer: string) => {
+    setQuestionAnswers(prev => ({
+      ...prev,
+      [column]: answer,
+    }));
+  };
+
   const handleConfirmMapping = async () => {
     const hasStreet = Object.values(finalMapping).includes('street');
     const hasHouseNumber = Object.values(finalMapping).includes('house_number') || 
@@ -160,6 +171,13 @@ export const ProjectAddListDialog = ({
 
     if (!hasStreet || !hasHouseNumber || !hasPostalCode || !hasCity) {
       toast.error('Pflichtfelder fehlen: Straße, Hausnummer, PLZ, Ort');
+      return;
+    }
+
+    // Check if all questions are answered
+    const unansweredQuestions = mappingQuestions.filter(q => !questionAnswers[q.column]);
+    if (unansweredQuestions.length > 0) {
+      toast.error('Bitte alle Fragen beantworten');
       return;
     }
 
@@ -200,6 +218,7 @@ export const ProjectAddListDialog = ({
           listId: listData.id,
           csvData: csvData,
           columnMapping: finalMapping,
+          questionAnswers: questionAnswers,
         },
       });
 
@@ -357,6 +376,31 @@ export const ProjectAddListDialog = ({
                 </TableBody>
               </Table>
             </div>
+
+            {/* Questions */}
+            {mappingQuestions.length > 0 && (
+              <div className="space-y-4">
+                <h3 className="font-semibold">Bitte bestätigen:</h3>
+                {mappingQuestions.map((question) => (
+                  <div key={question.column} className="border rounded-lg p-4 space-y-3">
+                    <Label>{question.question}</Label>
+                    <RadioGroup
+                      value={questionAnswers[question.column]}
+                      onValueChange={(value) => handleQuestionAnswer(question.column, value)}
+                    >
+                      {question.options.map((option: string) => (
+                        <div key={option} className="flex items-center space-x-2">
+                          <RadioGroupItem value={option} id={`${question.column}-${option}`} />
+                          <Label htmlFor={`${question.column}-${option}`} className="cursor-pointer">
+                            {option}
+                          </Label>
+                        </div>
+                      ))}
+                    </RadioGroup>
+                  </div>
+                ))}
+              </div>
+            )}
 
             <div className="flex justify-end gap-2">
               <Button variant="outline" onClick={() => setStep('upload')}>

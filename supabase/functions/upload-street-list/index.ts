@@ -66,7 +66,7 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
       const body = await req.json() as any
-      const { projectId, listId, csvData, columnMapping } = body || {}
+      const { projectId, listId, csvData, columnMapping, questionAnswers } = body || {}
 
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
@@ -100,8 +100,25 @@ serve(async (req) => {
         const unitCountStr = val(row, 'unit_count')
         const weStr = val(row, 'units_residential')
         const geStr = val(row, 'units_commercial')
+        
         let weCount = parseInt(unitCountStr) || 0
-        if (!weCount) weCount = (parseInt(weStr) || 0) + (parseInt(geStr) || 0)
+        
+        // Check if GE should be added or not based on question answer
+        const geCalculationAnswer = questionAnswers?.ge_calculation
+        const shouldAddGE = geCalculationAnswer?.includes('addieren') || !geCalculationAnswer
+        
+        if (!weCount) {
+          const weNum = parseInt(weStr) || 0
+          const geNum = parseInt(geStr) || 0
+          
+          if (shouldAddGE) {
+            // Add GE to WE (WE + GE = Total)
+            weCount = weNum + geNum
+          } else {
+            // GE is part of WE (no addition)
+            weCount = Math.max(weNum, geNum, 1)
+          }
+        }
         if (!weCount) weCount = 1
 
         const etage = val(row, 'floor').trim() || undefined
