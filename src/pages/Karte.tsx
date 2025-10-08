@@ -267,6 +267,12 @@ function KarteContent() {
           },
           labelLayerId
         );
+      } else {
+        // Remove default 3D building layer from satellite view
+        const buildingLayer = layers.find(l => l.id === 'building-extrusion' || l.type === 'fill-extrusion');
+        if (buildingLayer) {
+          map.removeLayer(buildingLayer.id);
+        }
       }
     });
   };
@@ -289,30 +295,33 @@ function KarteContent() {
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
-    // 3D buildings layer
+    // 3D buildings layer (only for streets view)
     map.on('style.load', () => {
       const layers = map.getStyle().layers || [];
       const labelLayerId = layers.find(
         (l) => l.type === 'symbol' && (l.layout as any)['text-field']
       )?.id;
 
-      map.addLayer(
-        {
-          id: 'add-3d-buildings',
-          source: 'composite',
-          'source-layer': 'building',
-          filter: ['==', ['get', 'extrude'], 'true'],
-          type: 'fill-extrusion',
-          minzoom: 15,
-          paint: {
-            'fill-extrusion-color': '#aaa',
-            'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
-            'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
-            'fill-extrusion-opacity': 0.6,
+      // Only add 3D buildings for streets style
+      if (mapStyle === 'streets') {
+        map.addLayer(
+          {
+            id: 'add-3d-buildings',
+            source: 'composite',
+            'source-layer': 'building',
+            filter: ['==', ['get', 'extrude'], 'true'],
+            type: 'fill-extrusion',
+            minzoom: 15,
+            paint: {
+              'fill-extrusion-color': '#aaa',
+              'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
+              'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
+              'fill-extrusion-opacity': 0.6,
+            },
           },
-        },
-        labelLayerId
-      );
+          labelLayerId
+        );
+      }
     });
 
     // Setup Draw control
