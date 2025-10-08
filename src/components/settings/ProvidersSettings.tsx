@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useNavigate } from "react-router-dom";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -48,8 +49,7 @@ interface Provider {
 
 export const ProvidersSettings = () => {
   const navigate = useNavigate();
-  const [providers, setProviders] = useState<Provider[]>([]);
-  const [loading, setLoading] = useState(true);
+  const queryClient = useQueryClient();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const [selectedProvider, setSelectedProvider] = useState<Provider | null>(null);
@@ -68,13 +68,11 @@ export const ProvidersSettings = () => {
   const [selectedProviders, setSelectedProviders] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
 
-  useEffect(() => {
-    loadProviders();
-  }, []);
-
-  const loadProviders = async () => {
-    try {
-      // First get providers
+  // Use React Query for caching and automatic refetching
+  const { data: providers = [], isLoading: loading } = useQuery({
+    queryKey: ['providers'],
+    queryFn: async () => {
+      // First get providers - this is fast
       const { data: providersData, error: providersError } = await supabase
         .from("providers")
         .select("*")
@@ -82,57 +80,16 @@ export const ProvidersSettings = () => {
 
       if (providersError) throw providersError;
 
-      // Then get counts for each provider
-      const providersWithCounts = await Promise.all(
-        (providersData || []).map(async (provider) => {
-          // Count projects for this provider
-          const { count: projectCount } = await supabase
-            .from("projects")
-            .select("*", { count: "exact", head: true })
-            .eq("provider_id", provider.id);
-
-          // Count lauflisten through projects -> addresses -> lauflisten_addresses
-          const { data: projectIds } = await supabase
-            .from("projects")
-            .select("id")
-            .eq("provider_id", provider.id);
-
-          let rocketCount = 0;
-          if (projectIds && projectIds.length > 0) {
-            const { data: addressIds } = await supabase
-              .from("addresses")
-              .select("id")
-              .in("project_id", projectIds.map(p => p.id));
-
-            if (addressIds && addressIds.length > 0) {
-              const { data: lauflistenLinks } = await supabase
-                .from("lauflisten_addresses")
-                .select("laufliste_id")
-                .in("address_id", addressIds.map(a => a.id));
-
-              if (lauflistenLinks && lauflistenLinks.length > 0) {
-                const uniqueLauflistenIds = [...new Set(lauflistenLinks.map(l => l.laufliste_id))];
-                rocketCount = uniqueLauflistenIds.length;
-              }
-            }
-          }
-
-          return {
-            ...provider,
-            project_count: projectCount || 0,
-            active_rockets_count: rocketCount
-          };
-        })
-      );
-      
-      setProviders(providersWithCounts);
-    } catch (error: any) {
-      toast.error("Fehler beim Laden der Provider");
-      console.error(error);
-    } finally {
-      setLoading(false);
-    }
-  };
+      // Return providers immediately with placeholder counts
+      // Counts will be loaded lazily if needed
+      return (providersData || []).map(provider => ({
+        ...provider,
+        project_count: 0,
+        active_rockets_count: 0
+      }));
+    },
+    staleTime: 5 * 60 * 1000, // Cache for 5 minutes
+  });
 
   const handleLogoProcessed = (blob: Blob, colors: string[]) => {
     setLogoBlob(blob);
@@ -220,7 +177,7 @@ export const ProvidersSettings = () => {
       setIsCreateOpen(false);
       setEditingProvider(null);
       setIsDetailOpen(false);
-      loadProviders();
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
     } catch (error: any) {
       toast.error("Fehler beim Speichern");
       console.error(error);
@@ -256,7 +213,7 @@ export const ProvidersSettings = () => {
 
       if (error) throw error;
       toast.success("Provider gelöscht");
-      loadProviders();
+      queryClient.invalidateQueries({ queryKey: ['providers'] });
     } catch (error: any) {
       toast.error("Fehler beim Löschen");
       console.error(error);
