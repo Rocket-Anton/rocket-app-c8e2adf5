@@ -259,16 +259,6 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
         </Select>
       </div>
 
-      {/* Gebietsname */}
-      <div className="space-y-2">
-        <Label>Gebietsname *</Label>
-        <Input 
-          value={formData.areaName}
-          onChange={(e) => setFormData({...formData, areaName: e.target.value})}
-          placeholder="Gebietsname eingeben"
-        />
-      </div>
-
       {/* Bundesland */}
       <div className="space-y-2">
         <Label>Bundesland</Label>
@@ -279,21 +269,6 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
           <SelectContent>
             {GERMAN_STATES.map(state => (
               <SelectItem key={state} value={state}>{state}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Status */}
-      <div className="space-y-2">
-        <Label>Status</Label>
-        <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-          <SelectTrigger>
-            <SelectValue placeholder="Status auswählen" />
-          </SelectTrigger>
-          <SelectContent>
-            {STATUS_OPTIONS.map(status => (
-              <SelectItem key={status} value={status}>{status}</SelectItem>
             ))}
           </SelectContent>
         </Select>
@@ -317,6 +292,33 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
           onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
           placeholder="PLZ eingeben"
         />
+      </div>
+
+      {/* Gebietsname - nur anzeigen wenn Ort vorhanden */}
+      {formData.city && (
+        <div className="space-y-2">
+          <Label>Gebietsname *</Label>
+          <Input 
+            value={formData.areaName}
+            onChange={(e) => setFormData({...formData, areaName: e.target.value})}
+            placeholder="Gebietsname eingeben"
+          />
+        </div>
+      )}
+
+      {/* Status */}
+      <div className="space-y-2">
+        <Label>Status</Label>
+        <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
+          <SelectTrigger>
+            <SelectValue placeholder="Status auswählen" />
+          </SelectTrigger>
+          <SelectContent>
+            {STATUS_OPTIONS.map(status => (
+              <SelectItem key={status} value={status}>{status}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
       </div>
 
       {/* Vermarktungsart */}
