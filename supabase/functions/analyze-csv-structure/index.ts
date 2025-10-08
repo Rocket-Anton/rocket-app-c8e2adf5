@@ -79,63 +79,69 @@ serve(async (req) => {
     for (const header of csvHeaders) {
       const normalizedHeader = header.toUpperCase().trim();
 
+      // Provider Address ID: capture but hide from UI
+      if (/(ADRESS[- _]?ID|ADRESSE[- _]?ID|ADDRESS[- _]?ID)/i.test(normalizedHeader)) {
+        suggestedMapping[header] = 'provider_address_id';
+        continue; // Hidden field
+      }
+
       // Auto-ignore irrelevant columns first (don't show in UI)
-      if (/LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME|ZEILENPRÜF|CHECKSUM|NICHT ÄNDERN|DO NOT CHANGE/i.test(normalizedHeader)) {
+      if (/(LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME|ZEILENPRÜF|CHECKSUM|NICHT ÄNDERN|DO NOT CHANGE|^ADRESSE$|GESAMTADRESSE|KOMPLETTADRESSE|DATENQUELLE|ANSCHLUSSPUNKTE|TECHNISCHES PROJEKT|PREISKATEGORIE|^SPALTE\d+$)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'ignore';
         continue; // Skip adding to unmappedColumns
       }
 
-      // Street recognition (STRASSENNA, etc.)
-      if (/STRASSE|STRA[SßS]E|STR\.|STREET|STRASSENNA/i.test(normalizedHeader)) {
+      // Street recognition (STRASSENNA, STRASSENNAME, etc.)
+      if (/(STRASSE|STRA[SßS]E|STR\.|STREET|STRASSENNA|STRASSENNAME)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'street';
       }
-      // House number recognition (includes HAUSNR)
-      else if (/^(HAUS|HN|NR|NUMMER|HOUSE|NO\.?|NUMBER|HAUSNR)$/i.test(normalizedHeader)) {
+      // House number recognition (includes HAUSNR, HAUSNR., HNR, HN)
+      else if (/(HAUS ?NR\.?$|HAUSNUMMER|^HN$|^HNR$|^HAUSNR$)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number';
       }
       // House number add-on (ADRZUSATZ, Zusatz) - auto-combine with HAUSNR, don't show in UI
-      else if (/ZUSATZ|ADRZUSATZ|ADD.*ON|SUFFIX/i.test(normalizedHeader)) {
+      else if (/(ZUSATZ|ADRZUSATZ|ADD.*ON|SUFFIX)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number_addon';
         continue; // Skip - will be automatically combined with house_number in backend
       }
-      // Combined house number + add-on
-      else if (/HN.*ZU|HAUS.*ZUSATZ|HNR.*ZU/i.test(normalizedHeader)) {
+      // Combined house number + add-on (HN+ZU etc.)
+      else if (/(HN\+?\s*ZU|HN.*ZU|HAUS.*ZUSATZ|HNR.*ZU)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'house_number_combined';
       }
       // Postal code recognition
-      else if (/PLZ|POST|ZIP/i.test(normalizedHeader)) {
+      else if (/(^|\b)(PLZ|POST|ZIP)(\b|$)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'postal_code';
       }
       // City recognition (ORTSNAME is most important)
-      else if (/^(ORT|CITY|STADT|ORTSNAME)$/i.test(normalizedHeader)) {
+      else if (/(^ORT$|CITY|STADT|ORTSNAME)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'city';
       }
       // Locality (Ortschaft) recognition - secondary to city
-      else if (/ORTSCHAFT|LOCALITY|TEILORT|ORTSTEIL/i.test(normalizedHeader)) {
+      else if (/(ORTSCHAFT|LOCALITY|TEILORT|ORTSTEIL)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'locality';
       }
-      // Residential units (WE, WOHNEINHEI)
-      else if (/^(WE|WOHNEINHEI|WOHNUNGEN|RESIDENTIAL)$/i.test(normalizedHeader)) {
+      // Residential units (WE, WOHNEINHEITEN)
+      else if (/(WOHN|WOHNEINHEIT|WOHNUNGEN|ANZAHL.*WOHN|WOHNEINHEI)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_residential';
       }
-      // Commercial units (GE, GEWERBEEIN)
-      else if (/^(GE|GEWERBE|GESCHÄFT|COMMERCIAL|GEWERBEEIN)$/i.test(normalizedHeader)) {
+      // Commercial units (GE, GEWERBE, GESCHÄFT)
+      else if (/(GEWERB|GESCHÄFT|GESCHAEFT|COMMERCIAL|ANZAHL.*GE|GEWERBEEIN)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_commercial';
       }
       // Combined WE count (WEANZ)
-      else if (/WEANZ|WE.*ANZ|ANZAHL.*WE/i.test(normalizedHeader)) {
+      else if (/(WEANZ|WE.*ANZ|ANZAHL.*WE)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'unit_count';
       }
       // Floor (Etage)
-      else if (/ETAGE|FLOOR|STOCK|EG|OG/i.test(normalizedHeader)) {
+      else if (/(^|\b)(ETAGE|FLOOR|STOCK|EG|OG)(\b|$)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'floor';
       }
       // Position (Lage)
-      else if (/LAGE|POSITION|SEITE/i.test(normalizedHeader)) {
+      else if (/(LAGE|POSITION|SEITE)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'position';
       }
       // Customer number/name (→ system notes)
-      else if (/KUNDEN.*NR|KUNDENNUMMER|CUSTOMER.*ID/i.test(normalizedHeader)) {
+      else if (/(KUNDEN.*NR|KUNDENNUMMER|CUSTOMER.*ID)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'customer_number';
         questions.push({
           column: header,
@@ -144,7 +150,7 @@ serve(async (req) => {
           type: 'radio',
         });
       }
-      else if (/KUNDEN.*NAME|KUNDENNAME|CUSTOMER.*NAME/i.test(normalizedHeader)) {
+      else if (/(KUNDEN.*NAME|KUNDENNAME|CUSTOMER.*NAME)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'customer_name';
         questions.push({
           column: header,

@@ -366,7 +366,7 @@ export const AddressUploadWizard = ({
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {csvHeaders.map((header) => (
+                  {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id').map((header) => (
                     <TableRow key={header}>
                       <TableCell className="font-medium">{header}</TableCell>
                       <TableCell>

@@ -1404,7 +1404,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon').map((header) => (
+                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id').map((header) => (
                         <TableRow key={header}>
                           <TableCell className="font-medium">{header}</TableCell>
                           <TableCell>
