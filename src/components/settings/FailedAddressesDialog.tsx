@@ -39,7 +39,7 @@ export const FailedAddressesDialog = ({ listId, open, onOpenChange }: FailedAddr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col animate-in fade-in-0 zoom-in-95 duration-200">
         <DialogHeader>
           <DialogTitle>Fehlerhafte Adressen</DialogTitle>
         </DialogHeader>
