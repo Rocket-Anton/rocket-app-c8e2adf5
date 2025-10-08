@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
@@ -14,6 +14,7 @@ import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { CityPreviewMap } from "@/components/CityPreviewMap";
+import { calculateWorkingDays } from "@/utils/holidays";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -193,6 +194,14 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       if (cityDebounceRef.current) window.clearTimeout(cityDebounceRef.current);
     };
   }, [city]);
+
+  // Berechne Werktage, Samstage und Feiertage
+  const workingDaysInfo = useMemo(() => {
+    if (!startDate || !endDate || !federalState) {
+      return null;
+    }
+    return calculateWorkingDays(startDate, endDate, federalState);
+  }, [startDate, endDate, federalState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -522,62 +531,102 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         />
       </div>
 
-      {/* Startdatum */}
+      {/* Zeitraum (Start- und Enddatum) */}
       <div className="space-y-2">
         <Label className="text-sm font-medium">
-          Startdatum<span className="text-red-500 ml-1">*</span>
+          Projektzeitraum<span className="text-red-500 ml-1">*</span>
         </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
-                {startDate ? format(startDate, "dd.MM.yyyy") : "Datum auswählen"}
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
-            <Calendar
-              mode="single"
-              selected={startDate}
-              onSelect={setStartDate}
-              initialFocus
-              className="pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
-      </div>
+        <div className="grid grid-cols-2 gap-2">
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
+                  {startDate ? format(startDate, "dd.MM.yyyy") : "Startdatum"}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
+              <Calendar
+                mode="single"
+                selected={startDate}
+                onSelect={setStartDate}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
 
-      {/* Enddatum */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Enddatum<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Popover>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-              <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
-                {endDate ? format(endDate, "dd.MM.yyyy") : "Datum auswählen"}
-              </span>
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
-            <Calendar
-              mode="single"
-              selected={endDate}
-              onSelect={setEndDate}
-              initialFocus
-              className="pointer-events-auto"
-            />
-          </PopoverContent>
-        </Popover>
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button 
+                variant="outline" 
+                className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
+              >
+                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
+                  {endDate ? format(endDate, "dd.MM.yyyy") : "Enddatum"}
+                </span>
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
+              <Calendar
+                mode="single"
+                selected={endDate}
+                onSelect={setEndDate}
+                disabled={(date) => startDate ? date < startDate : false}
+                initialFocus
+                className="pointer-events-auto"
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
+
+        {workingDaysInfo && (
+          <div className="mt-3 p-3 bg-muted/50 rounded-md border space-y-2 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Gesamttage:</span>
+              <span className="font-medium">{workingDaysInfo.totalDays}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Werktage (Mo-Fr):</span>
+              <span className="font-medium">{workingDaysInfo.weekdays}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Samstage:</span>
+              <span className="font-medium">{workingDaysInfo.saturdays}</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Sonntage:</span>
+              <span className="font-medium">{workingDaysInfo.sundays}</span>
+            </div>
+            {workingDaysInfo.holidays.length > 0 && (
+              <>
+                <div className="flex justify-between text-orange-600 dark:text-orange-400">
+                  <span>Feiertage (Mo-Fr):</span>
+                  <span className="font-medium">-{workingDaysInfo.holidays.length}</span>
+                </div>
+                <div className="pt-1 border-t">
+                  <span className="text-xs text-muted-foreground">
+                    {workingDaysInfo.holidays.map(h => format(h.date, 'dd.MM.')).join(', ')}
+                  </span>
+                </div>
+              </>
+            )}
+            <div className="flex justify-between pt-2 border-t font-semibold text-primary">
+              <span>Effektive Arbeitstage:</span>
+              <span>{workingDaysInfo.workingDays}</span>
+            </div>
+          </div>
+        )}
+        {!federalState && startDate && endDate && (
+          <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
+            Bundesland auswählen, um Feiertage zu berücksichtigen
+          </p>
+        )}
       </div>
 
       {/* Anzahl WE */}
