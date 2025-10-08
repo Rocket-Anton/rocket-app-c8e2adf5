@@ -268,13 +268,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     : areaName || "";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] overflow-y-auto px-6">
+    <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-6 py-2">
       {/* Provider */}
       <div className="space-y-2">
-        <Label>Provider<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Provider<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Provider" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Provider auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {activeProviders.map((provider) => (
@@ -288,26 +290,30 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Gebiet Name */}
       <div className="space-y-2">
-        <Label>Gebiet Name<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Gebiet Name<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           value={areaName}
           onChange={(e) => setAreaName(e.target.value)}
-          placeholder="ZB. Lurup 1"
-          className="bg-background"
+          placeholder="z.B. Lurup 1"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
         {projectName && (
-          <p className="text-xs text-muted-foreground">
-            Projektname: <span className="font-medium">{projectName}</span>
+          <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+            Projektname wird: <span className="font-semibold text-foreground">{projectName}</span>
           </p>
         )}
       </div>
 
       {/* Bundesland */}
       <div className="space-y-2">
-        <Label>Bundesland<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Bundesland<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={federalState} onValueChange={setFederalState}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Bundesland" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Bundesland auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {FEDERAL_STATES.map((state) => (
@@ -321,10 +327,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Status */}
       <div className="space-y-2">
-        <Label>Status<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Status<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Status" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Status auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {STATUS_OPTIONS.map((option) => (
@@ -338,32 +346,36 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Ort */}
       <div className="space-y-2">
-        <Label>Ort<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Ort<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           value={city}
           onChange={(e) => setCity(e.target.value)}
           placeholder="Ort eingeben"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* PLZ */}
       <div className="space-y-2">
-        <Label>PLZ</Label>
+        <Label className="text-sm font-medium">PLZ</Label>
         <Input
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           placeholder="PLZ eingeben"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Vermarktungsart */}
       <div className="space-y-2">
-        <Label>Vermarktungsart<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Vermarktungsart<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={marketingType} onValueChange={setMarketingType}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Vermarktungsart" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Vermarktungsart auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {MARKETING_TYPES.map((type) => (
@@ -377,10 +389,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Ansprechpartner Provider */}
       <div className="space-y-2">
-        <Label>Ansprechpartner Provider</Label>
+        <Label className="text-sm font-medium">Ansprechpartner Provider</Label>
         <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select an Ansprechpartner" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50">
+            <SelectValue placeholder="Ansprechpartner auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {providerContacts.length === 0 ? (
@@ -398,24 +410,33 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Anzahl Raketen Soll */}
       <div className="space-y-2">
-        <Label>Anzahl Raketen Soll<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Anzahl Raketen Soll<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           type="number"
           value={rocketCount}
           onChange={(e) => setRocketCount(e.target.value)}
           placeholder="0"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Startdatum */}
       <div className="space-y-2">
-        <Label>Startdatum<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Startdatum<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {startDate ? format(startDate, "dd.MM.yyyy") : "Datum auswählen"}
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-left font-normal bg-background border-input hover:border-primary/50 transition-colors h-11"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
+                {startDate ? format(startDate, "dd.MM.yyyy") : "Datum auswählen"}
+              </span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
@@ -432,12 +453,19 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Enddatum */}
       <div className="space-y-2">
-        <Label>Enddatum<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Enddatum<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Popover>
           <PopoverTrigger asChild>
-            <Button variant="outline" className="w-full justify-start text-left font-normal bg-background">
-              <CalendarIcon className="mr-2 h-4 w-4" />
-              {endDate ? format(endDate, "dd.MM.yyyy") : "Datum auswählen"}
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-left font-normal bg-background border-input hover:border-primary/50 transition-colors h-11"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+              <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
+                {endDate ? format(endDate, "dd.MM.yyyy") : "Datum auswählen"}
+              </span>
             </Button>
           </PopoverTrigger>
           <PopoverContent className="w-auto p-0 bg-background z-50" align="start">
@@ -454,46 +482,50 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Anzahl WE */}
       <div className="space-y-2">
-        <Label>Anzahl WE<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Anzahl WE<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           type="number"
           value={unitCount}
           onChange={(e) => setUnitCount(e.target.value)}
           placeholder="0"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Anzahl der Bestandskunden */}
       <div className="space-y-2">
-        <Label>Anzahl der Bestandskunden</Label>
+        <Label className="text-sm font-medium">Anzahl der Bestandskunden</Label>
         <Input
           type="number"
           value={existingCustomerCount}
           onChange={(e) => setExistingCustomerCount(e.target.value)}
           placeholder="0"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Saleable WE */}
       <div className="space-y-2">
-        <Label>Saleable WE</Label>
+        <Label className="text-sm font-medium">Saleable WE</Label>
         <Input
           type="number"
           value={saleableUnits}
           onChange={(e) => setSaleableUnits(e.target.value)}
           placeholder="0"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Art Quote */}
       <div className="space-y-2">
-        <Label>Art Quote<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Art Quote<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={quotaType} onValueChange={setQuotaType}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Art Quote" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Art Quote auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {QUOTA_TYPES.map((type) => (
@@ -507,35 +539,37 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Zielquote */}
       <div className="space-y-2">
-        <Label>Zielquote<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Zielquote<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           type="number"
           step="0.01"
           value={targetQuota}
           onChange={(e) => setTargetQuota(e.target.value)}
           placeholder="0.00"
-          className="bg-background"
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
       </div>
 
       {/* Wichtige Infos */}
       <div className="space-y-2">
-        <Label>Wichtige Infos</Label>
+        <Label className="text-sm font-medium">Wichtige Infos</Label>
         <Textarea
           value={importantInfo}
           onChange={(e) => setImportantInfo(e.target.value)}
-          placeholder="Wichtige Informationen..."
-          rows={3}
-          className="bg-background"
+          placeholder="Wichtige Informationen eingeben..."
+          rows={4}
+          className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
         />
       </div>
 
       {/* Projektleiter Neu */}
       <div className="space-y-2">
-        <Label>Projektleiter Neu</Label>
+        <Label className="text-sm font-medium">Projektleiter</Label>
         <Select value={projectManager} onValueChange={setProjectManager}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Projektleiter" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Projektleiter auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {projectManagers.length === 0 ? (
@@ -553,10 +587,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Telegram Gruppe erstellen */}
       <div className="space-y-2">
-        <Label>Telegram Gruppe erstellen<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Telegram Gruppe erstellen<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={telegramGroupCreate} onValueChange={setTelegramGroupCreate}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Telegram Gruppe erstellen" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {TG_GROUP_OPTIONS.map((option) => (
@@ -570,10 +606,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Jobbooster posten */}
       <div className="space-y-2">
-        <Label>Jobbooster posten<span className="text-red-500">*</span></Label>
+        <Label className="text-sm font-medium">
+          Jobbooster posten<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Select value={postJobBooster} onValueChange={setPostJobBooster}>
-          <SelectTrigger className="bg-background">
-            <SelectValue placeholder="Select a Jobbooster" />
+          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+            <SelectValue placeholder="Option auswählen" />
           </SelectTrigger>
           <SelectContent className="bg-background z-50">
             {YES_NO_OPTIONS.map((option) => (
@@ -587,17 +625,19 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Provisionen Section */}
       <div className="space-y-4 pt-6 border-t">
-        <h3 className="text-lg font-semibold">Provisionen</h3>
+        <h3 className="text-base font-semibold">Provisionen</h3>
         
         {/* Projekt mit Bonus */}
         <div className="space-y-2">
-          <Label>Projekt mit Bonus<span className="text-red-500">*</span></Label>
+          <Label className="text-sm font-medium">
+            Projekt mit Bonus<span className="text-red-500 ml-1">*</span>
+          </Label>
           <Select 
             value={projectWithBonus ? "Ja" : "Nein"} 
             onValueChange={(val) => setProjectWithBonus(val === "Ja")}
           >
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="Select a Projekt mit Bonus" />
+            <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+              <SelectValue placeholder="Option auswählen" />
             </SelectTrigger>
             <SelectContent className="bg-background z-50">
               {YES_NO_OPTIONS.map((option) => (
@@ -611,14 +651,14 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
         {/* Provisionen (Tarife dropdown) */}
         <div className="space-y-2">
-          <Label>Provisionen</Label>
+          <Label className="text-sm font-medium">Provisionen</Label>
           <Select 
             value={selectedTariffs[0] || ""} 
             onValueChange={(val) => setSelectedTariffs([val])}
             disabled={!selectedProvider}
           >
-            <SelectTrigger className="bg-background">
-              <SelectValue placeholder="Select Provisionen" />
+            <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50">
+              <SelectValue placeholder="Provisionen auswählen" />
             </SelectTrigger>
             <SelectContent className="bg-background z-50">
               {tariffs.length === 0 ? (
@@ -637,28 +677,30 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* Infos für Ausschreibung */}
       <div className="space-y-4 pt-6 border-t">
-        <h3 className="text-lg font-semibold">Infos für Ausschreibung</h3>
+        <h3 className="text-base font-semibold">Infos für Ausschreibung</h3>
         
         <div className="space-y-2">
-          <Label>Info Text<span className="text-red-500">*</span></Label>
+          <Label className="text-sm font-medium">
+            Info Text<span className="text-red-500 ml-1">*</span>
+          </Label>
           <Textarea
             value={tenderInfo}
             onChange={(e) => setTenderInfo(e.target.value)}
-            placeholder="Informationen für die Ausschreibung..."
+            placeholder="Informationen für die Ausschreibung eingeben..."
             rows={6}
-            className="bg-background"
+            className="bg-background border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
           />
         </div>
       </div>
 
       {/* Upload Section */}
       <div className="space-y-4 pt-6 border-t">
-        <h3 className="text-lg font-semibold">Upload</h3>
+        <h3 className="text-base font-semibold">Upload</h3>
         
         {/* Straßenliste */}
         <div className="space-y-2">
-          <Label>Straßenliste</Label>
-          <div className="border-2 border-dashed rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 transition-colors cursor-pointer">
+          <Label className="text-sm font-medium">Straßenliste</Label>
+          <div className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
             <div className="text-center">
               <div className="text-4xl text-muted-foreground mb-2">+</div>
               <p className="text-sm text-muted-foreground">Datei hochladen</p>
@@ -668,11 +710,20 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-background pb-2 -mx-6 px-6">
-        <Button type="button" variant="outline" onClick={onClose}>
+      <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-background pb-2 -mx-6 px-6">
+        <Button 
+          type="button" 
+          variant="outline" 
+          onClick={onClose}
+          className="h-11 px-6"
+        >
           Abbrechen
         </Button>
-        <Button type="submit" disabled={loading}>
+        <Button 
+          type="submit" 
+          disabled={loading}
+          className="h-11 px-6 bg-primary hover:bg-primary/90 transition-colors"
+        >
           {loading ? "Erstelle..." : "Projekt erstellen"}
         </Button>
       </div>
