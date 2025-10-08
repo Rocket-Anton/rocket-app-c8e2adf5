@@ -257,13 +257,25 @@ serve(async (req) => {
       }
     }
 
+    console.log(`Generated export with ${csvRows.length - 1} rows`)
+
+    // For raw export, use tab-separated values (Excel compatible)
+    if (exportType === 'raw') {
+      const tsvContent = csvRows.map(row => row.replace(/;/g, '\t')).join('\n')
+      const filename = `rohdatei-export-${projectId}.txt`
+      
+      return new Response(tsvContent, {
+        headers: {
+          ...corsHeaders,
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Content-Disposition': `attachment; filename="${filename}"`,
+        },
+      })
+    }
+
+    // Rocket export as CSV
     const csvContent = csvRows.join('\n')
-
-    console.log(`Generated CSV with ${csvRows.length - 1} rows`)
-
-    const filename = exportType === 'raw' 
-      ? `rohdatei-export-${projectId}.csv`
-      : `rocket-app-export-${projectId}.csv`
+    const filename = `rocket-app-export-${projectId}.csv`
 
     return new Response(csvContent, {
       headers: {
