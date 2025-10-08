@@ -15,6 +15,7 @@ import { cn } from "@/lib/utils";
 import { useQuery } from "@tanstack/react-query";
 import { CityPreviewMap } from "@/components/CityPreviewMap";
 import { calculateWorkingDays } from "@/utils/holidays";
+import type { DateRange } from "react-day-picker";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -76,8 +77,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [marketingType, setMarketingType] = useState<string | undefined>(undefined);
   const [providerContact, setProviderContact] = useState<string | undefined>(undefined);
   const [rocketCount, setRocketCount] = useState("");
-  const [startDate, setStartDate] = useState<Date>();
-  const [endDate, setEndDate] = useState<Date>();
+  const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [shiftDate, setShiftDate] = useState<Date>();
   const [unitCount, setUnitCount] = useState("");
   const [existingCustomerCount, setExistingCustomerCount] = useState("");
@@ -197,16 +197,16 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
   // Berechne Werktage, Samstage und Feiertage
   const workingDaysInfo = useMemo(() => {
-    if (!startDate || !endDate || !federalState) {
+    if (!dateRange?.from || !dateRange?.to || !federalState) {
       return null;
     }
-    return calculateWorkingDays(startDate, endDate, federalState);
-  }, [startDate, endDate, federalState]);
+    return calculateWorkingDays(dateRange.from, dateRange.to, federalState);
+  }, [dateRange, federalState]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !postalCode || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo) {
+    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !postalCode || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo || !dateRange?.from || !dateRange?.to) {
       toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
       return;
     }
@@ -251,8 +251,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           marketing_type: marketingType || null,
           provider_contact_id: providerContact || null,
           rocket_count: parseInt(rocketCount),
-          start_date: startDate?.toISOString() || null,
-          end_date: endDate?.toISOString() || null,
+          start_date: dateRange?.from?.toISOString() || null,
+          end_date: dateRange?.to?.toISOString() || null,
           shift_date: shiftDate?.toISOString() || null,
           unit_count: unitCount ? parseInt(unitCount) : null,
           existing_customer_count: existingCustomerCount ? parseInt(existingCustomerCount) : null,
@@ -536,54 +536,37 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <Label className="text-sm font-medium">
           Projektzeitraum<span className="text-red-500 ml-1">*</span>
         </Label>
-        <div className="grid grid-cols-2 gap-2">
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span className={startDate ? "text-foreground" : "text-muted-foreground"}>
-                  {startDate ? format(startDate, "dd.MM.yyyy") : "Startdatum"}
-                </span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
-              <Calendar
-                mode="single"
-                selected={startDate}
-                onSelect={setStartDate}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button 
-                variant="outline" 
-                className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
-              >
-                <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-                <span className={endDate ? "text-foreground" : "text-muted-foreground"}>
-                  {endDate ? format(endDate, "dd.MM.yyyy") : "Enddatum"}
-                </span>
-              </Button>
-            </PopoverTrigger>
-            <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
-              <Calendar
-                mode="single"
-                selected={endDate}
-                onSelect={setEndDate}
-                disabled={(date) => startDate ? date < startDate : false}
-                initialFocus
-                className="pointer-events-auto"
-              />
-            </PopoverContent>
-          </Popover>
-        </div>
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant="outline" 
+              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
+            >
+              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+              {dateRange?.from ? (
+                dateRange.to ? (
+                  <span className="text-foreground">
+                    {format(dateRange.from, "dd.MM.yyyy")} - {format(dateRange.to, "dd.MM.yyyy")}
+                  </span>
+                ) : (
+                  <span className="text-foreground">{format(dateRange.from, "dd.MM.yyyy")}</span>
+                )
+              ) : (
+                <span className="text-muted-foreground">Zeitraum auswählen</span>
+              )}
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
+            <Calendar
+              mode="range"
+              selected={dateRange}
+              onSelect={setDateRange}
+              numberOfMonths={2}
+              initialFocus
+              className="pointer-events-auto"
+            />
+          </PopoverContent>
+        </Popover>
 
         {workingDaysInfo && (
           <div className="mt-3 p-3 bg-muted/50 rounded-md border space-y-2 text-sm">
@@ -622,7 +605,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </div>
           </div>
         )}
-        {!federalState && startDate && endDate && (
+        {!federalState && dateRange?.from && dateRange?.to && (
           <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
             Bundesland auswählen, um Feiertage zu berücksichtigen
           </p>
