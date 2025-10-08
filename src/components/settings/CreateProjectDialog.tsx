@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon, Loader2, CheckCircle } from "lucide-react";
+import { CalendarIcon, Loader2, CheckCircle, RotateCw } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -1458,10 +1458,21 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                 )}
 
                 <div className="flex justify-end gap-2">
-                  <Button variant="outline" onClick={handleResetMapping}>
-                    Abbrechen
+                  <Button 
+                    variant="outline" 
+                    onClick={handleResetMapping}
+                    size="sm"
+                    className="h-8"
+                  >
+                    <RotateCw className="h-3.5 w-3.5 mr-1.5" />
+                    Reupload
                   </Button>
-                  <Button onClick={handleConfirmMapping}>
+                  <Button 
+                    onClick={handleConfirmMapping}
+                    size="sm"
+                    className="h-8 bg-green-600 hover:bg-green-700 text-white"
+                  >
+                    <CheckCircle className="h-3.5 w-3.5 mr-1.5" />
                     Mapping bestätigen
                   </Button>
                 </div>
