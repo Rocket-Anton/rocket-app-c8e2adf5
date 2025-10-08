@@ -15,14 +15,33 @@ serve(async (req) => {
     const { audio } = await req.json();
     const OPENAI_API_KEY = Deno.env.get("OPENAI_API_KEY");
     const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
-    const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
+    const SUPABASE_ANON_KEY = Deno.env.get("SUPABASE_ANON_KEY")!;
 
     if (!OPENAI_API_KEY) {
       throw new Error("OPENAI_API_KEY is not configured");
     }
 
-    // Initialize Supabase client
-    const supabase = createClient(SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY);
+    // Initialize Supabase client with user auth
+    const supabaseClient = createClient(
+      SUPABASE_URL,
+      SUPABASE_ANON_KEY,
+      {
+        global: {
+          headers: { Authorization: req.headers.get('Authorization')! },
+        },
+      }
+    );
+
+    // Verify user is authenticated
+    const authHeader = req.headers.get('Authorization') || '';
+    const accessToken = authHeader.replace('Bearer ', '');
+    const { data: { user } } = await supabaseClient.auth.getUser(accessToken);
+    if (!user) {
+      return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+        status: 401,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
     // Transcribe audio using OpenAI Whisper
     console.log("Transcribing audio with OpenAI...");
@@ -50,10 +69,10 @@ serve(async (req) => {
     const userMessage = transcriptionData.text;
     console.log("Transcribed message:", userMessage);
 
-    // Fetch all addresses from database
-    const { data: addresses, error: addressError } = await supabase
+    // Fetch user's addresses only (RLS will enforce access control)
+    const { data: addresses, error: addressError } = await supabaseClient
       .from("addresses")
-      .select("*");
+      .select("*")
 
     if (addressError) {
       console.error("Error fetching addresses:", addressError);

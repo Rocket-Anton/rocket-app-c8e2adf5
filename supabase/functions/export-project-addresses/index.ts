@@ -32,7 +32,7 @@ serve(async (req) => {
       })
     }
 
-    const { projectId, exportType = 'rocket' } = await req.json()
+    const { projectId, exportType = 'rocket', listId } = await req.json()
 
     if (!projectId) {
       return new Response(
@@ -41,7 +41,22 @@ serve(async (req) => {
       )
     }
 
-    console.log(`Exporting addresses for project: ${projectId}`)
+    // Verify user has access to this project
+    const { data: project, error: projectError } = await supabaseClient
+      .from('projects')
+      .select('id')
+      .eq('id', projectId)
+      .single()
+
+    if (projectError || !project) {
+      console.error('Project access denied:', projectError)
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized or project not found' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    console.log(`Exporting addresses for project: ${projectId} by user: ${user.id}`)
 
     // Fetch all addresses for the project with units
     const { data: addresses, error: addressError } = await supabaseClient

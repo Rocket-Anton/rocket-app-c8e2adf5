@@ -328,6 +328,12 @@ export const TenderInfoGenerator = ({
     toast.success("Text bestätigt");
   };
 
+  // Sanitize HTML content
+  const sanitizedValue = DOMPurify.sanitize(value, {
+    ALLOWED_TAGS: ['strong', 'em', 'br', 'p', 'ul', 'li', 'ol', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'div'],
+    ALLOWED_ATTR: ['style', 'class'],
+  });
+
   return (
     <div className="space-y-3">
       {/* Rich text editor with dictation button inside */}
@@ -335,7 +341,7 @@ export const TenderInfoGenerator = ({
         <div
           contentEditable={!isConfirmed && !isProcessing}
           onInput={(e) => onChange(e.currentTarget.innerHTML)}
-          dangerouslySetInnerHTML={{ __html: value }}
+          dangerouslySetInnerHTML={{ __html: sanitizedValue }}
           className={cn(
             "min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
             "hover:border-primary/50 focus:border-primary transition-colors",
