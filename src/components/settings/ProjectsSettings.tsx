@@ -55,7 +55,7 @@ interface Project {
   };
 }
 
-const STATUS_OPTIONS = ['In Planung', 'Läuft', 'Abgeschlossen'];
+const STATUS_OPTIONS = ['In Planung', 'Läuft', 'Laufend', 'Abgeschlossen'];
 
 export const ProjectsSettings = () => {
   const queryClient = useQueryClient();
@@ -335,18 +335,18 @@ export const ProjectsSettings = () => {
                   <React.Fragment key={providerId}>
                     {/* Provider Row */}
                     <TableRow 
-                      className="cursor-pointer hover:bg-muted/30 h-10 font-semibold"
+                      className="cursor-pointer hover:bg-muted/30 h-10"
                       onClick={() => toggleProvider(providerId)}
                     >
                       <TableCell className="py-2 relative" colSpan={27}>
-                        <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 ${isProviderExpanded ? 'h-full' : 'h-6 rounded-full'} bg-blue-500`} />
-                        <div className={`flex items-center gap-2 ${isProviderExpanded ? 'pl-4' : 'pl-3'}`}>
+                        <div className={`absolute left-1 top-1/2 -translate-y-1/2 w-1 ${isProviderExpanded ? 'h-8' : 'h-5'} rounded-full bg-blue-500`} />
+                        <div className="flex items-center gap-2 pl-4">
                           {isProviderExpanded ? (
                             <ChevronDown className="w-4 h-4 text-muted-foreground" />
                           ) : (
                             <ChevronRight className="w-4 h-4 text-muted-foreground" />
                           )}
-                          <span className="text-sm font-semibold text-foreground">{providerData.name}</span>
+                          <span className="text-sm font-normal text-foreground">{providerData.name}</span>
                           <Badge className="text-xs h-5 px-2 bg-blue-500 text-white border-0">
                             {totalProjects}
                           </Badge>
@@ -362,18 +362,18 @@ export const ProjectsSettings = () => {
                       return (
                         <React.Fragment key={statusKey}>
                           <TableRow 
-                            className={`cursor-pointer hover:bg-muted/20 h-9 bg-muted/10 relative`}
+                            className="cursor-pointer hover:bg-muted/20 h-9 relative"
                             onClick={() => toggleStatus(statusKey)}
                           >
-                            <TableCell className="py-2 pl-8" colSpan={27}>
-                              <div className={`absolute left-0 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-full' : 'h-6 rounded-full'} ${getStatusBgColor(status)}`} />
-                              <div className="flex items-center gap-2">
+                            <TableCell className="py-2" colSpan={27}>
+                              <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-7' : 'h-4'} rounded-full ${getStatusBgColor(status)}`} />
+                              <div className="flex items-center gap-2 pl-4">
                                 {isStatusExpanded ? (
                                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
                                 ) : (
                                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                 )}
-                                <span className={`text-sm font-medium px-2 py-0.5 rounded ${getStatusColor(status)}`}>
+                                <span className={`inline-block text-xs font-normal px-3 py-1 rounded-md ${getStatusColor(status)}`}>
                                   {status.toUpperCase()}
                                 </span>
                                 <Badge className={`text-xs h-5 px-2 border-0 text-white ${getStatusBgColor(status)}`}>
@@ -398,15 +398,15 @@ export const ProjectsSettings = () => {
                                   value={project.status}
                                   onValueChange={(value) => handleStatusUpdate(project.id, value)}
                                 >
-                                  <SelectTrigger className={`w-[140px] h-7 border-0 rounded px-2 ${getStatusColor(project.status)} hover:opacity-80`}>
+                                  <SelectTrigger className={`w-auto h-7 border-0 rounded-md px-3 ${getStatusColor(project.status)} hover:opacity-80`}>
                                     <SelectValue>
-                                      <span className="text-xs font-medium">{project.status.toUpperCase()}</span>
+                                      <span className="text-xs font-normal">{project.status.toUpperCase()}</span>
                                     </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
                                     {STATUS_OPTIONS.map((status) => (
                                       <SelectItem key={status} value={status} className="cursor-pointer">
-                                        <span className={`text-xs font-medium px-2 py-0.5 rounded ${getStatusColor(status)}`}>
+                                        <span className={`inline-block text-xs font-normal px-3 py-1 rounded-md ${getStatusColor(status)}`}>
                                           {status.toUpperCase()}
                                         </span>
                                       </SelectItem>
