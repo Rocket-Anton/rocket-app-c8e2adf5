@@ -8,6 +8,7 @@ import { ListsSidebar } from "@/components/ListsSidebar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { ProjectSelector } from "@/components/ProjectSelector";
+import { MobileHeader } from "@/components/MobileHeader";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
@@ -690,14 +691,20 @@ function KarteContent() {
 
   return (
     <>
+      {/* Mobile Header */}
+      <MobileHeader 
+        selectedProjectIds={selectedProjectIds}
+        onProjectsChange={setSelectedProjectIds}
+      />
+      
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
           <div className="flex flex-col h-full w-full">
             {/* Header */}
-            <header className="flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
+            <header className="hidden lg:flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
               <div className="flex items-center gap-3">
-                <h1 className="hidden sm:block text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
+                <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
               </div>
               
               {/* Project Selector - only on desktop and tablet */}
