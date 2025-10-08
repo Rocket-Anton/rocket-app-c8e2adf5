@@ -11,6 +11,7 @@ import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
 import mapPreview from "@/assets/map-preview.png";
+import satellitePreview from "@/assets/satellite-preview.png";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -770,12 +771,13 @@ function KarteContent() {
                              : 'border-border bg-background'
                          }`}
                        >
-                         <div className="w-full h-12 rounded-md overflow-hidden bg-gradient-to-br from-green-800 via-green-600 to-green-900 relative border border-green-700">
-                           <div className="absolute inset-0 bg-gradient-to-br from-gray-400/10 via-transparent to-gray-900/20"></div>
-                           <div className="absolute top-1 right-1 w-5 h-5 bg-gray-500/20 blur-sm rounded-full"></div>
-                           <div className="absolute bottom-1 left-1 w-4 h-4 bg-green-700/50 rounded-sm"></div>
-                           <div className="absolute top-2 left-2 w-3 h-3 bg-green-500/30 rounded-sm"></div>
-                         </div>
+                          <div className="w-full h-12 rounded-md overflow-hidden relative border border-gray-300">
+                            <img 
+                              src={satellitePreview} 
+                              alt="Satellitenvorschau" 
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
                          <span className={`text-xs ${mapStyle === 'satellite' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
                            Satellit
                          </span>
