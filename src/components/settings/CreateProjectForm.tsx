@@ -295,7 +295,7 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
       </div>
 
       {/* Gebietsname - nur anzeigen wenn Ort vorhanden */}
-      {formData.city && (
+      {formData.city && formData.city.trim().length > 0 && (
         <div className="space-y-2">
           <Label>Gebietsname *</Label>
           <Input 
