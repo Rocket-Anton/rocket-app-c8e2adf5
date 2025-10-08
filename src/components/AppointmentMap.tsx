@@ -1,6 +1,7 @@
 import { useEffect, useRef } from "react";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
+import { MAPBOX_ACCESS_TOKEN } from "@/config/mapbox";
 
 interface Appointment {
   id: number;
@@ -24,8 +25,8 @@ interface AppointmentMapProps {
   selectedAppointmentId?: number | null;
 }
 
-// Mapbox access token from environment/secrets
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTViZWNpeXYwOGdjMnFzNnd6M2N1bWRhIn0.placeholder";
+// Set Mapbox access token
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
 export const AppointmentMap = ({ appointments, selectedDate, currentAddress, selectedAppointmentId }: AppointmentMapProps) => {
   const mapContainer = useRef<HTMLDivElement>(null);

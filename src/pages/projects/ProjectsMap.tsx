@@ -7,9 +7,10 @@ import "mapbox-gl/dist/mapbox-gl.css";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { MAPBOX_ACCESS_TOKEN } from "@/config/mapbox";
 
-// Mapbox access token from environment/secrets
-mapboxgl.accessToken = import.meta.env.VITE_MAPBOX_ACCESS_TOKEN || "pk.eyJ1IjoibG92YWJsZSIsImEiOiJjbTViZWNpeXYwOGdjMnFzNnd6M2N1bWRhIn0.placeholder";
+// Set Mapbox access token
+mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
 interface Project {
   id: string;
