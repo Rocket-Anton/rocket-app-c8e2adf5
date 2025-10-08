@@ -13,10 +13,24 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Plus } from "lucide-react";
+import { Plus, MoreVertical } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { LogoUploader } from "./LogoUploader";
 import { ColorPickerPopover } from "./ColorPickerPopover";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 
 interface Provider {
   id: string;
@@ -385,83 +399,118 @@ export const ProvidersSettings = () => {
         </Dialog>
       </div>
 
-      <div className="space-y-2">
-        {loading ? (
-          Array.from({ length: 5 }).map((_, i) => (
-            <div key={i} className="p-4 border rounded-lg bg-card">
-              <div className="flex items-center gap-4">
-                <Skeleton className="h-14 w-14 rounded-full" />
-                <div className="flex-1 space-y-2">
-                  <Skeleton className="h-5 w-48" />
-                  <Skeleton className="h-4 w-32" />
-                </div>
-                <Skeleton className="h-6 w-16" />
-                <Skeleton className="h-6 w-12" />
-                <Skeleton className="h-6 w-12" />
-              </div>
-            </div>
-          ))
-        ) : (
-          providers.map((provider) => (
-            <div
-              key={provider.id}
-              className="p-4 border rounded-lg bg-card hover:bg-accent/50 cursor-pointer transition-colors"
-              onClick={() => handleRowClick(provider)}
-            >
-              <div className="flex items-center gap-4">
-                {/* Logo */}
-                <div className="flex-shrink-0">
-                  {provider.logo_url ? (
-                    <img 
-                      src={provider.logo_url} 
-                      alt={provider.name} 
-                      className="h-14 w-14 object-contain rounded-full border-2 border-border"
-                    />
-                  ) : (
-                    <div 
-                      className="h-14 w-14 rounded-full flex items-center justify-center text-white font-semibold text-lg border-2 border-border"
-                      style={{ backgroundColor: provider.color }}
-                    >
-                      {provider.abbreviation || provider.name.slice(0, 2).toUpperCase()}
+      <div className="border rounded-lg bg-card">
+        <Table>
+          <TableHeader>
+            <TableRow>
+              <TableHead className="w-[300px]">Provider</TableHead>
+              <TableHead>Status</TableHead>
+              <TableHead className="text-center">Projekte</TableHead>
+              <TableHead className="text-center">Raketen</TableHead>
+              <TableHead className="w-[50px]"></TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {loading ? (
+              Array.from({ length: 5 }).map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      <Skeleton className="h-10 w-10 rounded-full" />
+                      <div className="space-y-2">
+                        <Skeleton className="h-4 w-32" />
+                        <Skeleton className="h-3 w-20" />
+                      </div>
                     </div>
-                  )}
-                </div>
-
-                {/* Name */}
-                <div className="flex-1 min-w-0">
-                  <h3 className="font-semibold text-lg truncate">{provider.name}</h3>
-                  <p className="text-sm text-muted-foreground">
-                    {provider.abbreviation}
-                  </p>
-                </div>
-
-                {/* Status */}
-                <div className="flex items-center gap-2">
-                  <div 
-                    className={`h-3 w-3 rounded-full ${
-                      provider.is_active ? 'bg-green-500' : 'bg-gray-400'
-                    }`}
-                  />
-                  <span className="text-sm font-medium min-w-[60px]">
-                    {provider.is_active ? 'Aktiv' : 'Inaktiv'}
-                  </span>
-                </div>
-
-                {/* Projekte */}
-                <div className="text-center min-w-[80px]">
-                  <p className="text-2xl font-bold">{provider.project_count || 0}</p>
-                  <p className="text-xs text-muted-foreground">Projekte</p>
-                </div>
-
-                {/* Raketen */}
-                <div className="text-center min-w-[100px]">
-                  <p className="text-2xl font-bold">{provider.active_rockets_count || 0}</p>
-                  <p className="text-xs text-muted-foreground">Raketen</p>
-                </div>
-              </div>
-            </div>
-          ))
-        )}
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-5 w-16" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-8 mx-auto" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-8 mx-auto" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-8 w-8" />
+                  </TableCell>
+                </TableRow>
+              ))
+            ) : (
+              providers.map((provider) => (
+                <TableRow 
+                  key={provider.id}
+                  className="cursor-pointer hover:bg-muted/50"
+                  onClick={() => handleRowClick(provider)}
+                >
+                  <TableCell>
+                    <div className="flex items-center gap-3">
+                      {provider.logo_url ? (
+                        <img 
+                          src={provider.logo_url} 
+                          alt={provider.name} 
+                          className="h-10 w-10 object-contain rounded-full border border-border"
+                        />
+                      ) : (
+                        <div 
+                          className="h-10 w-10 rounded-full flex items-center justify-center text-white font-semibold text-sm border border-border"
+                          style={{ backgroundColor: provider.color }}
+                        >
+                          {provider.abbreviation || provider.name.slice(0, 2).toUpperCase()}
+                        </div>
+                      )}
+                      <div>
+                        <p className="font-medium">{provider.name}</p>
+                        <p className="text-sm text-muted-foreground">{provider.abbreviation}</p>
+                      </div>
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    <Badge 
+                      variant={provider.is_active ? "default" : "secondary"}
+                      className={provider.is_active ? "bg-green-500 hover:bg-green-600" : ""}
+                    >
+                      {provider.is_active ? 'Aktiv' : 'Inaktiv'}
+                    </Badge>
+                  </TableCell>
+                  <TableCell className="text-center font-medium">
+                    {provider.project_count || 0}
+                  </TableCell>
+                  <TableCell className="text-center font-medium">
+                    {provider.active_rockets_count || 0}
+                  </TableCell>
+                  <TableCell>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild onClick={(e) => e.stopPropagation()}>
+                        <Button variant="ghost" size="icon" className="h-8 w-8">
+                          <MoreVertical className="h-4 w-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={(e) => {
+                          e.stopPropagation();
+                          handleEdit(provider);
+                        }}>
+                          Bearbeiten
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          className="text-destructive"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            handleDelete(provider.id);
+                          }}
+                        >
+                          Löschen
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))
+            )}
+          </TableBody>
+        </Table>
       </div>
 
       {/* Detail Dialog */}
