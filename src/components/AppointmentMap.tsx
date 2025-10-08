@@ -92,10 +92,66 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress, sel
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: defaultCenter,
-        zoom: defaultZoom
+        zoom: defaultZoom,
+        pitch: 60, // 3D perspective
+        bearing: 0,
+        antialias: true
       });
 
       map.addControl(new mapboxgl.NavigationControl());
+
+      // Add 3D buildings and terrain when style loads
+      map.on('style.load', () => {
+        // Add 3D terrain
+        map.addSource('mapbox-dem', {
+          'type': 'raster-dem',
+          'url': 'mapbox://mapbox.mapbox-terrain-dem-v1',
+          'tileSize': 512,
+          'maxzoom': 14
+        });
+        map.setTerrain({ 'source': 'mapbox-dem', 'exaggeration': 1.5 });
+
+        // Add 3D buildings layer
+        const layers = map.getStyle().layers;
+        const labelLayerId = layers.find(
+          (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
+        )?.id;
+
+        map.addLayer(
+          {
+            'id': '3d-buildings',
+            'source': 'composite',
+            'source-layer': 'building',
+            'filter': ['==', 'extrude', 'true'],
+            'type': 'fill-extrusion',
+            'minzoom': 15,
+            'paint': {
+              'fill-extrusion-color': '#aaa',
+              'fill-extrusion-height': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                15,
+                0,
+                15.05,
+                ['get', 'height']
+              ],
+              'fill-extrusion-base': [
+                'interpolate',
+                ['linear'],
+                ['zoom'],
+                15,
+                0,
+                15.05,
+                ['get', 'min_height']
+              ],
+              'fill-extrusion-opacity': 0.6
+            }
+          },
+          labelLayerId
+        );
+      });
+
       mapInstance.current = map;
     } else {
       mapInstance.current.setCenter(defaultCenter);

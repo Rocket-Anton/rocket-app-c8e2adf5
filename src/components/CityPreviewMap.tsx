@@ -23,17 +23,49 @@ export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
     }
 
     const defaultCenter: [number, number] = center ? [center.lng, center.lat] : [10.4515, 51.1657]; // Germany
-    const zoom = center ? 11 : 5;
+    const zoom = center ? 13 : 5;
+    const pitch = center ? 45 : 0; // 3D tilt only when zoomed in
 
     const map = new mapboxgl.Map({
       container: mapRef.current,
       style: 'mapbox://styles/mapbox/streets-v12',
       center: defaultCenter,
       zoom: zoom,
+      pitch: pitch,
+      bearing: 0,
+      antialias: true,
       attributionControl: false
     });
 
     map.addControl(new mapboxgl.NavigationControl());
+
+    // Add 3D buildings when zoomed in
+    if (center) {
+      map.on('style.load', () => {
+        const layers = map.getStyle().layers;
+        const labelLayerId = layers.find(
+          (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
+        )?.id;
+
+        map.addLayer(
+          {
+            'id': '3d-buildings',
+            'source': 'composite',
+            'source-layer': 'building',
+            'filter': ['==', 'extrude', 'true'],
+            'type': 'fill-extrusion',
+            'minzoom': 15,
+            'paint': {
+              'fill-extrusion-color': '#aaa',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'min_height'],
+              'fill-extrusion-opacity': 0.6
+            }
+          },
+          labelLayerId
+        );
+      });
+    }
 
     if (center) {
       const marker = new mapboxgl.Marker()

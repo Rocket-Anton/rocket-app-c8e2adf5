@@ -49,10 +49,39 @@ const ProjectsMapContent = () => {
         container: mapContainer.current,
         style: 'mapbox://styles/mapbox/streets-v12',
         center: defaultCenter,
-        zoom: 6
+        zoom: 6,
+        pitch: 45, // 3D perspective
+        bearing: 0,
+        antialias: true
       });
 
       map.current.addControl(new mapboxgl.NavigationControl());
+
+      // Add 3D buildings
+      map.current.on('style.load', () => {
+        const layers = map.current!.getStyle().layers;
+        const labelLayerId = layers.find(
+          (layer) => layer.type === 'symbol' && layer.layout?.['text-field']
+        )?.id;
+
+        map.current!.addLayer(
+          {
+            'id': '3d-buildings',
+            'source': 'composite',
+            'source-layer': 'building',
+            'filter': ['==', 'extrude', 'true'],
+            'type': 'fill-extrusion',
+            'minzoom': 15,
+            'paint': {
+              'fill-extrusion-color': '#aaa',
+              'fill-extrusion-height': ['get', 'height'],
+              'fill-extrusion-base': ['get', 'min_height'],
+              'fill-extrusion-opacity': 0.6
+            }
+          },
+          labelLayerId
+        );
+      });
     }
 
     // Clear existing markers
