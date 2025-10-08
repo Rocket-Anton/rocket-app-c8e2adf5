@@ -48,16 +48,24 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
   const fetchProjects = async () => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
+      if (!user) {
+        console.log('ProjectSelector: No user found');
+        return;
+      }
+
+      console.log('ProjectSelector: User ID:', user.id);
 
       // Check if user is admin
-      const { data: userRoles } = await supabase
+      const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle();
 
+      console.log('ProjectSelector: User roles:', userRoles, 'Error:', rolesError);
+
       const isAdmin = userRoles?.role === 'admin';
+      console.log('ProjectSelector: Is admin?', isAdmin);
 
       let query = supabase
         .from('projects')
@@ -72,6 +80,8 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       }
 
       const { data, error } = await query;
+
+      console.log('ProjectSelector: Projects data:', data, 'Error:', error);
 
       if (error) throw error;
 
