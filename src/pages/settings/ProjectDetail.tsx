@@ -203,15 +203,26 @@ const ProjectDetail = () => {
     
     setExporting(true);
     try {
+      console.log('Starting export...', { projectId: id, exportType, listId });
+      
       const { data, error } = await supabase.functions.invoke('export-project-addresses', {
         body: { 
           projectId: id, 
           exportType,
-          listId // Optional: can be used to export specific list only
+          listId
         },
       });
 
-      if (error) throw error;
+      console.log('Export response:', { data, error });
+
+      if (error) {
+        console.error('Export error:', error);
+        throw error;
+      }
+
+      if (!data) {
+        throw new Error('Keine Daten erhalten');
+      }
 
       // Create blob and download
       const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
@@ -596,8 +607,36 @@ const ProjectDetail = () => {
                                            />
                                          </div>
                                        )}
-                                    </div>
-                                  </div>
+                                     </div>
+                                     <div className="flex gap-2 ml-4">
+                                       <DropdownMenu>
+                                         <DropdownMenuTrigger asChild>
+                                           <Button variant="outline" size="sm">
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Export
+                                             <ChevronDown className="w-4 h-4 ml-2" />
+                                           </Button>
+                                         </DropdownMenuTrigger>
+                                         <DropdownMenuContent className="bg-background z-50">
+                                           <DropdownMenuItem onClick={() => handleExport('raw', list.id)}>
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Rohdatei
+                                           </DropdownMenuItem>
+                                           <DropdownMenuItem onClick={() => handleExport('rocket', list.id)}>
+                                             <Download className="w-4 h-4 mr-2" />
+                                             Rocket Export
+                                           </DropdownMenuItem>
+                                         </DropdownMenuContent>
+                                       </DropdownMenu>
+                                       <Button 
+                                         variant="outline" 
+                                         size="sm"
+                                         onClick={() => openDeleteDialog(list.id)}
+                                       >
+                                         <Trash2 className="w-4 h-4" />
+                                       </Button>
+                                     </div>
+                                   </div>
                                 </div>
                               ))}
                             </div>
