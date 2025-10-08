@@ -12,6 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Upload, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 import Papa from "papaparse";
+import * as XLSX from "xlsx";
 
 interface ColumnMapping {
   [csvColumn: string]: string;
@@ -74,7 +75,7 @@ export const AddressUploadWizard = ({
     const selectedFile = e.target.files?.[0];
     if (!selectedFile) return;
 
-    if (!selectedFile.name.endsWith('.csv') && !selectedFile.name.endsWith('.xlsx')) {
+    if (!selectedFile.name.endsWith('.csv') && !selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
       toast.error('Bitte nur CSV- oder Excel-Dateien hochladen');
       return;
     }
@@ -83,52 +84,120 @@ export const AddressUploadWizard = ({
     setStep('analyze');
     setProgress(10);
 
-    // Parse CSV
-    Papa.parse(selectedFile, {
-      header: true,
-      skipEmptyLines: true,
-      complete: async (results) => {
-        const data = results.data;
-        const headers = results.meta.fields || [];
+    // Check if file is Excel
+    const isExcel = selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.xls');
 
-        setCsvData(data);
-        setCsvHeaders(headers);
-        setProgress(30);
-
-        // Analyze CSV structure
+    if (isExcel) {
+      // Parse Excel file
+      const reader = new FileReader();
+      reader.onload = async (evt) => {
         try {
-          const { data: analysisData, error } = await supabase.functions.invoke('analyze-csv-structure', {
-            body: {
-              csvHeaders: headers,
-              sampleRows: data.slice(0, 5),
-              providerId: providerId,
-            },
+          const bstr = evt.target?.result;
+          const workbook = XLSX.read(bstr, { type: 'binary' });
+          
+          // Get first sheet
+          const firstSheetName = workbook.SheetNames[0];
+          const worksheet = workbook.Sheets[firstSheetName];
+          
+          // Convert to JSON
+          const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+          
+          // Extract headers and data
+          const headers = jsonData[0] as string[];
+          const dataRows = jsonData.slice(1).map(row => {
+            const obj: any = {};
+            (row as any[]).forEach((cell, idx) => {
+              obj[headers[idx]] = cell;
+            });
+            return obj;
           });
 
-          if (error) throw error;
+          setCsvData(dataRows);
+          setCsvHeaders(headers);
+          setProgress(30);
 
-          setSuggestedMapping(analysisData.suggested_mapping);
-          setFinalMapping(analysisData.suggested_mapping);
-          setConfidence(analysisData.confidence);
-          setQuestions(analysisData.questions || []);
-          setSavedMappingId(analysisData.saved_mapping_id);
+          // Analyze structure
+          try {
+            const { data: analysisData, error } = await supabase.functions.invoke('analyze-csv-structure', {
+              body: {
+                csvHeaders: headers,
+                sampleRows: dataRows.slice(0, 5),
+                providerId: providerId,
+              },
+            });
 
-          setProgress(100);
-          setTimeout(() => {
-            setStep('mapping');
-          }, 500);
-        } catch (error: any) {
-          console.error('CSV analysis error:', error);
-          toast.error('Fehler bei der CSV-Analyse');
+            if (error) throw error;
+
+            setSuggestedMapping(analysisData.suggested_mapping);
+            setFinalMapping(analysisData.suggested_mapping);
+            setConfidence(analysisData.confidence);
+            setQuestions(analysisData.questions || []);
+            setSavedMappingId(analysisData.saved_mapping_id);
+
+            setProgress(100);
+            setTimeout(() => {
+              setStep('mapping');
+            }, 500);
+          } catch (error: any) {
+            console.error('Excel analysis error:', error);
+            toast.error('Fehler bei der Excel-Analyse');
+            setStep('upload');
+          }
+        } catch (error) {
+          console.error('Excel parsing error:', error);
+          toast.error('Fehler beim Lesen der Excel-Datei');
           setStep('upload');
         }
-      },
-      error: (error) => {
-        console.error('CSV parsing error:', error);
-        toast.error('Fehler beim Lesen der CSV-Datei');
-        setStep('upload');
-      },
-    });
+      };
+      reader.readAsBinaryString(selectedFile);
+    } else {
+      // Parse CSV
+      Papa.parse(selectedFile, {
+        header: true,
+        skipEmptyLines: true,
+        complete: async (results) => {
+          const data = results.data;
+          const headers = results.meta.fields || [];
+
+          setCsvData(data);
+          setCsvHeaders(headers);
+          setProgress(30);
+
+          // Analyze CSV structure
+          try {
+            const { data: analysisData, error } = await supabase.functions.invoke('analyze-csv-structure', {
+              body: {
+                csvHeaders: headers,
+                sampleRows: data.slice(0, 5),
+                providerId: providerId,
+              },
+            });
+
+            if (error) throw error;
+
+            setSuggestedMapping(analysisData.suggested_mapping);
+            setFinalMapping(analysisData.suggested_mapping);
+            setConfidence(analysisData.confidence);
+            setQuestions(analysisData.questions || []);
+            setSavedMappingId(analysisData.saved_mapping_id);
+
+            setProgress(100);
+            setTimeout(() => {
+              setStep('mapping');
+            }, 500);
+          } catch (error: any) {
+            console.error('CSV analysis error:', error);
+            toast.error('Fehler bei der CSV-Analyse');
+            setStep('upload');
+          }
+        },
+        error: (error) => {
+          console.error('CSV parsing error:', error);
+          toast.error('Fehler beim Lesen der CSV-Datei');
+          setStep('upload');
+        },
+      });
+    }
   };
 
   const handleMappingChange = (csvColumn: string, mapping: string) => {
@@ -254,7 +323,7 @@ export const AddressUploadWizard = ({
               <Input
                 id="file-upload"
                 type="file"
-                accept=".csv,.xlsx"
+                accept=".csv,.xlsx,.xls"
                 onChange={handleFileSelect}
                 className="hidden"
               />

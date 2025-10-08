@@ -367,19 +367,20 @@ export const TenderInfoGenerator = ({
                 disabled={isProcessing}
                 className="flex items-center gap-1.5 h-7 animate-pulse"
               >
-                {isProcessing ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                    <span className="text-xs">Verarbeite...</span>
-                  </>
-                ) : (
-                  <>
-                    <StopCircle className="w-3.5 h-3.5" />
-                    <span className="text-xs">Stoppen & Generieren</span>
-                  </>
-                )}
+                <StopCircle className="w-3.5 h-3.5" />
+                <span className="text-xs">Stoppen & Generieren</span>
               </Button>
             )}
+          </div>
+        )}
+        
+        {/* Processing indicator */}
+        {isProcessing && !value && (
+          <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-border bg-background/95 backdrop-blur-sm rounded-b-md flex items-center justify-center px-3">
+            <div className="flex items-center gap-2 text-primary">
+              <Loader2 className="w-4 h-4 animate-spin" />
+              <span className="text-sm font-medium">Sprachnachricht wird ausgewertet...</span>
+            </div>
           </div>
         )}
       </div>
