@@ -26,7 +26,7 @@ export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
       instance.current = null;
     }
 
-    const map = L.map(mapRef.current, { zoomControl: true });
+    const map = L.map(mapRef.current, { zoomControl: true, attributionControl: false });
     instance.current = map;
 
     const defaultCenter: [number, number] = center ? [center.lat, center.lng] : [51.1657, 10.4515]; // Germany
@@ -35,7 +35,7 @@ export const CityPreviewMap = ({ center }: CityPreviewMapProps) => {
     map.setView(defaultCenter, zoom);
 
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors',
+      attribution: '',
     }).addTo(map);
 
     if (center) {
