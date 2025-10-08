@@ -6,7 +6,6 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
-  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MapPin, ChevronDown } from "lucide-react";
@@ -201,49 +200,45 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
             </p>
           </div>
           
-          {/* Compact filters */}
-          <div className="flex gap-2 flex-wrap">
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 text-xs">
-                  Status {statusFilter.length > 0 && `(${statusFilter.length})`}
-                  <ChevronDown className="ml-1 h-3 w-3" />
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="start" className="w-48">
-                {uniqueStatuses.map(status => (
-                  <DropdownMenuItem
-                    key={status}
-                    onClick={(e) => {
-                      e.preventDefault();
-                      setStatusFilter(prev => 
-                        prev.includes(status) 
-                          ? prev.filter(s => s !== status)
-                          : [...prev, status]
-                      );
-                    }}
+          {/* Status filter chips */}
+          {uniqueStatuses.length > 0 && (
+            <div className="space-y-1.5">
+              <div className="text-[10px] font-medium text-muted-foreground uppercase">Status Filter</div>
+              <div className="flex gap-1.5 flex-wrap">
+                {uniqueStatuses.map(status => {
+                  const isSelected = statusFilter.includes(status);
+                  return (
+                    <button
+                      key={status}
+                      onClick={() => {
+                        setStatusFilter(prev => 
+                          prev.includes(status) 
+                            ? prev.filter(s => s !== status)
+                            : [...prev, status]
+                        );
+                      }}
+                      className={cn(
+                        "text-[10px] px-2 py-1 rounded-md border transition-colors",
+                        isSelected 
+                          ? "bg-primary text-primary-foreground border-primary" 
+                          : "bg-background hover:bg-muted border-border"
+                      )}
+                    >
+                      {status}
+                    </button>
+                  );
+                })}
+                {statusFilter.length > 0 && (
+                  <button
+                    onClick={() => setStatusFilter([])}
+                    className="text-[10px] px-2 py-1 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20"
                   >
-                    <Checkbox
-                      checked={statusFilter.includes(status)}
-                      className="mr-2"
-                    />
-                    <span className="text-xs">{status}</span>
-                  </DropdownMenuItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {statusFilter.length > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                className="h-7 text-xs px-2"
-                onClick={() => setStatusFilter([])}
-              >
-                ✕
-              </Button>
-            )}
-          </div>
+                    ✕ Alle
+                  </button>
+                )}
+              </div>
+            </div>
+          )}
         </div>
         
         <ScrollArea className="h-[400px]">
