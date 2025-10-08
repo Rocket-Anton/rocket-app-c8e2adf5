@@ -83,7 +83,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const cityDebounceRef = useRef<number | null>(null);
   const areaNameSetRef = useRef<boolean>(false); // Track if areaName was auto-set
   const [marketingType, setMarketingType] = useState<string | undefined>(undefined);
-  const [providerContact, setProviderContact] = useState<string | undefined>(undefined);
   const [rocketCount, setRocketCount] = useState("");
   const [dateRange, setDateRange] = useState<DateRange | undefined>();
   const [shiftDate, setShiftDate] = useState<Date>();
@@ -160,21 +159,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         .single();
       if (error) throw error;
       return data;
-    },
-    enabled: !!selectedProvider,
-  });
-
-  // Load provider contacts
-  const { data: providerContacts = [] } = useQuery({
-    queryKey: ['provider-contacts', selectedProvider],
-    queryFn: async () => {
-      if (!selectedProvider) return [];
-      const { data, error } = await supabase
-        .from("provider_contacts")
-        .select('*')
-        .eq('provider_id', selectedProvider);
-      if (error) throw error;
-      return data || [];
     },
     enabled: !!selectedProvider,
   });
@@ -608,7 +592,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           city: city || null,
           postal_code: postalCode || null,
           marketing_type: marketingType || null,
-          provider_contact_id: providerContact || null,
           rocket_count: parseInt(rocketCount),
           start_date: dateRange?.from?.toISOString() || null,
           end_date: dateRange?.to?.toISOString() || null,
@@ -881,27 +864,6 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                 {type.value}
               </SelectItem>
             ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Ansprechpartner Provider */}
-      <div className="space-y-2 pointer-events-auto">
-        <Label className="text-sm font-medium">Ansprechpartner Provider</Label>
-        <Select value={providerContact} onValueChange={setProviderContact} disabled={!selectedProvider}>
-          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 disabled:opacity-50 pointer-events-auto">
-            <SelectValue placeholder="Ansprechpartner auswählen" className="data-[placeholder]:text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto">
-            {providerContacts.length === 0 ? (
-              <SelectItem value="none">Keine Ansprechpartner vorhanden</SelectItem>
-            ) : (
-              providerContacts.map((contact: any) => (
-                <SelectItem key={contact.id} value={contact.id}>
-                  {contact.first_name} {contact.last_name}
-                </SelectItem>
-              ))
-            )}
           </SelectContent>
         </Select>
       </div>
