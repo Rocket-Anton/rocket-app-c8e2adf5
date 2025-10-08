@@ -36,7 +36,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
   return (
     <header className="md:hidden sticky top-0 z-50 w-full bg-[#0066FF] border-b border-white/10">
-      <div className="flex items-center justify-between px-4 h-16">
+      <div className="flex items-center justify-between px-4 h-14">
         {/* Logo */}
         <button 
           onClick={() => handleNavigation("/")}
@@ -45,7 +45,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           <img 
             src={rocketLogo} 
             alt="Rocket Logo" 
-            className="h-12 w-auto"
+            className="h-8 w-auto"
           />
         </button>
 
@@ -55,9 +55,9 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-white hover:bg-white/10"
+              className="text-white hover:bg-white/10 h-10 w-10"
             >
-              {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+              {open ? <X className="h-7 w-7" /> : <Menu className="h-7 w-7" />}
             </Button>
           </SheetTrigger>
           <SheetContent 
@@ -71,7 +71,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                   <img 
                     src={rocketLogo} 
                     alt="Rocket Logo" 
-                    className="h-10 w-auto"
+                    className="h-8 w-auto"
                   />
                   <span className="font-semibold text-white">Menü</span>
                 </div>
@@ -79,14 +79,14 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
               {/* Project selector if applicable */}
               {showProjectSelector && (
-                <div className="px-4 py-3 border-b bg-muted/30">
-                  <div className="text-[10px] font-medium text-muted-foreground mb-1.5">
+                <div className="p-4 border-b bg-muted/30">
+                  <div className="text-xs font-medium text-muted-foreground mb-2">
                     PROJEKTE
                   </div>
                   <ProjectSelector
                     selectedProjectIds={selectedProjectIds}
                     onProjectsChange={onProjectsChange}
-                    className="w-full h-9 text-sm"
+                    className="w-full"
                   />
                 </div>
               )}
