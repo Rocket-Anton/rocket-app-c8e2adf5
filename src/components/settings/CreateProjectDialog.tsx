@@ -76,6 +76,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [cityCoordinates, setCityCoordinates] = useState<{ lat: number; lng: number } | null>(null);
   const [postalCodeSuggestions, setPostalCodeSuggestions] = useState<string[]>([]);
   const cityDebounceRef = useRef<number | null>(null);
+  const areaNameSetRef = useRef<boolean>(false); // Track if areaName was auto-set
   const [marketingType, setMarketingType] = useState<string | undefined>(undefined);
   const [providerContact, setProviderContact] = useState<string | undefined>(undefined);
   const [rocketCount, setRocketCount] = useState("");
@@ -227,12 +228,17 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     };
   }, [city]);
 
-  // Auto-Befüllung: Gebiet Name = Ort (kann überschrieben werden)
+  // Auto-Befüllung: Gebiet Name = Ort (nur wenn Ort erkannt wurde)
   useEffect(() => {
-    if (city && !areaName) {
+    if (city && cityCoordinates && !areaNameSetRef.current) {
       setAreaName(city);
+      areaNameSetRef.current = true;
     }
-  }, [city, areaName]);
+    // Reset flag wenn city leer wird
+    if (!city) {
+      areaNameSetRef.current = false;
+    }
+  }, [city, cityCoordinates]);
 
   // Berechne Werktage, Samstage und Feiertage
   const workingDaysInfo = useMemo(() => {
