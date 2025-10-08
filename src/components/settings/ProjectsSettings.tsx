@@ -12,10 +12,8 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, Search, Upload, Download, ChevronRight, ChevronDown } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
   TableBody,
@@ -24,6 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { CreateProjectForm } from "./CreateProjectForm";
 
 interface Project {
   id: string;
@@ -159,15 +158,17 @@ export const ProjectsSettings = () => {
                 Neues Projekt
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[85vh]">
               <DialogHeader>
                 <DialogTitle>Neues Projekt</DialogTitle>
               </DialogHeader>
-              <div className="space-y-4">
-                <p className="text-sm text-muted-foreground">
-                  Dialog-Inhalte werden noch implementiert
-                </p>
-              </div>
+              <CreateProjectForm 
+                onSuccess={() => {
+                  setIsDialogOpen(false);
+                  queryClient.invalidateQueries({ queryKey: ['projects'] });
+                }}
+                onCancel={() => setIsDialogOpen(false)}
+              />
             </DialogContent>
           </Dialog>
         </div>

@@ -14,6 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      addons: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          name: string
+          provider_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          name: string
+          provider_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addons_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
           city: string
@@ -196,40 +231,229 @@ export type Database = {
         }
         Relationships: []
       }
-      projects: {
+      project_addons: {
+        Row: {
+          addon_id: string
+          created_at: string
+          id: string
+          project_id: string
+        }
+        Insert: {
+          addon_id: string
+          created_at?: string
+          id?: string
+          project_id: string
+        }
+        Update: {
+          addon_id?: string
+          created_at?: string
+          id?: string
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_addons_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_addons_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_tariffs: {
         Row: {
           created_at: string
-          created_by: string
-          description: string | null
           id: string
-          name: string
-          provider_id: string | null
-          status: string
-          updated_at: string
+          project_id: string
+          tariff_id: string
         }
         Insert: {
           created_at?: string
-          created_by: string
-          description?: string | null
           id?: string
-          name: string
-          provider_id?: string | null
-          status?: string
-          updated_at?: string
+          project_id: string
+          tariff_id: string
         }
         Update: {
           created_at?: string
+          id?: string
+          project_id?: string
+          tariff_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_tariffs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_tariffs_tariff_id_fkey"
+            columns: ["tariff_id"]
+            isOneToOne: false
+            referencedRelation: "tariffs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      projects: {
+        Row: {
+          area_name: string | null
+          city: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          end_date: string | null
+          existing_customer_count: number | null
+          federal_state: string | null
+          id: string
+          important_info: string | null
+          marketing_type: string | null
+          name: string
+          post_job_booster: string | null
+          postal_code: string | null
+          project_manager_id: string | null
+          project_with_bonus: boolean | null
+          provider_contact_id: string | null
+          provider_id: string | null
+          quota_type: string | null
+          rocket_count: number | null
+          saleable_units: number | null
+          shift_date: string | null
+          start_date: string | null
+          status: string
+          street_list_url: string | null
+          target_quota: number | null
+          telegram_group_create: string | null
+          telegram_group_exists: string | null
+          tender_info: string | null
+          unit_count: number | null
+          updated_at: string
+        }
+        Insert: {
+          area_name?: string | null
+          city?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          end_date?: string | null
+          existing_customer_count?: number | null
+          federal_state?: string | null
+          id?: string
+          important_info?: string | null
+          marketing_type?: string | null
+          name: string
+          post_job_booster?: string | null
+          postal_code?: string | null
+          project_manager_id?: string | null
+          project_with_bonus?: boolean | null
+          provider_contact_id?: string | null
+          provider_id?: string | null
+          quota_type?: string | null
+          rocket_count?: number | null
+          saleable_units?: number | null
+          shift_date?: string | null
+          start_date?: string | null
+          status?: string
+          street_list_url?: string | null
+          target_quota?: number | null
+          telegram_group_create?: string | null
+          telegram_group_exists?: string | null
+          tender_info?: string | null
+          unit_count?: number | null
+          updated_at?: string
+        }
+        Update: {
+          area_name?: string | null
+          city?: string | null
+          created_at?: string
           created_by?: string
           description?: string | null
+          end_date?: string | null
+          existing_customer_count?: number | null
+          federal_state?: string | null
           id?: string
+          important_info?: string | null
+          marketing_type?: string | null
           name?: string
+          post_job_booster?: string | null
+          postal_code?: string | null
+          project_manager_id?: string | null
+          project_with_bonus?: boolean | null
+          provider_contact_id?: string | null
           provider_id?: string | null
+          quota_type?: string | null
+          rocket_count?: number | null
+          saleable_units?: number | null
+          shift_date?: string | null
+          start_date?: string | null
           status?: string
+          street_list_url?: string | null
+          target_quota?: number | null
+          telegram_group_create?: string | null
+          telegram_group_exists?: string | null
+          tender_info?: string | null
+          unit_count?: number | null
           updated_at?: string
         }
         Relationships: [
           {
+            foreignKeyName: "projects_provider_contact_id_fkey"
+            columns: ["provider_contact_id"]
+            isOneToOne: false
+            referencedRelation: "provider_contacts"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "projects_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      provider_contacts: {
+        Row: {
+          created_at: string
+          created_by: string
+          email: string | null
+          first_name: string
+          id: string
+          last_name: string
+          phone: string | null
+          provider_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          email?: string | null
+          first_name: string
+          id?: string
+          last_name: string
+          phone?: string | null
+          provider_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          first_name?: string
+          id?: string
+          last_name?: string
+          phone?: string | null
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "provider_contacts_provider_id_fkey"
             columns: ["provider_id"]
             isOneToOne: false
             referencedRelation: "providers"
@@ -275,6 +499,56 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      tariffs: {
+        Row: {
+          commission_project_manager: number | null
+          commission_recruiter: number | null
+          commission_rocket: number | null
+          commission_sales_partner: number | null
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          name: string
+          provider_id: string
+          updated_at: string
+        }
+        Insert: {
+          commission_project_manager?: number | null
+          commission_recruiter?: number | null
+          commission_rocket?: number | null
+          commission_sales_partner?: number | null
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          name: string
+          provider_id: string
+          updated_at?: string
+        }
+        Update: {
+          commission_project_manager?: number | null
+          commission_recruiter?: number | null
+          commission_rocket?: number | null
+          commission_sales_partner?: number | null
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          name?: string
+          provider_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tariffs_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       user_activities: {
         Row: {
