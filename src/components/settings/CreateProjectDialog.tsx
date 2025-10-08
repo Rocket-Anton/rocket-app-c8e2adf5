@@ -268,7 +268,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     : areaName || "";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] overflow-y-auto px-1">
+    <form onSubmit={handleSubmit} className="space-y-5 max-h-[80vh] overflow-y-auto px-6">
       {/* Provider */}
       <div className="space-y-2">
         <Label>Provider<span className="text-red-500">*</span></Label>
@@ -668,7 +668,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </div>
 
       {/* Submit Buttons */}
-      <div className="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-background">
+      <div className="flex justify-end gap-2 pt-4 border-t sticky bottom-0 bg-background pb-2 -mx-6 px-6">
         <Button type="button" variant="outline" onClick={onClose}>
           Abbrechen
         </Button>
