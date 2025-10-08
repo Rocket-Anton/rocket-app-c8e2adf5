@@ -138,6 +138,11 @@ const ProjectDetail = () => {
     setFailedDialogOpen(true);
   };
 
+  const openDeleteDialog = (listId: string) => {
+    setListToDelete(listId);
+    setDeleteDialogOpen(true);
+  };
+
   const handleDeleteList = async () => {
     if (!listToDelete) return;
 
@@ -178,9 +183,6 @@ const ProjectDetail = () => {
       setDeleteDialogOpen(false);
       setListToDelete(null);
     }
-  };
-    setListToDelete(listId);
-    setDeleteDialogOpen(true);
   };
 
   const handleExport = async () => {
