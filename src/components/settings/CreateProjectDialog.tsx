@@ -185,7 +185,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       const { data: project, error: projectError } = await supabase
         .from("projects")
         .insert({
-          name: areaName,
+          name: projectName,
           provider_id: selectedProvider,
           status,
           area_name: areaName,
@@ -261,6 +261,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     .filter(p => p.is_active)
     .sort((a, b) => a.name.localeCompare(b.name));
 
+  // Generate project name from provider abbreviation and area name
+  const selectedProviderData = providers.find(p => p.id === selectedProvider);
+  const projectName = selectedProviderData?.abbreviation && areaName 
+    ? `${selectedProviderData.abbreviation} - ${areaName}`
+    : areaName || "";
+
   return (
     <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-1">
       {/* Basic Information */}
@@ -291,6 +297,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               onChange={(e) => setAreaName(e.target.value)}
               placeholder="Gebietsname eingeben"
             />
+            {projectName && (
+              <p className="text-xs text-muted-foreground mt-1">
+                Projektname: <span className="font-medium">{projectName}</span>
+              </p>
+            )}
           </div>
 
           <div className="space-y-2">
