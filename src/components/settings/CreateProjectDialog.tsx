@@ -17,6 +17,7 @@ import { useQuery } from "@tanstack/react-query";
 import { CityPreviewMap } from "@/components/CityPreviewMap";
 import { calculateWorkingDays } from "@/utils/holidays";
 import type { DateRange } from "react-day-picker";
+import { TenderInfoGenerator } from "./TenderInfoGenerator";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -1110,12 +1111,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <Label className="text-sm font-medium">
             Info Text<span className="text-red-500 ml-1">*</span>
           </Label>
-          <Textarea
+          <TenderInfoGenerator
             value={tenderInfo}
-            onChange={(e) => setTenderInfo(e.target.value)}
-            placeholder="Informationen für die Ausschreibung eingeben..."
-            rows={6}
-            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none"
+            onChange={setTenderInfo}
+            providerName={selectedProviderData?.name}
+            areaName={areaName}
+            projectName={projectName}
           />
         </div>
       </div>
