@@ -58,33 +58,41 @@ serve(async (req) => {
 
     console.log(`Exporting addresses for project: ${projectId} by user: ${user.id}`)
 
-    // Fetch all addresses for the project with units
-    const { data: addresses, error: addressError } = await supabaseClient
+    // Fetch all addresses for the project with listId filter if provided
+    let addressQuery = supabaseClient
       .from('addresses')
-      .select(`
-        id,
-        street,
-        house_number,
-        postal_code,
-        city,
-        locality,
-        coordinates,
-        notiz,
-        units (
-          id,
-          status,
-          etage,
-          lage,
-          notiz
-        )
-      `)
+      .select('id, street, house_number, postal_code, city, locality, coordinates, notiz, list_id')
       .eq('project_id', projectId)
+    
+    if (listId) {
+      addressQuery = addressQuery.eq('list_id', listId)
+    }
+    
+    const { data: addresses, error: addressError } = await addressQuery
       .order('street')
       .order('house_number')
 
     if (addressError) throw addressError
 
-    console.log(`Found ${addresses?.length || 0} addresses`)
+    // Fetch units separately for each address
+    const addressIds = addresses?.map(a => a.id) || []
+    const { data: units, error: unitsError } = await supabaseClient
+      .from('units')
+      .select('id, address_id, status, etage, lage, notiz')
+      .in('address_id', addressIds)
+    
+    if (unitsError) throw unitsError
+
+    // Group units by address_id
+    const unitsByAddress = new Map<number, any[]>()
+    for (const unit of units || []) {
+      if (!unitsByAddress.has(unit.address_id)) {
+        unitsByAddress.set(unit.address_id, [])
+      }
+      unitsByAddress.get(unit.address_id)!.push(unit)
+    }
+
+    console.log(`Found ${addresses?.length || 0} addresses with ${units?.length || 0} units`)
 
     // Format data based on export type
     const csvRows: string[] = []
@@ -129,8 +137,8 @@ serve(async (req) => {
 
     // Data rows
     for (const addr of addresses || []) {
-      const units = Array.isArray(addr.units) ? addr.units : []
-      const unitCount = units.length
+      const addressUnits = unitsByAddress.get(addr.id) || []
+      const unitCount = addressUnits.length
 
       if (exportType === 'raw') {
         // Rohdatei export - original format
@@ -151,7 +159,7 @@ serve(async (req) => {
             ''
           ].join(';'))
         } else if (unitCount === 1) {
-          const unit = units[0]
+          const unit = addressUnits[0]
           csvRows.push([
             addr.street || '',
             addr.house_number || '',
@@ -168,7 +176,7 @@ serve(async (req) => {
             unit.notiz || ''
           ].join(';'))
         } else {
-          for (const unit of units) {
+          for (const unit of addressUnits) {
             csvRows.push([
               addr.street || '',
               addr.house_number || '',
@@ -207,7 +215,7 @@ serve(async (req) => {
             addr.coordinates?.lat || ''
           ].join(';'))
         } else if (unitCount === 1) {
-          const unit = units[0]
+          const unit = addressUnits[0]
           csvRows.push([
             addr.postal_code || '',
             addr.city || '',
@@ -226,7 +234,7 @@ serve(async (req) => {
             addr.coordinates?.lat || ''
           ].join(';'))
         } else {
-          for (const unit of units) {
+          for (const unit of addressUnits) {
             csvRows.push([
               addr.postal_code || '',
               addr.city || '',
