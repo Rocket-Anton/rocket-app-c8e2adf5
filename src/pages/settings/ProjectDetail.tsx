@@ -92,17 +92,20 @@ const ProjectDetail = () => {
   useEffect(() => {
     loadProject();
     loadLists();
-    
-    // Poll for importing lists
-    const interval = setInterval(() => {
-      const hasImporting = lists.some(l => l.status === 'importing');
-      if (hasImporting) {
-        loadLists();
-      }
-    }, 2500);
-    
-    return () => clearInterval(interval);
   }, [id]);
+
+  // Separate effect for polling importing lists
+  useEffect(() => {
+    const hasImporting = lists.some(l => l.status === 'importing' || l.status === 'analyzing');
+    
+    if (hasImporting) {
+      const interval = setInterval(() => {
+        loadLists();
+      }, 1500); // Poll every 1.5 seconds for faster updates
+      
+      return () => clearInterval(interval);
+    }
+  }, [lists]);
 
   const loadProject = async () => {
     try {
