@@ -252,25 +252,27 @@ function KarteContent() {
       )?.id;
 
       if (style === 'streets') {
-        map.addLayer(
-          {
-            id: 'add-3d-buildings',
-            source: 'composite',
-            'source-layer': 'building',
-            filter: ['==', ['get', 'extrude'], 'true'],
-            type: 'fill-extrusion',
-            minzoom: 15,
-            paint: {
-              'fill-extrusion-color': '#aaa',
-              'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
-              'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
-              'fill-extrusion-opacity': 0.6,
+        // Check if layer already exists before adding
+        if (!map.getLayer('add-3d-buildings')) {
+          map.addLayer(
+            {
+              id: 'add-3d-buildings',
+              source: 'composite',
+              'source-layer': 'building',
+              filter: ['==', ['get', 'extrude'], 'true'],
+              type: 'fill-extrusion',
+              minzoom: 15,
+              paint: {
+                'fill-extrusion-color': '#aaa',
+                'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
+                'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
+                'fill-extrusion-opacity': 0.6,
+              },
             },
-          },
-          labelLayerId
-        );
+            labelLayerId
+          );
+        }
       }
-      // For satellite, don't add 3D buildings at all
     });
   };
 
