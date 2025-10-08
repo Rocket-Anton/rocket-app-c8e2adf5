@@ -237,14 +237,18 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   // Auto-Befüllung: Gebiet Name = Ort (nur wenn Ort erkannt wurde)
   useEffect(() => {
     if (city && cityCoordinates && !areaNameSetRef.current) {
-      setAreaName(city);
+      setAreaName(city); // Nutzt die bereits korrigierte Schreibweise vom Ort
       areaNameSetRef.current = true;
+    }
+    // Update areaName wenn city geändert wurde (nach Auto-Korrektur)
+    if (city && areaNameSetRef.current && areaName && areaName.toLowerCase() === city.toLowerCase() && areaName !== city) {
+      setAreaName(city);
     }
     // Reset flag wenn city leer wird
     if (!city) {
       areaNameSetRef.current = false;
     }
-  }, [city, cityCoordinates]);
+  }, [city, cityCoordinates, areaName]);
 
   // Berechne Werktage, Samstage und Feiertage
   const workingDaysInfo = useMemo(() => {
@@ -500,7 +504,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                           <img 
                             src={provider.logo_url} 
                             alt={provider.name}
-                            className="w-5 h-5 rounded-full object-cover"
+                            className="w-8 h-8 rounded-full object-cover"
                           />
                         )}
                         <span>{provider.name}</span>
@@ -517,7 +521,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                         <img 
                           src={provider.logo_url} 
                           alt={provider.name}
-                          className="w-5 h-5 rounded-full object-cover"
+                          className="w-8 h-8 rounded-full object-cover"
                         />
                       )}
                       <span>{provider.name}</span>
