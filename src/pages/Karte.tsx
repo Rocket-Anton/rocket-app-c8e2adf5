@@ -89,6 +89,7 @@ function KarteContent() {
   const [cityFilter, setCityFilter] = useState("");
   const [postalCodeFilter, setPostalCodeFilter] = useState("");
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
+  const [mapStyle, setMapStyle] = useState<'streets' | 'satellite'>('streets');
 
   // Get unique values for filter dropdowns
   const uniqueStreets = Array.from(new Set(addresses.map(a => a.street)));
@@ -202,6 +203,47 @@ function KarteContent() {
     console.log('Color map:', colorMap);
     setAssignedAddressIds(ids);
     setAddressListColors(colorMap);
+  };
+
+  // Function to change map style
+  const changeMapStyle = (style: 'streets' | 'satellite') => {
+    const map = mapInstance.current;
+    if (!map) return;
+
+    const styleUrl = style === 'streets' 
+      ? 'mapbox://styles/mapbox/streets-v12'
+      : 'mapbox://styles/mapbox/satellite-streets-v12';
+
+    map.setStyle(styleUrl);
+    setMapStyle(style);
+
+    // Re-add 3D buildings layer after style loads
+    map.once('style.load', () => {
+      const layers = map.getStyle().layers || [];
+      const labelLayerId = layers.find(
+        (l) => l.type === 'symbol' && (l.layout as any)['text-field']
+      )?.id;
+
+      if (style === 'streets') {
+        map.addLayer(
+          {
+            id: 'add-3d-buildings',
+            source: 'composite',
+            'source-layer': 'building',
+            filter: ['==', ['get', 'extrude'], 'true'],
+            type: 'fill-extrusion',
+            minzoom: 15,
+            paint: {
+              'fill-extrusion-color': '#aaa',
+              'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
+              'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
+              'fill-extrusion-opacity': 0.6,
+            },
+          },
+          labelLayerId
+        );
+      }
+    });
   };
 
   // Initialize Mapbox map (3D) when addresses are loaded
@@ -649,14 +691,34 @@ function KarteContent() {
                   })()}
                 </Button>
                 
-                <Button
-                  variant="outline"
-                  className="shadow-lg bg-white hover:bg-white/90 border-border"
-                  size="icon"
-                  title="Ebenen"
-                >
-                  <Layers className="h-4 w-4 text-muted-foreground" />
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="shadow-lg bg-white hover:bg-white/90 border-border"
+                      size="icon"
+                      title="Kartenebenen"
+                    >
+                      <Layers className="h-4 w-4 text-muted-foreground" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end" className="w-56 z-[1001] bg-background">
+                    <DropdownMenuLabel>Kartenansicht</DropdownMenuLabel>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={() => changeMapStyle('streets')}>
+                      <div className="flex items-center gap-2 w-full">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: mapStyle === 'streets' ? 'hsl(var(--primary))' : 'transparent' }} />
+                        <span className={mapStyle === 'streets' ? 'font-medium' : ''}>Straßenkarte</span>
+                      </div>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => changeMapStyle('satellite')}>
+                      <div className="flex items-center gap-2 w-full">
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: mapStyle === 'satellite' ? 'hsl(var(--primary))' : 'transparent' }} />
+                        <span className={mapStyle === 'satellite' ? 'font-medium' : ''}>Satellit</span>
+                      </div>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 
                 <Button
                   variant="outline"
