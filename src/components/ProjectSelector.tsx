@@ -55,7 +55,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       const isAdmin = userRoles?.role === 'admin';
 
