@@ -1220,11 +1220,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         
           {/* Straßenliste */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Straßenliste (CSV)</Label>
+            <Label className="text-sm font-medium">Straßenliste (CSV/Excel)</Label>
             <input
               ref={fileInputRef}
               type="file"
-              accept=".csv"
+              accept=".csv,.xlsx,.xls"
               onChange={(e) => {
                 const file = e.target.files?.[0];
                 if (file) {
@@ -1248,7 +1248,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                 ) : (
                   <>
                     <div className="text-4xl text-muted-foreground mb-2">+</div>
-                    <p className="text-sm text-muted-foreground">CSV-Datei hochladen</p>
+                    <p className="text-sm text-muted-foreground">CSV- oder Excel-Datei hochladen</p>
                     <p className="text-xs text-muted-foreground mt-1">
                       Wird nach Projekterstellung verarbeitet
                     </p>
