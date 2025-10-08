@@ -106,6 +106,23 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [projectWithBonus, setProjectWithBonus] = useState<boolean | undefined>(undefined);
   const [selectedTariffs, setSelectedTariffs] = useState<string[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [datePickerOpen, setDatePickerOpen] = useState(false);
+
+  // Load selected provider details
+  const { data: selectedProviderData } = useQuery({
+    queryKey: ['provider-details', selectedProvider],
+    queryFn: async () => {
+      if (!selectedProvider) return null;
+      const { data, error } = await supabase
+        .from("providers")
+        .select('*')
+        .eq('id', selectedProvider)
+        .single();
+      if (error) throw error;
+      return data;
+    },
+    enabled: !!selectedProvider,
+  });
 
   // Load provider contacts
   const { data: providerContacts = [] } = useQuery({
@@ -436,12 +453,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     }
   };
 
+
   const activeProviders = providers
     .filter(p => p.is_active)
     .sort((a, b) => a.name.localeCompare(b.name));
 
   // Generate project name from provider abbreviation and area name
-  const selectedProviderData = providers.find(p => p.id === selectedProvider);
   const projectName = selectedProviderData?.abbreviation && areaName 
     ? `${selectedProviderData.abbreviation} - ${areaName}`
     : areaName || "";
@@ -646,7 +663,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <Label className="text-sm font-medium">
           Projektzeitraum<span className="text-red-500 ml-1">*</span>
         </Label>
-        <Popover>
+        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
           <PopoverTrigger asChild>
             <Button 
               variant="outline" 
@@ -670,7 +687,13 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             <Calendar
               mode="range"
               selected={dateRange}
-              onSelect={setDateRange}
+              onSelect={(range) => {
+                setDateRange(range);
+                // Close popover when both dates are selected
+                if (range?.from && range?.to) {
+                  setDatePickerOpen(false);
+                }
+              }}
               numberOfMonths={2}
               initialFocus
               className="pointer-events-auto"
@@ -699,9 +722,13 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                   <span className="font-medium">-{workingDaysInfo.holidays.length}</span>
                 </div>
                 <div className="pt-1 border-t">
-                  <span className="text-xs text-muted-foreground">
-                    {workingDaysInfo.holidays.map(h => format(h.date, 'dd.MM.')).join(', ')}
-                  </span>
+                  <div className="text-xs text-muted-foreground space-y-1">
+                    {workingDaysInfo.holidays.map(h => (
+                      <div key={h.name}>
+                        {format(h.date, 'dd.MM.')} - {h.name}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </>
             )}
@@ -1024,27 +1051,29 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       <div className="space-y-4 pt-6 border-t">
         <h3 className="text-base font-semibold">Provisionen</h3>
         
-        {/* Projekt mit Bonus */}
-        <div className="space-y-2 pointer-events-auto">
-          <Label className="text-sm font-medium">
-            Projekt mit Bonus<span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Select 
-            value={projectWithBonus === undefined ? undefined : (projectWithBonus ? "Ja" : "Nein")} 
-            onValueChange={(val) => setProjectWithBonus(val === "Ja")}
-          >
-            <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-              <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
-            </SelectTrigger>
-            <SelectContent className="bg-background z-[100] pointer-events-auto">
-              {YES_NO_OPTIONS.map((option) => (
-                <SelectItem key={option.value} value={option.value}>
-                  {option.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
+        {/* Projekt mit Bonus - only show if provider allows it */}
+        {selectedProviderData?.projects_with_bonus && (
+          <div className="space-y-2 pointer-events-auto">
+            <Label className="text-sm font-medium">
+              Projekt mit Bonus<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select 
+              value={projectWithBonus === undefined ? undefined : (projectWithBonus ? "Ja" : "Nein")} 
+              onValueChange={(val) => setProjectWithBonus(val === "Ja")}
+            >
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+                <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-[100] pointer-events-auto">
+                {YES_NO_OPTIONS.map((option) => (
+                  <SelectItem key={option.value} value={option.value}>
+                    {option.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        )}
 
         {/* Provisionen (Tarife dropdown) */}
         <div className="space-y-2 pointer-events-auto">

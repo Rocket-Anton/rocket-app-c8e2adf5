@@ -475,6 +475,7 @@ export type Database = {
           is_active: boolean
           logo_url: string | null
           name: string
+          projects_with_bonus: boolean | null
           updated_at: string
         }
         Insert: {
@@ -487,6 +488,7 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name: string
+          projects_with_bonus?: boolean | null
           updated_at?: string
         }
         Update: {
@@ -499,6 +501,7 @@ export type Database = {
           is_active?: boolean
           logo_url?: string | null
           name?: string
+          projects_with_bonus?: boolean | null
           updated_at?: string
         }
         Relationships: []

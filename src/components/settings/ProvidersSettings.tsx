@@ -42,6 +42,7 @@ interface Provider {
   color: string;
   abbreviation: string;
   is_active: boolean;
+  projects_with_bonus?: boolean;
   created_at: string;
   project_count?: number;
   active_rockets_count?: number;
@@ -59,7 +60,8 @@ export const ProvidersSettings = () => {
     logo_url: "", 
     color: "#3b82f6", 
     abbreviation: "",
-    is_active: true
+    is_active: true,
+    projects_with_bonus: true
   });
   const [logoBlob, setLogoBlob] = useState<Blob | null>(null);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
@@ -149,6 +151,7 @@ export const ProvidersSettings = () => {
             color: formData.color,
             abbreviation: formData.abbreviation,
             is_active: formData.is_active,
+            projects_with_bonus: formData.projects_with_bonus,
           })
           .eq("id", editingProvider.id);
 
@@ -163,6 +166,7 @@ export const ProvidersSettings = () => {
             color: formData.color,
             abbreviation: formData.abbreviation,
             is_active: formData.is_active,
+            projects_with_bonus: formData.projects_with_bonus,
             created_by: user.id,
           });
 
@@ -170,7 +174,7 @@ export const ProvidersSettings = () => {
         toast.success("Provider erstellt");
       }
 
-      setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true });
+      setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true, projects_with_bonus: true });
       setLogoBlob(null);
       setSuggestedColors([]);
       setSelectedColorOption("other");
@@ -192,6 +196,7 @@ export const ProvidersSettings = () => {
       color: provider.color || "#3b82f6",
       abbreviation: provider.abbreviation || "",
       is_active: provider.is_active ?? true,
+      projects_with_bonus: provider.projects_with_bonus ?? true,
     });
     setSelectedColorOption("other");
     setIsDetailOpen(false);
@@ -223,7 +228,7 @@ export const ProvidersSettings = () => {
   const handleDialogClose = () => {
     setIsCreateOpen(false);
     setEditingProvider(null);
-    setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true });
+    setFormData({ name: "", logo_url: "", color: "#3b82f6", abbreviation: "", is_active: true, projects_with_bonus: true });
     setLogoBlob(null);
     setSuggestedColors([]);
     setSelectedColorOption("other");
@@ -342,6 +347,19 @@ export const ProvidersSettings = () => {
                   checked={formData.is_active}
                   onChange={(e) => 
                     setFormData({ ...formData, is_active: e.target.checked })
+                  }
+                  className="h-4 w-4"
+                />
+              </div>
+
+              <div className="flex items-center gap-2">
+                <Label htmlFor="projects_with_bonus">Projekte mit Bonus</Label>
+                <input 
+                  type="checkbox"
+                  id="projects_with_bonus"
+                  checked={formData.projects_with_bonus}
+                  onChange={(e) => 
+                    setFormData({ ...formData, projects_with_bonus: e.target.checked })
                   }
                   className="h-4 w-4"
                 />
