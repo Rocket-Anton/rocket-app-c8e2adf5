@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Settings, Moon, LogOut, Receipt } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Moon, LogOut, Receipt, Rocket, FolderOpen, Package } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
@@ -70,11 +70,13 @@ export const DashboardSidebar = () => {
   
   // Auto-expand based on current route
   const isInLauflistenSection = location.pathname === "/" || location.pathname === "/karte";
-  const isInSettingsSection = location.pathname.startsWith("/settings");
+  const isInProjekteSection = location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses");
+  const isInProviderSection = location.pathname.startsWith("/settings/providers") || location.pathname.startsWith("/settings/tarife");
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(isInLauflistenSection);
-  const [isSettingsExpanded, setIsSettingsExpanded] = useState(isInSettingsSection);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
+  const [isProjekteExpanded, setIsProjekteExpanded] = useState(isInProjekteSection);
   const [isAbrechnungenExpanded, setIsAbrechnungenExpanded] = useState(false);
+  const [isProviderExpanded, setIsProviderExpanded] = useState(isInProviderSection);
 
   const { state, toggleSidebar } = useSidebar();
 
@@ -82,17 +84,19 @@ export const DashboardSidebar = () => {
   useEffect(() => {
     if (state !== "collapsed") {
       setIsLauflistenExpanded(isInLauflistenSection);
-      setIsSettingsExpanded(isInSettingsSection);
+      setIsProjekteExpanded(isInProjekteSection);
+      setIsProviderExpanded(isInProviderSection);
     }
-  }, [location.pathname, state, isInLauflistenSection, isInSettingsSection]);
+  }, [location.pathname, state, isInLauflistenSection, isInProjekteSection, isInProviderSection]);
 
   // Close expanded menus when sidebar collapses
   useEffect(() => {
     if (state === "collapsed") {
       setIsLauflistenExpanded(false);
-      setIsSettingsExpanded(false);
       setIsLeadsExpanded(false);
+      setIsProjekteExpanded(false);
       setIsAbrechnungenExpanded(false);
+      setIsProviderExpanded(false);
     }
   }, [state]);
 
@@ -286,7 +290,115 @@ export const DashboardSidebar = () => {
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+              </SidebarMenu>
+            </SidebarGroupContent>
+          </SidebarGroup>
 
+          {/* MANAGEMENT Section */}
+          <SidebarGroup className="mt-0.5 pt-0.5 border-t border-sidebar-border">
+            {state !== "collapsed" && (
+              <div className="px-3 pb-0 -mt-0">
+                <span className="text-[10px] font-medium text-sidebar-foreground/60 uppercase tracking-wider">
+                  MANAGEMENT
+                </span>
+              </div>
+            )}
+            <SidebarGroupContent>
+              <SidebarMenu className="space-y-0">
+                {/* Raketen - einzelner Menüpunkt */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => navigate("/settings/raketen")}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "hover:bg-sidebar-accent"
+                    } ${location.pathname === "/settings/raketen" ? "bg-sidebar-accent" : ""}`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Rocket className="!w-4 !h-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Raketen</span>}
+                    </div>
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {/* Projekte - mit Untermenüpunkten */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => state !== "collapsed" && setIsProjekteExpanded(!isProjekteExpanded)}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "justify-between hover:bg-sidebar-accent"
+                    } ${(location.pathname.startsWith("/settings/projects") || location.pathname.startsWith("/settings/addresses")) ? "bg-sidebar-accent" : ""}`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <FolderOpen className="!w-4 !h-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Projekte</span>}
+                    </div>
+                    {state !== "collapsed" && (
+                      isProjekteExpanded ? (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      )
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {isProjekteExpanded && state !== "collapsed" && (
+                  <div className="ml-5 mt-0">
+                    <div className="space-y-0">
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/projects")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Projekte</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/addresses")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/settings/addresses" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Adressen</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
+                  </div>
+                )}
+
+                {/* Abrechnungen - mit Untermenüpunkten */}
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsAbrechnungenExpanded(!isAbrechnungenExpanded)}
@@ -379,6 +491,82 @@ export const DashboardSidebar = () => {
                           className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/abrechnungen/kosten" ? "bg-sidebar-accent" : ""}`}
                         >
                           <span className="text-sm">Kosten</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
+                  </div>
+                )}
+
+                {/* Provider - mit Untermenüpunkten */}
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => state !== "collapsed" && setIsProviderExpanded(!isProviderExpanded)}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "justify-between hover:bg-sidebar-accent"
+                    } ${(location.pathname.startsWith("/settings/providers") || location.pathname.startsWith("/settings/tarife")) ? "bg-sidebar-accent" : ""}`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Package className="!w-4 !h-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Provider</span>}
+                    </div>
+                    {state !== "collapsed" && (
+                      isProviderExpanded ? (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      )
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {isProviderExpanded && state !== "collapsed" && (
+                  <div className="ml-5 mt-0">
+                    <div className="space-y-0">
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/providers")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/settings/providers" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Provider</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/settings/tarife")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/settings/tarife" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Tarife</span>
                         </SidebarMenuButton>
                       </SidebarMenuItem>
                     </div>
