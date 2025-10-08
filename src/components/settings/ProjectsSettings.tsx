@@ -373,9 +373,7 @@ export const ProjectsSettings = () => {
                                 ) : (
                                   <ChevronRight className="w-4 h-4 text-muted-foreground" />
                                 )}
-                                <span className={`inline-block text-xs font-normal px-3 py-1 rounded-md ${getStatusColor(status)}`}>
-                                  {status.toUpperCase()}
-                                </span>
+                                <span className="text-sm font-normal text-foreground">{status.toUpperCase()}</span>
                                 <Badge className={`text-xs h-5 px-2 border-0 text-white ${getStatusBgColor(status)}`}>
                                   {statusProjects.length}
                                 </Badge>
