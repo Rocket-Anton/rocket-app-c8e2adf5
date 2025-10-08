@@ -108,7 +108,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
 
-  // Load selected provider details
+  // Load selected provider details 
+  // Query to fetch provider info including projects_with_bonus setting
   const { data: selectedProviderData } = useQuery({
     queryKey: ['provider-details', selectedProvider],
     queryFn: async () => {
