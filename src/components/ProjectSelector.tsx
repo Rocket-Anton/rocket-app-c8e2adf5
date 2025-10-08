@@ -6,6 +6,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
+  DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { MapPin, ChevronDown } from "lucide-react";
@@ -31,6 +32,7 @@ interface ProjectSelectorProps {
 const statusColors: Record<string, string> = {
   "In Planung": "bg-yellow-500",
   "Aktiv": "bg-green-500",
+  "Läuft": "bg-green-500",
   "Abgeschlossen": "bg-blue-500",
   "Pausiert": "bg-gray-500",
   "Abgebrochen": "bg-red-500",
@@ -40,6 +42,8 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [statusFilter, setStatusFilter] = useState<string[]>([]);
+  const [providerFilter, setProviderFilter] = useState<string[]>([]);
 
   useEffect(() => {
     fetchProjects();
@@ -69,7 +73,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
       let query = supabase
         .from('projects')
-        .select('id, name, status, area_name, city, coordinates')
+        .select('id, name, status, area_name, city, coordinates, providers(color)')
         .order('name');
 
       // For non-admins, filter by assigned projects or project manager
@@ -87,7 +91,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         // Fetch managed projects
         const { data: managed = [], error: managedError } = await supabase
           .from('projects')
-          .select('id, name, status, area_name, city, coordinates')
+          .select('id, name, status, area_name, city, coordinates, providers(color)')
           .eq('project_manager_id', user.id);
         if (managedError) console.warn('ProjectSelector: managed projects error', managedError);
 
@@ -96,7 +100,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         if (assignedIds.length > 0) {
           const { data: ap = [], error: apError } = await supabase
             .from('projects')
-            .select('id, name, status, area_name, city, coordinates')
+            .select('id, name, status, area_name, city, coordinates, providers(color)')
             .in('id', assignedIds);
           if (apError) console.warn('ProjectSelector: assigned projects error', apError);
           assignedProjects = ap || [];
@@ -106,10 +110,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         const merged = [...managed, ...assignedProjects];
         const unique = Array.from(new Map(merged.map((p: any) => [p.id, p])).values());
 
-        // Assign colors and set state
+        // Assign colors and set state - use provider color
         const projectsWithColors = unique.map((project: any) => {
-          const hash = project.id.split('').reduce((acc: number, char: string) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-          const color = `hsl(${Math.abs(hash) % 360}, 65%, 55%)`;
+          const providerColor = project.providers?.color;
+          const color = providerColor || '#3b82f6';
           return { ...project, color };
         });
 
@@ -124,10 +128,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
       if (error) throw error;
 
-      // Assign colors based on project id for consistency
+      // Use provider color if available, otherwise fallback to hash-based color
       const projectsWithColors = (data || []).map(project => {
-        const hash = project.id.split('').reduce((acc, char) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-        const color = `hsl(${Math.abs(hash) % 360}, 65%, 55%)`;
+        const providerColor = project.providers?.color;
+        const color = providerColor || '#3b82f6';
         return {
           ...project,
           color
@@ -159,6 +163,17 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       ? projects.find(p => selectedProjectIds.has(p.id))?.name || "1 Projekt"
       : `${selectedCount} Projekte`;
 
+  // Get unique statuses and providers for filters
+  const uniqueStatuses = Array.from(new Set(projects.map(p => p.status)));
+  const uniqueProviders = Array.from(new Set(projects.map(p => p.area_name).filter(Boolean)));
+
+  // Apply filters to projects
+  const filteredProjects = projects.filter(project => {
+    if (statusFilter.length > 0 && !statusFilter.includes(project.status)) return false;
+    if (providerFilter.length > 0 && !providerFilter.includes(project.area_name || '')) return false;
+    return true;
+  });
+
   return (
     <DropdownMenu open={open} onOpenChange={setOpen}>
       <DropdownMenuTrigger asChild>
@@ -178,11 +193,57 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[320px] p-0 z-[1001] bg-background">
-        <div className="p-3 border-b">
-          <h3 className="font-semibold text-sm">Projekte auswählen</h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekte'} verfügbar
-          </p>
+        <div className="p-3 border-b space-y-2">
+          <div>
+            <h3 className="font-semibold text-sm">Projekte auswählen</h3>
+            <p className="text-xs text-muted-foreground mt-1">
+              {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
+            </p>
+          </div>
+          
+          {/* Compact filters */}
+          <div className="flex gap-2 flex-wrap">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs">
+                  Status {statusFilter.length > 0 && `(${statusFilter.length})`}
+                  <ChevronDown className="ml-1 h-3 w-3" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="w-48">
+                {uniqueStatuses.map(status => (
+                  <DropdownMenuItem
+                    key={status}
+                    onClick={(e) => {
+                      e.preventDefault();
+                      setStatusFilter(prev => 
+                        prev.includes(status) 
+                          ? prev.filter(s => s !== status)
+                          : [...prev, status]
+                      );
+                    }}
+                  >
+                    <Checkbox
+                      checked={statusFilter.includes(status)}
+                      className="mr-2"
+                    />
+                    <span className="text-xs">{status}</span>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {statusFilter.length > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                className="h-7 text-xs px-2"
+                onClick={() => setStatusFilter([])}
+              >
+                ✕
+              </Button>
+            )}
+          </div>
         </div>
         
         <ScrollArea className="h-[400px]">
@@ -194,9 +255,13 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Keine Projekte verfügbar</div>
             </div>
+          ) : filteredProjects.length === 0 ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="text-sm text-muted-foreground">Keine Projekte mit diesen Filtern</div>
+            </div>
           ) : (
             <div className="p-2 space-y-1">
-              {projects.map((project) => (
+              {filteredProjects.map((project) => (
                 <button
                   key={project.id}
                   onClick={() => handleProjectToggle(project.id)}

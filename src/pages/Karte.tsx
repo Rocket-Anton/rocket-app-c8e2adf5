@@ -621,7 +621,7 @@ function KarteContent() {
       try {
         const { data: projects, error } = await supabase
           .from('projects')
-          .select('id, name, status, area_name, city, coordinates')
+          .select('id, name, status, area_name, city, coordinates, providers(color)')
           .in('id', Array.from(selectedProjectIds));
 
         if (error) throw error;
@@ -639,18 +639,17 @@ function KarteContent() {
 
           // Create project marker element
           const el = document.createElement('div');
-          const hash = project.id.split('').reduce((acc: number, char: string) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
-          const color = `hsl(${Math.abs(hash) % 360}, 65%, 55%)`;
+          const providerColor = (project.providers as any)?.color || '#3b82f6';
           
           el.innerHTML = `
             <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <div style="width:32px;height:32px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;">
+              <div style="width:32px;height:32px;background:${providerColor};border:2px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
                   <circle cx="12" cy="10" r="3"/>
                 </svg>
               </div>
-              <div style="background:${color};color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-top:2px;box-shadow:0 2px 4px rgba(0,0,0,0.3);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${project.name}</div>
+              <div style="background:${providerColor};color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-top:2px;box-shadow:0 2px 4px rgba(0,0,0,0.3);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${project.name}</div>
             </div>
           `;
 
@@ -666,6 +665,7 @@ function KarteContent() {
           const statusColors: Record<string, string> = {
             "In Planung": "#eab308",
             "Aktiv": "#22c55e",
+            "Läuft": "#22c55e",
             "Abgeschlossen": "#3b82f6",
             "Pausiert": "#6b7280",
             "Abgebrochen": "#ef4444",
@@ -678,7 +678,7 @@ function KarteContent() {
             .setPopup(
               new mapboxgl.Popup({ offset: 20 }).setHTML(`
                 <div style="padding: 10px; font-size: 12px; min-width: 180px;">
-                  <div style="font-weight: 600; margin-bottom: 6px; color: ${color}; font-size: 14px;">${project.name}</div>
+                  <div style="font-weight: 600; margin-bottom: 6px; color: ${providerColor}; font-size: 14px;">${project.name}</div>
                   <div style="display: inline-block; background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 6px;">${project.status}</div>
                   ${project.area_name ? `<div style="color: #666; margin-top: 4px;"><strong>Gebiet:</strong> ${project.area_name}</div>` : ''}
                   ${project.city ? `<div style="color: #666; margin-top: 2px;"><strong>Stadt:</strong> ${project.city}</div>` : ''}
