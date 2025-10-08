@@ -221,23 +221,29 @@ export const ProjectAddListDialog = ({
         console.error('Upload invoke error (non-blocking):', err);
       });
 
-      // Close dialog immediately and show list on page
-      toast.success('Import gestartet - Sie können den Fortschritt auf der Seite verfolgen');
-      onSuccess(); // Reload lists to show the new importing list
-      onOpenChange(false);
+      // Show toast notification
+      toast.success(`Liste "${listName}" wird importiert`, {
+        description: 'Sie können den Fortschritt auf dieser Seite verfolgen',
+      });
       
-      // Reset state
-      setStep('upload');
-      setFile(null);
-      setListName("");
-      setCsvData([]);
-      setCsvHeaders([]);
-      setFinalMapping({});
-      setQuestionAnswers({});
-      setMappingQuestions([]);
-      setProgress(0);
-      setCurrentListId(null);
-      setImportStage('');
+      // Small delay for smooth transition, then close
+      setTimeout(() => {
+        onSuccess(); // Reload lists to show the new importing list
+        onOpenChange(false);
+        
+        // Reset state
+        setStep('upload');
+        setFile(null);
+        setListName("");
+        setCsvData([]);
+        setCsvHeaders([]);
+        setFinalMapping({});
+        setQuestionAnswers({});
+        setMappingQuestions([]);
+        setProgress(0);
+        setCurrentListId(null);
+        setImportStage('');
+      }, 300);
     } catch (error: any) {
       console.error('Import error:', error);
       toast.error(`Import fehlgeschlagen: ${error.message}`);
@@ -462,16 +468,6 @@ export const ProjectAddListDialog = ({
           </div>
         )}
 
-        {step === 'importing' && (
-          <div className="space-y-4 py-8">
-            <div className="flex flex-col items-center justify-center gap-3">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <p className="text-lg font-medium">Importiere {listName}...</p>
-              {importStage && <p className="text-sm text-muted-foreground">{importStage}</p>}
-            </div>
-            <Progress value={progress} className="w-full" />
-          </div>
-        )}
       </DialogContent>
     </Dialog>
   );

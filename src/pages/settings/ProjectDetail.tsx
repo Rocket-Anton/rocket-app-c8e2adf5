@@ -531,12 +531,12 @@ const ProjectDetail = () => {
                                         </div>
                                       )}
                                       {list.status === 'importing' && (
-                                        <div className="mt-3 space-y-2">
-                                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                        <div className="mt-2 space-y-1">
+                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                            <Loader2 className="h-3 w-3 animate-spin" />
                                             <span>Import läuft...</span>
                                           </div>
-                                          <Progress value={75} className="w-full" />
+                                          <Progress value={75} className="w-full h-1.5" />
                                         </div>
                                       )}
                                        <p className="text-xs text-muted-foreground mt-2">
