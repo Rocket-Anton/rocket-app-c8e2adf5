@@ -169,7 +169,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         if (!error && data?.matches?.length) {
           const match = data.matches[0];
           if (match?.state) setFederalState((prev) => prev || match.state);
-          if (Array.isArray(match?.postalCodes)) setPostalCodeSuggestions(match.postalCodes);
+          if (Array.isArray(match?.postalCodes)) {
+            setPostalCodeSuggestions(match.postalCodes);
+            if (match.postalCodes.length > 0 && !postalCode) {
+              setPostalCode(match.postalCodes[0]);
+            }
+          }
           setCityCoordinates(match?.coordinates ?? null);
         } else {
           setPostalCodeSuggestions([]);
@@ -192,7 +197,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo) {
+    if (!selectedProvider || !areaName || !rocketCount || !status || !targetQuota || !city || !postalCode || !federalState || !marketingType || !unitCount || !quotaType || !telegramGroupCreate || !postJobBooster || !tenderInfo) {
       toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
       return;
     }
@@ -397,12 +402,15 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       {/* PLZ mit Vorschlägen */}
       <div className="space-y-2">
-        <Label className="text-sm font-medium">PLZ</Label>
+        <Label className="text-sm font-medium">
+          PLZ<span className="text-red-500 ml-1">*</span>
+        </Label>
         <Input
           value={postalCode}
           onChange={(e) => setPostalCode(e.target.value)}
           placeholder="PLZ eingeben"
           list="plz-options"
+          required
           className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
         />
         <datalist id="plz-options">
