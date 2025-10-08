@@ -502,10 +502,13 @@ const ProjectDetail = () => {
                                           <span className="text-green-600 dark:text-green-500">
                                             Erfolgreich: <span className="font-medium">{(list.upload_stats as any).successful || 0}</span>
                                           </span>
+                                          <span className="text-muted-foreground">
+                                            WE: <span className="font-medium text-foreground">{(list.upload_stats as any).units || 0}</span>
+                                          </span>
                                           {(list.upload_stats as any).failed > 0 && (
                                             <span className="flex items-center gap-2 text-red-600 dark:text-red-500">
                                               Fehler: <span className="font-medium">{(list.upload_stats as any).failed}</span>
-                                              <Button variant="outline" size="sm" onClick={() => openFailedDialog(list.id)}>
+                                              <Button variant="outline" size="xs" onClick={() => openFailedDialog(list.id)}>
                                                 Fehler ansehen
                                               </Button>
                                             </span>

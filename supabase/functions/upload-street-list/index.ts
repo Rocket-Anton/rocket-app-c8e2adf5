@@ -233,6 +233,7 @@ serve(async (req) => {
       // Insert addresses and units
       const successfulAddresses: number[] = []
       const failedAddresses: Array<{ address: string; reason: string }> = []
+      let totalUnits = 0
 
       for (const addr of geocodedAddresses) {
         try {
@@ -309,6 +310,7 @@ serve(async (req) => {
 
           // Insert units for this address (new or existing)
           const units = []
+          let unitCount = 0
           for (let i = 0; i < addr.weCount; i++) {
             const isVerbot = addr.status.toLowerCase() === 'verbot'
             units.push({
@@ -320,6 +322,7 @@ serve(async (req) => {
               notiz: addr.notizWE,
               system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
             })
+            unitCount++
           }
 
           const { error: unitsError } = await supabaseClient
@@ -328,6 +331,7 @@ serve(async (req) => {
           if (unitsError) throw unitsError
 
           successfulAddresses.push(addressId)
+          totalUnits += unitCount
 
           if (!addr.coordinates.lat || !addr.coordinates.lng) {
             failedAddresses.push({
@@ -353,6 +357,7 @@ serve(async (req) => {
             total: csvData.length,
             successful: successfulAddresses.length,
             failed: failedAddresses.length,
+            units: totalUnits,
           },
           error_details: errors?.length ? { errors } : null,
         })
@@ -367,6 +372,7 @@ serve(async (req) => {
             total: csvData.length,
             successful: successfulAddresses.length,
             failed: failedAddresses.length,
+            units: totalUnits,
           },
           error_details: {
             failedAddresses,
