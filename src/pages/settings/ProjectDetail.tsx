@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2 } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -122,6 +122,27 @@ const ProjectDetail = () => {
       setLists(data || []);
     } catch (error) {
       console.error("Error loading lists:", error);
+    }
+  };
+
+  const handleDeleteList = async (listId: string) => {
+    if (!confirm('Möchten Sie diese Adressliste wirklich löschen?')) {
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from("project_address_lists")
+        .delete()
+        .eq("id", listId);
+
+      if (error) throw error;
+
+      toast.success('Adressliste erfolgreich gelöscht');
+      loadLists();
+    } catch (error: any) {
+      console.error('Delete error:', error);
+      toast.error(`Löschen fehlgeschlagen: ${error.message}`);
     }
   };
 
@@ -466,6 +487,13 @@ const ProjectDetail = () => {
                                       <Button variant="outline" size="sm">
                                         <Download className="w-4 h-4 mr-2" />
                                         Rocket Export
+                                      </Button>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => handleDeleteList(list.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
                                       </Button>
                                     </div>
                                   </div>
