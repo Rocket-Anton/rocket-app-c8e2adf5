@@ -1404,7 +1404,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id').map((header) => {
+                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id' && finalMapping[header] !== 'latitude' && finalMapping[header] !== 'longitude').map((header) => {
                         const currentValue = finalMapping[header] || 'ignore';
                         const usedMappings = Object.entries(finalMapping)
                           .filter(([key, val]) => key !== header && val !== 'ignore')

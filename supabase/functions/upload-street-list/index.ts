@@ -62,16 +62,231 @@ serve(async (req) => {
       })
     }
 
+    // Support JSON body uploads with mapping (preferred path)
+    const contentType = req.headers.get('content-type') || ''
+    if (contentType.includes('application/json')) {
+      const body = await req.json() as any
+      const { projectId, csvData, columnMapping } = body || {}
+
+      if (!projectId || !Array.isArray(csvData) || !columnMapping) {
+        return new Response(
+          JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        )
+      }
+
+      // Helpers
+      const getCol = (key: string) => Object.keys(columnMapping).find(k => columnMapping[k] === key)
+      const val = (row: any, key: string): string => {
+        const col = getCol(key)
+        const v = col ? row[col] : undefined
+        return (v === null || v === undefined) ? '' : String(v)
+      }
+
+      // Build map of addresses
+      const addressMap = new Map<string, (ParsedAddress & { coordinates?: { lat: number | null; lng: number | null } })[]>()
+      const errors: string[] = []
+
+      for (const row of csvData) {
+        const street = val(row, 'street').trim()
+        let houseNumber = val(row, 'house_number').trim()
+        const hCombined = val(row, 'house_number_combined').trim()
+        const hAddon = val(row, 'house_number_addon').trim()
+        if (!houseNumber && hCombined) houseNumber = hCombined
+        if (houseNumber && hAddon) houseNumber = `${houseNumber}${hAddon}`
+        const postalCode = val(row, 'postal_code').trim()
+        const city = val(row, 'city').trim()
+
+        const unitCountStr = val(row, 'unit_count')
+        const weStr = val(row, 'units_residential')
+        const geStr = val(row, 'units_commercial')
+        let weCount = parseInt(unitCountStr) || 0
+        if (!weCount) weCount = (parseInt(weStr) || 0) + (parseInt(geStr) || 0)
+        if (!weCount) weCount = 1
+
+        const etage = val(row, 'floor').trim() || undefined
+        const lage = val(row, 'position').trim() || undefined
+        const status = 'Offen'
+
+        // Coordinates from CSV if present
+        let lat: number | null = null
+        let lng: number | null = null
+        const latRaw = val(row, 'latitude')
+        const lngRaw = val(row, 'longitude')
+        if (latRaw) {
+          const parsed = parseFloat(latRaw.replace(',', '.'))
+          if (!Number.isNaN(parsed)) lat = parsed
+        }
+        if (lngRaw) {
+          const parsed = parseFloat(lngRaw.replace(',', '.'))
+          if (!Number.isNaN(parsed)) lng = parsed
+        }
+
+        if (!street && !houseNumber && !postalCode && !city) {
+          errors.push(`Row ${errors.length + 2}: All mandatory fields are missing`)
+          continue
+        }
+
+        const addressKey = `${street}|${houseNumber}|${postalCode}|${city}`
+        const parsed: ParsedAddress = { postalCode, city, street, houseNumber, weCount, status, etage, lage }
+        const list = addressMap.get(addressKey) || []
+        list.push({ ...parsed, coordinates: { lat, lng } })
+        addressMap.set(addressKey, list)
+      }
+
+      // Deduplicate like the legacy path
+      const uniqueAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
+      for (const [, duplicates] of addressMap.entries()) {
+        if (duplicates.length > 1 && duplicates.every(d => d.weCount === 1)) {
+          const first = duplicates[0]
+          const withCoords = duplicates.find(d => d.coordinates && d.coordinates.lat && d.coordinates.lng)
+          uniqueAddresses.push({
+            ...first,
+            weCount: duplicates.length,
+            coordinates: {
+              lat: withCoords?.coordinates?.lat ?? null,
+              lng: withCoords?.coordinates?.lng ?? null,
+            },
+          })
+        } else {
+          duplicates.forEach(d => {
+            uniqueAddresses.push({
+              ...d,
+              coordinates: {
+                lat: d.coordinates?.lat ?? null,
+                lng: d.coordinates?.lng ?? null,
+              },
+            })
+          })
+        }
+      }
+
+      // Geocode any without coordinates
+      const BATCH_SIZE = 250
+      const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
+      for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
+        const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
+        const geocodePromises = batch.map(async (addr) => {
+          if (addr.coordinates?.lat && addr.coordinates?.lng) return addr
+          try {
+            const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
+              body: {
+                street: addr.street,
+                houseNumber: addr.houseNumber,
+                postalCode: addr.postalCode,
+                city: addr.city,
+              },
+            })
+            if (error) throw error
+            return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
+          } catch (err) {
+            console.error('Geocoding error:', err)
+            return { ...addr, coordinates: { lat: null, lng: null, error: String(err) } }
+          }
+        })
+        const geocodedBatch = await Promise.all(geocodePromises)
+        geocodedAddresses.push(...geocodedBatch)
+      }
+
+      // Insert addresses and units
+      const successfulAddresses: number[] = []
+      const failedAddresses: Array<{ address: string; reason: string }> = []
+
+      for (const addr of geocodedAddresses) {
+        try {
+          let suggestedPlz = addr.postalCode
+          let suggestedCity = addr.city
+
+          if (!addr.postalCode || !addr.city) {
+            const plzCounts = new Map<string, number>()
+            const cityCounts = new Map<string, number>()
+            for (const a of geocodedAddresses) {
+              if (a.postalCode) plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
+              if (a.city) cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
+            }
+            if (!addr.postalCode && plzCounts.size > 0) suggestedPlz = Array.from(plzCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
+            if (!addr.city && cityCounts.size > 0) suggestedCity = Array.from(cityCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
+          }
+
+          if (!addr.street || !addr.houseNumber) {
+            failedAddresses.push({
+              address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
+              reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
+            })
+            continue
+          }
+
+          const coordinates = (addr.coordinates.lat && addr.coordinates.lng)
+            ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
+            : null
+
+          const { data: addressData, error: addressError } = await supabaseClient
+            .from('addresses')
+            .insert({
+              street: addr.street,
+              house_number: addr.houseNumber,
+              postal_code: suggestedPlz || addr.postalCode,
+              city: suggestedCity || addr.city,
+              coordinates: coordinates,
+              project_id: projectId,
+              created_by: user.id,
+              notiz: addr.notizAdresse,
+            })
+            .select()
+            .single()
+
+          if (addressError) throw addressError
+
+          const units = []
+          for (let i = 0; i < addr.weCount; i++) {
+            units.push({
+              address_id: addressData.id,
+              status: addr.status,
+              etage: addr.etage,
+              lage: addr.lage,
+              notiz: addr.notizWE,
+            })
+          }
+
+          const { error: unitsError } = await supabaseClient
+            .from('units')
+            .insert(units)
+          if (unitsError) throw unitsError
+
+          successfulAddresses.push(addressData.id)
+
+          if (!coordinates) {
+            failedAddresses.push({
+              address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+              reason: addr.coordinates.error || 'Geocoding failed',
+            })
+          }
+        } catch (err) {
+          console.error('Insert error:', err)
+          failedAddresses.push({
+            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+            reason: String(err),
+          })
+        }
+      }
+
+      return new Response(
+        JSON.stringify({
+          success: true,
+          totalRows: csvData.length,
+          uniqueAddresses: uniqueAddresses.length,
+          successfulAddresses: successfulAddresses.length,
+          failedAddresses,
+          errors,
+        }),
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    // Legacy path: FormData upload (still supported for backwards compatibility)
     const formData = await req.formData()
     const file = formData.get('file') as File
     const projectId = formData.get('projectId') as string
-
-    if (!file || !projectId) {
-      return new Response(
-        JSON.stringify({ error: 'Missing file or projectId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
 
     const csvText = await file.text()
     const lines = csvText.split('\n').filter(line => line.trim())

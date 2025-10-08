@@ -85,6 +85,16 @@ serve(async (req) => {
         continue; // Hidden field
       }
 
+      // Latitude/Longitude columns: capture but hide from UI
+      if (/(^LAT$|LATITUDE|BREITE|BREITENGRAD|Y[- _]?(KOORD|COORD)|Y$)/i.test(normalizedHeader)) {
+        suggestedMapping[header] = 'latitude';
+        continue; // Hidden field
+      }
+      if (/(^LON$|^LONG$|LONGITUDE|LÄNGE|LAENGENGRAD|LÄNGENGRAD|X[- _]?(KOORD|COORD)|X$)/i.test(normalizedHeader)) {
+        suggestedMapping[header] = 'longitude';
+        continue; // Hidden field
+      }
+
       // Auto-ignore irrelevant columns first (don't show in UI)
       if (/(LANDKREIS|DISTRICT|KREIS|REGION|ZUSAMMEN|TOTAL|SUMME|ZEILENPRÜF|CHECKSUM|NICHT ÄNDERN|DO NOT CHANGE|^ADRESSE$|GESAMTADRESSE|KOMPLETTADRESSE|DATENQUELLE|ANSCHLUSSPUNKTE|TECHNISCHES PROJEKT|PREISKATEGORIE|^SPALTE\d+$)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'ignore';
@@ -121,11 +131,11 @@ serve(async (req) => {
         suggestedMapping[header] = 'locality';
       }
       // Residential units (WE, WOHNEINHEITEN)
-      else if (/(WOHN|WOHNEINHEIT|WOHNUNGEN|ANZAHL.*WOHN|WOHNEINHEI)/i.test(normalizedHeader)) {
+      else if (/(^WE$|\bWE\b|WOHN|WOHNEINHEIT|WOHNUNGEN|ANZAHL.*WOHN|WOHNEINHEI)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_residential';
       }
       // Commercial units (GE, GEWERBE, GESCHÄFT)
-      else if (/(GEWERB|GESCHÄFT|GESCHAEFT|COMMERCIAL|ANZAHL.*GE|GEWERBEEIN)/i.test(normalizedHeader)) {
+      else if (/(^GE$|\bGE\b|GEWERB|GESCHÄFT|GESCHAEFT|COMMERCIAL|ANZAHL.*GE|GEWERBEEIN)/i.test(normalizedHeader)) {
         suggestedMapping[header] = 'units_commercial';
       }
       // Combined WE count (WEANZ)
