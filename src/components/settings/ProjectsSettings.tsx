@@ -204,15 +204,15 @@ export const ProjectsSettings = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'In Planung':
-        return 'bg-blue-100 text-blue-800';
+        return 'bg-blue-500 text-white';
       case 'Läuft':
-        return 'bg-green-100 text-green-800';
+        return 'bg-green-500 text-white';
       case 'Laufend':
-        return 'bg-yellow-100 text-yellow-800';
+        return 'bg-yellow-500 text-white';
       case 'Abgeschlossen':
-        return 'bg-red-100 text-red-800';
+        return 'bg-red-500 text-white';
       default:
-        return 'bg-gray-100 text-gray-800';
+        return 'bg-gray-500 text-white';
     }
   };
 
@@ -404,7 +404,7 @@ export const ProjectsSettings = () => {
                                   <SelectContent>
                                     {STATUS_OPTIONS.map((status) => (
                                       <SelectItem key={status} value={status} className="cursor-pointer">
-                                        <span className={`inline-block text-xs font-normal px-3 py-1 rounded-md ${getStatusColor(status)}`}>
+                                        <span className={`inline-block text-xs font-medium px-3 py-1 rounded-md ${getStatusColor(status)}`}>
                                           {status.toUpperCase()}
                                         </span>
                                       </SelectItem>
