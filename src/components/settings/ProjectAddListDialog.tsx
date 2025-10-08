@@ -188,9 +188,6 @@ export const ProjectAddListDialog = ({
       return;
     }
 
-    setStep('importing');
-    setProgress(0);
-
     try {
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error('Not authenticated');
@@ -211,11 +208,7 @@ export const ProjectAddListDialog = ({
 
       if (listError) throw listError;
 
-      setProgress(30);
-
       // Start upload in background (do not await)
-      setCurrentListId(listData.id);
-
       void supabase.functions.invoke('upload-street-list', {
         body: {
           projectId: projectId,
@@ -228,12 +221,26 @@ export const ProjectAddListDialog = ({
         console.error('Upload invoke error (non-blocking):', err);
       });
 
-      // Continue showing importing UI; completion handled by polling effect
-      setProgress(40);
+      // Close dialog immediately and show list on page
+      toast.success('Import gestartet - Sie können den Fortschritt auf der Seite verfolgen');
+      onSuccess(); // Reload lists to show the new importing list
+      onOpenChange(false);
+      
+      // Reset state
+      setStep('upload');
+      setFile(null);
+      setListName("");
+      setCsvData([]);
+      setCsvHeaders([]);
+      setFinalMapping({});
+      setQuestionAnswers({});
+      setMappingQuestions([]);
+      setProgress(0);
+      setCurrentListId(null);
+      setImportStage('');
     } catch (error: any) {
       console.error('Import error:', error);
       toast.error(`Import fehlgeschlagen: ${error.message}`);
-      setStep('mapping');
     }
   };
 

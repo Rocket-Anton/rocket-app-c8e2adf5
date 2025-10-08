@@ -92,6 +92,16 @@ const ProjectDetail = () => {
   useEffect(() => {
     loadProject();
     loadLists();
+    
+    // Poll for importing lists
+    const interval = setInterval(() => {
+      const hasImporting = lists.some(l => l.status === 'importing');
+      if (hasImporting) {
+        loadLists();
+      }
+    }, 2500);
+    
+    return () => clearInterval(interval);
   }, [id]);
 
   const loadProject = async () => {
@@ -494,7 +504,7 @@ const ProjectDetail = () => {
                                           Datei: {list.file_name}
                                         </p>
                                       )}
-                                      {list.upload_stats && (
+                                      {list.upload_stats && list.status === 'completed' && (
                                         <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
                                           <span className="text-muted-foreground">
                                             Gesamt: <span className="font-medium text-foreground">{(list.upload_stats as any).total || 0}</span>
@@ -518,6 +528,15 @@ const ProjectDetail = () => {
                                               </Button>
                                             </span>
                                           )}
+                                        </div>
+                                      )}
+                                      {list.status === 'importing' && (
+                                        <div className="mt-3 space-y-2">
+                                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                            <Loader2 className="h-4 w-4 animate-spin" />
+                                            <span>Import läuft...</span>
+                                          </div>
+                                          <Progress value={75} className="w-full" />
                                         </div>
                                       )}
                                        <p className="text-xs text-muted-foreground mt-2">
