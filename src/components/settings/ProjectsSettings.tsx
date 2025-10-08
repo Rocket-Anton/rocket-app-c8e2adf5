@@ -362,7 +362,7 @@ export const ProjectsSettings = () => {
                       return (
                         <React.Fragment key={statusKey}>
                           <TableRow 
-                            className="cursor-pointer hover:bg-muted/20 h-9 relative"
+                            className="cursor-pointer hover:bg-muted/30 h-9 relative"
                             onClick={() => toggleStatus(statusKey)}
                           >
                             <TableCell className="py-2" colSpan={27}>
