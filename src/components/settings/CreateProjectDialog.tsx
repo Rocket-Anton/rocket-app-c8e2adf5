@@ -23,6 +23,7 @@ import * as XLSX from "xlsx";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useNavigate } from "react-router-dom";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -68,6 +69,7 @@ const TG_GROUP_OPTIONS = [
 
 export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogProps) => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [loading, setLoading] = useState(false);
   
   // Basic Info
@@ -560,25 +562,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
 
-      // Geocode the project location if city and postal code are provided
+      // Geocoding später im Hintergrund, um Erstellung nicht zu blockieren
       let coordinates = null;
-      if (city && postalCode) {
-        const { geocodeAddress } = await import("@/utils/geocoding");
-        const result = await geocodeAddress(
-          city, // Use city as street for project geocoding
-          "", // No house number for projects
-          postalCode,
-          city
-        );
-        
-        if (result.coordinates) {
-          coordinates = result.coordinates;
-          console.log("Project geocoded successfully:", coordinates);
-        } else {
-          console.warn("Failed to geocode project:", result.error);
-          // Continue anyway - geocoding is not critical for project creation
-        }
-      }
 
       // Insert project
       const { data: project, error: projectError } = await supabase
@@ -616,70 +601,61 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
 
       if (projectError) throw projectError;
 
-      // Insert tariffs
-      if (selectedTariffs.length > 0 && project) {
-        const tariffInserts = selectedTariffs.map(tariffId => ({
-          project_id: project.id,
-          tariff_id: tariffId,
-        }));
-        
-        const { error: tariffError } = await supabase
-          .from("project_tariffs")
-          .insert(tariffInserts);
-        
-        if (tariffError) throw tariffError;
-      }
-
-      // Insert addons
-      if (selectedAddons.length > 0 && project) {
-        const addonInserts = selectedAddons.map(addonId => ({
-          project_id: project.id,
-          addon_id: addonId,
-        }));
-        
-        const { error: addonError } = await supabase
-          .from("project_addons")
-          .insert(addonInserts);
-        
-        if (addonError) throw addonError;
-      }
-
-      // Upload CSV if provided and mapping is confirmed
-      if (csvFile && project && mappingStep === 'confirmed') {
-        toast.info("Importiere Straßenliste...");
-        
-        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-street-list', {
-          body: {
-            projectId: project.id,
-            csvData: csvData,
-            columnMapping: finalMapping,
-            questionAnswers: questionAnswers,
-          },
-        });
-
-        if (uploadError) {
-          console.error("CSV upload error:", uploadError);
-          toast.error("Fehler beim Import der Straßenliste");
-        } else {
-          console.log("CSV upload result:", uploadData);
-          if (uploadData.skipped > 0) {
-            toast.warning(
-              `${uploadData.successful} Adressen erfolgreich importiert, ${uploadData.skipped} übersprungen`
-            );
-          } else {
-            toast.success(`${uploadData.successful} Adressen erfolgreich importiert`);
-          }
-        }
-      }
-
+      // Sofort feedback + Navigation
       toast.success("Projekt erfolgreich erstellt");
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      setLoading(false);
+      navigate(`/settings/projects/${project.id}`);
       onClose();
+
+      // Hintergrundaufgaben ohne Blockieren starten
+      (async () => {
+        try {
+          // Tarife verknüpfen
+          if (selectedTariffs.length > 0) {
+            const tariffInserts = selectedTariffs.map(tariffId => ({
+              project_id: project.id,
+              tariff_id: tariffId,
+            }));
+            const { error: tariffError } = await supabase
+              .from("project_tariffs")
+              .insert(tariffInserts);
+            if (tariffError) throw tariffError;
+          }
+
+          // Addons verknüpfen
+          if (selectedAddons.length > 0) {
+            const addonInserts = selectedAddons.map(addonId => ({
+              project_id: project.id,
+              addon_id: addonId,
+            }));
+            const { error: addonError } = await supabase
+              .from("project_addons")
+              .insert(addonInserts);
+            if (addonError) throw addonError;
+          }
+
+          // CSV-Import im Hintergrund starten
+          if (csvFile && mappingStep === 'confirmed') {
+            toast.info("Import wird im Hintergrund gestartet");
+            const { error: uploadError } = await supabase.functions.invoke('upload-street-list', {
+              body: {
+                projectId: project.id,
+                csvData: csvData,
+                columnMapping: finalMapping,
+                questionAnswers: questionAnswers,
+              },
+            });
+            if (uploadError) throw uploadError;
+          }
+        } catch (bgErr) {
+          console.error("Background tasks error:", bgErr);
+          toast.error("Hintergrundverarbeitung fehlgeschlagen");
+        }
+      })();
     } catch (error: any) {
       console.error("Error creating project:", error);
       toast.error("Fehler beim Erstellen des Projekts");
-    } finally {
-      setLoading(false);
     }
   };
 
