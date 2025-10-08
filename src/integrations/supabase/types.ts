@@ -57,6 +57,7 @@ export type Database = {
           created_by: string | null
           house_number: string
           id: number
+          notiz: string | null
           postal_code: string
           project_id: string | null
           street: string
@@ -69,6 +70,7 @@ export type Database = {
           created_by?: string | null
           house_number: string
           id?: number
+          notiz?: string | null
           postal_code: string
           project_id?: string | null
           street: string
@@ -81,6 +83,7 @@ export type Database = {
           created_by?: string | null
           house_number?: string
           id?: number
+          notiz?: string | null
           postal_code?: string
           project_id?: string | null
           street?: string
@@ -555,6 +558,39 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      units: {
+        Row: {
+          address_id: number
+          created_at: string
+          etage: string | null
+          id: string
+          lage: string | null
+          notiz: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          address_id: number
+          created_at?: string
+          etage?: string | null
+          id?: string
+          lage?: string | null
+          notiz?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          address_id?: number
+          created_at?: string
+          etage?: string | null
+          id?: string
+          lage?: string | null
+          notiz?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
       }
       user_activities: {
         Row: {

@@ -11,3 +11,6 @@ verify_jwt = true
 
 [functions.geocode-address]
 verify_jwt = true
+
+[functions.upload-street-list]
+verify_jwt = true

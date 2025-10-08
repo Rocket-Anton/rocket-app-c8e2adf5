@@ -111,6 +111,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [selectedTariffs, setSelectedTariffs] = useState<string[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
   const [datePickerOpen, setDatePickerOpen] = useState(false);
+  const [csvFile, setCsvFile] = useState<File | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   // Load selected provider details 
   // Query to fetch provider info including projects_with_bonus setting
@@ -486,6 +488,36 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           .insert(addonInserts);
         
         if (addonError) throw addonError;
+      }
+
+      // Upload CSV if provided
+      if (csvFile && project) {
+        toast.info("Verarbeite Straßenliste...");
+        
+        const formData = new FormData();
+        formData.append('file', csvFile);
+        formData.append('projectId', project.id);
+
+        const { data: uploadData, error: uploadError } = await supabase.functions.invoke(
+          'upload-street-list',
+          {
+            body: formData,
+          }
+        );
+
+        if (uploadError) {
+          console.error("CSV upload error:", uploadError);
+          toast.error("Fehler beim Upload der Straßenliste");
+        } else {
+          console.log("CSV upload result:", uploadData);
+          if (uploadData.failedAddresses?.length > 0) {
+            toast.warning(
+              `${uploadData.successfulAddresses} Adressen erfolgreich, ${uploadData.failedAddresses.length} Fehler`
+            );
+          } else {
+            toast.success(`${uploadData.successfulAddresses} Adressen erfolgreich importiert`);
+          }
+        }
       }
 
       toast.success("Projekt erfolgreich erstellt");
@@ -1186,11 +1218,40 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         
           {/* Straßenliste */}
           <div className="space-y-2">
-            <Label className="text-sm font-medium">Straßenliste</Label>
-            <div className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
+            <Label className="text-sm font-medium">Straßenliste (CSV)</Label>
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept=".csv"
+              onChange={(e) => {
+                const file = e.target.files?.[0];
+                if (file) {
+                  setCsvFile(file);
+                  toast.success(`Datei "${file.name}" ausgewählt`);
+                }
+              }}
+              className="hidden"
+            />
+            <div
+              onClick={() => fileInputRef.current?.click()}
+              className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer"
+            >
               <div className="text-center">
-                <div className="text-4xl text-muted-foreground mb-2">+</div>
-                <p className="text-sm text-muted-foreground">Datei hochladen</p>
+                {csvFile ? (
+                  <>
+                    <div className="text-4xl text-primary mb-2">✓</div>
+                    <p className="text-sm font-medium text-foreground">{csvFile.name}</p>
+                    <p className="text-xs text-muted-foreground mt-1">Klicken, um zu ändern</p>
+                  </>
+                ) : (
+                  <>
+                    <div className="text-4xl text-muted-foreground mb-2">+</div>
+                    <p className="text-sm text-muted-foreground">CSV-Datei hochladen</p>
+                    <p className="text-xs text-muted-foreground mt-1">
+                      Wird nach Projekterstellung verarbeitet
+                    </p>
+                  </>
+                )}
               </div>
             </div>
           </div>
