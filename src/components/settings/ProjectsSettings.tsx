@@ -276,9 +276,9 @@ export const ProjectsSettings = () => {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-card overflow-auto pb-4 border-b-2">
+      <div className="border rounded-lg bg-card overflow-hidden">
         <Table className="w-full min-w-max">
-          <TableHeader className="bg-muted/30">
+          <TableHeader className="bg-muted/30 border-b sticky top-0 z-10">
             <TableRow className="h-8">
               <TableHead className="min-w-[200px] h-8 py-1 text-xs font-semibold">GEBIET</TableHead>
               <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold">STATUS</TableHead>
@@ -309,6 +309,9 @@ export const ProjectsSettings = () => {
               <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">PROVISIONEN</TableHead>
             </TableRow>
           </TableHeader>
+        </Table>
+        <div className="overflow-auto max-h-[calc(100vh-300px)]">
+          <Table className="w-full min-w-max">
           <TableBody>
             {loading ? (
               Array.from({ length: 5 }).map((_, i) => (
@@ -452,6 +455,7 @@ export const ProjectsSettings = () => {
             )}
           </TableBody>
         </Table>
+        </div>
       </div>
     </div>
   );
