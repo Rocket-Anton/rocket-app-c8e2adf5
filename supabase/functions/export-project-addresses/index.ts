@@ -150,8 +150,8 @@ serve(async (req) => {
             addr.city || '',
             addr.locality || '',
             '1',
-            addr.coordinates?.lat || '',
-            addr.coordinates?.lng || '',
+            String(addr.coordinates?.lat || '').replace('.', ','),
+            String(addr.coordinates?.lng || '').replace('.', ','),
             addr.notiz || '',
             'Offen',
             '',
@@ -167,8 +167,8 @@ serve(async (req) => {
             addr.city || '',
             addr.locality || '',
             '1',
-            addr.coordinates?.lat || '',
-            addr.coordinates?.lng || '',
+            String(addr.coordinates?.lat || '').replace('.', ','),
+            String(addr.coordinates?.lng || '').replace('.', ','),
             addr.notiz || '',
             unit.status || 'Offen',
             unit.etage || '',
@@ -184,8 +184,8 @@ serve(async (req) => {
               addr.city || '',
               addr.locality || '',
               '1',
-              addr.coordinates?.lat || '',
-              addr.coordinates?.lng || '',
+              String(addr.coordinates?.lat || '').replace('.', ','),
+              String(addr.coordinates?.lng || '').replace('.', ','),
               addr.notiz || '',
               unit.status || 'Offen',
               unit.etage || '',
@@ -211,8 +211,8 @@ serve(async (req) => {
             'OFFEN',
             '',
             '',
-            addr.coordinates?.lng || '',
-            addr.coordinates?.lat || ''
+            String(addr.coordinates?.lng || '').replace('.', ','),
+            String(addr.coordinates?.lat || '').replace('.', ',')
           ].join(';'))
         } else if (unitCount === 1) {
           const unit = addressUnits[0]
@@ -230,8 +230,8 @@ serve(async (req) => {
             unit.status || 'OFFEN',
             '',
             '',
-            addr.coordinates?.lng || '',
-            addr.coordinates?.lat || ''
+            String(addr.coordinates?.lng || '').replace('.', ','),
+            String(addr.coordinates?.lat || '').replace('.', ',')
           ].join(';'))
         } else {
           for (const unit of addressUnits) {
@@ -249,8 +249,8 @@ serve(async (req) => {
               unit.status || 'OFFEN',
               '',
               '',
-              addr.coordinates?.lng || '',
-              addr.coordinates?.lat || ''
+              String(addr.coordinates?.lng || '').replace('.', ','),
+              String(addr.coordinates?.lat || '').replace('.', ',')
             ].join(';'))
           }
         }
