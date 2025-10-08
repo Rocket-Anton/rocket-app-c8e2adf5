@@ -115,62 +115,6 @@ function KarteContent() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  // Function to create marker icon based on zoom level
-  const createMarkerIcon = (address: Address, zoom: number) => {
-    // Calculate overall status based on units
-    const statusCounts: Record<string, number> = {};
-    address.units.forEach(unit => {
-      statusCounts[unit.status] = (statusCounts[unit.status] || 0) + 1;
-    });
-
-    // Determine primary status (most common)
-    let primaryStatus = "offen";
-    let maxCount = 0;
-    Object.entries(statusCounts).forEach(([status, count]) => {
-      if (count > maxCount) {
-        maxCount = count;
-        primaryStatus = status;
-      }
-    });
-
-    const color = statusColorMap[primaryStatus] || "#6b7280";
-    
-    // Scale marker size based on zoom level - smaller markers
-    let size = 24;
-    let fontSize = 11;
-    
-    if (zoom >= 18) {
-      size = 18;
-      fontSize = 9;
-    } else if (zoom >= 16) {
-      size = 20;
-      fontSize = 10;
-    }
-
-    return L.divIcon({
-      className: "custom-address-marker",
-      html: `
-        <div style="
-          width: ${size}px;
-          height: ${size}px;
-          background: ${color};
-          color: white;
-          border-radius: 50%;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: ${fontSize}px;
-          font-weight: 700;
-        ">
-          ${address.units.length}
-        </div>
-      `,
-      iconSize: [size, size],
-      iconAnchor: [size / 2, size / 2],
-    });
-  };
-
   // Load addresses and assigned addresses from database
   useEffect(() => {
     loadAddresses();
