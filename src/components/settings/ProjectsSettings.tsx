@@ -11,9 +11,16 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Plus, Search, Filter, Upload, Download } from "lucide-react";
+import { Plus, Search, Filter, Upload, Download, ChevronDown } from "lucide-react";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -29,6 +36,7 @@ interface Project {
   name: string;
   description?: string;
   provider_id?: string;
+  status: string;
   created_at: string;
   created_by: string;
   providers?: {
@@ -37,12 +45,22 @@ interface Project {
   };
 }
 
+interface Provider {
+  id: string;
+  name: string;
+  abbreviation: string;
+}
+
+const STATUS_OPTIONS = ['In Planung', 'Läuft', 'Abgeschlossen'];
+
 export const ProjectsSettings = () => {
   const queryClient = useQueryClient();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
   const [showFilters, setShowFilters] = useState(false);
+  const [groupByProvider, setGroupByProvider] = useState<string>("all");
+  const [groupByStatus, setGroupByStatus] = useState<string>("all");
 
   const { data: projects = [], isLoading: loading } = useQuery({
     queryKey: ['projects'],
@@ -64,9 +82,32 @@ export const ProjectsSettings = () => {
     staleTime: 5 * 60 * 1000,
   });
 
-  const filteredProjects = projects.filter(project => 
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const { data: providers = [] } = useQuery({
+    queryKey: ['providers'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("providers")
+        .select("id, name, abbreviation")
+        .order("name");
+
+      if (error) throw error;
+      return data || [];
+    },
+    staleTime: 5 * 60 * 1000,
+  });
+
+  const filteredProjects = projects.filter(project => {
+    const matchesSearch = project.name.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesProvider = groupByProvider === "all" || project.provider_id === groupByProvider;
+    const matchesStatus = groupByStatus === "all" || project.status === groupByStatus;
+    return matchesSearch && matchesProvider && matchesStatus;
+  });
+
+  // Group projects by status
+  const groupedProjects = STATUS_OPTIONS.reduce((acc, status) => {
+    acc[status] = filteredProjects.filter(p => p.status === status);
+    return acc;
+  }, {} as Record<string, Project[]>);
 
   const handleSelectAll = (checked: boolean) => {
     if (checked) {
@@ -135,6 +176,43 @@ export const ProjectsSettings = () => {
         </div>
       </div>
 
+      {/* Grouping Section */}
+      <div className="mb-4 p-4 border rounded-lg bg-muted/30">
+        <div className="text-sm font-medium mb-3">Grouping</div>
+        <div className="flex gap-4">
+          <div className="flex-1">
+            <Select value={groupByProvider} onValueChange={setGroupByProvider}>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Provider Name" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">Alle Provider</SelectItem>
+                {providers.map((provider) => (
+                  <SelectItem key={provider.id} value={provider.id}>
+                    {provider.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+          <div className="flex-1">
+            <Select value={groupByStatus} onValueChange={setGroupByStatus}>
+              <SelectTrigger className="w-full bg-background">
+                <SelectValue placeholder="Status" />
+              </SelectTrigger>
+              <SelectContent className="bg-popover z-50">
+                <SelectItem value="all">Alle Status</SelectItem>
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+        </div>
+      </div>
+
       <div className="mb-4 flex gap-2">
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -154,109 +232,125 @@ export const ProjectsSettings = () => {
         </Button>
       </div>
 
-      <div className="border rounded-lg bg-card overflow-auto">
-        <Table className="w-full min-w-max">
-          <TableHeader className="bg-muted/30">
-            <TableRow className="h-8">
-              <TableHead className="w-[40px] h-8 py-1">
-                <Checkbox
-                  checked={selectedProjects.size === filteredProjects.length && filteredProjects.length > 0}
-                  onCheckedChange={handleSelectAll}
-                />
-              </TableHead>
-              <TableHead className="min-w-[200px] h-8 py-1 text-xs font-semibold">GEBIET</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold">STATUS</TableHead>
-              <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold">VERMARKTUNGSART</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold">MIT BONUS</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">BONUS ABRECHNEN</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ZIELQUOTE</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">QUOTE AKTUELL</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">QUOTE DIFFERENZ</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ANZAHL WE</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">SALEABLE WE</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RESTPOTENTIAL</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ANZAHL BK</TableHead>
-              <TableHead className="min-w-[80px] h-8 py-1 text-xs font-semibold text-right">FAKTOR</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">STARTDATUM</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">ENDDATUM</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN GESAMT</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN DIFFERENZ</TableHead>
-              <TableHead className="min-w-[110px] h-8 py-1 text-xs font-semibold text-right">RAKETEN AKTIV</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN GEPLANT</TableHead>
-              <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">RAKETEN SOLL</TableHead>
-              <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold text-right">REST TAGE DES PROJEKT</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">ZIELAUFTRÄGE</TableHead>
-              <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold text-right">IST - AUFTRÄGE GESAMT</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">IST - AUFTRÄGE</TableHead>
-              <TableHead className="min-w-[140px] h-8 py-1 text-xs font-semibold text-right">AUFTRÄGE DIFFERENZ</TableHead>
-              <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold">PROJEKTLEITER</TableHead>
-              <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">PROVISIONEN</TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {loading ? (
-              Array.from({ length: 5 }).map((_, i) => (
-                <TableRow key={i} className="h-8">
-                  <TableCell className="py-1">
-                    <Skeleton className="h-4 w-4" />
-                  </TableCell>
-                  {Array.from({ length: 27 }).map((_, j) => (
-                    <TableCell key={j} className="py-1">
-                      <Skeleton className="h-3 w-full" />
-                    </TableCell>
-                  ))}
-                </TableRow>
-              ))
-            ) : filteredProjects.length === 0 ? (
-              <TableRow>
-                <TableCell colSpan={28} className="text-center text-muted-foreground h-32">
-                  Keine Projekte vorhanden
-                </TableCell>
-              </TableRow>
-            ) : (
-              filteredProjects.map((project) => (
-                <TableRow key={project.id} className="cursor-pointer hover:bg-muted/50 h-8">
-                  <TableCell className="py-1" onClick={(e) => e.stopPropagation()}>
-                    <Checkbox
-                      checked={selectedProjects.has(project.id)}
-                      onCheckedChange={(checked) => handleSelectProject(project.id, checked as boolean)}
-                    />
-                  </TableCell>
-                  <TableCell className="py-1 text-xs font-medium">
-                    {project.providers?.abbreviation && `${project.providers.abbreviation} - `}
-                    {project.name}
-                  </TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                  <TableCell className="py-1 text-xs">-</TableCell>
-                  <TableCell className="py-1 text-xs text-right">-</TableCell>
-                </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+      <div className="space-y-6">
+        {STATUS_OPTIONS.map((status) => {
+          const statusProjects = groupedProjects[status];
+          if (statusProjects.length === 0) return null;
+
+          return (
+            <div key={status} className="border rounded-lg bg-card">
+              <div className="bg-muted/50 px-4 py-2 font-semibold text-sm border-b">
+                {status} ({statusProjects.length})
+              </div>
+              <div className="overflow-auto">
+                <Table className="w-full min-w-max">
+                  <TableHeader className="bg-muted/30">
+                    <TableRow className="h-8">
+                      <TableHead className="w-[40px] h-8 py-1">
+                        <Checkbox
+                          checked={statusProjects.every(p => selectedProjects.has(p.id))}
+                          onCheckedChange={(checked) => {
+                            statusProjects.forEach(p => handleSelectProject(p.id, checked as boolean));
+                          }}
+                        />
+                      </TableHead>
+                      <TableHead className="min-w-[200px] h-8 py-1 text-xs font-semibold">GEBIET</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold">STATUS</TableHead>
+                      <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold">VERMARKTUNGSART</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold">MIT BONUS</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">BONUS ABRECHNEN</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ZIELQUOTE</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">QUOTE AKTUELL</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">QUOTE DIFFERENZ</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ANZAHL WE</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">SALEABLE WE</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RESTPOTENTIAL</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">ANZAHL BK</TableHead>
+                      <TableHead className="min-w-[80px] h-8 py-1 text-xs font-semibold text-right">FAKTOR</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">STARTDATUM</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold">ENDDATUM</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN GESAMT</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN DIFFERENZ</TableHead>
+                      <TableHead className="min-w-[110px] h-8 py-1 text-xs font-semibold text-right">RAKETEN AKTIV</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">RAKETEN GEPLANT</TableHead>
+                      <TableHead className="min-w-[100px] h-8 py-1 text-xs font-semibold text-right">RAKETEN SOLL</TableHead>
+                      <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold text-right">REST TAGE DES PROJEKT</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">ZIELAUFTRÄGE</TableHead>
+                      <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold text-right">IST - AUFTRÄGE GESAMT</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">IST - AUFTRÄGE</TableHead>
+                      <TableHead className="min-w-[140px] h-8 py-1 text-xs font-semibold text-right">AUFTRÄGE DIFFERENZ</TableHead>
+                      <TableHead className="min-w-[150px] h-8 py-1 text-xs font-semibold">PROJEKTLEITER</TableHead>
+                      <TableHead className="min-w-[120px] h-8 py-1 text-xs font-semibold text-right">PROVISIONEN</TableHead>
+                    </TableRow>
+                  </TableHeader>
+                  <TableBody>
+                    {loading ? (
+                      Array.from({ length: 3 }).map((_, i) => (
+                        <TableRow key={i} className="h-8">
+                          <TableCell className="py-1">
+                            <Skeleton className="h-4 w-4" />
+                          </TableCell>
+                          {Array.from({ length: 27 }).map((_, j) => (
+                            <TableCell key={j} className="py-1">
+                              <Skeleton className="h-3 w-full" />
+                            </TableCell>
+                          ))}
+                        </TableRow>
+                      ))
+                    ) : (
+                      statusProjects.map((project) => (
+                        <TableRow key={project.id} className="cursor-pointer hover:bg-muted/50 h-8">
+                          <TableCell className="py-1" onClick={(e) => e.stopPropagation()}>
+                            <Checkbox
+                              checked={selectedProjects.has(project.id)}
+                              onCheckedChange={(checked) => handleSelectProject(project.id, checked as boolean)}
+                            />
+                          </TableCell>
+                          <TableCell className="py-1 text-xs font-medium">
+                            {project.providers?.abbreviation && `${project.providers.abbreviation} - `}
+                            {project.name}
+                          </TableCell>
+                          <TableCell className="py-1 text-xs">{project.status}</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                          <TableCell className="py-1 text-xs">-</TableCell>
+                          <TableCell className="py-1 text-xs text-right">-</TableCell>
+                        </TableRow>
+                      ))
+                    )}
+                  </TableBody>
+                </Table>
+              </div>
+            </div>
+          );
+        })}
+
+        {filteredProjects.length === 0 && !loading && (
+          <div className="border rounded-lg bg-card p-8 text-center text-muted-foreground">
+            Keine Projekte vorhanden
+          </div>
+        )}
       </div>
     </div>
   );
