@@ -79,14 +79,14 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
               {/* Project selector if applicable */}
               {showProjectSelector && (
-                <div className="p-4 border-b bg-muted/30">
-                  <div className="text-xs font-medium text-muted-foreground mb-2">
+                <div className="px-4 py-3 border-b bg-muted/30">
+                  <div className="text-[10px] font-medium text-muted-foreground mb-1.5">
                     PROJEKTE
                   </div>
                   <ProjectSelector
                     selectedProjectIds={selectedProjectIds}
                     onProjectsChange={onProjectsChange}
-                    className="w-full"
+                    className="w-full h-9 text-sm"
                   />
                 </div>
               )}
