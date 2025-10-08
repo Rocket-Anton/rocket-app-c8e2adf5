@@ -366,7 +366,7 @@ export const ProjectsSettings = () => {
                             onClick={() => toggleStatus(statusKey)}
                           >
                             <TableCell className="py-2" colSpan={27}>
-                              <div className={`absolute left-2 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-7' : 'h-4'} rounded-full ${getStatusBgColor(status)}`} />
+                              <div className={`absolute left-6 top-1/2 -translate-y-1/2 w-1 ${isStatusExpanded ? 'h-7' : 'h-4'} rounded-full ${getStatusBgColor(status)}`} />
                               <div className="flex items-center gap-2 pl-10">
                                 {isStatusExpanded ? (
                                   <ChevronDown className="w-4 h-4 text-muted-foreground" />
