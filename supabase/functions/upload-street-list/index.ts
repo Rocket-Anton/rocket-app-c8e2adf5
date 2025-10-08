@@ -236,6 +236,7 @@ serve(async (req) => {
       // Insert addresses and units
       const successfulAddresses: number[] = []
       const failedAddresses: Array<{ address: string; reason: string }> = []
+      const geocodingWarnings: Array<{ address: string; reason: string }> = []
       let totalUnits = 0
 
       for (const addr of geocodedAddresses) {
@@ -336,10 +337,11 @@ serve(async (req) => {
           successfulAddresses.push(addressId)
           totalUnits += unitCount
 
+          // Geocoding warnings are not failures - address was saved successfully
           if (!addr.coordinates.lat || !addr.coordinates.lng) {
-            failedAddresses.push({
+            geocodingWarnings.push({
               address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-              reason: addr.coordinates.error || 'Geocoding failed',
+              reason: addr.coordinates.error || 'Nur ungefähre Koordinaten verfügbar',
             })
           }
         } catch (err) {
@@ -361,9 +363,11 @@ serve(async (req) => {
             successful: successfulAddresses.length,
             failed: failedAddresses.length,
             units: totalUnits,
+            geocodingWarnings: geocodingWarnings.length,
           },
           error_details: {
             failedAddresses,
+            geocodingWarnings,
             errors: errors || [],
           },
         })

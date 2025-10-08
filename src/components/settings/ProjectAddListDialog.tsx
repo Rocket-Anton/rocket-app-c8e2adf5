@@ -56,6 +56,7 @@ export const ProjectAddListDialog = ({
   const [confidence, setConfidence] = useState(0);
   const [progress, setProgress] = useState(0);
   const [currentListId, setCurrentListId] = useState<string | null>(null);
+  const [importStage, setImportStage] = useState<string>('');
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -254,8 +255,11 @@ export const ProjectAddListDialog = ({
 
       if (data?.status === 'completed') {
         setProgress(100);
+        setImportStage('Abgeschlossen ✓');
         const stats = (data.upload_stats as any) || { successful: 0 };
-        toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${stats.successful || 0} Adressen hinzugefügt`);
+        const warnings = stats.geocodingWarnings || 0;
+        const warningMsg = warnings > 0 ? ` (${warnings} mit ungenauen Koordinaten)` : '';
+        toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${stats.successful || 0} Adressen, ${stats.units || 0} WE hinzugefügt${warningMsg}`);
         onSuccess();
         onOpenChange(false);
         // Reset state
@@ -267,7 +271,9 @@ export const ProjectAddListDialog = ({
         setFinalMapping({});
         setQuestionAnswers({});
         setMappingQuestions([]);
+        setProgress(0);
         setCurrentListId(null);
+        setImportStage('');
         clearInterval(interval);
       } else if (data?.status === 'failed') {
         toast.error('Import fehlgeschlagen');
@@ -275,8 +281,20 @@ export const ProjectAddListDialog = ({
         setCurrentListId(null);
         clearInterval(interval);
       } else {
-        // Smooth progress animation while waiting
-        setProgress((p) => (p < 95 ? p + 2 : p));
+        // Update progress with stage info
+        setProgress((p) => {
+          if (p < 30) {
+            setImportStage('CSV wird analysiert...');
+            return p + 3;
+          } else if (p < 70) {
+            setImportStage('Adressen werden geocodiert...');
+            return p + 2;
+          } else if (p < 95) {
+            setImportStage('Daten werden gespeichert...');
+            return p + 1;
+          }
+          return p;
+        });
       }
     }, 2500);
 
@@ -439,9 +457,10 @@ export const ProjectAddListDialog = ({
 
         {step === 'importing' && (
           <div className="space-y-4 py-8">
-            <div className="flex items-center justify-center gap-3">
+            <div className="flex flex-col items-center justify-center gap-3">
               <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <p className="text-lg">Importiere {listName}...</p>
+              <p className="text-lg font-medium">Importiere {listName}...</p>
+              {importStage && <p className="text-sm text-muted-foreground">{importStage}</p>}
             </div>
             <Progress value={progress} className="w-full" />
           </div>

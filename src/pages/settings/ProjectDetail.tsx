@@ -505,6 +505,11 @@ const ProjectDetail = () => {
                                           <span className="text-muted-foreground">
                                             WE: <span className="font-medium text-foreground">{(list.upload_stats as any).units || 0}</span>
                                           </span>
+                                          {(list.upload_stats as any).geocodingWarnings > 0 && (
+                                            <span className="text-yellow-600 dark:text-yellow-500">
+                                              ⚠ {(list.upload_stats as any).geocodingWarnings} ungenaue Koordinaten
+                                            </span>
+                                          )}
                                           {(list.upload_stats as any).failed > 0 && (
                                             <span className="flex items-center gap-2 text-red-600 dark:text-red-500">
                                               Fehler: <span className="font-medium">{(list.upload_stats as any).failed}</span>
