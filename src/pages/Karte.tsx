@@ -36,6 +36,7 @@ import { geocodeAddressesBatch } from "@/utils/geocoding";
 
 interface Address {
   id: number;
+  projectId: string | null;
   street: string;
   houseNumber: string;
   postalCode: string;
@@ -193,6 +194,7 @@ function KarteContent() {
 
       return {
         id: addr.id,
+        projectId: addr.project_id || null,
         street: addr.street,
         houseNumber: addr.house_number,
         postalCode: addr.postal_code,
@@ -491,6 +493,12 @@ function KarteContent() {
 
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
+
+      // Filter by selected projects
+      if (selectedProjectIds.size > 0) {
+        const pid = (address as any).projectId;
+        if (!pid || !selectedProjectIds.has(pid)) return;
+      }
 
       // Apply status filter
       if (statusFilter.length > 0) {

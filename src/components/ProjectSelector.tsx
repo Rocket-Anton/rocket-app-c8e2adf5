@@ -74,9 +74,48 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
       // For non-admins, filter by assigned projects or project manager
       if (!isAdmin) {
-        query = query.or(`project_manager_id.eq.${user.id},id.in.(
-          select project_id from project_rockets where user_id = '${user.id}'
-        )`);
+        // Load assigned project IDs first (no subqueries in PostgREST filters)
+        const { data: assignments, error: assignError } = await supabase
+          .from('project_rockets')
+          .select('project_id')
+          .eq('user_id', user.id);
+
+        console.log('ProjectSelector: assignments', assignments, 'Error:', assignError);
+
+        const assignedIds = (assignments || []).map((a: any) => a.project_id).filter(Boolean);
+
+        // Fetch managed projects
+        const { data: managed = [], error: managedError } = await supabase
+          .from('projects')
+          .select('id, name, status, area_name, city, coordinates')
+          .eq('project_manager_id', user.id);
+        if (managedError) console.warn('ProjectSelector: managed projects error', managedError);
+
+        // Fetch assigned projects (if any)
+        let assignedProjects: any[] = [];
+        if (assignedIds.length > 0) {
+          const { data: ap = [], error: apError } = await supabase
+            .from('projects')
+            .select('id, name, status, area_name, city, coordinates')
+            .in('id', assignedIds);
+          if (apError) console.warn('ProjectSelector: assigned projects error', apError);
+          assignedProjects = ap || [];
+        }
+
+        // Merge and de-duplicate
+        const merged = [...managed, ...assignedProjects];
+        const unique = Array.from(new Map(merged.map((p: any) => [p.id, p])).values());
+
+        // Assign colors and set state
+        const projectsWithColors = unique.map((project: any) => {
+          const hash = project.id.split('').reduce((acc: number, char: string) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+          const color = `hsl(${Math.abs(hash) % 360}, 65%, 55%)`;
+          return { ...project, color };
+        });
+
+        setProjects(projectsWithColors);
+        setLoading(false);
+        return;
       }
 
       const { data, error } = await query;
