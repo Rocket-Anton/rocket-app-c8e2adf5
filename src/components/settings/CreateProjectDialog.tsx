@@ -1404,31 +1404,46 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                       </TableRow>
                     </TableHeader>
                     <TableBody>
-                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id').map((header) => (
-                        <TableRow key={header}>
-                          <TableCell className="font-medium">{header}</TableCell>
-                          <TableCell>
-                            <Select
-                              value={finalMapping[header] || 'ignore'}
-                              onValueChange={(value) => handleMappingChange(header, value)}
-                            >
-                              <SelectTrigger className="w-full">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {AVAILABLE_MAPPINGS.map((mapping) => (
-                                  <SelectItem key={mapping.value} value={mapping.value}>
-                                    {mapping.label}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </TableCell>
-                          <TableCell className="text-sm text-muted-foreground">
-                            {csvData[0]?.[header] || '-'}
-                          </TableCell>
-                        </TableRow>
-                      ))}
+                      {csvHeaders.filter((header) => finalMapping[header] !== 'ignore' && finalMapping[header] !== 'house_number_addon' && finalMapping[header] !== 'provider_address_id').map((header) => {
+                        const currentValue = finalMapping[header] || 'ignore';
+                        const usedMappings = Object.entries(finalMapping)
+                          .filter(([key, val]) => key !== header && val !== 'ignore')
+                          .map(([_, val]) => val);
+                        
+                        return (
+                          <TableRow key={header}>
+                            <TableCell className="font-medium">{header}</TableCell>
+                            <TableCell>
+                              <Select
+                                value={currentValue}
+                                onValueChange={(value) => handleMappingChange(header, value)}
+                              >
+                                <SelectTrigger className="w-full">
+                                  <SelectValue />
+                                </SelectTrigger>
+                                <SelectContent side="bottom" align="start">
+                                  {AVAILABLE_MAPPINGS.map((mapping) => {
+                                    const isUsed = usedMappings.includes(mapping.value);
+                                    const isIgnore = mapping.value === 'ignore';
+                                    return (
+                                      <SelectItem 
+                                        key={mapping.value} 
+                                        value={mapping.value}
+                                        disabled={isUsed && !isIgnore}
+                                      >
+                                        {mapping.label}
+                                      </SelectItem>
+                                    );
+                                  })}
+                                </SelectContent>
+                              </Select>
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {csvData[0]?.[header] || '-'}
+                            </TableCell>
+                          </TableRow>
+                        );
+                      })}
                     </TableBody>
                   </Table>
                 </div>
