@@ -744,217 +744,215 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </Select>
           </div>
 
-      {/* Ort */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Ort<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          value={city}
-          onChange={(e) => setCity(e.target.value)}
-          placeholder="Ort eingeben"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-        <p className="text-xs text-muted-foreground mt-1">
-          {cityLookupLoading ? "Suche Vorschläge…" : (cityCoordinates ? "Ort erkannt – Karte aktualisiert." : "Geben Sie einen Ort ein, um PLZ- und Bundesland-Vorschläge zu erhalten.")}
-        </p>
-      </div>
-
-      {/* Gebiet Name - nur anzeigen wenn Ort vorhanden */}
-      {city && city.trim().length > 0 && (
-        <div className="space-y-2">
-          <Label htmlFor="area-name" className="text-sm font-medium text-foreground">
-            Gebiet Name<span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Input
-            id="area-name"
-            value={areaName}
-            onChange={(e) => setAreaName(e.target.value)}
-            placeholder="z.B. Lurup 1"
-            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-          />
-          {projectName && (
-            <p className="text-xs text-muted-foreground mt-1.5 ml-1">
-              Projektname wird: <span className="font-semibold text-foreground">{projectName}</span>
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* PLZ mit Vorschlägen */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          PLZ<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          value={postalCode}
-          onChange={(e) => setPostalCode(e.target.value)}
-          placeholder="PLZ eingeben"
-          list="plz-options"
-          required
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-        <datalist id="plz-options">
-          {postalCodeSuggestions.map((plz) => (
-            <option key={plz} value={plz} />
-          ))}
-        </datalist>
-      </div>
-
-      {/* Kleine Karten-Vorschau */}
-      <div className="pt-2">
-        <CityPreviewMap center={cityCoordinates} />
-      </div>
-
-      {/* Bundesland */}
-      <div className="space-y-2 pointer-events-auto">
-        <Label className="text-sm font-medium">
-          Bundesland<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Select value={federalState} onValueChange={setFederalState}>
-          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Bundesland auswählen" className="data-[placeholder]:text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent 
-            className="bg-background pointer-events-auto max-h-[300px] overflow-y-auto" 
-            side="bottom"
-            align="start"
-            sideOffset={4}
-          >
-            {FEDERAL_STATES.map((state) => (
-              <SelectItem key={state} value={state}>
-                {state}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Status */}
-      <div className="space-y-2 pointer-events-auto">
-        <Label className="text-sm font-medium">
-          Status<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Select value={status} onValueChange={setStatus}>
-          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Status auswählen" className="data-[placeholder]:text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto">
-            {STATUS_OPTIONS.map((option) => (
-              <SelectItem key={option} value={option}>
-                {option}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-      {/* Vermarktungsart */}
-      <div className="space-y-2 pointer-events-auto">
-        <Label className="text-sm font-medium">
-          Vermarktungsart<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Select value={marketingType} onValueChange={setMarketingType}>
-          <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-            <SelectValue placeholder="Vermarktungsart auswählen" className="data-[placeholder]:text-muted-foreground" />
-          </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto">
-            {MARKETING_TYPES.map((type) => (
-              <SelectItem key={type.value} value={type.value}>
-                {type.value}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
-
-
-      {/* Zeitraum (Start- und Enddatum) */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Projektzeitraum<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
-          <PopoverTrigger asChild>
-            <Button 
-              variant="outline" 
-              className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
-            >
-              <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
-              {dateRange?.from ? (
-                dateRange.to ? (
-                  <span className="text-foreground">
-                    {format(dateRange.from, "dd.MM.yyyy")} - {format(dateRange.to, "dd.MM.yyyy")}
-                  </span>
-                ) : (
-                  <span className="text-foreground">{format(dateRange.from, "dd.MM.yyyy")}</span>
-                )
-              ) : (
-                <span className="text-muted-foreground">Zeitraum auswählen</span>
-              )}
-            </Button>
-          </PopoverTrigger>
-          <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
-            <Calendar
-              mode="range"
-              selected={dateRange}
-              onSelect={(range) => {
-                setDateRange(range);
-                // Close popover when both dates are selected
-                if (range?.from && range?.to) {
-                  setDatePickerOpen(false);
-                }
-              }}
-              numberOfMonths={2}
-              initialFocus
-              className="pointer-events-auto"
+          {/* Ort */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Ort<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              value={city}
+              onChange={(e) => setCity(e.target.value)}
+              placeholder="Ort eingeben"
+              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
             />
-          </PopoverContent>
-        </Popover>
-
-        {workingDaysInfo && (
-          <div className="mt-3 p-3 bg-muted/50 rounded-md border space-y-2 text-sm">
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Gesamttage:</span>
-              <span className="font-medium">{workingDaysInfo.totalDays}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Werktage (Mo-Fr):</span>
-              <span className="font-medium">{workingDaysInfo.weekdays}</span>
-            </div>
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Samstage:</span>
-              <span className="font-medium">{workingDaysInfo.saturdays}</span>
-            </div>
-            {workingDaysInfo.holidays.length > 0 && (
-              <>
-                <div className="flex justify-between text-orange-600 dark:text-orange-400">
-                  <span>Feiertage (Mo-Fr):</span>
-                  <span className="font-medium">-{workingDaysInfo.holidays.length}</span>
-                </div>
-                <div className="pt-1 border-t">
-                  <div className="text-xs text-muted-foreground space-y-1">
-                    {workingDaysInfo.holidays.map(h => (
-                      <div key={h.name}>
-                        {format(h.date, 'dd.MM.')} - {h.name}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </>
-            )}
-            <div className="flex justify-between pt-2 border-t font-semibold text-primary">
-              <span>Effektive Arbeitstage:</span>
-              <span>{workingDaysInfo.effectiveDays.toFixed(1)}</span>
-            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {cityLookupLoading ? "Suche Vorschläge…" : (cityCoordinates ? "Ort erkannt – Karte aktualisiert." : "Geben Sie einen Ort ein, um PLZ- und Bundesland-Vorschläge zu erhalten.")}
+            </p>
           </div>
-        )}
-        {!federalState && dateRange?.from && dateRange?.to && (
-          <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
-            Bundesland auswählen, um Feiertage zu berücksichtigen
-          </p>
-        )}
-      </div>
+
+          {/* Gebiet Name - nur anzeigen wenn Ort vorhanden */}
+          {city && city.trim().length > 0 && (
+            <div className="space-y-2">
+              <Label htmlFor="area-name" className="text-sm font-medium text-foreground">
+                Gebiet Name<span className="text-red-500 ml-1">*</span>
+              </Label>
+              <Input
+                id="area-name"
+                value={areaName}
+                onChange={(e) => setAreaName(e.target.value)}
+                placeholder="z.B. Lurup 1"
+                className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+              />
+              {projectName && (
+                <p className="text-xs text-muted-foreground mt-1.5 ml-1">
+                  Projektname wird: <span className="font-semibold text-foreground">{projectName}</span>
+                </p>
+              )}
+            </div>
+          )}
+
+          {/* PLZ mit Vorschlägen */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              PLZ<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Input
+              value={postalCode}
+              onChange={(e) => setPostalCode(e.target.value)}
+              placeholder="PLZ eingeben"
+              list="plz-options"
+              required
+              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+            />
+            <datalist id="plz-options">
+              {postalCodeSuggestions.map((plz) => (
+                <option key={plz} value={plz} />
+              ))}
+            </datalist>
+          </div>
+
+          {/* Kleine Karten-Vorschau */}
+          <div className="pt-2">
+            <CityPreviewMap center={cityCoordinates} />
+          </div>
+
+          {/* Bundesland */}
+          <div className="space-y-2 pointer-events-auto">
+            <Label className="text-sm font-medium">
+              Bundesland<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select value={federalState} onValueChange={setFederalState}>
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+                <SelectValue placeholder="Bundesland auswählen" className="data-[placeholder]:text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent 
+                className="bg-background pointer-events-auto max-h-[300px] overflow-y-auto" 
+                side="bottom"
+                align="start"
+                sideOffset={4}
+              >
+                {FEDERAL_STATES.map((state) => (
+                  <SelectItem key={state} value={state}>
+                    {state}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Status */}
+          <div className="space-y-2 pointer-events-auto">
+            <Label className="text-sm font-medium">
+              Status<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select value={status} onValueChange={setStatus}>
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+                <SelectValue placeholder="Status auswählen" className="data-[placeholder]:text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent className="bg-background pointer-events-auto">
+                {STATUS_OPTIONS.map((option) => (
+                  <SelectItem key={option} value={option}>
+                    {option}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Vermarktungsart */}
+          <div className="space-y-2 pointer-events-auto">
+            <Label className="text-sm font-medium">
+              Vermarktungsart<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select value={marketingType} onValueChange={setMarketingType}>
+              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
+                <SelectValue placeholder="Vermarktungsart auswählen" className="data-[placeholder]:text-muted-foreground" />
+              </SelectTrigger>
+              <SelectContent className="bg-background pointer-events-auto">
+                {MARKETING_TYPES.map((type) => (
+                  <SelectItem key={type.value} value={type.value}>
+                    {type.value}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Zeitraum (Start- und Enddatum) */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Projektzeitraum<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Popover open={datePickerOpen} onOpenChange={setDatePickerOpen}>
+              <PopoverTrigger asChild>
+                <Button 
+                  variant="outline" 
+                  className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
+                >
+                  <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
+                  {dateRange?.from ? (
+                    dateRange.to ? (
+                      <span className="text-foreground">
+                        {format(dateRange.from, "dd.MM.yyyy")} - {format(dateRange.to, "dd.MM.yyyy")}
+                      </span>
+                    ) : (
+                      <span className="text-foreground">{format(dateRange.from, "dd.MM.yyyy")}</span>
+                    )
+                  ) : (
+                    <span className="text-muted-foreground">Zeitraum auswählen</span>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-auto p-0 bg-background pointer-events-auto" align="start">
+                <Calendar
+                  mode="range"
+                  selected={dateRange}
+                  onSelect={(range) => {
+                    setDateRange(range);
+                    if (range?.from && range?.to) {
+                      setDatePickerOpen(false);
+                    }
+                  }}
+                  numberOfMonths={2}
+                  initialFocus
+                  className="pointer-events-auto"
+                />
+              </PopoverContent>
+            </Popover>
+
+            {workingDaysInfo && (
+              <div className="mt-3 p-3 bg-muted/50 rounded-md border space-y-2 text-sm">
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Gesamttage:</span>
+                  <span className="font-medium">{workingDaysInfo.totalDays}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Werktage (Mo-Fr):</span>
+                  <span className="font-medium">{workingDaysInfo.weekdays}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span className="text-muted-foreground">Samstage:</span>
+                  <span className="font-medium">{workingDaysInfo.saturdays}</span>
+                </div>
+                {workingDaysInfo.holidays.length > 0 && (
+                  <>
+                    <div className="flex justify-between text-orange-600 dark:text-orange-400">
+                      <span>Feiertage (Mo-Fr):</span>
+                      <span className="font-medium">-{workingDaysInfo.holidays.length}</span>
+                    </div>
+                    <div className="pt-1 border-t">
+                      <div className="text-xs text-muted-foreground space-y-1">
+                        {workingDaysInfo.holidays.map(h => (
+                          <div key={h.name}>
+                            {format(h.date, 'dd.MM.')} - {h.name}
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  </>
+                )}
+                <div className="flex justify-between pt-2 border-t font-semibold text-primary">
+                  <span>Effektive Arbeitstage:</span>
+                  <span>{workingDaysInfo.effectiveDays.toFixed(1)}</span>
+                </div>
+              </div>
+            )}
+            {!federalState && dateRange?.from && dateRange?.to && (
+              <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
+                Bundesland auswählen, um Feiertage zu berücksichtigen
+              </p>
+            )}
+          </div>
 
       {/* Anzahl WE */}
       <div className="space-y-2">
