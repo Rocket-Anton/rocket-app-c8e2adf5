@@ -91,7 +91,7 @@ export const ProjectsSettings = () => {
   // Group by provider, then by status
   const groupedByProvider = filteredProjects.reduce((acc, project) => {
     const providerId = project.provider_id || 'no-provider';
-    const providerName = project.providers?.abbreviation || 'Kein Provider';
+    const providerName = project.providers?.name || 'Kein Provider';
     
     if (!acc[providerId]) {
       acc[providerId] = {
