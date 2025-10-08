@@ -172,10 +172,14 @@ export const DashboardSidebar = () => {
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
-                    className={`w-full text-sidebar-accent-foreground font-medium rounded-xl py-1 ${
-                      state === "collapsed" 
-                        ? "h-7 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/90" 
-                        : "justify-between bg-sidebar-accent hover:bg-sidebar-accent/90"
+                    className={`w-full text-sidebar-foreground font-medium rounded-xl py-1 ${
+                      isInLauflistenSection
+                        ? state === "collapsed" 
+                          ? "h-7 w-full mx-auto flex items-center justify-center bg-sidebar-accent hover:bg-sidebar-accent/90" 
+                          : "justify-between bg-sidebar-accent hover:bg-sidebar-accent/90"
+                        : state === "collapsed"
+                          ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent"
+                          : "justify-between hover:bg-sidebar-accent"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">

@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -203,15 +203,15 @@ const ProjectDetail = () => {
                 </div>
               ) : project ? (
                 <div>
-                  <div className="flex items-center justify-between mb-6">
-                    <div className="flex items-center gap-4">
+                  <div className="flex items-center justify-between mb-4">
+                    <div className="flex items-center gap-3">
                       {project.providers && (
-                        <Avatar className="w-12 h-12">
+                        <Avatar className="w-10 h-10">
                           <AvatarImage src={project.providers.logo_url || undefined} />
                           <AvatarFallback>{project.providers.abbreviation}</AvatarFallback>
                         </Avatar>
                       )}
-                      <h1 className="text-2xl font-bold">{project.name}</h1>
+                      <h1 className="text-xl font-bold">{project.name}</h1>
                     </div>
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm">
@@ -271,28 +271,36 @@ const ProjectDetail = () => {
                   {/* Tabs */}
                   <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
                     <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                      <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <Info className="w-4 h-4" />
                         Details
                       </TabsTrigger>
-                      <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <BarChart3 className="w-4 h-4" />
                         Dashboard
                       </TabsTrigger>
-                      <TabsTrigger value="revenue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="revenue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <DollarSign className="w-4 h-4" />
                         Umsatz
                       </TabsTrigger>
-                      <TabsTrigger value="rockets-active" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="rockets-active" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <Rocket className="w-4 h-4" />
                         Raketen aktiv
                       </TabsTrigger>
-                      <TabsTrigger value="rockets-planned" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="rockets-planned" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <Rocket className="w-4 h-4" />
                         Raketen geplant
                       </TabsTrigger>
-                      <TabsTrigger value="commissions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="commissions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <DollarSign className="w-4 h-4" />
                         Provisionen
                       </TabsTrigger>
-                      <TabsTrigger value="telegram" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="telegram" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <MessageCircle className="w-4 h-4" />
                         Telegram-Gruppe
                       </TabsTrigger>
-                      <TabsTrigger value="address-lists" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent">
+                      <TabsTrigger value="address-lists" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                        <List className="w-4 h-4" />
                         Adresslisten
                       </TabsTrigger>
                     </TabsList>
