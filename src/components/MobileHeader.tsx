@@ -35,8 +35,8 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
   };
 
   return (
-    <header className="lg:hidden sticky top-0 z-50 w-full bg-primary border-b border-primary-foreground/10">
-      <div className="flex items-center justify-between px-4 h-14">
+    <header className="md:hidden sticky top-0 z-50 w-full bg-[#0066FF] border-b border-white/10">
+      <div className="flex items-center justify-between px-4 h-16">
         {/* Logo */}
         <button 
           onClick={() => handleNavigation("/")}
@@ -45,7 +45,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           <img 
             src={rocketLogo} 
             alt="Rocket Logo" 
-            className="h-8 w-auto"
+            className="h-12 w-auto"
           />
         </button>
 
@@ -55,7 +55,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-primary-foreground hover:bg-primary-foreground/10"
+              className="text-white hover:bg-white/10"
             >
               {open ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
             </Button>
@@ -66,14 +66,14 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           >
             <div className="flex flex-col h-full">
               {/* Header in menu */}
-              <div className="p-4 border-b bg-primary">
+              <div className="p-4 border-b bg-[#0066FF]">
                 <div className="flex items-center gap-2">
                   <img 
                     src={rocketLogo} 
                     alt="Rocket Logo" 
-                    className="h-8 w-auto"
+                    className="h-10 w-auto"
                   />
-                  <span className="font-semibold text-primary-foreground">Menü</span>
+                  <span className="font-semibold text-white">Menü</span>
                 </div>
               </div>
 
@@ -105,7 +105,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                         className={`
                           w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left
                           ${isActive 
-                            ? 'bg-primary text-primary-foreground font-medium' 
+                            ? 'bg-[#0066FF] text-white font-medium' 
                             : 'text-muted-foreground hover:bg-muted hover:text-foreground'
                           }
                         `}
