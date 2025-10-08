@@ -204,11 +204,22 @@ serve(async (req) => {
       }
 
       // Geocode any without coordinates - use smaller batches to avoid timeouts
-      const BATCH_SIZE = 50 // Reduced from 250 for better performance
+      const BATCH_SIZE = 100 // Increased from 50 for faster processing
       const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
       
       for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
         const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
+        
+        // Update progress
+        await supabaseClient
+          .from('project_address_lists')
+          .update({
+            upload_stats: {
+              progress: `Geocodiere ${Math.min(i + BATCH_SIZE, uniqueAddresses.length)}/${uniqueAddresses.length} Adressen...`,
+            },
+          })
+          .eq('id', listId);
+        
         const geocodePromises = batch.map(async (addr) => {
           if ((addr as any).coordinates?.lat && (addr as any).coordinates?.lng) return addr as any
           try {
@@ -238,6 +249,16 @@ serve(async (req) => {
       const failedAddresses: Array<{ address: string; reason: string }> = []
       const geocodingWarnings: Array<{ address: string; reason: string }> = []
       let totalUnits = 0
+      
+      // Update to saving phase
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          upload_stats: {
+            progress: `Speichere Adressen in Datenbank...`,
+          },
+        })
+        .eq('id', listId);
 
       for (const addr of geocodedAddresses) {
         try {
