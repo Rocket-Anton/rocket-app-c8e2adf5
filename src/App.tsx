@@ -14,6 +14,9 @@ import Tarife from "./pages/settings/Tarife";
 import TarifeDetail from "./pages/settings/TarifeDetail";
 import Raketen from "./pages/settings/Raketen";
 import RaketenDetail from "./pages/settings/RaketenDetail";
+import Abrechnen from "./pages/abrechnungen/Abrechnen";
+import Gutschriften from "./pages/abrechnungen/Gutschriften";
+import Kosten from "./pages/abrechnungen/Kosten";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -27,6 +30,9 @@ const App = () => {
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/karte" element={<Karte />} />
+            <Route path="/abrechnungen/abrechnen" element={<Abrechnen />} />
+            <Route path="/abrechnungen/gutschriften" element={<Gutschriften />} />
+            <Route path="/abrechnungen/kosten" element={<Kosten />} />
             <Route path="/settings/providers" element={<Providers />} />
             <Route path="/settings/providers/:id" element={<ProviderDetail />} />
             <Route path="/settings/projects" element={<Projects />} />

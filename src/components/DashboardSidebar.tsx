@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Settings, Moon, LogOut } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Settings, Moon, LogOut, Receipt } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
@@ -74,6 +74,7 @@ export const DashboardSidebar = () => {
   const [isLauflistenExpanded, setIsLauflistenExpanded] = useState(isInLauflistenSection);
   const [isSettingsExpanded, setIsSettingsExpanded] = useState(isInSettingsSection);
   const [isLeadsExpanded, setIsLeadsExpanded] = useState(false);
+  const [isAbrechnungenExpanded, setIsAbrechnungenExpanded] = useState(false);
 
   const { state, toggleSidebar } = useSidebar();
 
@@ -91,6 +92,7 @@ export const DashboardSidebar = () => {
       setIsLauflistenExpanded(false);
       setIsSettingsExpanded(false);
       setIsLeadsExpanded(false);
+      setIsAbrechnungenExpanded(false);
     }
   }, [state]);
 
@@ -284,6 +286,104 @@ export const DashboardSidebar = () => {
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+
+                <SidebarMenuItem>
+                  <SidebarMenuButton
+                    onClick={() => state !== "collapsed" && setIsAbrechnungenExpanded(!isAbrechnungenExpanded)}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "justify-between hover:bg-sidebar-accent"
+                    }`}
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <Receipt className="!w-4 !h-4 flex-shrink-0" />
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Abrechnungen</span>}
+                    </div>
+                    {state !== "collapsed" && (
+                      isAbrechnungenExpanded ? (
+                        <ChevronDown className="w-3.5 h-3.5" />
+                      ) : (
+                        <ChevronRight className="w-3.5 h-3.5" />
+                      )
+                    )}
+                  </SidebarMenuButton>
+                </SidebarMenuItem>
+
+                {isAbrechnungenExpanded && state !== "collapsed" && (
+                  <div className="ml-5 mt-0">
+                    <div className="space-y-0">
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/abrechnungen/abrechnen")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/abrechnungen/abrechnen" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Abrechnen</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/abrechnungen/gutschriften")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/abrechnungen/gutschriften" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Gutschriften</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+
+                      <SidebarMenuItem
+                        className="
+                          relative pl-6
+                          before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2
+                          before:w-3 before:h-3
+                          before:border-l before:border-b before:rounded-bl-md
+                          before:border-sidebar-foreground/30
+                          after:content-[''] after:absolute after:left-1
+                          after:top-[-4px] after:bottom-[-4px] after:w-px
+                          after:bg-sidebar-foreground/30
+                          first:after:top-1/2
+                          last:after:bottom-1/2
+                        "
+                      >
+                        <SidebarMenuButton
+                          size="sm"
+                          onClick={() => navigate("/abrechnungen/kosten")}
+                          className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 ${location.pathname === "/abrechnungen/kosten" ? "bg-sidebar-accent" : ""}`}
+                        >
+                          <span className="text-sm">Kosten</span>
+                        </SidebarMenuButton>
+                      </SidebarMenuItem>
+                    </div>
+                  </div>
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
