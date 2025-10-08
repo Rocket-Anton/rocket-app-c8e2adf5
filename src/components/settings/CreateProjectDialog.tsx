@@ -9,7 +9,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
-import { CalendarIcon } from "lucide-react";
+import { CalendarIcon, Loader2, CheckCircle } from "lucide-react";
 import { format } from "date-fns";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -18,6 +18,11 @@ import { CityPreviewMap } from "@/components/CityPreviewMap";
 import { calculateWorkingDays } from "@/utils/holidays";
 import type { DateRange } from "react-day-picker";
 import { TenderInfoGenerator } from "./TenderInfoGenerator";
+import Papa from "papaparse";
+import * as XLSX from "xlsx";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 interface CreateProjectDialogProps {
   providers: any[];
@@ -113,6 +118,34 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   const [datePickerOpen, setDatePickerOpen] = useState(false);
   const [csvFile, setCsvFile] = useState<File | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  
+  // CSV Mapping states
+  const [mappingStep, setMappingStep] = useState<'none' | 'analyzing' | 'mapping' | 'confirmed'>('none');
+  const [csvData, setCsvData] = useState<any[]>([]);
+  const [csvHeaders, setCsvHeaders] = useState<string[]>([]);
+  const [suggestedMapping, setSuggestedMapping] = useState<{[key: string]: string}>({});
+  const [finalMapping, setFinalMapping] = useState<{[key: string]: string}>({});
+  const [mappingQuestions, setMappingQuestions] = useState<any[]>([]);
+  const [questionAnswers, setQuestionAnswers] = useState<{[key: string]: string}>({});
+  const [savedMappingId, setSavedMappingId] = useState<string | null>(null);
+  const [mappingConfidence, setMappingConfidence] = useState(0);
+
+  const AVAILABLE_MAPPINGS = [
+    { value: 'street', label: 'Straße' },
+    { value: 'house_number', label: 'Hausnummer' },
+    { value: 'house_number_combined', label: 'Hausnummer + Zusatz (kombiniert)' },
+    { value: 'postal_code', label: 'Postleitzahl' },
+    { value: 'city', label: 'Ort' },
+    { value: 'locality', label: 'Ortschaft' },
+    { value: 'units_residential', label: 'Anzahl WE (Wohneinheiten)' },
+    { value: 'units_commercial', label: 'Anzahl GE (Geschäftseinheiten)' },
+    { value: 'unit_count', label: 'WEANZ (Gesamt-WE)' },
+    { value: 'floor', label: 'Etage' },
+    { value: 'position', label: 'Lage' },
+    { value: 'customer_number', label: 'Kundennummer (→ Notiz)' },
+    { value: 'customer_name', label: 'Kundenname (→ Notiz)' },
+    { value: 'ignore', label: '🚫 Ignorieren' },
+  ];
 
   // Load selected provider details 
   // Query to fetch provider info including projects_with_bonus setting
@@ -360,6 +393,144 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     }
   }, [acceptRocketSuggestion, rocketSuggestion]);
 
+  const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (!selectedFile) return;
+
+    if (!selectedFile.name.endsWith('.csv') && !selectedFile.name.endsWith('.xlsx') && !selectedFile.name.endsWith('.xls')) {
+      toast.error('Bitte nur CSV- oder Excel-Dateien hochladen');
+      return;
+    }
+
+    setCsvFile(selectedFile);
+    setMappingStep('analyzing');
+
+    const isExcel = selectedFile.name.endsWith('.xlsx') || selectedFile.name.endsWith('.xls');
+
+    try {
+      let headers: string[];
+      let dataRows: any[];
+
+      if (isExcel) {
+        const reader = new FileReader();
+        await new Promise((resolve, reject) => {
+          reader.onload = async (evt) => {
+            try {
+              const bstr = evt.target?.result;
+              const workbook = XLSX.read(bstr, { type: 'binary' });
+              const firstSheetName = workbook.SheetNames[0];
+              const worksheet = workbook.Sheets[firstSheetName];
+              const jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1 });
+              
+              headers = jsonData[0] as string[];
+              dataRows = jsonData.slice(1).map(row => {
+                const obj: any = {};
+                (row as any[]).forEach((cell, idx) => {
+                  obj[headers[idx]] = cell;
+                });
+                return obj;
+              });
+              resolve(null);
+            } catch (error) {
+              reject(error);
+            }
+          };
+          reader.onerror = reject;
+          reader.readAsBinaryString(selectedFile);
+        });
+      } else {
+        await new Promise((resolve, reject) => {
+          Papa.parse(selectedFile, {
+            header: true,
+            skipEmptyLines: true,
+            complete: (results) => {
+              dataRows = results.data;
+              headers = results.meta.fields || [];
+              resolve(null);
+            },
+            error: reject,
+          });
+        });
+      }
+
+      setCsvData(dataRows);
+      setCsvHeaders(headers);
+
+      const { data: analysisData, error } = await supabase.functions.invoke('analyze-csv-structure', {
+        body: {
+          csvHeaders: headers,
+          sampleRows: dataRows.slice(0, 5),
+          providerId: selectedProvider,
+        },
+      });
+
+      if (error) throw error;
+
+      setSuggestedMapping(analysisData.suggested_mapping);
+      setFinalMapping(analysisData.suggested_mapping);
+      setMappingConfidence(analysisData.confidence);
+      setMappingQuestions(analysisData.questions || []);
+      setSavedMappingId(analysisData.saved_mapping_id);
+
+      setMappingStep('mapping');
+      toast.success('Datei analysiert - bitte Zuordnung überprüfen');
+    } catch (error: any) {
+      console.error('File analysis error:', error);
+      toast.error('Fehler beim Analysieren der Datei');
+      setCsvFile(null);
+      setMappingStep('none');
+    }
+  };
+
+  const handleMappingChange = (csvColumn: string, mapping: string) => {
+    setFinalMapping(prev => ({
+      ...prev,
+      [csvColumn]: mapping,
+    }));
+  };
+
+  const handleQuestionAnswer = (column: string, answer: string) => {
+    setQuestionAnswers(prev => ({
+      ...prev,
+      [column]: answer,
+    }));
+  };
+
+  const handleConfirmMapping = () => {
+    const hasStreet = Object.values(finalMapping).includes('street');
+    const hasHouseNumber = Object.values(finalMapping).includes('house_number') || 
+                           Object.values(finalMapping).includes('house_number_combined');
+    const hasPostalCode = Object.values(finalMapping).includes('postal_code');
+    const hasCity = Object.values(finalMapping).includes('city');
+
+    if (!hasStreet || !hasHouseNumber || !hasPostalCode || !hasCity) {
+      toast.error('Pflichtfelder fehlen: Straße, Hausnummer, PLZ, Ort müssen zugeordnet sein');
+      return;
+    }
+
+    const unansweredQuestions = mappingQuestions.filter(q => !questionAnswers[q.column]);
+    if (unansweredQuestions.length > 0) {
+      toast.error('Bitte alle Fragen beantworten');
+      return;
+    }
+
+    setMappingStep('confirmed');
+    toast.success('Mapping bestätigt - Sie können jetzt das Projekt anlegen');
+  };
+
+  const handleResetMapping = () => {
+    setCsvFile(null);
+    setMappingStep('none');
+    setCsvData([]);
+    setCsvHeaders([]);
+    setSuggestedMapping({});
+    setFinalMapping({});
+    setMappingQuestions([]);
+    setQuestionAnswers({});
+    setSavedMappingId(null);
+    setMappingConfidence(0);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -490,32 +661,30 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         if (addonError) throw addonError;
       }
 
-      // Upload CSV if provided
-      if (csvFile && project) {
-        toast.info("Verarbeite Straßenliste...");
+      // Upload CSV if provided and mapping is confirmed
+      if (csvFile && project && mappingStep === 'confirmed') {
+        toast.info("Importiere Straßenliste...");
         
-        const formData = new FormData();
-        formData.append('file', csvFile);
-        formData.append('projectId', project.id);
-
-        const { data: uploadData, error: uploadError } = await supabase.functions.invoke(
-          'upload-street-list',
-          {
-            body: formData,
-          }
-        );
+        const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-street-list', {
+          body: {
+            projectId: project.id,
+            csvData: csvData,
+            columnMapping: finalMapping,
+            questionAnswers: questionAnswers,
+          },
+        });
 
         if (uploadError) {
           console.error("CSV upload error:", uploadError);
-          toast.error("Fehler beim Upload der Straßenliste");
+          toast.error("Fehler beim Import der Straßenliste");
         } else {
           console.log("CSV upload result:", uploadData);
-          if (uploadData.failedAddresses?.length > 0) {
+          if (uploadData.skipped > 0) {
             toast.warning(
-              `${uploadData.successfulAddresses} Adressen erfolgreich, ${uploadData.failedAddresses.length} Fehler`
+              `${uploadData.successful} Adressen erfolgreich importiert, ${uploadData.skipped} übersprungen`
             );
           } else {
-            toast.success(`${uploadData.successfulAddresses} Adressen erfolgreich importiert`);
+            toast.success(`${uploadData.successful} Adressen erfolgreich importiert`);
           }
         }
       }
@@ -1225,37 +1394,142 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               ref={fileInputRef}
               type="file"
               accept=".csv,.xlsx,.xls"
-              onChange={(e) => {
-                const file = e.target.files?.[0];
-                if (file) {
-                  setCsvFile(file);
-                  toast.success(`Datei "${file.name}" ausgewählt`);
-                }
-              }}
+              onChange={handleFileSelect}
               className="hidden"
             />
-            <div
-              onClick={() => fileInputRef.current?.click()}
-              className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer"
-            >
-              <div className="text-center">
-                {csvFile ? (
-                  <>
-                    <div className="text-4xl text-primary mb-2">✓</div>
-                    <p className="text-sm font-medium text-foreground">{csvFile.name}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Klicken, um zu ändern</p>
-                  </>
-                ) : (
-                  <>
-                    <div className="text-4xl text-muted-foreground mb-2">+</div>
-                    <p className="text-sm text-muted-foreground">CSV- oder Excel-Datei hochladen</p>
-                    <p className="text-xs text-muted-foreground mt-1">
-                      Wird nach Projekterstellung verarbeitet
-                    </p>
-                  </>
-                )}
+            {mappingStep === 'none' && (
+              <div
+                onClick={() => fileInputRef.current?.click()}
+                className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer"
+              >
+                <div className="text-center">
+                  <div className="text-4xl text-muted-foreground mb-2">+</div>
+                  <p className="text-sm text-muted-foreground">CSV- oder Excel-Datei hochladen</p>
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Mapping erfolgt direkt nach Upload
+                  </p>
+                </div>
               </div>
-            </div>
+            )}
+
+            {/* Analyzing step */}
+            {mappingStep === 'analyzing' && (
+              <div className="border rounded-lg p-8">
+                <div className="flex items-center justify-center gap-3">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
+                  <p className="text-lg">Analysiere {csvFile?.name}...</p>
+                </div>
+              </div>
+            )}
+
+            {/* Mapping step */}
+            {mappingStep === 'mapping' && (
+              <div className="space-y-4">
+                {savedMappingId && (
+                  <Alert>
+                    <CheckCircle className="h-4 w-4" />
+                    <AlertDescription>
+                      ✅ Gespeichertes Mapping gefunden ({(mappingConfidence * 100).toFixed(0)}% Übereinstimmung)
+                    </AlertDescription>
+                  </Alert>
+                )}
+
+                <div className="border rounded-lg overflow-hidden">
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>CSV-Spalte</TableHead>
+                        <TableHead>Zuordnung</TableHead>
+                        <TableHead>Beispiel</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {csvHeaders.map((header) => (
+                        <TableRow key={header}>
+                          <TableCell className="font-medium">{header}</TableCell>
+                          <TableCell>
+                            <Select
+                              value={finalMapping[header] || 'ignore'}
+                              onValueChange={(value) => handleMappingChange(header, value)}
+                            >
+                              <SelectTrigger className="w-full">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                {AVAILABLE_MAPPINGS.map((mapping) => (
+                                  <SelectItem key={mapping.value} value={mapping.value}>
+                                    {mapping.label}
+                                  </SelectItem>
+                                ))}
+                              </SelectContent>
+                            </Select>
+                          </TableCell>
+                          <TableCell className="text-sm text-muted-foreground">
+                            {csvData[0]?.[header] || '-'}
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                </div>
+
+                {mappingQuestions.length > 0 && (
+                  <div className="space-y-4">
+                    <h4 className="font-semibold">Bitte bestätigen:</h4>
+                    {mappingQuestions.map((question) => (
+                      <div key={question.column} className="border rounded-lg p-4 space-y-3">
+                        <Label>{question.question}</Label>
+                        <RadioGroup
+                          value={questionAnswers[question.column]}
+                          onValueChange={(value) => handleQuestionAnswer(question.column, value)}
+                        >
+                          {question.options.map((option: string) => (
+                            <div key={option} className="flex items-center space-x-2">
+                              <RadioGroupItem value={option} id={`${question.column}-${option}`} />
+                              <Label htmlFor={`${question.column}-${option}`} className="cursor-pointer">
+                                {option}
+                              </Label>
+                            </div>
+                          ))}
+                        </RadioGroup>
+                      </div>
+                    ))}
+                  </div>
+                )}
+
+                <div className="flex justify-end gap-2">
+                  <Button variant="outline" onClick={handleResetMapping}>
+                    Abbrechen
+                  </Button>
+                  <Button onClick={handleConfirmMapping}>
+                    Mapping bestätigen
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Confirmed step */}
+            {mappingStep === 'confirmed' && csvFile && (
+              <div className="border-2 border-green-500 rounded-lg p-6 bg-green-50 dark:bg-green-900/10">
+                <div className="flex items-start gap-3">
+                  <CheckCircle className="h-5 w-5 text-green-600 mt-0.5" />
+                  <div className="flex-1">
+                    <p className="font-medium text-green-900 dark:text-green-100">{csvFile.name}</p>
+                    <p className="text-sm text-green-700 dark:text-green-300 mt-1">
+                      Mapping bestätigt - {csvData.length} Zeilen bereit zum Import
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleResetMapping}
+                      className="mt-2 h-7 text-xs"
+                    >
+                      Andere Datei wählen
+                    </Button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         </div>
       </div>
@@ -1273,7 +1547,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       </Button>
       <Button 
         type="submit" 
-        disabled={loading}
+        disabled={loading || (csvFile !== null && mappingStep !== 'confirmed')}
         onClick={handleSubmit}
         className="h-11 px-6 bg-primary hover:bg-primary/90 transition-colors"
       >
