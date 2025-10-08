@@ -22,7 +22,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { CreateProjectForm } from "./CreateProjectForm";
+import { CreateProjectDialog } from "./CreateProjectDialog";
 
 interface Project {
   id: string;
@@ -66,6 +66,20 @@ export const ProjectsSettings = () => {
       return data || [];
     },
     staleTime: 5 * 60 * 1000,
+  });
+
+  const { data: providers = [] } = useQuery({
+    queryKey: ['providers-active'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("providers")
+        .select('*')
+        .eq('is_active', true)
+        .order('name');
+
+      if (error) throw error;
+      return data || [];
+    },
   });
 
   const filteredProjects = projects.filter(project => 
@@ -158,16 +172,13 @@ export const ProjectsSettings = () => {
                 Neues Projekt
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[85vh]">
+            <DialogContent className="max-w-4xl">
               <DialogHeader>
                 <DialogTitle>Neues Projekt</DialogTitle>
               </DialogHeader>
-              <CreateProjectForm 
-                onSuccess={() => {
-                  setIsDialogOpen(false);
-                  queryClient.invalidateQueries({ queryKey: ['projects'] });
-                }}
-                onCancel={() => setIsDialogOpen(false)}
+              <CreateProjectDialog 
+                providers={providers} 
+                onClose={() => setIsDialogOpen(false)}
               />
             </DialogContent>
           </Dialog>
