@@ -21,19 +21,14 @@ import {
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { cn } from "@/lib/utils";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-import "leaflet-draw/dist/leaflet.draw.css";
-import "leaflet-draw";
+import mapboxgl from "mapbox-gl";
+import MapboxDraw from "@mapbox/mapbox-gl-draw";
+import "@mapbox/mapbox-gl-draw/dist/mapbox-gl-draw.css";
+import "mapbox-gl/dist/mapbox-gl.css";
+import { MAPBOX_ACCESS_TOKEN } from "@/config/mapbox";
 import { geocodeAddressesBatch } from "@/utils/geocoding";
 
-// Fix for default marker icons
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png",
-  iconUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png",
-  shadowUrl: "https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png",
-});
+// Removed Leaflet default marker icon configuration (using Mapbox GL)
 
 interface Address {
   id: number;
@@ -71,11 +66,10 @@ function KarteContent() {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const mapContainer = useRef<HTMLDivElement>(null);
-  const mapInstance = useRef<L.Map | null>(null);
-  const markersRef = useRef<L.Marker[]>([]);
+  const mapInstance = useRef<mapboxgl.Map | null>(null);
+  const markersRef = useRef<mapboxgl.Marker[]>([]);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
-  const drawnItemsRef = useRef<L.FeatureGroup | null>(null);
-  const polygonDrawerRef = useRef<L.Draw.Polygon | null>(null);
+  const drawRef = useRef<MapboxDraw | null>(null);
   const [selectedAddresses, setSelectedAddresses] = useState<Address[]>([]);
   const [showStatsPopup, setShowStatsPopup] = useState(false);
   const [showCreateListModal, setShowCreateListModal] = useState(false);
@@ -87,7 +81,7 @@ function KarteContent() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
-  const previousViewRef = useRef<{ center: L.LatLngExpression; zoom: number } | null>(null);
+  const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   
   // Map filter states
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -266,182 +260,116 @@ function KarteContent() {
     setAddressListColors(colorMap);
   };
 
-  // Initialize map and markers when addresses are loaded
+  // Initialize Mapbox map (3D) when addresses are loaded
   useEffect(() => {
     if (!mapContainer.current || mapInstance.current || isLoadingAddresses) return;
 
-    // Initialize map centered on Köln-Heumar without attribution
-    const map = L.map(mapContainer.current, {
-      attributionControl: false
-    }).setView([50.9206, 7.0814], 16);
-    mapInstance.current = map;
+    mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Add tile layer
-    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
-      attribution: '',
-    }).addTo(map);
-
-    // Initialize drawn items layer
-    const drawnItems = new L.FeatureGroup();
-    map.addLayer(drawnItems);
-    drawnItemsRef.current = drawnItems;
-
-    // Set German language for Leaflet Draw
-    (L.drawLocal as any).draw.handlers.polygon.tooltip.start = 'Klicken, um mit dem Zeichnen zu beginnen.';
-    (L.drawLocal as any).draw.handlers.polygon.tooltip.cont = 'Klicken, um das Zeichnen fortzusetzen.';
-    (L.drawLocal as any).draw.handlers.polygon.tooltip.end = 'Klicken Sie auf den ersten Punkt, um das Polygon zu schließen.';
-
-    // Initialize polygon drawer with proper options
-    const polygonDrawer = new L.Draw.Polygon(map, {
-      allowIntersection: false,
-      shapeOptions: {
-        color: '#3b82f6',
-        fillColor: '#3b82f6',
-        fillOpacity: 0.2,
-        weight: 3,
-        opacity: 0.8,
-      },
-      showArea: false,
-      metric: true,
-      repeatMode: false,
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: 'mapbox://styles/mapbox/streets-v12',
+      center: [7.0814, 50.9206],
+      zoom: 16,
+      pitch: 45,
+      bearing: -17.6,
+      antialias: true,
     });
-    polygonDrawerRef.current = polygonDrawer;
 
-    // Handle polygon drawing complete
-    map.on(L.Draw.Event.CREATED, (event: any) => {
-      const layer = event.layer;
-      drawnItems.addLayer(layer);
-      
-      // Check which addresses are inside the polygon
-      const polygon = layer.getLatLngs()[0];
-      const selectedAddrs = addresses.filter(address => {
-        const point = L.latLng(address.coordinates[1], address.coordinates[0]);
-        return isPointInPolygon(point, polygon);
+    map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-right');
+
+    // 3D buildings layer
+    map.on('style.load', () => {
+      const layers = map.getStyle().layers || [];
+      const labelLayerId = layers.find(
+        (l) => l.type === 'symbol' && (l.layout as any)['text-field']
+      )?.id;
+
+      map.addLayer(
+        {
+          id: 'add-3d-buildings',
+          source: 'composite',
+          'source-layer': 'building',
+          filter: ['==', ['get', 'extrude'], 'true'],
+          type: 'fill-extrusion',
+          minzoom: 15,
+          paint: {
+            'fill-extrusion-color': '#aaa',
+            'fill-extrusion-height': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'height']],
+            'fill-extrusion-base': ['interpolate', ['linear'], ['zoom'], 15, 0, 15.05, ['get', 'min_height']],
+            'fill-extrusion-opacity': 0.6,
+          },
+        },
+        labelLayerId
+      );
+    });
+
+    // Setup Draw control
+    const draw = new MapboxDraw({ displayControlsDefault: false });
+    map.addControl(draw);
+    drawRef.current = draw;
+
+    // Helper: point in polygon (ray casting)
+    const pointInPolygon = (point: [number, number], polygon: [number, number][]) => {
+      let inside = false;
+      for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
+        const xi = polygon[i][0], yi = polygon[i][1];
+        const xj = polygon[j][0], yj = polygon[j][1];
+        const intersect = ((yi > point[1]) !== (yj > point[1])) && (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
+        if (intersect) inside = !inside;
+      }
+      return inside;
+    };
+
+    // Handle polygon creation
+    map.on('draw.create', (e: any) => {
+      const feature = e.features?.[0];
+      if (!feature || feature.geometry?.type !== 'Polygon') return;
+      const ring: [number, number][] = (feature.geometry.coordinates?.[0] || []) as [number, number][];
+
+      const selectedAddrs = addresses.filter((address) => {
+        const pt: [number, number] = [address.coordinates[0], address.coordinates[1]];
+        return pointInPolygon(pt, ring);
       });
-      
+
       setSelectedAddresses(selectedAddrs);
       setShowStatsPopup(true);
-      
-      // Disable drawing mode after polygon is created
-      polygonDrawerRef.current?.disable();
       setIsDrawingMode(false);
-      
       toast.success(`${selectedAddrs.length} Adressen ausgewählt`);
     });
 
-    // Add markers for each address
-    const bounds = L.latLngBounds([]);
-    const markers: L.Marker[] = [];
-
-    addresses.forEach((address) => {
-      const isAssigned = assignedAddressIds.has(address.id);
-      
-      // If lists are selected, only show addresses from those lists
-      if (selectedListIds.size > 0) {
-        if (!listAddressIds.has(address.id)) {
-          return; // Skip addresses not in any selected list
-        }
-      } else {
-        // No lists selected - apply normal filters
-        if (filterMode === 'unassigned' && isAssigned) return;
-        if (filterMode === 'no-rocket') {
-          // Show only unassigned addresses or addresses in lists without rocket
-          // TODO: Implement rocket filter flag
-        }
+    // Initial fit to all valid addresses
+    const initBounds = new mapboxgl.LngLatBounds();
+    addresses.forEach((a) => {
+      if (a.coordinates && a.coordinates[0] !== 0 && a.coordinates[1] !== 0) {
+        initBounds.extend([a.coordinates[0], a.coordinates[1]]);
       }
-      
-      // Use list color if assigned, otherwise always gray for unassigned
-      let color: string;
-      if (isAssigned && addressListColors.has(address.id)) {
-        color = addressListColors.get(address.id)!;
-      } else {
-        // Unassigned addresses are always gray
-        color = "#9ca3af";
-      }
-      
-      const currentZoom = map.getZoom();
-      const customIcon = createMarkerIcon(address, currentZoom);
-
-      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
-        icon: customIcon 
-      }).addTo(map);
-      
-      markers.push(marker);
-
-      // Create popup content
-      const unitsInfo = address.units.map(unit => 
-        `<div style="font-size: 11px; color: #666; padding: 2px 0;">${unit.floor} ${unit.position}</div>`
-      ).join('');
-
-      marker.bindPopup(`
-        <div style="padding: 8px; font-size: 12px; min-width: 150px;">
-          <div style="font-weight: 600; margin-bottom: 6px; color: ${color};">${address.street} ${address.houseNumber}</div>
-          <div style="color: #666; margin-bottom: 6px;">${address.postalCode} ${address.city}</div>
-          <div style="border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;">
-            <div style="font-weight: 500; font-size: 11px; margin-bottom: 4px; color: #374151;">Wohneinheiten (${address.units.length}):</div>
-            ${unitsInfo}
-          </div>
-        </div>
-      `);
-
-      // Zoom to marker on click
-      marker.on('click', () => {
-        map.setView([address.coordinates[1], address.coordinates[0]], 18, {
-          animate: true,
-          duration: 0.5
-        });
-      });
-
-      bounds.extend([address.coordinates[1], address.coordinates[0]]);
     });
-
-    markersRef.current = markers;
-
-    // Update marker sizes on zoom
-    map.on('zoomend', () => {
-      const zoom = map.getZoom();
-      addresses.forEach((address, index) => {
-        const marker = markers[index];
-        if (marker) {
-          const newIcon = createMarkerIcon(address, zoom);
-          marker.setIcon(newIcon);
-        }
-      });
-    });
-
-    // Fit map to show all markers with padding
-    if (addresses.length > 0) {
-      map.fitBounds(bounds, { 
-        padding: [50, 50],
-        maxZoom: 15 // Limit initial zoom to avoid being too close
-      });
+    if (!initBounds.isEmpty()) {
+      map.fitBounds(initBounds, { padding: 50, maxZoom: 15 });
     }
 
+    mapInstance.current = map;
+
     return () => {
-      if (mapInstance.current) {
-        mapInstance.current.remove();
-        mapInstance.current = null;
-      }
+      map.remove();
+      mapInstance.current = null;
     };
   }, [addresses, isLoadingAddresses]);
 
-  // Toggle drawing mode
+  // Toggle drawing mode (Mapbox Draw)
   const toggleDrawingMode = () => {
-    if (!polygonDrawerRef.current || !mapInstance.current) return;
-    
+    const map = mapInstance.current;
+    const draw = drawRef.current;
+    if (!map || !draw) return;
+
     if (isDrawingMode) {
-      // Disable drawing mode
-      polygonDrawerRef.current.disable();
+      draw.changeMode('simple_select');
       setIsDrawingMode(false);
     } else {
-      // Enable drawing mode - this will allow clicking on the map to draw
-      polygonDrawerRef.current.enable();
+      draw.deleteAll();
+      draw.changeMode('draw_polygon');
       setIsDrawingMode(true);
-      
-      // Force map to recalculate size to prevent white screen
-      setTimeout(() => {
-        mapInstance.current?.invalidateSize();
-      }, 100);
     }
   };
 
@@ -485,7 +413,7 @@ function KarteContent() {
     if (listIds.length > 0) {
       // Save current view once when entering focus mode
       if (!previousViewRef.current) {
-        previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() };
+        previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() } as any;
       }
 
       // Load all addresses for the selected lists and fit bounds
@@ -493,22 +421,16 @@ function KarteContent() {
       setListAddressIds(addressIds);
 
       // Fit bounds to all addresses from selected lists
-      const bounds = L.latLngBounds([]);
+      const bounds = new mapboxgl.LngLatBounds();
       addresses.forEach((a) => {
         if (addressIds.has(a.id) && a.coordinates && a.coordinates[0] !== 0 && a.coordinates[1] !== 0) {
-          bounds.extend([a.coordinates[1], a.coordinates[0]]);
+          bounds.extend([a.coordinates[0], a.coordinates[1]]);
         }
       });
       
-      if (bounds.isValid()) {
-        const center = bounds.getCenter();
-        const currentZoom = map.getZoom();
-        map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
-        // When the right Lists sidebar is open (overlays the map), shift the visual center left by half its width
-        if (showListsSidebar) {
-          const rightWidth = window.innerWidth >= 640 ? 380 : 320; // must match ListsSidebar widths
-          map.panBy([-(rightWidth / 2), 0], { animate: false });
-        }
+      if (!bounds.isEmpty()) {
+        const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0; // half of sidebar width
+        map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0], maxZoom: 17 });
       }
     } else {
       // Clear focus when no lists selected
@@ -525,145 +447,102 @@ function KarteContent() {
     if (!map) return;
     if (selectedListIds.size === 0 || listAddressIds.size === 0) return;
 
-    const bounds = L.latLngBounds([]);
+    const bounds = new mapboxgl.LngLatBounds();
     addresses.forEach((a) => {
-      if (listAddressIds.has(a.id)) bounds.extend([a.coordinates[1], a.coordinates[0]]);
+      if (listAddressIds.has(a.id)) bounds.extend([a.coordinates[0], a.coordinates[1]]);
     });
-    if (bounds.isValid()) {
-      const center = bounds.getCenter();
-      const currentZoom = map.getZoom();
-      map.setView(center as L.LatLngExpression, currentZoom, { animate: true });
-      if (showListsSidebar) {
-        const rightSidebarWidth = window.innerWidth >= 640 ? 380 : 320;
-        map.panBy([-(rightSidebarWidth / 2), 0], { animate: false });
-      }
+    if (!bounds.isEmpty()) {
+      const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0; // half of sidebar width
+      map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0] });
     }
   }, [showListsSidebar]);
 
-  // Re-render markers when filter changes or list is expanded
+  // Re-render markers when filter changes or list is expanded (Mapbox GL)
   useEffect(() => {
-    if (!mapInstance.current) return;
+    const map = mapInstance.current;
+    if (!map) return;
     
     // Clear existing markers
-    markersRef.current.forEach(marker => marker.remove());
+    markersRef.current.forEach((m) => m.remove());
     markersRef.current = [];
-    
-    const map = mapInstance.current;
-    const markers: L.Marker[] = [];
-    const bounds = L.latLngBounds([]);
+
+    const bounds = new mapboxgl.LngLatBounds();
     let visibleAddressCount = 0;
-    
+
     addresses.forEach((address) => {
       const isAssigned = assignedAddressIds.has(address.id);
-      
+
       // Apply status filter
       if (statusFilter.length > 0) {
-        const hasMatchingStatus = address.units.some(unit => 
-          statusFilter.includes(unit.status)
-        );
+        const hasMatchingStatus = address.units.some((unit) => statusFilter.includes(unit.status));
         if (!hasMatchingStatus) return;
       }
-      
+
       // Apply address filters
       if (streetFilter && !address.street.toLowerCase().includes(streetFilter.toLowerCase())) return;
       if (cityFilter && !address.city.toLowerCase().includes(cityFilter.toLowerCase())) return;
       if (postalCodeFilter && address.postalCode !== postalCodeFilter) return;
       if (houseNumberFilter && address.houseNumber !== houseNumberFilter) return;
-      
+
       // List selection or normal filters
       if (selectedListIds.size > 0) {
         if (!listAddressIds.has(address.id)) {
-          return; // Skip addresses not in any selected list
+          return;
         }
       } else {
-        // No filters active - apply normal filters
         if (filterMode === 'unassigned' && isAssigned) return;
         if (filterMode === 'no-rocket') {
-          // Show only unassigned addresses or addresses in lists without rocket
           if (isAssigned) return;
         }
       }
-      
-      // Use list color if assigned, otherwise always gray for unassigned
+
+      // Use list color if assigned, otherwise gray
       let color: string;
       if (isAssigned && addressListColors.has(address.id)) {
         color = addressListColors.get(address.id)!;
       } else {
-        // Unassigned addresses are always gray
-        color = "#9ca3af";
+        color = '#9ca3af';
       }
-      
-      const currentZoom = map.getZoom();
-      
-      // Create marker icon with the determined color - smaller markers without border
+
       const size = 24;
       const fontSize = 11;
-      
-      const customIcon = L.divIcon({
-        className: "custom-address-marker",
-        html: `
-          <div style="
-            width: ${size}px;
-            height: ${size}px;
-            background: ${color};
-            color: white;
-            border-radius: 50%;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.3);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: ${fontSize}px;
-            font-weight: 700;
-          ">
-            ${address.units.length}
-          </div>
-        `,
-        iconSize: [size, size],
-        iconAnchor: [size / 2, size / 2],
-      });
+      const el = document.createElement('div');
+      el.style.cssText = `width:${size}px;height:${size}px;background:${color};color:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;`;
+      el.textContent = String(address.units.length);
 
-      const marker = L.marker([address.coordinates[1], address.coordinates[0]], { 
-        icon: customIcon 
-      }).addTo(map);
-      
-      markers.push(marker);
-      bounds.extend([address.coordinates[1], address.coordinates[0]]);
+      const marker = new mapboxgl.Marker({ element: el })
+        .setLngLat([address.coordinates[0], address.coordinates[1]])
+        .setPopup(
+          new mapboxgl.Popup({ offset: 12 }).setHTML(`
+            <div style="padding: 8px; font-size: 12px; min-width: 150px;">
+              <div style="font-weight: 600; margin-bottom: 6px; color: ${color};">${address.street} ${address.houseNumber}</div>
+              <div style="color: #666; margin-bottom: 6px;">${address.postalCode} ${address.city}</div>
+              <div style="border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;">
+                <div style="font-weight: 500; font-size: 11px; margin-bottom: 4px; color: #374151;">Wohneinheiten (${address.units.length}):</div>
+                ${address.units.map(unit => `<div style=\"font-size: 11px; color: #666; padding: 2px 0;\">${unit.floor} ${unit.position}</div>`).join('')}
+              </div>
+            </div>
+          `)
+        )
+        .addTo(map);
+
+      markersRef.current.push(marker);
+      bounds.extend([address.coordinates[0], address.coordinates[1]]);
       visibleAddressCount++;
-
-      // Create popup content
-      const unitsInfo = address.units.map(unit => 
-        `<div style="font-size: 11px; color: #666; padding: 2px 0;">${unit.floor} ${unit.position}</div>`
-      ).join('');
-
-      marker.bindPopup(`
-        <div style="padding: 8px; font-size: 12px; min-width: 150px;">
-          <div style="font-weight: 600; margin-bottom: 6px; color: ${color};">${address.street} ${address.houseNumber}</div>
-          <div style="color: #666; margin-bottom: 6px;">${address.postalCode} ${address.city}</div>
-          <div style="border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;">
-            <div style="font-weight: 500; font-size: 11px; margin-bottom: 4px; color: #374151;">Wohneinheiten (${address.units.length}):</div>
-            ${unitsInfo}
-          </div>
-        </div>
-      `);
-
-      // Zoom to marker on click
-      marker.on('click', () => {
-        map.setView([address.coordinates[1], address.coordinates[0]], 18, {
-          animate: true,
-          duration: 0.5
-        });
-      });
     });
-    
-    markersRef.current = markers;
+
+    if (!bounds.isEmpty() && selectedListIds.size > 0) {
+      const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0;
+      map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0], maxZoom: 17 });
+    }
 
     if (selectedListIds.size > 0) {
       const totalExpected = listAddressIds.size;
-      const allAddressIdsSet = new Set(addresses.map(a => a.id));
-      const missingInAddresses = Array.from(listAddressIds).filter(id => !allAddressIdsSet.has(id));
+      const allAddressIdsSet = new Set(addresses.map((a) => a.id));
+      const missingInAddresses = Array.from(listAddressIds).filter((id) => !allAddressIdsSet.has(id));
       const invalidCoordIds = addresses
-        .filter(a => listAddressIds.has(a.id) && (!a.coordinates || a.coordinates[0] === 0 || a.coordinates[1] === 0))
-        .map(a => a.id);
+        .filter((a) => listAddressIds.has(a.id) && (!a.coordinates || a.coordinates[0] === 0 || a.coordinates[1] === 0))
+        .map((a) => a.id);
 
       console.log('List vs Map diagnostics', {
         totalExpected,
@@ -673,20 +552,18 @@ function KarteContent() {
       });
     } else {
       console.log('Visible markers after filters', visibleAddressCount, {
-        filters: { statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, filterMode }
+        filters: { statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, filterMode },
       });
     }
-  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter]);
+  }, [filterMode, assignedAddressIds, addressListColors, addresses, selectedListIds, listAddressIds, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, showListsSidebar]);
 
-  // Helper function to check if a point is inside a polygon
-  const isPointInPolygon = (point: L.LatLng, polygon: L.LatLng[]) => {
+  // Helper: point in polygon for [lng, lat]
+  const isPointInPolygon = (point: [number, number], polygon: [number, number][]) => {
     let inside = false;
     for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
-      const xi = polygon[i].lat, yi = polygon[i].lng;
-      const xj = polygon[j].lat, yj = polygon[j].lng;
-      
-      const intersect = ((yi > point.lng) !== (yj > point.lng))
-        && (point.lat < (xj - xi) * (point.lng - yi) / (yj - yi) + xi);
+      const xi = polygon[i][0], yi = polygon[i][1];
+      const xj = polygon[j][0], yj = polygon[j][1];
+      const intersect = ((yi > point[1]) !== (yj > point[1])) && (point[0] < (xj - xi) * (point[1] - yi) / (yj - yi) + xi);
       if (intersect) inside = !inside;
     }
     return inside;
@@ -859,9 +736,7 @@ function KarteContent() {
               setShowStatsPopup(false);
               setSelectedAddresses([]);
               // Remove all drawn polygons
-              if (drawnItemsRef.current) {
-                drawnItemsRef.current.clearLayers();
-              }
+              drawRef.current?.deleteAll();
             }}
             onCreateList={() => {
               setShowStatsPopup(false);
@@ -888,9 +763,7 @@ function KarteContent() {
             loadAssignedAddresses();
             setSelectedAddresses([]);
             // Remove drawn polygon
-            if (drawnItemsRef.current) {
-              drawnItemsRef.current.clearLayers();
-            }
+            drawRef.current?.deleteAll();
             // Open lists sidebar to show the newly created list
             setShowListsSidebar(true);
           }}
