@@ -398,7 +398,7 @@ export const ProjectsSettings = () => {
                                 >
                                   <SelectTrigger className={`w-auto h-7 border-0 rounded-md px-3 ${getStatusColor(project.status)} hover:opacity-80`}>
                                     <SelectValue>
-                                      <span className="text-xs font-normal">{project.status.toUpperCase()}</span>
+                                      <span className="text-xs font-medium">{project.status.toUpperCase()}</span>
                                     </SelectValue>
                                   </SelectTrigger>
                                   <SelectContent>
