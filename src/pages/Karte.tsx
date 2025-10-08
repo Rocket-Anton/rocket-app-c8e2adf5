@@ -752,17 +752,29 @@ function KarteContent() {
                              : 'border-border bg-background'
                          }`}
                        >
-                         <div className="w-full h-12 rounded-md overflow-hidden bg-gradient-to-br from-gray-100 via-white to-gray-200 relative border border-gray-300">
-                           {/* Street map preview */}
-                           <svg className="absolute inset-0 w-full h-full opacity-50" viewBox="0 0 100 100" preserveAspectRatio="none">
-                             <line x1="20" y1="10" x2="20" y2="90" stroke="#d1d5db" strokeWidth="3"/>
-                             <line x1="50" y1="10" x2="50" y2="90" stroke="#d1d5db" strokeWidth="3"/>
-                             <line x1="80" y1="10" x2="80" y2="90" stroke="#d1d5db" strokeWidth="3"/>
-                             <line x1="10" y1="30" x2="90" y2="30" stroke="#d1d5db" strokeWidth="3"/>
-                             <line x1="10" y1="60" x2="90" y2="60" stroke="#d1d5db" strokeWidth="3"/>
-                             <rect x="22" y="32" width="8" height="8" fill="#9ca3af"/>
-                             <rect x="52" y="32" width="8" height="8" fill="#9ca3af"/>
-                             <rect x="22" y="62" width="8" height="8" fill="#9ca3af"/>
+                         <div className="w-full h-12 rounded-md overflow-hidden bg-white relative border border-gray-300">
+                           {/* Street map preview - realistic street layout */}
+                           <svg className="absolute inset-0 w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+                             {/* Background */}
+                             <rect width="100" height="100" fill="#f8f9fa"/>
+                             
+                             {/* Streets */}
+                             <line x1="0" y1="35" x2="100" y2="35" stroke="#e5e5e5" strokeWidth="8"/>
+                             <line x1="0" y1="65" x2="100" y2="65" stroke="#e5e5e5" strokeWidth="8"/>
+                             <line x1="30" y1="0" x2="30" y2="100" stroke="#e5e5e5" strokeWidth="6"/>
+                             <line x1="70" y1="0" x2="70" y2="100" stroke="#e5e5e5" strokeWidth="6"/>
+                             
+                             {/* Buildings */}
+                             <rect x="10" y="10" width="15" height="20" fill="#e0e0e0"/>
+                             <rect x="35" y="15" width="12" height="15" fill="#d0d0d0"/>
+                             <rect x="75" y="12" width="18" height="18" fill="#e0e0e0"/>
+                             <rect x="10" y="70" width="15" height="18" fill="#d5d5d5"/>
+                             <rect x="50" y="40" width="15" height="20" fill="#e0e0e0"/>
+                             <rect x="75" y="72" width="12" height="15" fill="#d0d0d0"/>
+                             
+                             {/* Green areas */}
+                             <ellipse cx="55" cy="18" rx="8" ry="6" fill="#c8e6c9" opacity="0.7"/>
+                             <ellipse cx="15" cy="52" rx="6" ry="5" fill="#c8e6c9" opacity="0.7"/>
                            </svg>
                          </div>
                          <span className={`text-xs ${mapStyle === 'streets' ? 'font-semibold text-primary' : 'text-muted-foreground'}`}>
