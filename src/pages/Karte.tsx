@@ -7,6 +7,7 @@ import { CreateListModal } from "@/components/CreateListModal";
 import { ListsSidebar } from "@/components/ListsSidebar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { MapFilterSidebar } from "@/components/MapFilterSidebar";
+import { ProjectSelector } from "@/components/ProjectSelector";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
@@ -70,6 +71,7 @@ function KarteContent() {
   const mapContainer = useRef<HTMLDivElement>(null);
   const mapInstance = useRef<mapboxgl.Map | null>(null);
   const markersRef = useRef<mapboxgl.Marker[]>([]);
+  const projectMarkersRef = useRef<mapboxgl.Marker[]>([]);
   const [isDrawingMode, setIsDrawingMode] = useState(false);
   const drawRef = useRef<MapboxDraw | null>(null);
   const [selectedAddresses, setSelectedAddresses] = useState<Address[]>([]);
@@ -83,6 +85,7 @@ function KarteContent() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
+  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   
   // Map filter states
@@ -595,6 +598,96 @@ function KarteContent() {
     return inside;
   };
 
+  // Render project markers
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map || selectedProjectIds.size === 0) {
+      // Clear project markers if no projects selected
+      projectMarkersRef.current.forEach((m) => m.remove());
+      projectMarkersRef.current = [];
+      return;
+    }
+
+    const fetchAndRenderProjects = async () => {
+      try {
+        const { data: projects, error } = await supabase
+          .from('projects')
+          .select('id, name, status, area_name, city, coordinates')
+          .in('id', Array.from(selectedProjectIds));
+
+        if (error) throw error;
+
+        // Clear existing project markers
+        projectMarkersRef.current.forEach((m) => m.remove());
+        projectMarkersRef.current = [];
+
+        projects?.forEach((project) => {
+          if (!project.coordinates) return;
+          
+          // Type guard for coordinates
+          const coords = project.coordinates as { lat?: number; lng?: number } | null;
+          if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') return;
+
+          // Create project marker element
+          const el = document.createElement('div');
+          const hash = project.id.split('').reduce((acc: number, char: string) => char.charCodeAt(0) + ((acc << 5) - acc), 0);
+          const color = `hsl(${Math.abs(hash) % 360}, 65%, 55%)`;
+          
+          el.innerHTML = `
+            <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
+              <div style="width:32px;height:32px;background:${color};border:2px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
+                  <circle cx="12" cy="10" r="3"/>
+                </svg>
+              </div>
+              <div style="background:${color};color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-top:2px;box-shadow:0 2px 4px rgba(0,0,0,0.3);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${project.name}</div>
+            </div>
+          `;
+
+          el.addEventListener('click', () => {
+            map.flyTo({
+              center: [coords.lng, coords.lat],
+              zoom: 14,
+              pitch: 45,
+              duration: 1500,
+            });
+          });
+
+          const statusColors: Record<string, string> = {
+            "In Planung": "#eab308",
+            "Aktiv": "#22c55e",
+            "Abgeschlossen": "#3b82f6",
+            "Pausiert": "#6b7280",
+            "Abgebrochen": "#ef4444",
+          };
+
+          const statusColor = statusColors[project.status] || "#6b7280";
+
+          const marker = new mapboxgl.Marker({ element: el })
+            .setLngLat([coords.lng, coords.lat])
+            .setPopup(
+              new mapboxgl.Popup({ offset: 20 }).setHTML(`
+                <div style="padding: 10px; font-size: 12px; min-width: 180px;">
+                  <div style="font-weight: 600; margin-bottom: 6px; color: ${color}; font-size: 14px;">${project.name}</div>
+                  <div style="display: inline-block; background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 6px;">${project.status}</div>
+                  ${project.area_name ? `<div style="color: #666; margin-top: 4px;"><strong>Gebiet:</strong> ${project.area_name}</div>` : ''}
+                  ${project.city ? `<div style="color: #666; margin-top: 2px;"><strong>Stadt:</strong> ${project.city}</div>` : ''}
+                </div>
+              `)
+            )
+            .addTo(map);
+
+          projectMarkersRef.current.push(marker);
+        });
+      } catch (error) {
+        console.error('Error rendering project markers:', error);
+      }
+    };
+
+    fetchAndRenderProjects();
+  }, [selectedProjectIds]);
+
   return (
     <>
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
@@ -606,6 +699,14 @@ function KarteContent() {
               <div className="flex items-center gap-3">
                 <h1 className="hidden sm:block text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
               </div>
+              
+              {/* Project Selector - only on desktop and tablet */}
+              {!isMobile && (
+                <ProjectSelector
+                  selectedProjectIds={selectedProjectIds}
+                  onProjectsChange={setSelectedProjectIds}
+                />
+              )}
             </header>
 
             {/* Map Container */}
