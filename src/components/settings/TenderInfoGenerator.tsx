@@ -4,6 +4,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Mic, StopCircle, Loader2, Wand2, Check } from "lucide-react";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 interface TenderInfoGeneratorProps {
   value: string;
@@ -163,19 +164,25 @@ export const TenderInfoGenerator = ({
 
   return (
     <div className="space-y-3">
-      {/* Textarea with dictation button inside */}
+      {/* Rich text editor with dictation button inside */}
       <div className="relative">
-        <Textarea
-          value={value}
-          onChange={(e) => onChange(e.target.value)}
-          placeholder="Informationen für die Ausschreibung eingeben oder diktieren..."
-          rows={6}
-          disabled={isConfirmed || isProcessing}
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors resize-none pr-28 pb-12"
+        <div
+          contentEditable={!isConfirmed && !isProcessing}
+          onInput={(e) => onChange(e.currentTarget.innerHTML)}
+          dangerouslySetInnerHTML={{ __html: value }}
+          className={cn(
+            "min-h-[150px] w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background",
+            "hover:border-primary/50 focus:border-primary transition-colors",
+            "focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2",
+            "pb-12 resize-y overflow-auto",
+            (isConfirmed || isProcessing) && "opacity-50 cursor-not-allowed"
+          )}
+          style={{ minHeight: '150px', maxHeight: '500px' }}
+          data-placeholder="Informationen für die Ausschreibung eingeben oder diktieren..."
         />
         
         {/* Bottom bar with dictation button */}
-        <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-border bg-muted/30 rounded-b-md flex items-center justify-end px-3 gap-2">
+        <div className="absolute bottom-0 left-0 right-0 h-10 border-t border-border bg-background rounded-b-md flex items-center justify-end px-3 gap-2">
           {!isRecording ? (
             <Button
               type="button"
@@ -223,7 +230,7 @@ export const TenderInfoGenerator = ({
             placeholder="z.B. 'Mache es kürzer' oder 'Betone mehr die Vorteile'"
             rows={2}
             disabled={isProcessing}
-            className="bg-background"
+            className="bg-background resize-y"
           />
           <div className="flex gap-2 justify-end">
             <Button
@@ -266,6 +273,27 @@ export const TenderInfoGenerator = ({
           Text wurde bestätigt
         </div>
       )}
+      
+      <style>{`
+        [contenteditable][data-placeholder]:empty:before {
+          content: attr(data-placeholder);
+          color: hsl(var(--muted-foreground));
+          pointer-events: none;
+        }
+        [contenteditable] {
+          word-wrap: break-word;
+          overflow-wrap: break-word;
+        }
+        [contenteditable] strong {
+          font-weight: 600;
+        }
+        [contenteditable] em {
+          font-style: italic;
+        }
+        [contenteditable] p {
+          margin: 0.5em 0;
+        }
+      `}</style>
     </div>
   );
 };

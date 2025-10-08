@@ -54,27 +54,37 @@ serve(async (req) => {
     }
 
     // Build the prompt for text generation
-    let systemPrompt = `Du bist ein erfahrener Projekt-Manager, der ansprechende Ausschreibungstexte für Vertriebsprojekte erstellt.
+    let systemPrompt = `Du bist ein Projekt-Manager, der ansprechende Exposé-Texte für Vertriebsprojekte erstellt.
 
-Deine Aufgabe ist es, einen motivierenden Infotext für eine Projekt-Ausschreibung zu erstellen, der Vertriebspartner (genannt "Raketen") begeistert und zum Mitmachen animiert.
+Wichtige Regeln:
+- Schreibe wie ein Exposé, NICHT wie einen Brief
+- Duze die "Raketen" (unsere Vertriebspartner)
+- KEINE Anreden wie "Liebe Raketen" oder Grußformeln
+- KEINE Sternchen für Formatierung - nutze direkte HTML-Tags
+- Schreibe menschlich und motivierend, NICHT KI-mäßig
+- Sei enthusiastisch, aber authentisch
 
-Der Text soll folgende Aspekte berücksichtigen:
-- Provider: Welcher Provider ist das?
-- Besonderheiten: Was macht das Projekt besonders?
-- Mehrwert: Warum lohnt es sich, bei diesem Projekt zu starten?
-- Vorteile: Was sind die spezifischen Vorteile?
+Begriffe:
+- Vorvermarktung = Erstvermarktung (erste Runde, maximale Potenziale)
+- Bauvermarktung = Nachvermarktung (nach Vorvermarktung)
 
-Schreibe den Text professionell, aber enthusiastisch. Nutze eine klare Struktur mit Absätzen. Der Text soll verkaufen, aber nicht übertrieben wirken.`;
+Verwende HTML für Formatierung:
+- <strong>Text</strong> für Fettdruck
+- <em>Text</em> für Kursiv
+- <br> für Zeilenumbrüche
+- <p>Text</p> für Absätze
+
+Der Text soll direkt mit den wichtigsten Infos starten, ohne Anrede.`;
 
     let userPrompt = "";
 
     if (improvementInstruction) {
       // Improvement mode
-      systemPrompt += "\n\nDu verbesserst einen bestehenden Text basierend auf den gegebenen Anweisungen.";
-      userPrompt = `Bestehender Text:\n${existingText}\n\nVerbesserungsanweisung: ${improvementInstruction}\n\nBitte verbessere den Text entsprechend der Anweisung.`;
+      systemPrompt += "\n\nDu verbesserst einen bestehenden Exposé-Text basierend auf den gegebenen Anweisungen. Behalte HTML-Formatierung bei.";
+      userPrompt = `Bestehender Text:\n${existingText}\n\nVerbesserungsanweisung: ${improvementInstruction}\n\nBitte verbessere den Text entsprechend der Anweisung und behalte die HTML-Formatierung bei.`;
     } else if (transcribedText) {
       // Generation from transcription
-      userPrompt = `Basierend auf folgender Spracheingabe, erstelle einen strukturierten Ausschreibungstext:\n\n${transcribedText}`;
+      userPrompt = `Basierend auf folgender Spracheingabe, erstelle einen strukturierten Exposé-Text mit HTML-Formatierung:\n\n${transcribedText}`;
       
       if (context?.providerName) {
         userPrompt += `\n\nProvider: ${context.providerName}`;
