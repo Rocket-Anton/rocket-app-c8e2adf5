@@ -661,7 +661,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         <div className="space-y-2 pointer-events-auto">
           <Label className="text-sm font-medium">Provisionen</Label>
           <Select 
-            value={selectedTariffs[0] || ""} 
+            value={selectedTariffs[0] ?? undefined} 
             onValueChange={(val) => setSelectedTariffs([val])}
             disabled={!selectedProvider}
           >
