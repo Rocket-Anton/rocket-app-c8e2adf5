@@ -12,6 +12,13 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { toast } from "sonner";
 import { Plus, Search, Upload, Download, ChevronRight, ChevronDown } from "lucide-react";
 import {
@@ -160,6 +167,23 @@ export const ProjectsSettings = () => {
       newSelected.delete(projectId);
     }
     setSelectedProjects(newSelected);
+  };
+
+  const handleStatusUpdate = async (projectId: string, newStatus: string) => {
+    try {
+      const { error } = await supabase
+        .from('projects')
+        .update({ status: newStatus })
+        .eq('id', projectId);
+
+      if (error) throw error;
+
+      queryClient.invalidateQueries({ queryKey: ['projects'] });
+      toast.success('Status aktualisiert');
+    } catch (error) {
+      console.error('Error updating status:', error);
+      toast.error('Fehler beim Aktualisieren des Status');
+    }
   };
 
   const handleExport = () => {
@@ -384,10 +408,24 @@ export const ProjectsSettings = () => {
                               <TableCell className="py-2 text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
                                 {project.name}
                               </TableCell>
-                              <TableCell className="py-2 text-xs">
-                                <Badge variant="outline" className={`text-xs ${getStatusColor(project.status)}`}>
-                                  {project.status}
-                                </Badge>
+                              <TableCell className="py-2 text-xs" onClick={(e) => e.stopPropagation()}>
+                                <Select
+                                  value={project.status}
+                                  onValueChange={(value) => handleStatusUpdate(project.id, value)}
+                                >
+                                  <SelectTrigger className={`w-[140px] h-7 border-0 ${getStatusColor(project.status)} hover:opacity-80`}>
+                                    <SelectValue />
+                                  </SelectTrigger>
+                                  <SelectContent>
+                                    {STATUS_OPTIONS.map((status) => (
+                                      <SelectItem key={status} value={status} className="cursor-pointer">
+                                        <Badge variant="outline" className={`text-xs ${getStatusColor(status)}`}>
+                                          {status}
+                                        </Badge>
+                                      </SelectItem>
+                                    ))}
+                                  </SelectContent>
+                                </Select>
                               </TableCell>
                               <TableCell className="py-2 text-xs">{project.marketing_type || '-'}</TableCell>
                               <TableCell className="py-2 text-xs">{project.project_with_bonus ? 'Ja' : 'Nein'}</TableCell>
