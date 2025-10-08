@@ -203,9 +203,10 @@ serve(async (req) => {
         }
       }
 
-      // Geocode any without coordinates
-      const BATCH_SIZE = 250
+      // Geocode any without coordinates - use smaller batches to avoid timeouts
+      const BATCH_SIZE = 50 // Reduced from 250 for better performance
       const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
+      
       for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
         const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
         const geocodePromises = batch.map(async (addr) => {
@@ -223,7 +224,9 @@ serve(async (req) => {
             return { ...addr, coordinates: { lat: (data as any).coordinates?.lat ?? data.lat, lng: (data as any).coordinates?.lng ?? data.lng, error: (data as any).error } }
           } catch (err) {
             console.error('Geocoding error:', err)
-            return { ...addr, coordinates: { lat: null, lng: null, error: String(err) } }
+            // Provide more detailed error message
+            const errorMsg = err instanceof Error ? err.message : String(err)
+            return { ...addr, coordinates: { lat: null, lng: null, error: `Geocoding fehlgeschlagen: ${errorMsg}` } }
           }
         })
         const geocodedBatch = await Promise.all(geocodePromises)

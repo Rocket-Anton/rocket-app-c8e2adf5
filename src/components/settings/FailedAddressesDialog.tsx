@@ -39,7 +39,7 @@ export const FailedAddressesDialog = ({ listId, open, onOpenChange }: FailedAddr
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-4xl max-h-[80vh] flex flex-col">
         <DialogHeader>
           <DialogTitle>Fehlerhafte Adressen</DialogTitle>
         </DialogHeader>
@@ -50,23 +50,35 @@ export const FailedAddressesDialog = ({ listId, open, onOpenChange }: FailedAddr
             <AlertDescription>Keine fehlerhaften Adressen vorhanden.</AlertDescription>
           </Alert>
         ) : (
-          <div className="space-y-3">
+          <div className="space-y-3 flex-1 overflow-hidden flex flex-col">
             <Badge variant="outline">{failed.length} Fehler</Badge>
-            <div className="border rounded-lg overflow-hidden">
+            <div className="border rounded-lg overflow-auto flex-1">
               <Table>
-                <TableHeader>
+                <TableHeader className="sticky top-0 bg-background">
                   <TableRow>
-                    <TableHead>Adresse</TableHead>
-                    <TableHead>Fehler</TableHead>
+                    <TableHead className="w-[40%]">Adresse</TableHead>
+                    <TableHead className="w-[60%]">Fehler</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {failed.map((f, idx) => (
-                    <TableRow key={idx}>
-                      <TableCell className="font-medium">{f.address}</TableCell>
-                      <TableCell className="text-sm text-red-600 dark:text-red-500">{f.reason}</TableCell>
-                    </TableRow>
-                  ))}
+                  {failed.map((f, idx) => {
+                    // Parse error message to be more user-friendly
+                    let errorMessage = f.reason;
+                    if (errorMessage.includes('FunctionsHttpError')) {
+                      errorMessage = 'Geocoding-Dienst nicht erreichbar - Adresse wurde ohne Koordinaten gespeichert';
+                    } else if (errorMessage.includes('Geocoding fehlgeschlagen')) {
+                      errorMessage = errorMessage.replace('Geocoding fehlgeschlagen:', '');
+                    }
+                    
+                    return (
+                      <TableRow key={idx}>
+                        <TableCell className="font-medium">{f.address}</TableCell>
+                        <TableCell className="text-sm text-red-600 dark:text-red-500">
+                          {errorMessage}
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                 </TableBody>
               </Table>
             </div>
