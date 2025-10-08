@@ -57,6 +57,7 @@ export type Database = {
           created_by: string | null
           house_number: string
           id: number
+          locality: string | null
           notiz: string | null
           postal_code: string
           project_id: string | null
@@ -70,6 +71,7 @@ export type Database = {
           created_by?: string | null
           house_number: string
           id?: number
+          locality?: string | null
           notiz?: string | null
           postal_code: string
           project_id?: string | null
@@ -83,6 +85,7 @@ export type Database = {
           created_by?: string | null
           house_number?: string
           id?: number
+          locality?: string | null
           notiz?: string | null
           postal_code?: string
           project_id?: string | null
@@ -95,6 +98,50 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      csv_column_mappings: {
+        Row: {
+          column_mapping: Json
+          created_at: string | null
+          created_by: string
+          id: string
+          is_default: boolean | null
+          mapping_name: string
+          provider_id: string | null
+          updated_at: string | null
+          usage_count: number | null
+        }
+        Insert: {
+          column_mapping: Json
+          created_at?: string | null
+          created_by: string
+          id?: string
+          is_default?: boolean | null
+          mapping_name: string
+          provider_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Update: {
+          column_mapping?: Json
+          created_at?: string | null
+          created_by?: string
+          id?: string
+          is_default?: boolean | null
+          mapping_name?: string
+          provider_id?: string | null
+          updated_at?: string | null
+          usage_count?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "csv_column_mappings_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
             referencedColumns: ["id"]
           },
         ]
@@ -644,6 +691,8 @@ export type Database = {
           lage: string | null
           notiz: string | null
           status: string
+          system_notes: string | null
+          system_notes_created_by: string | null
           updated_at: string
         }
         Insert: {
@@ -654,6 +703,8 @@ export type Database = {
           lage?: string | null
           notiz?: string | null
           status?: string
+          system_notes?: string | null
+          system_notes_created_by?: string | null
           updated_at?: string
         }
         Update: {
@@ -664,6 +715,8 @@ export type Database = {
           lage?: string | null
           notiz?: string | null
           status?: string
+          system_notes?: string | null
+          system_notes_created_by?: string | null
           updated_at?: string
         }
         Relationships: []
