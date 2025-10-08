@@ -346,7 +346,12 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
             <SelectValue placeholder="Bundesland auswählen" />
           </SelectTrigger>
-          <SelectContent className="bg-background pointer-events-auto" side="bottom">
+          <SelectContent 
+            className="bg-background pointer-events-auto max-h-[300px] overflow-y-auto" 
+            side="bottom"
+            align="start"
+            sideOffset={4}
+          >
             {FEDERAL_STATES.map((state) => (
               <SelectItem key={state} value={state}>
                 {state}
