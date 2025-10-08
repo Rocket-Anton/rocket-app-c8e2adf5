@@ -268,25 +268,27 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     : areaName || "";
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6 max-h-[80vh] overflow-y-auto px-6 py-2">
-      {/* Provider */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Provider<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Select value={selectedProvider} onValueChange={setSelectedProvider}>
-          <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
-            <SelectValue placeholder="Provider auswählen" />
-          </SelectTrigger>
-          <SelectContent className="bg-background z-50">
-            {activeProviders.map((provider) => (
-              <SelectItem key={provider.id} value={provider.id}>
-                {provider.name}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
-      </div>
+    <div className="flex flex-col h-full max-h-[80vh]">
+      <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-2">
+        <div className="space-y-6">
+          {/* Provider */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">
+              Provider<span className="text-red-500 ml-1">*</span>
+            </Label>
+            <Select value={selectedProvider} onValueChange={setSelectedProvider}>
+              <SelectTrigger className="bg-background border-input hover:border-primary/50 transition-colors h-11">
+                <SelectValue placeholder="Provider auswählen" />
+              </SelectTrigger>
+              <SelectContent className="bg-background z-50">
+                {activeProviders.map((provider) => (
+                  <SelectItem key={provider.id} value={provider.id}>
+                    {provider.name}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
 
       {/* Gebiet Name */}
       <div className="space-y-2">
@@ -697,36 +699,39 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       <div className="space-y-4 pt-6 border-t">
         <h3 className="text-base font-semibold">Upload</h3>
         
-        {/* Straßenliste */}
-        <div className="space-y-2">
-          <Label className="text-sm font-medium">Straßenliste</Label>
-          <div className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
-            <div className="text-center">
-              <div className="text-4xl text-muted-foreground mb-2">+</div>
-              <p className="text-sm text-muted-foreground">Datei hochladen</p>
+          {/* Straßenliste */}
+          <div className="space-y-2">
+            <Label className="text-sm font-medium">Straßenliste</Label>
+            <div className="border-2 border-dashed border-input rounded-lg p-8 flex items-center justify-center bg-muted/20 hover:bg-muted/30 hover:border-primary/50 transition-all cursor-pointer">
+              <div className="text-center">
+                <div className="text-4xl text-muted-foreground mb-2">+</div>
+                <p className="text-sm text-muted-foreground">Datei hochladen</p>
+              </div>
             </div>
           </div>
         </div>
       </div>
-
-      {/* Submit Buttons */}
-      <div className="flex justify-end gap-3 pt-6 border-t sticky bottom-0 bg-background pb-2 -mx-6 px-6">
-        <Button 
-          type="button" 
-          variant="outline" 
-          onClick={onClose}
-          className="h-11 px-6"
-        >
-          Abbrechen
-        </Button>
-        <Button 
-          type="submit" 
-          disabled={loading}
-          className="h-11 px-6 bg-primary hover:bg-primary/90 transition-colors"
-        >
-          {loading ? "Erstelle..." : "Projekt erstellen"}
-        </Button>
-      </div>
     </form>
+
+    {/* Submit Buttons - Fixed at bottom */}
+    <div className="flex justify-end gap-3 pt-4 pb-2 px-6 border-t bg-background">
+      <Button 
+        type="button" 
+        variant="outline" 
+        onClick={onClose}
+        className="h-11 px-6"
+      >
+        Abbrechen
+      </Button>
+      <Button 
+        type="submit" 
+        disabled={loading}
+        onClick={handleSubmit}
+        className="h-11 px-6 bg-primary hover:bg-primary/90 transition-colors"
+      >
+        {loading ? "Erstelle..." : "Projekt erstellen"}
+      </Button>
+    </div>
+  </div>
   );
 };
