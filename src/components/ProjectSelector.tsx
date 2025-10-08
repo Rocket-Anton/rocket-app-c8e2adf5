@@ -191,22 +191,23 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           <ChevronDown className="h-4 w-4 ml-1" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[320px] p-0 z-[1001] bg-background">
-        <div className="p-3 border-b space-y-2">
+      <DropdownMenuContent align="end" className="w-[280px] p-0 z-[1001] bg-background">
+        <div className="p-2 border-b space-y-1.5">
           <div>
-            <h3 className="font-semibold text-sm">Projekte auswählen</h3>
-            <p className="text-xs text-muted-foreground mt-1">
+            <h3 className="font-semibold text-xs">Projekte auswählen</h3>
+            <p className="text-[10px] text-muted-foreground mt-0.5">
               {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
             </p>
           </div>
           
           {/* Status filter chips */}
           {uniqueStatuses.length > 0 && (
-            <div className="space-y-1.5">
-              <div className="text-[10px] font-medium text-muted-foreground uppercase">Status Filter</div>
-              <div className="flex gap-1.5 flex-wrap">
+            <div className="space-y-1">
+              <div className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider">Status</div>
+              <div className="flex gap-1 flex-wrap">
                 {uniqueStatuses.map(status => {
                   const isSelected = statusFilter.includes(status);
+                  const bgColor = statusColors[status] || "bg-gray-500";
                   return (
                     <button
                       key={status}
@@ -218,10 +219,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                         );
                       }}
                       className={cn(
-                        "text-[10px] px-2 py-1 rounded-md border transition-colors",
+                        "text-[10px] px-1.5 py-0.5 rounded text-white border transition-all",
                         isSelected 
-                          ? "bg-primary text-primary-foreground border-primary" 
-                          : "bg-background hover:bg-muted border-border"
+                          ? `${bgColor} border-white shadow-sm` 
+                          : "bg-gray-400 border-gray-300 opacity-50 hover:opacity-75"
                       )}
                     >
                       {status}
@@ -231,9 +232,9 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                 {statusFilter.length > 0 && (
                   <button
                     onClick={() => setStatusFilter([])}
-                    className="text-[10px] px-2 py-1 rounded-md bg-destructive/10 text-destructive hover:bg-destructive/20 border border-destructive/20"
+                    className="text-[10px] px-1.5 py-0.5 rounded bg-red-500 text-white hover:bg-red-600 border border-white/20"
                   >
-                    ✕ Alle
+                    ✕
                   </button>
                 )}
               </div>
@@ -241,7 +242,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           )}
         </div>
         
-        <ScrollArea className="h-[400px]">
+        <ScrollArea className="h-[320px]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Lädt...</div>
@@ -255,43 +256,40 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
               <div className="text-sm text-muted-foreground">Keine Projekte mit diesen Filtern</div>
             </div>
           ) : (
-            <div className="p-2 space-y-1">
+            <div className="p-1.5 space-y-0.5">
               {filteredProjects.map((project) => (
                 <button
                   key={project.id}
                   onClick={() => handleProjectToggle(project.id)}
-                  className="w-full flex items-start gap-3 p-2 rounded-md hover:bg-muted/50 transition-colors text-left"
+                  className="w-full flex items-start gap-2 p-1.5 rounded-md hover:bg-muted/50 transition-colors text-left"
                 >
                   <Checkbox
                     checked={selectedProjectIds.has(project.id)}
                     onCheckedChange={() => handleProjectToggle(project.id)}
-                    className="mt-0.5"
+                    className="mt-0.5 h-3.5 w-3.5"
                   />
                   <div className="flex-1 min-w-0">
-                    <div className="flex items-center gap-2 mb-1">
+                    <div className="flex items-center gap-1.5 mb-0.5">
                       <div 
-                        className="w-3 h-3 rounded-full flex-shrink-0" 
+                        className="w-2.5 h-2.5 rounded-full flex-shrink-0" 
                         style={{ backgroundColor: project.color || '#3b82f6' }}
                       />
-                      <span className="font-medium text-sm truncate">
+                      <span className="font-medium text-xs truncate">
                         {project.name}
                       </span>
                     </div>
-                    <div className="flex items-center gap-2 flex-wrap">
+                    <div className="flex items-center gap-1.5 flex-wrap">
                       <Badge 
                         variant="outline" 
                         className={cn(
-                          "text-xs",
-                          statusColors[project.status] && "border-0 text-white",
+                          "text-[10px] px-1 py-0 h-4 border-0 text-white",
+                          statusColors[project.status]
                         )}
-                        style={{
-                          backgroundColor: statusColors[project.status] || undefined
-                        }}
                       >
                         {project.status}
                       </Badge>
                       {(project.area_name || project.city) && (
-                        <span className="text-xs text-muted-foreground truncate">
+                        <span className="text-[10px] text-muted-foreground truncate">
                           {project.area_name || project.city}
                         </span>
                       )}
