@@ -875,11 +875,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             </Label>
             <Input
               type="number"
-              value={weReductionCount}
+              value={lastEditedField === 'reduction' ? weReductionCount : (calculatedReduction?.toString() || weReductionCount)}
               onChange={(e) => {
                 setWeReductionCount(e.target.value);
                 setLastEditedField('reduction');
-                // Saleable WE wird automatisch neu berechnet über useMemo
+                setSaleableUnitsManual(''); // Clear manual saleable input
               }}
               placeholder="0"
               className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
@@ -897,7 +897,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               onChange={(e) => {
                 setSaleableUnitsManual(e.target.value);
                 setLastEditedField('saleable');
-                // WE Reduktion wird automatisch neu berechnet über useMemo
+                setWeReductionCount(''); // Clear manual reduction input
               }}
               placeholder="0"
               className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
