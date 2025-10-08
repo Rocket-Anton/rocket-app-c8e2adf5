@@ -203,8 +203,8 @@ serve(async (req) => {
         }
       }
 
-      // Geocode any without coordinates - use smaller batches to avoid timeouts
-      const BATCH_SIZE = 100 // Increased from 50 for faster processing
+      // Geocode with Mapbox - much faster, can use larger batches
+      const BATCH_SIZE = 250 // Mapbox can handle this easily
       const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
       
       for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
@@ -232,10 +232,9 @@ serve(async (req) => {
               },
             })
             if (error) throw error
-            return { ...addr, coordinates: { lat: (data as any).coordinates?.lat ?? data.lat, lng: (data as any).coordinates?.lng ?? data.lng, error: (data as any).error } }
+            return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
           } catch (err) {
             console.error('Geocoding error:', err)
-            // Provide more detailed error message
             const errorMsg = err instanceof Error ? err.message : String(err)
             return { ...addr, coordinates: { lat: null, lng: null, error: `Geocoding fehlgeschlagen: ${errorMsg}` } }
           }
