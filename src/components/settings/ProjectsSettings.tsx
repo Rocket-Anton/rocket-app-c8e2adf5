@@ -33,6 +33,15 @@ interface Project {
   status: string;
   created_at: string;
   created_by: string;
+  marketing_type?: string;
+  project_with_bonus?: boolean;
+  target_quota?: number;
+  unit_count?: number;
+  saleable_units?: number;
+  existing_customer_count?: number;
+  rocket_count?: number;
+  start_date?: string;
+  end_date?: string;
   providers?: {
     name: string;
     abbreviation: string;
@@ -69,6 +78,8 @@ export const ProjectsSettings = () => {
     },
     staleTime: 5 * 60 * 1000,
   });
+
+  const STATUS_ORDER = ['In Planung', 'Läuft', 'Laufend', 'Abgeschlossen'];
 
   const { data: providers = [] } = useQuery({
     queryKey: ['providers-active'],
@@ -108,6 +119,18 @@ export const ProjectsSettings = () => {
     acc[providerId].statuses[status].push(project);
     return acc;
   }, {} as Record<string, { name: string; statuses: Record<string, Project[]> }>);
+
+  // Sort statuses according to STATUS_ORDER
+  const sortedGroupedByProvider = Object.entries(groupedByProvider).map(([providerId, providerData]) => {
+    const sortedStatuses = STATUS_ORDER.reduce((acc, status) => {
+      if (providerData.statuses[status]) {
+        acc[status] = providerData.statuses[status];
+      }
+      return acc;
+    }, {} as Record<string, Project[]>);
+    
+    return [providerId, { ...providerData, statuses: sortedStatuses }] as const;
+  });
 
   const toggleProvider = (providerId: string) => {
     const newExpanded = new Set(expandedProviders);
@@ -157,13 +180,45 @@ export const ProjectsSettings = () => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'In Planung':
-        return 'bg-blue-100 text-blue-800 border-blue-200';
+        return 'bg-blue-100 text-blue-800 border-blue-300';
       case 'Läuft':
-        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+        return 'bg-green-100 text-green-800 border-green-300';
+      case 'Laufend':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-300';
       case 'Abgeschlossen':
-        return 'bg-red-100 text-red-800 border-red-200';
+        return 'bg-red-100 text-red-800 border-red-300';
       default:
-        return 'bg-gray-100 text-gray-800 border-gray-200';
+        return 'bg-gray-100 text-gray-800 border-gray-300';
+    }
+  };
+
+  const getStatusBorderColor = (status: string) => {
+    switch (status) {
+      case 'In Planung':
+        return 'border-l-blue-500';
+      case 'Läuft':
+        return 'border-l-green-500';
+      case 'Laufend':
+        return 'border-l-yellow-500';
+      case 'Abgeschlossen':
+        return 'border-l-red-500';
+      default:
+        return 'border-l-gray-500';
+    }
+  };
+
+  const getStatusTextColor = (status: string) => {
+    switch (status) {
+      case 'In Planung':
+        return 'text-blue-600';
+      case 'Läuft':
+        return 'text-green-600';
+      case 'Laufend':
+        return 'text-yellow-600';
+      case 'Abgeschlossen':
+        return 'text-red-600';
+      default:
+        return 'text-gray-600';
     }
   };
 
@@ -212,7 +267,7 @@ export const ProjectsSettings = () => {
         </div>
       </div>
 
-      <div className="border rounded-lg bg-card overflow-auto">
+      <div className="border rounded-lg bg-card overflow-auto pb-4">
         <Table className="w-full min-w-max">
           <TableHeader className="bg-muted/30">
             <TableRow className="h-8">
@@ -256,14 +311,14 @@ export const ProjectsSettings = () => {
                   ))}
                 </TableRow>
               ))
-            ) : Object.keys(groupedByProvider).length === 0 ? (
+            ) : sortedGroupedByProvider.length === 0 ? (
               <TableRow>
                 <TableCell colSpan={27} className="text-center text-muted-foreground h-32">
                   Keine Projekte vorhanden
                 </TableCell>
               </TableRow>
             ) : (
-              Object.entries(groupedByProvider).map(([providerId, providerData]) => {
+              sortedGroupedByProvider.map(([providerId, providerData]) => {
                 const totalProjects = Object.values(providerData.statuses).flat().length;
                 const isProviderExpanded = expandedProviders.has(providerId);
                 
@@ -272,18 +327,18 @@ export const ProjectsSettings = () => {
                     {/* Provider Row */}
                     <TableRow 
                       key={`provider-${providerId}`}
-                      className="cursor-pointer hover:bg-muted/30 h-8 font-semibold bg-blue-50 dark:bg-blue-950/20"
+                      className="cursor-pointer hover:bg-muted/30 h-10 font-semibold bg-blue-50 dark:bg-blue-950/20"
                       onClick={() => toggleProvider(providerId)}
                     >
-                      <TableCell className="py-1" colSpan={27}>
-                        <div className="flex items-center gap-2">
+                      <TableCell className="py-2 border-l-4 border-l-blue-500" colSpan={27}>
+                        <div className="flex items-center gap-2 pl-1">
                           {isProviderExpanded ? (
                             <ChevronDown className="w-4 h-4 text-blue-600" />
                           ) : (
                             <ChevronRight className="w-4 h-4 text-blue-600" />
                           )}
-                          <span className="text-xs text-blue-600 font-semibold">{providerData.name}</span>
-                          <Badge variant="secondary" className="text-xs h-5 px-2 bg-blue-100 text-blue-800 border-blue-200">
+                          <span className="text-sm text-blue-600 font-semibold">{providerData.name}</span>
+                          <Badge variant="secondary" className="text-xs h-5 px-2 bg-blue-500 text-white">
                             {totalProjects}
                           </Badge>
                         </div>
@@ -299,20 +354,20 @@ export const ProjectsSettings = () => {
                           <>
                             <TableRow 
                               key={`status-${statusKey}`}
-                              className="cursor-pointer hover:bg-muted/20 h-8 bg-muted/10"
+                              className={`cursor-pointer hover:bg-muted/20 h-9 bg-muted/10 border-l-4 ${getStatusBorderColor(status)}`}
                               onClick={() => toggleStatus(statusKey)}
                             >
-                              <TableCell className="py-1" colSpan={27}>
-                                <div className="flex items-center gap-2 pl-6">
+                              <TableCell className="py-2 pl-2" colSpan={27}>
+                                <div className="flex items-center gap-2">
                                   {isStatusExpanded ? (
                                     <ChevronDown className="w-3 h-3" />
                                   ) : (
                                     <ChevronRight className="w-3 h-3" />
                                   )}
-                                  <Badge variant="outline" className={`text-xs h-5 px-2 ${getStatusColor(status)}`}>
+                                  <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
                                     {status}
                                   </Badge>
-                                  <Badge variant="outline" className="text-xs h-5 px-2">
+                                  <Badge variant="outline" className={`text-xs h-6 px-2 ${getStatusColor(status)}`}>
                                     {statusProjects.length}
                                   </Badge>
                                 </div>
@@ -323,42 +378,46 @@ export const ProjectsSettings = () => {
                           {isStatusExpanded && statusProjects.map((project) => (
                             <TableRow 
                               key={project.id} 
-                              className="cursor-pointer hover:bg-muted/50 h-8"
+                              className="cursor-pointer hover:bg-muted/50 h-9"
                               onClick={() => navigate(`/settings/projects/${project.id}`)}
                             >
-                              <TableCell className="py-1 pl-12 text-xs text-blue-600 hover:text-blue-800 hover:underline">
+                              <TableCell className="py-2 pl-3 text-sm text-blue-600 hover:text-blue-800 hover:underline font-medium">
                                 {project.name}
                               </TableCell>
-                              <TableCell className="py-1 text-xs">
+                              <TableCell className="py-2 text-xs">
                                 <Badge variant="outline" className={`text-xs ${getStatusColor(project.status)}`}>
                                   {project.status}
                                 </Badge>
                               </TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
-                              <TableCell className="py-1 text-xs">-</TableCell>
-                              <TableCell className="py-1 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs">{project.marketing_type || '-'}</TableCell>
+                              <TableCell className="py-2 text-xs">{project.project_with_bonus ? 'Ja' : 'Nein'}</TableCell>
+                              <TableCell className="py-2 text-xs">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">{project.target_quota ? `${project.target_quota}%` : '-'}</TableCell>
+                              <TableCell className="py-2 text-xs text-right">0%</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">{project.unit_count || '-'}</TableCell>
+                              <TableCell className="py-2 text-xs text-right">{project.saleable_units || '-'}</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">{project.existing_customer_count || '-'}</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs">
+                                {project.start_date ? new Date(project.start_date).toLocaleDateString('de-DE') : '-'}
+                              </TableCell>
+                              <TableCell className="py-2 text-xs">
+                                {project.end_date ? new Date(project.end_date).toLocaleDateString('de-DE') : '-'}
+                              </TableCell>
+                              <TableCell className="py-2 text-xs text-right">{project.rocket_count || '-'}</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
+                              <TableCell className="py-2 text-xs">-</TableCell>
+                              <TableCell className="py-2 text-xs text-right">-</TableCell>
                             </TableRow>
                           ))}
                         </>
