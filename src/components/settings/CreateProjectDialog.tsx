@@ -320,7 +320,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       <div className="px-6 pt-2 pb-4 border-b"></div>
       
       <form onSubmit={handleSubmit} className="flex-1 overflow-y-auto px-6 py-6 pointer-events-auto">
-        <div className="space-y-6 pointer-events-auto">
+        <div className="space-y-4 pointer-events-auto">
           {/* Provider */}
           <div className="space-y-2 pointer-events-auto">
             <Label htmlFor="provider" className="text-sm font-medium text-foreground">
