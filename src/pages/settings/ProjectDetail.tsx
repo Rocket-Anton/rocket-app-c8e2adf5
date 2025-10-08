@@ -211,9 +211,10 @@ const ProjectDetail = () => {
           exportType,
           listId
         },
+        headers: { Accept: 'text/csv' },
       });
 
-      console.log('Export response:', { data, error });
+      console.log('Export response:', { typeofData: typeof data, isArrayBuffer: data instanceof ArrayBuffer });
 
       if (error) {
         console.error('Export error:', error);
@@ -224,8 +225,13 @@ const ProjectDetail = () => {
         throw new Error('Keine Daten erhalten');
       }
 
-      // Create blob and download
-      const blob = new Blob([data], { type: 'text/csv;charset=utf-8;' });
+      // Create blob and download (handle string or ArrayBuffer)
+      const blobData = (data instanceof ArrayBuffer)
+        ? data
+        : (typeof data === 'string')
+          ? new TextEncoder().encode(data)
+          : new TextEncoder().encode(String(data));
+      const blob = new Blob([blobData], { type: 'text/csv;charset=utf-8;' });
       const url = URL.createObjectURL(blob);
       const link = document.createElement('a');
       link.href = url;
@@ -499,14 +505,14 @@ const ProjectDetail = () => {
                               </DropdownMenuTrigger>
                               <DropdownMenuContent className="bg-background z-50">
                                 <DropdownMenuItem 
-                                  onClick={() => handleExport('raw')}
+                                  onSelect={(e) => { e.preventDefault(); handleExport('raw'); }}
                                   disabled={exporting}
                                 >
                                   <Download className="w-4 h-4 mr-2" />
                                   Rohdatei
                                 </DropdownMenuItem>
                                 <DropdownMenuItem 
-                                  onClick={() => handleExport('rocket')}
+                                  onSelect={(e) => { e.preventDefault(); handleExport('rocket'); }}
                                   disabled={exporting}
                                 >
                                   <Download className="w-4 h-4 mr-2" />
@@ -617,16 +623,16 @@ const ProjectDetail = () => {
                                              <ChevronDown className="w-4 h-4 ml-2" />
                                            </Button>
                                          </DropdownMenuTrigger>
-                                         <DropdownMenuContent className="bg-background z-50">
-                                           <DropdownMenuItem onClick={() => handleExport('raw', list.id)}>
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Rohdatei
-                                           </DropdownMenuItem>
-                                           <DropdownMenuItem onClick={() => handleExport('rocket', list.id)}>
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Rocket Export
-                                           </DropdownMenuItem>
-                                         </DropdownMenuContent>
+                                          <DropdownMenuContent className="bg-background z-50">
+                                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('raw', list.id); }}>
+                                              <Download className="w-4 h-4 mr-2" />
+                                              Rohdatei
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('rocket', list.id); }}>
+                                              <Download className="w-4 h-4 mr-2" />
+                                              Rocket Export
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
                                        </DropdownMenu>
                                        <Button 
                                          variant="outline" 
