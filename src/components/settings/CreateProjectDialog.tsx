@@ -92,7 +92,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
   // WE Reduktion / Saleable WE
   const [hasWeReduction, setHasWeReduction] = useState(false);
   const [weReductionCount, setWeReductionCount] = useState("");
-  const [saleableUnitsInput, setSaleableUnitsInput] = useState("");
+  const [saleableUnitsManual, setSaleableUnitsManual] = useState("");
+  const [lastEditedField, setLastEditedField] = useState<'reduction' | 'saleable' | null>(null);
   
   const [quotaType, setQuotaType] = useState<string | undefined>(undefined);
   const [targetQuota, setTargetQuota] = useState("");
@@ -259,36 +260,46 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     return calculateWorkingDays(dateRange.from, dateRange.to, federalState);
   }, [dateRange, federalState]);
 
-  // Berechne Saleable WE (wenn WE Reduktion aktiv)
+  // Berechne Saleable WE basierend auf letzter Bearbeitung
   const saleableUnits = useMemo(() => {
+    if (!hasWeReduction) return null;
+    
     const units = parseInt(unitCount) || 0;
     const existingCount = parseInt(existingCustomerCount) || 0;
     
-    if (hasWeReduction) {
-      // Modus 1: WE Reduktion wird eingegeben → Saleable wird berechnet
-      const reductionCount = parseInt(weReductionCount) || 0;
-      let saleable = units;
-      
-      // Bestandskunden abziehen wenn aktiv und können nicht beschrieben werden
-      if (hasExistingCustomers && canWriteExistingCustomers === 'Nein') {
-        saleable -= existingCount;
-      }
-      
-      saleable -= reductionCount;
-      return Math.max(0, saleable);
-    } else {
-      // Modus 2: Saleable WE wird eingegeben → direkt verwenden
-      return parseInt(saleableUnitsInput) || null;
+    // Wenn Saleable WE manuell bearbeitet wurde, verwende diesen Wert
+    if (lastEditedField === 'saleable' && saleableUnitsManual) {
+      return parseInt(saleableUnitsManual) || 0;
     }
-  }, [unitCount, hasExistingCustomers, existingCustomerCount, canWriteExistingCustomers, hasWeReduction, weReductionCount, saleableUnitsInput]);
+    
+    // Sonst berechne aus WE Reduktion
+    const reductionCount = parseInt(weReductionCount) || 0;
+    let saleable = units;
+    
+    // Bestandskunden abziehen wenn aktiv und können nicht beschrieben werden
+    if (hasExistingCustomers && canWriteExistingCustomers === 'Nein') {
+      saleable -= existingCount;
+    }
+    
+    saleable -= reductionCount;
+    return Math.max(0, saleable);
+  }, [unitCount, hasExistingCustomers, existingCustomerCount, canWriteExistingCustomers, hasWeReduction, weReductionCount, saleableUnitsManual, lastEditedField]);
 
-  // Berechne WE Reduktion (wenn Saleable WE direkt eingegeben wird)
+  // Berechne WE Reduktion basierend auf letzter Bearbeitung
   const calculatedReduction = useMemo(() => {
-    if (hasWeReduction) return null; // Nur berechnen wenn WE Reduktion nicht aktiv
+    if (!hasWeReduction) return null;
+    
+    // Wenn Reduktion manuell bearbeitet wurde, verwende diesen Wert
+    if (lastEditedField === 'reduction' && weReductionCount) {
+      return parseInt(weReductionCount) || 0;
+    }
+    
+    // Sonst berechne aus Saleable WE
+    if (!saleableUnitsManual) return parseInt(weReductionCount) || 0;
     
     const units = parseInt(unitCount) || 0;
     const existingCount = parseInt(existingCustomerCount) || 0;
-    const saleable = parseInt(saleableUnitsInput) || 0;
+    const saleable = parseInt(saleableUnitsManual) || 0;
     
     let reduction = units - saleable;
     
@@ -298,7 +309,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     }
     
     return Math.max(0, reduction);
-  }, [unitCount, hasExistingCustomers, existingCustomerCount, canWriteExistingCustomers, hasWeReduction, saleableUnitsInput]);
+  }, [unitCount, hasExistingCustomers, existingCustomerCount, canWriteExistingCustomers, hasWeReduction, weReductionCount, saleableUnitsManual, lastEditedField]);
 
   // Berechne Zielaufträge
   const targetOrders = useMemo(() => {
@@ -366,22 +377,17 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       return;
     }
     
-    if (hasWeReduction && !weReductionCount) {
-      toast.error("Bitte Anzahl WE Reduktion eingeben");
+    if (hasWeReduction && !weReductionCount && !saleableUnitsManual) {
+      toast.error("Bitte WE Reduktion oder Saleable WE eingeben");
       return;
     }
     
-    if (!hasWeReduction && !saleableUnitsInput) {
-      toast.error("Bitte Saleable WE eingeben");
-      return;
-    }
-    
-    if ((hasExistingCustomers || hasWeReduction || saleableUnitsInput) && !quotaType) {
+    if ((hasExistingCustomers || hasWeReduction) && !quotaType) {
       toast.error("Bitte Art Quote auswählen");
       return;
     }
     
-    if ((hasExistingCustomers || hasWeReduction || saleableUnitsInput) && !targetQuota) {
+    if ((hasExistingCustomers || hasWeReduction) && !targetQuota) {
       toast.error("Bitte Zielquote eingeben");
       return;
     }
@@ -859,61 +865,49 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         />
       </div>
 
-      {/* WE Reduktion Eingabe ODER Saleable WE Eingabe */}
-      {hasWeReduction ? (
-        <>
-          {/* Modus 1: WE Reduktion eingeben */}
-          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
+      {/* Beide Felder: WE Reduktion und Saleable WE */}
+      {hasWeReduction && (
+        <div className="ml-4 space-y-4 border-l-2 border-primary/30 pl-4">
+          {/* Anzahl WE Reduktion */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">
               Anzahl WE Reduktion<span className="text-red-500 ml-1">*</span>
             </Label>
             <Input
               type="number"
               value={weReductionCount}
-              onChange={(e) => setWeReductionCount(e.target.value)}
+              onChange={(e) => {
+                setWeReductionCount(e.target.value);
+                setLastEditedField('reduction');
+                // Saleable WE wird automatisch neu berechnet über useMemo
+              }}
               placeholder="0"
               className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
             />
           </div>
 
-          {/* Berechnete Saleable WE anzeigen */}
-          <div className="space-y-2 p-3 bg-primary/5 rounded-lg border border-primary/20">
-            <Label className="text-sm font-medium text-primary">Saleable WE (berechnet)</Label>
-            <div className="text-2xl font-bold text-primary">
-              {saleableUnits !== null ? saleableUnits.toLocaleString() : '0'}
-            </div>
-          </div>
-        </>
-      ) : (
-        <>
-          {/* Modus 2: Saleable WE direkt eingeben */}
-          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
+          {/* Saleable WE */}
+          <div className="space-y-2">
             <Label className="text-sm font-medium">
               Saleable WE<span className="text-red-500 ml-1">*</span>
             </Label>
             <Input
               type="number"
-              value={saleableUnitsInput}
-              onChange={(e) => setSaleableUnitsInput(e.target.value)}
+              value={lastEditedField === 'saleable' ? saleableUnitsManual : (saleableUnits?.toString() || '')}
+              onChange={(e) => {
+                setSaleableUnitsManual(e.target.value);
+                setLastEditedField('saleable');
+                // WE Reduktion wird automatisch neu berechnet über useMemo
+              }}
               placeholder="0"
               className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
             />
           </div>
-
-          {/* Berechnete WE Reduktion anzeigen */}
-          {calculatedReduction !== null && (
-            <div className="space-y-2 p-3 bg-muted/50 rounded-lg border">
-              <Label className="text-sm font-medium">WE Reduktion (berechnet)</Label>
-              <div className="text-2xl font-bold">
-                {calculatedReduction.toLocaleString()}
-              </div>
-            </div>
-          )}
-        </>
+        </div>
       )}
 
-      {/* Art Quote - nur anzeigen wenn Bestandskunden, WE Reduktion oder Saleable WE eingegeben */}
-      {(hasExistingCustomers || hasWeReduction || saleableUnitsInput) && (
+      {/* Art Quote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
+      {(hasExistingCustomers || hasWeReduction) && (
         <div className="space-y-2 pointer-events-auto">
           <Label className="text-sm font-medium">
             Art Quote<span className="text-red-500 ml-1">*</span>
@@ -933,8 +927,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </div>
       )}
 
-      {/* Zielquote - nur anzeigen wenn Bestandskunden, WE Reduktion oder Saleable WE eingegeben */}
-      {(hasExistingCustomers || hasWeReduction || saleableUnitsInput) && (
+      {/* Zielquote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
+      {(hasExistingCustomers || hasWeReduction) && (
         <>
           <div className="space-y-2">
             <Label className="text-sm font-medium">
