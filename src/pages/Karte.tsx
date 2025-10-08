@@ -124,25 +124,50 @@ function KarteContent() {
 
   const loadAddresses = async () => {
     setIsLoadingAddresses(true);
-    const { data, error } = await supabase
+    
+    // Load addresses with their units from the separate units table
+    const { data: addressData, error: addressError } = await supabase
       .from('addresses')
       .select('*');
 
-    if (error) {
-      console.error('Error loading addresses:', error);
+    if (addressError) {
+      console.error('Error loading addresses:', addressError);
       setIsLoadingAddresses(false);
       return;
     }
 
-    if (!data || data.length === 0) {
+    if (!addressData || addressData.length === 0) {
       console.log('No addresses found in database');
       setAddresses([]);
       setIsLoadingAddresses(false);
       return;
     }
 
+    // Load all units
+    const { data: unitsData, error: unitsError } = await supabase
+      .from('units')
+      .select('*');
+
+    if (unitsError) {
+      console.error('Error loading units:', unitsError);
+    }
+
+    // Create a map of address_id to units
+    const unitsMap = new Map<number, any[]>();
+    (unitsData || []).forEach((unit: any) => {
+      if (!unitsMap.has(unit.address_id)) {
+        unitsMap.set(unit.address_id, []);
+      }
+      unitsMap.get(unit.address_id)!.push({
+        id: unit.id,
+        floor: unit.etage || '',
+        position: unit.lage || '',
+        status: unit.status || 'offen',
+      });
+    });
+
     // Transform database addresses to Address format
-    const loadedAddresses: Address[] = data.map((addr: any) => {
+    const loadedAddresses: Address[] = addressData.map((addr: any) => {
       // Handle both {lat, lng} and [lng, lat] coordinate formats
       let coords: [number, number];
       if (addr.coordinates) {
@@ -167,7 +192,7 @@ function KarteContent() {
         postalCode: addr.postal_code,
         city: addr.city,
         coordinates: coords,
-        units: addr.units || []
+        units: unitsMap.get(addr.id) || []
       };
     });
 
