@@ -1375,9 +1375,9 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             {/* Analyzing step */}
             {mappingStep === 'analyzing' && (
               <div className="border rounded-lg p-8">
-                <div className="flex items-center justify-center gap-3">
-                  <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                  <p className="text-lg">Analysiere {csvFile?.name}...</p>
+                <div className="flex items-center justify-center gap-3 min-w-0">
+                  <Loader2 className="h-6 w-6 animate-spin text-primary flex-shrink-0" />
+                  <p className="text-lg truncate">Analysiere {csvFile?.name}...</p>
                 </div>
               </div>
             )}

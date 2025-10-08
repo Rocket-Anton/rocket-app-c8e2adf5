@@ -334,9 +334,9 @@ export const AddressUploadWizard = ({
         {/* Step 2: Analyze */}
         {step === 'analyze' && (
           <div className="space-y-4 py-8">
-            <div className="flex items-center justify-center gap-3">
-              <Loader2 className="h-6 w-6 animate-spin text-primary" />
-              <p className="text-lg">Analysiere CSV-Struktur...</p>
+            <div className="flex items-center justify-center gap-3 min-w-0">
+              <Loader2 className="h-6 w-6 animate-spin text-primary flex-shrink-0" />
+              <p className="text-lg truncate">Analysiere CSV-Struktur...</p>
             </div>
             <Progress value={progress} className="w-full" />
           </div>
