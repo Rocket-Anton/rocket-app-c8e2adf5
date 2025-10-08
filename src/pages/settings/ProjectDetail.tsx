@@ -270,36 +270,36 @@ const ProjectDetail = () => {
 
                   {/* Tabs */}
                   <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-                    <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent">
-                      <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                    <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent overflow-x-auto flex-nowrap">
+                      <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Info className="w-4 h-4" />
                         Details
                       </TabsTrigger>
-                      <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="dashboard" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <BarChart3 className="w-4 h-4" />
                         Dashboard
                       </TabsTrigger>
-                      <TabsTrigger value="revenue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="revenue" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <DollarSign className="w-4 h-4" />
                         Umsatz
                       </TabsTrigger>
-                      <TabsTrigger value="rockets-active" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="rockets-active" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Rocket className="w-4 h-4" />
                         Raketen aktiv
                       </TabsTrigger>
-                      <TabsTrigger value="rockets-planned" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="rockets-planned" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Rocket className="w-4 h-4" />
                         Raketen geplant
                       </TabsTrigger>
-                      <TabsTrigger value="commissions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="commissions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <DollarSign className="w-4 h-4" />
                         Provisionen
                       </TabsTrigger>
-                      <TabsTrigger value="telegram" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="telegram" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <MessageCircle className="w-4 h-4" />
                         Telegram-Gruppe
                       </TabsTrigger>
-                      <TabsTrigger value="address-lists" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2">
+                      <TabsTrigger value="address-lists" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <List className="w-4 h-4" />
                         Adresslisten
                       </TabsTrigger>
