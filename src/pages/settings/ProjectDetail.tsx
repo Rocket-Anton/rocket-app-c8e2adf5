@@ -436,8 +436,8 @@ const ProjectDetail = () => {
                       <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                           <div>
-                            <CardTitle>Adresslisten</CardTitle>
-                            <CardDescription>
+                            <CardTitle className="text-lg">Adresslisten</CardTitle>
+                            <CardDescription className="text-sm">
                               Verwalten Sie die importierten Adresslisten für dieses Projekt
                             </CardDescription>
                           </div>
@@ -446,16 +446,17 @@ const ProjectDetail = () => {
                               onClick={handleExport}
                               disabled={exporting || lists.length === 0}
                               variant="outline"
+                              size="sm"
                             >
                               {exporting ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                <Loader2 className="w-3.5 h-3.5 mr-2 animate-spin" />
                               ) : (
-                                <Download className="w-4 h-4 mr-2" />
+                                <Download className="w-3.5 h-3.5 mr-2" />
                               )}
                               Rocket App Export
                             </Button>
-                            <Button onClick={() => setAddListDialogOpen(true)}>
-                              <Plus className="w-4 h-4 mr-2" />
+                            <Button onClick={() => setAddListDialogOpen(true)} size="sm">
+                              <Plus className="w-3.5 h-3.5 mr-2" />
                               Listen hinzufügen
                             </Button>
                           </div>
