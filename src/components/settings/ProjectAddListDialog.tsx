@@ -219,6 +219,7 @@ export const ProjectAddListDialog = ({
           csvData: csvData,
           columnMapping: finalMapping,
           questionAnswers: questionAnswers,
+          skipGeocoding: true,
         },
       });
 

@@ -66,7 +66,7 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
       const body = await req.json() as any
-      const { projectId, listId, csvData, columnMapping, questionAnswers } = body || {}
+      const { projectId, listId, csvData, columnMapping, questionAnswers, skipGeocoding } = body || {}
 
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
@@ -201,31 +201,42 @@ serve(async (req) => {
         }
       }
 
-      // Geocode any without coordinates
-      const BATCH_SIZE = 250
-      const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
-      for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
-        const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
-        const geocodePromises = batch.map(async (addr) => {
-          if (addr.coordinates?.lat && addr.coordinates?.lng) return addr
-          try {
-            const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
-              body: {
-                street: addr.street,
-                houseNumber: addr.houseNumber,
-                postalCode: addr.postalCode,
-                city: addr.city,
-              },
-            })
-            if (error) throw error
-            return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
-          } catch (err) {
-            console.error('Geocoding error:', err)
-            return { ...addr, coordinates: { lat: null, lng: null, error: String(err) } }
-          }
-        })
-        const geocodedBatch = await Promise.all(geocodePromises)
-        geocodedAddresses.push(...geocodedBatch)
+      // Geocode any without coordinates (can be skipped for speed)
+      let geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }>
+      if (skipGeocoding) {
+        geocodedAddresses = uniqueAddresses.map(addr => ({
+          ...addr,
+          coordinates: {
+            lat: (addr as any).coordinates?.lat ?? null,
+            lng: (addr as any).coordinates?.lng ?? null,
+          },
+        }))
+      } else {
+        const BATCH_SIZE = 250
+        geocodedAddresses = []
+        for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
+          const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
+          const geocodePromises = batch.map(async (addr) => {
+            if ((addr as any).coordinates?.lat && (addr as any).coordinates?.lng) return addr as any
+            try {
+              const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
+                body: {
+                  street: addr.street,
+                  houseNumber: addr.houseNumber,
+                  postalCode: addr.postalCode,
+                  city: addr.city,
+                },
+              })
+              if (error) throw error
+              return { ...addr, coordinates: { lat: (data as any).coordinates?.lat ?? data.lat, lng: (data as any).coordinates?.lng ?? data.lng, error: (data as any).error } }
+            } catch (err) {
+              console.error('Geocoding error:', err)
+              return { ...addr, coordinates: { lat: null, lng: null, error: String(err) } }
+            }
+          })
+          const geocodedBatch = await Promise.all(geocodePromises)
+          geocodedAddresses.push(...(geocodedBatch as any))
+        }
       }
 
       // Insert addresses and units
