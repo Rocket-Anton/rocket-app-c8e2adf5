@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +47,7 @@ interface Provider {
 }
 
 export const ProvidersSettings = () => {
+  const navigate = useNavigate();
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
@@ -240,8 +242,7 @@ export const ProvidersSettings = () => {
   };
 
   const handleRowClick = (provider: Provider) => {
-    setSelectedProvider(provider);
-    setIsDetailOpen(true);
+    navigate(`/settings/providers/${provider.id}`);
   };
 
   const handleDelete = async (id: string) => {

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -46,6 +47,7 @@ interface Provider {
 }
 
 export const ProjectsSettings = () => {
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -276,13 +278,17 @@ export const ProjectsSettings = () => {
             ))
           ) : (
             projects.map((project) => (
-              <TableRow key={project.id}>
+              <TableRow 
+                key={project.id}
+                className="cursor-pointer hover:bg-muted/50"
+                onClick={() => navigate(`/settings/projects/${project.id}`)}
+              >
                 <TableCell className="font-medium">{project.name}</TableCell>
                 <TableCell>{project.description || "-"}</TableCell>
                 <TableCell>
                   {project.providers?.name || "-"}
                 </TableCell>
-                <TableCell className="text-right">
+                <TableCell className="text-right" onClick={(e) => e.stopPropagation()}>
                   <Button
                     variant="ghost"
                     size="sm"

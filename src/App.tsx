@@ -6,10 +6,14 @@ import Index from "./pages/Index";
 import Karte from "./pages/Karte";
 import Auth from "./pages/Auth";
 import Projects from "./pages/settings/Projects";
+import ProjectDetail from "./pages/settings/ProjectDetail";
 import Providers from "./pages/settings/Providers";
+import ProviderDetail from "./pages/settings/ProviderDetail";
 import Addresses from "./pages/settings/Addresses";
 import Tarife from "./pages/settings/Tarife";
+import TarifeDetail from "./pages/settings/TarifeDetail";
 import Raketen from "./pages/settings/Raketen";
+import RaketenDetail from "./pages/settings/RaketenDetail";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -24,10 +28,14 @@ const App = () => {
             <Route path="/auth" element={<Auth />} />
             <Route path="/karte" element={<Karte />} />
             <Route path="/settings/providers" element={<Providers />} />
+            <Route path="/settings/providers/:id" element={<ProviderDetail />} />
             <Route path="/settings/projects" element={<Projects />} />
+            <Route path="/settings/projects/:id" element={<ProjectDetail />} />
             <Route path="/settings/addresses" element={<Addresses />} />
             <Route path="/settings/tarife" element={<Tarife />} />
+            <Route path="/settings/tarife/:id" element={<TarifeDetail />} />
             <Route path="/settings/raketen" element={<Raketen />} />
+            <Route path="/settings/raketen/:id" element={<RaketenDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>
