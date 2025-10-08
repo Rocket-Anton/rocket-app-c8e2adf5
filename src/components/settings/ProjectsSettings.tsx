@@ -23,6 +23,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { CreateProjectDialog } from "./CreateProjectDialog";
+import { useNavigate } from "react-router-dom";
 
 interface Project {
   id: string;
@@ -42,6 +43,7 @@ const STATUS_OPTIONS = ['In Planung', 'Läuft', 'Abgeschlossen'];
 
 export const ProjectsSettings = () => {
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
@@ -152,6 +154,19 @@ export const ProjectsSettings = () => {
     toast.info('Import-Funktion wird implementiert');
   };
 
+  const getStatusColor = (status: string) => {
+    switch (status) {
+      case 'In Planung':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'Läuft':
+        return 'bg-yellow-100 text-yellow-800 border-yellow-200';
+      case 'Abgeschlossen':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
+    }
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -257,18 +272,18 @@ export const ProjectsSettings = () => {
                     {/* Provider Row */}
                     <TableRow 
                       key={`provider-${providerId}`}
-                      className="cursor-pointer hover:bg-muted/30 h-8 font-semibold"
+                      className="cursor-pointer hover:bg-muted/30 h-8 font-semibold bg-blue-50 dark:bg-blue-950/20"
                       onClick={() => toggleProvider(providerId)}
                     >
                       <TableCell className="py-1" colSpan={27}>
                         <div className="flex items-center gap-2">
                           {isProviderExpanded ? (
-                            <ChevronDown className="w-4 h-4" />
+                            <ChevronDown className="w-4 h-4 text-blue-600" />
                           ) : (
-                            <ChevronRight className="w-4 h-4" />
+                            <ChevronRight className="w-4 h-4 text-blue-600" />
                           )}
-                          <span className="text-xs">{providerData.name}</span>
-                          <Badge variant="secondary" className="text-xs h-5 px-2">
+                          <span className="text-xs text-blue-600 font-semibold">{providerData.name}</span>
+                          <Badge variant="secondary" className="text-xs h-5 px-2 bg-blue-100 text-blue-800 border-blue-200">
                             {totalProjects}
                           </Badge>
                         </div>
@@ -281,37 +296,44 @@ export const ProjectsSettings = () => {
                       const isStatusExpanded = expandedStatus.has(statusKey);
                       
                       return (
-                        <>
-                          <TableRow 
-                            key={`status-${statusKey}`}
-                            className="cursor-pointer hover:bg-muted/20 h-8 bg-muted/10"
-                            onClick={() => toggleStatus(statusKey)}
-                          >
-                            <TableCell className="py-1" colSpan={27}>
-                              <div className="flex items-center gap-2 pl-6">
-                                {isStatusExpanded ? (
-                                  <ChevronDown className="w-3 h-3" />
-                                ) : (
-                                  <ChevronRight className="w-3 h-3" />
-                                )}
-                                <span className="text-xs font-medium">{status}</span>
-                                <Badge variant="outline" className="text-xs h-5 px-2">
-                                  {statusProjects.length}
-                                </Badge>
-                              </div>
-                            </TableCell>
-                          </TableRow>
+                          <>
+                            <TableRow 
+                              key={`status-${statusKey}`}
+                              className="cursor-pointer hover:bg-muted/20 h-8 bg-muted/10"
+                              onClick={() => toggleStatus(statusKey)}
+                            >
+                              <TableCell className="py-1" colSpan={27}>
+                                <div className="flex items-center gap-2 pl-6">
+                                  {isStatusExpanded ? (
+                                    <ChevronDown className="w-3 h-3" />
+                                  ) : (
+                                    <ChevronRight className="w-3 h-3" />
+                                  )}
+                                  <Badge variant="outline" className={`text-xs h-5 px-2 ${getStatusColor(status)}`}>
+                                    {status}
+                                  </Badge>
+                                  <Badge variant="outline" className="text-xs h-5 px-2">
+                                    {statusProjects.length}
+                                  </Badge>
+                                </div>
+                              </TableCell>
+                            </TableRow>
                           
                           {/* Project Rows (only if status is expanded) */}
                           {isStatusExpanded && statusProjects.map((project) => (
                             <TableRow 
                               key={project.id} 
                               className="cursor-pointer hover:bg-muted/50 h-8"
+                              onClick={() => navigate(`/settings/projects/${project.id}`)}
                             >
-                              <TableCell className="py-1 pl-12 text-xs">
+                              <TableCell className="py-1 pl-12 text-xs text-blue-600 hover:text-blue-800 hover:underline">
                                 {project.name}
                               </TableCell>
-                              <TableCell className="py-1 text-xs">{project.status}</TableCell>
+                              <TableCell className="py-1 text-xs">
+                                <Badge variant="outline" className={`text-xs ${getStatusColor(project.status)}`}>
+                                  {project.status}
+                                </Badge>
+                              </TableCell>
                               <TableCell className="py-1 text-xs">-</TableCell>
                               <TableCell className="py-1 text-xs">-</TableCell>
                               <TableCell className="py-1 text-xs">-</TableCell>
