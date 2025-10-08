@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.74.0';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -12,6 +13,12 @@ serve(async (req) => {
 
   try {
     const { audio, existingText, improvementInstruction, context } = await req.json();
+    
+    // Initialize Supabase client for RAG
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseKey);
+    
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     
     if (!LOVABLE_API_KEY) {
@@ -53,7 +60,41 @@ serve(async (req) => {
       console.log("Transcribed text:", transcribedText);
     }
 
-    // Build the prompt for text generation
+    console.log('Generating text with AI...');
+
+    // RAG: Fetch provider-specific instructions
+    let providerInstructions: string[] = [];
+    if (context?.providerId) {
+      const { data: instructions } = await supabase
+        .from('provider_ai_instructions')
+        .select('instruction_text, instruction_category')
+        .eq('provider_id', context.providerId)
+        .order('created_at', { ascending: false });
+      
+      if (instructions && instructions.length > 0) {
+        providerInstructions = instructions.map(i => `[${i.instruction_category}] ${i.instruction_text}`);
+        console.log(`Loaded ${instructions.length} provider instructions`);
+      }
+    }
+
+    // RAG: Fetch project-specific instructions
+    let projectInstructions: string[] = [];
+    if (context?.projectId) {
+      const { data: instructions } = await supabase
+        .from('project_ai_instructions')
+        .select('instruction_text, area_name')
+        .eq('project_id', context.projectId)
+        .order('created_at', { ascending: false });
+      
+      if (instructions && instructions.length > 0) {
+        projectInstructions = instructions
+          .filter(i => !i.area_name || i.area_name === context?.areaName)
+          .map(i => i.instruction_text);
+        console.log(`Loaded ${projectInstructions.length} project instructions`);
+      }
+    }
+
+    // Build the enhanced system prompt with RAG context
     let systemPrompt = `Du bist ein Projekt-Manager, der ansprechende Exposé-Texte für Vertriebsprojekte erstellt.
 
 Wichtige Regeln:
@@ -74,7 +115,17 @@ Verwende HTML für Formatierung:
 - <br> für Zeilenumbrüche
 - <p>Text</p> für Absätze
 
-Der Text soll direkt mit den wichtigsten Infos starten, ohne Anrede.`;
+Der Text soll direkt mit den wichtigsten Infos starten, ohne Anrede.
+
+${providerInstructions.length > 0 ? `
+WICHTIGE PROVIDER-SPEZIFISCHE REGELN FÜR ${context?.providerName || 'diesen Provider'}:
+${providerInstructions.map((inst, i) => `${i + 1}. ${inst}`).join('\n')}
+` : ''}
+
+${projectInstructions.length > 0 ? `
+WICHTIGE PROJEKT-SPEZIFISCHE REGELN:
+${projectInstructions.map((inst, i) => `${i + 1}. ${inst}`).join('\n')}
+` : ''}`;
 
     let userPrompt = "";
 
@@ -99,8 +150,6 @@ Der Text soll direkt mit den wichtigsten Infos starten, ohne Anrede.`;
       throw new Error('Neither audio nor improvement instruction provided');
     }
 
-    console.log("Generating text with AI...");
-
     // Call Lovable AI to generate the text
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -114,7 +163,6 @@ Der Text soll direkt mit den wichtigsten Infos starten, ohne Anrede.`;
           { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.7,
       }),
     });
 
