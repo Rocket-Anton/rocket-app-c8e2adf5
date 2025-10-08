@@ -28,6 +28,7 @@ import { MapPin, User, ChevronDown, Edit2, Trash2, Merge, Trash, Search, ArrowUp
 import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
+import { useIsMobile } from "@/hooks/use-mobile";
 
 interface Laufliste {
   id: string;
@@ -72,6 +73,7 @@ const statusColors: Record<string, string> = {
 type SortOption = 'newest' | 'oldest' | 'size-asc' | 'size-desc';
 
 export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProps) {
+  const isMobile = useIsMobile();
   const [lists, setLists] = useState<Laufliste[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedLists, setExpandedLists] = useState<Set<string>>(new Set());
@@ -377,8 +379,12 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
     <>
       <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={false}>
         <SheetContent 
-          side="right" 
-          className="w-[320px] sm:w-[380px]"
+          side={isMobile ? "bottom" : "right"}
+          className={cn(
+            isMobile 
+              ? "h-[60vh] w-full rounded-t-2xl" 
+              : "w-[320px] sm:w-[380px]"
+          )}
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
         >
@@ -476,7 +482,10 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
             </div>
           </SheetHeader>
 
-          <ScrollArea className="h-[calc(100vh-160px)] mt-3">
+          <ScrollArea className={cn(
+            "mt-3",
+            isMobile ? "h-[calc(60vh-160px)]" : "h-[calc(100vh-160px)]"
+          )}>
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-muted-foreground">Lädt...</div>
@@ -498,7 +507,11 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
               </p>
             </div>
           ) : (
-            <div className="space-y-3">
+            <div className={cn(
+              isMobile 
+                ? "flex gap-3 overflow-x-auto pb-3" 
+                : "space-y-3"
+            )}>
               {getFilteredAndSortedLists().map((list) => (
                 <Collapsible
                   key={list.id}
@@ -508,6 +521,7 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
                   <div
                     className={cn(
                       "rounded-lg border bg-card transition-all duration-200",
+                      isMobile && "min-w-[280px] flex-shrink-0",
                       expandedLists.has(list.id) 
                         ? "border-l-4 shadow-lg bg-primary/10 ring-2 ring-primary/20" 
                         : "border-l-4 hover:shadow-sm hover:bg-muted/20"

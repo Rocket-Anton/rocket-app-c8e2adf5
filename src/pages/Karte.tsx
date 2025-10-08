@@ -599,7 +599,7 @@ function KarteContent() {
             {/* Header */}
             <header className="flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
               <div className="flex items-center gap-3">
-                <h1 className="text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
+                <h1 className="hidden sm:block text-xl sm:text-2xl font-semibold text-foreground">Karte</h1>
               </div>
             </header>
 
