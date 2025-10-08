@@ -90,6 +90,17 @@ serve(async (req) => {
         return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase())
       }
 
+      // Normalize street name for comparison (handles Straße/Str./str. variations)
+      const normalizeStreetName = (street: string): string => {
+        if (!street) return ''
+        return street
+          .toLowerCase()
+          .replace(/straße/g, 'str')
+          .replace(/str\./g, 'str')
+          .replace(/\s+/g, ' ')
+          .trim()
+      }
+
       // Build map of addresses
       const addressMap = new Map<string, (ParsedAddress & { coordinates?: { lat: number | null; lng: number | null } })[]>()
       const errors: string[] = []
@@ -245,32 +256,58 @@ serve(async (req) => {
             continue
           }
 
-          const coordinates = (addr.coordinates.lat && addr.coordinates.lng)
-            ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
-            : null
-
-          const { data: addressData, error: addressError } = await supabaseClient
+          // Check if address already exists with normalized street name
+          const normalizedStreet = normalizeStreetName(addr.street)
+          const { data: existingAddresses } = await supabaseClient
             .from('addresses')
-            .insert({
-              street: addr.street,
-              house_number: addr.houseNumber,
-              postal_code: suggestedPlz || addr.postalCode,
-              city: suggestedCity || addr.city,
-              coordinates: coordinates,
-              project_id: projectId,
-              list_id: listId || null,
-              created_by: user.id,
-              notiz: addr.notizAdresse,
-            })
-            .select()
-            .single()
+            .select('*')
+            .eq('project_id', projectId)
+            .eq('house_number', addr.houseNumber)
+            .eq('postal_code', suggestedPlz || addr.postalCode)
+            .eq('city', suggestedCity || addr.city)
 
-          if (addressError) throw addressError
+          // Find matching address by normalized street name
+          const existingAddress = existingAddresses?.find(existing => 
+            normalizeStreetName(existing.street) === normalizedStreet
+          )
 
+          let addressId: number
+
+          if (existingAddress) {
+            // Use existing address ID and keep original street spelling
+            addressId = existingAddress.id
+            console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
+          } else {
+            // Insert new address
+            const coordinates = (addr.coordinates.lat && addr.coordinates.lng)
+              ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
+              : null
+
+            const { data: addressData, error: addressError } = await supabaseClient
+              .from('addresses')
+              .insert({
+                street: addr.street,
+                house_number: addr.houseNumber,
+                postal_code: suggestedPlz || addr.postalCode,
+                city: suggestedCity || addr.city,
+                coordinates: coordinates,
+                project_id: projectId,
+                list_id: listId || null,
+                created_by: user.id,
+                notiz: addr.notizAdresse,
+              })
+              .select()
+              .single()
+
+            if (addressError) throw addressError
+            addressId = addressData.id
+          }
+
+          // Insert units for this address (new or existing)
           const units = []
           for (let i = 0; i < addr.weCount; i++) {
             units.push({
-              address_id: addressData.id,
+              address_id: addressId,
               status: addr.status,
               etage: addr.etage,
               lage: addr.lage,
@@ -283,9 +320,9 @@ serve(async (req) => {
             .insert(units)
           if (unitsError) throw unitsError
 
-          successfulAddresses.push(addressData.id)
+          successfulAddresses.push(addressId)
 
-          if (!coordinates) {
+          if (!addr.coordinates.lat || !addr.coordinates.lng) {
             failedAddresses.push({
               address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
               reason: addr.coordinates.error || 'Geocoding failed',
@@ -345,6 +382,23 @@ serve(async (req) => {
 
     console.log(`Parsed ${rows.length} rows from CSV`)
 
+    // Normalize street name for comparison (handles Straße/Str./str. variations)
+    const normalizeStreetName = (street: string): string => {
+      if (!street) return ''
+      return street
+        .toLowerCase()
+        .replace(/straße/g, 'str')
+        .replace(/str\./g, 'str')
+        .replace(/\s+/g, ' ')
+        .trim()
+    }
+
+    // Normalize house number: convert letters to lowercase
+    const normalizeHouseNumber = (houseNumber: string): string => {
+      if (!houseNumber) return ''
+      return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase())
+    }
+
     // Group addresses by street+houseNumber to detect duplicates
     const addressMap = new Map<string, ParsedAddress[]>()
     const errors: string[] = []
@@ -353,7 +407,8 @@ serve(async (req) => {
       const plz = row.PLZ?.trim() || ''
       const ort = row.ORT?.trim() || ''
       const strasse = row.STRASSE?.trim() || ''
-      const hausnr = row.HAUSNR?.trim() || ''
+      let hausnr = row.HAUSNR?.trim() || ''
+      hausnr = normalizeHouseNumber(hausnr)
       const weanz = row.WEANZ?.trim() || '1'
       const status = row.STATUS?.trim() || 'Offen'
 
@@ -494,33 +549,57 @@ serve(async (req) => {
           continue
         }
 
-        const coordinates = addr.coordinates.lat && addr.coordinates.lng
-          ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
-          : null
-
-        // Insert address
-        const { data: addressData, error: addressError } = await supabaseClient
+        // Check if address already exists with normalized street name
+        const normalizedStreet = normalizeStreetName(addr.street)
+        const { data: existingAddresses } = await supabaseClient
           .from('addresses')
-          .insert({
-            street: addr.street,
-            house_number: addr.houseNumber,
-            postal_code: suggestedPlz || addr.postalCode,
-            city: suggestedCity || addr.city,
-            coordinates: coordinates,
-            project_id: projectId,
-            created_by: user.id,
-            notiz: addr.notizAdresse,
-          })
-          .select()
-          .single()
+          .select('*')
+          .eq('project_id', projectId)
+          .eq('house_number', addr.houseNumber)
+          .eq('postal_code', suggestedPlz || addr.postalCode)
+          .eq('city', suggestedCity || addr.city)
 
-        if (addressError) throw addressError
+        // Find matching address by normalized street name
+        const existingAddress = existingAddresses?.find(existing => 
+          normalizeStreetName(existing.street) === normalizedStreet
+        )
 
-        // Insert units
+        let addressId: number
+
+        if (existingAddress) {
+          // Use existing address ID and keep original street spelling
+          addressId = existingAddress.id
+          console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
+        } else {
+          // Insert new address
+          const coordinates = addr.coordinates.lat && addr.coordinates.lng
+            ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
+            : null
+
+          const { data: addressData, error: addressError } = await supabaseClient
+            .from('addresses')
+            .insert({
+              street: addr.street,
+              house_number: addr.houseNumber,
+              postal_code: suggestedPlz || addr.postalCode,
+              city: suggestedCity || addr.city,
+              coordinates: coordinates,
+              project_id: projectId,
+              created_by: user.id,
+              notiz: addr.notizAdresse,
+            })
+            .select()
+            .single()
+
+          if (addressError) throw addressError
+          addressId = addressData.id
+        }
+
+        // Insert units for this address (new or existing)
         const units = []
         for (let i = 0; i < addr.weCount; i++) {
           units.push({
-            address_id: addressData.id,
+            address_id: addressId,
             status: addr.status,
             etage: addr.etage,
             lage: addr.lage,
@@ -534,10 +613,10 @@ serve(async (req) => {
 
         if (unitsError) throw unitsError
 
-        successfulAddresses.push(addressData.id)
+        successfulAddresses.push(addressId)
 
         // If geocoding failed, add to failed list
-        if (!coordinates) {
+        if (!addr.coordinates.lat || !addr.coordinates.lng) {
           failedAddresses.push({
             address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
             reason: addr.coordinates.error || 'Geocoding failed',
