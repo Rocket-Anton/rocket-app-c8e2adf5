@@ -344,6 +344,20 @@ serve(async (req) => {
         }
       }
 
+      // Update list status to completed with stats
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          status: 'completed',
+          upload_stats: {
+            total: csvData.length,
+            successful: successfulAddresses.length,
+            failed: failedAddresses.length,
+          },
+          error_details: errors?.length ? { errors } : null,
+        })
+        .eq('id', listId);
+
       return new Response(
         JSON.stringify({
           success: true,

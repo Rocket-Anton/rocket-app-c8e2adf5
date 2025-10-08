@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,7 @@ export const ProjectAddListDialog = ({
   const [savedMappingId, setSavedMappingId] = useState<string | null>(null);
   const [confidence, setConfidence] = useState(0);
   const [progress, setProgress] = useState(0);
+  const [currentListId, setCurrentListId] = useState<string | null>(null);
 
   const handleFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const selectedFile = e.target.files?.[0];
@@ -211,8 +212,10 @@ export const ProjectAddListDialog = ({
 
       setProgress(30);
 
-      // Upload addresses
-      const { data: uploadData, error: uploadError } = await supabase.functions.invoke('upload-street-list', {
+      // Start upload in background (do not await)
+      setCurrentListId(listData.id);
+
+      void supabase.functions.invoke('upload-street-list', {
         body: {
           projectId: projectId,
           listId: listData.id,
@@ -220,46 +223,61 @@ export const ProjectAddListDialog = ({
           columnMapping: finalMapping,
           questionAnswers: questionAnswers,
         },
+      }).catch((err) => {
+        console.error('Upload invoke error (non-blocking):', err);
       });
 
-      if (uploadError) throw uploadError;
-
-      setProgress(90);
-
-      // Update list status
-      await supabase
-        .from('project_address_lists')
-        .update({
-          status: 'completed',
-          upload_stats: {
-            total: uploadData.totalRows || 0,
-            successful: uploadData.successfulAddresses || 0,
-            failed: uploadData.failedAddresses?.length || 0,
-          },
-        })
-        .eq('id', listData.id);
-
-      setProgress(100);
-      toast.success(`Liste "${listName}" erfolgreich importiert! ${uploadData.successfulAddresses} Adressen hinzugefügt`);
-      
-      onSuccess();
-      onOpenChange(false);
-      
-      // Reset state
-      setStep('upload');
-      setFile(null);
-      setListName("");
-      setCsvData([]);
-      setCsvHeaders([]);
-      setFinalMapping({});
-      setQuestionAnswers({});
-      setMappingQuestions([]);
+      // Continue showing importing UI; completion handled by polling effect
+      setProgress(40);
     } catch (error: any) {
       console.error('Import error:', error);
       toast.error(`Import fehlgeschlagen: ${error.message}`);
       setStep('mapping');
     }
   };
+
+  // Poll import status while importing
+  useEffect(() => {
+    if (step !== 'importing' || !currentListId) return;
+
+    const interval = setInterval(async () => {
+      const { data, error } = await supabase
+        .from('project_address_lists')
+        .select('status, upload_stats, error_details, name')
+        .eq('id', currentListId)
+        .single();
+
+      if (error) {
+        console.error('Polling error:', error);
+        return;
+      }
+
+      if (data?.status === 'completed') {
+        setProgress(100);
+        toast.success(`Liste "${data.name || listName}" erfolgreich importiert! ${data.upload_stats?.successful || 0} Adressen hinzugefügt`);
+        onSuccess();
+        onOpenChange(false);
+        // Reset state
+        setStep('upload');
+        setFile(null);
+        setListName("");
+        setCsvData([]);
+        setCsvHeaders([]);
+        setFinalMapping({});
+        setQuestionAnswers({});
+        setMappingQuestions([]);
+        setCurrentListId(null);
+        clearInterval(interval);
+      } else if (data?.status === 'failed') {
+        toast.error('Import fehlgeschlagen');
+        setStep('mapping');
+        setCurrentListId(null);
+        clearInterval(interval);
+      }
+    }, 2500);
+
+    return () => clearInterval(interval);
+  }, [step, currentListId]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
