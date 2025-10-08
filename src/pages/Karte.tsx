@@ -870,6 +870,7 @@ function KarteContent() {
         open={showAIAssistant}
         onClose={() => setShowAIAssistant(!showAIAssistant)}
         showListsSidebar={showListsSidebar}
+        hideForPopup={showStatsPopup || showCreateListModal}
         onSetFilter={(filters) => {
           if (filters.status) setStatusFilter(filters.status);
           if (filters.street) {

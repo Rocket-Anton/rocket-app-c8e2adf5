@@ -25,9 +25,10 @@ interface AIAssistantProps {
   onNavigate?: (page: "laufliste" | "karte" | "dashboard") => void;
   showListsSidebar?: boolean;
   onOrderCreated?: () => void;
+  hideForPopup?: boolean;
 }
 
-export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onClearFilters, onTogglePolygon, onNavigate, showListsSidebar = false, onOrderCreated }: AIAssistantProps) {
+export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onClearFilters, onTogglePolygon, onNavigate, showListsSidebar = false, onOrderCreated, hideForPopup = false }: AIAssistantProps) {
   const [messages, setMessages] = useState<Message[]>([]);
   const [isRecording, setIsRecording] = useState(false);
   const [isLocked, setIsLocked] = useState(false);
@@ -578,7 +579,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
   };
 
   const isMobile = typeof window !== 'undefined' && window.innerWidth < 768;
-  const sidebarOffset = showListsSidebar ? "right-[400px]" : "right-6";
+  const sidebarOffset = showListsSidebar ? "right-[400px]" : hideForPopup ? "right-[120px]" : "right-6";
   
   return (
     <>
