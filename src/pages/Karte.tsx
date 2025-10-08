@@ -267,13 +267,8 @@ function KarteContent() {
           },
           labelLayerId
         );
-      } else {
-        // Remove default 3D building layer from satellite view
-        const buildingLayer = layers.find(l => l.id === 'building-extrusion' || l.type === 'fill-extrusion');
-        if (buildingLayer) {
-          map.removeLayer(buildingLayer.id);
-        }
       }
+      // For satellite, don't add 3D buildings at all
     });
   };
 
