@@ -3139,7 +3139,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
                   <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
                   <SelectItem value="Zur Miete">Zur Miete</SelectItem>
-                  <SelectItem value="Bestehender Vertrag">Bestehender Vertrag</SelectItem>
                   <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
                 </SelectContent>
               </Select>
