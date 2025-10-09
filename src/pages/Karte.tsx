@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
@@ -743,46 +743,46 @@ function KarteContent() {
                     </div>
                     
                     <nav className="space-y-1 pt-4">
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <Home className="w-5 h-5" />
                         <span>Dashboard</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </Link>
+                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <Clock className="w-5 h-5" />
                         <span>Aktivitäten</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </Link>
+                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <PersonStanding className="w-5 h-5" />
                         <span>Lauflisten</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                      </Link>
+                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
                         <CircleIcon className="w-4 h-4 fill-current" />
                         <span>Liste</span>
-                      </a>
-                      <a href="/karte" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium ml-8">
+                      </Link>
+                      <Link to="/karte" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium ml-8">
                         <CircleIcon className="w-4 h-4" />
                         <span>Karte</span>
-                      </a>
-                      <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                      </Link>
+                      <Link to="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
                         <div className="flex items-center gap-3">
                           <CalendarIcon className="w-5 h-5" />
                           <span>Termine</span>
                         </div>
                         <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </Link>
+                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <UserIcon className="w-5 h-5" />
                         <span>Leads</span>
-                      </a>
+                      </Link>
                       
                       <div className="pt-4 mt-4 border-t">
                         <div className="px-4 pb-2">
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
                         </div>
-                        <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                        <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                           <Settings className="w-5 h-5" />
                           <span>Settings</span>
-                        </a>
+                        </Link>
                         <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
                           <div className="flex items-center gap-3">
                             <Moon className="w-5 h-5" />
