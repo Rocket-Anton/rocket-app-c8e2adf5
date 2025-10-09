@@ -8,6 +8,7 @@ import { AIAssistant } from "./AIAssistant";
 import { ProjectSelector } from "./ProjectSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useProjectContext } from "@/contexts/ProjectContext";
 import {
   Select,
   SelectContent,
@@ -62,8 +63,10 @@ interface LauflistenContentProps {
 }
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
-  // State für Adressen
-  const [addresses, setAddresses] = useState<any[]>([]);
+  const { cachedAddresses, setCachedAddresses, listScrollPosition, setListScrollPosition } = useProjectContext();
+  
+  // State für Adressen - use cached if available
+  const [addresses, setAddresses] = useState<any[]>(cachedAddresses);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -81,6 +84,23 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  
+  // Restore scroll position on mount
+  useEffect(() => {
+    if (scrollRef.current && listScrollPosition > 0) {
+      scrollRef.current.scrollTop = listScrollPosition;
+    }
+  }, []);
+
+  // Save scroll position on unmount
+  useEffect(() => {
+    return () => {
+      if (scrollRef.current) {
+        setListScrollPosition(scrollRef.current.scrollTop);
+      }
+    };
+  }, []);
   
   // Temporary input values (nur für Anzeige während der Eingabe)
   const [streetInput, setStreetInput] = useState("");
@@ -108,6 +128,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       // Only load addresses if at least one project is selected
       if (selectedProjectIds.size === 0) {
         setAddresses([]);
+        setCachedAddresses([]);
+        return;
+      }
+
+      // Use cached addresses if available for the same projects
+      if (cachedAddresses.length > 0) {
+        setAddresses(cachedAddresses);
         return;
       }
 
@@ -115,14 +142,40 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       try {
         const projectIdsArray = Array.from(selectedProjectIds);
         
-        const { data: addressesData, error } = await supabase
+        // Load addresses
+        const { data: addressesData, error: addressError } = await supabase
           .from("addresses")
           .select("*")
           .in("project_id", projectIdsArray)
           .order("street", { ascending: true })
           .order("house_number", { ascending: true });
 
-        if (error) throw error;
+        if (addressError) throw addressError;
+
+        // Load all units for these addresses
+        const addressIds = (addressesData || []).map(addr => addr.id);
+        const { data: unitsData, error: unitsError } = await supabase
+          .from("units")
+          .select("*")
+          .in("address_id", addressIds);
+
+        if (unitsError) {
+          console.error("Error loading units:", unitsError);
+        }
+
+        // Create a map of address_id to units
+        const unitsMap = new Map<number, any[]>();
+        (unitsData || []).forEach((unit: any) => {
+          if (!unitsMap.has(unit.address_id)) {
+            unitsMap.set(unit.address_id, []);
+          }
+          unitsMap.get(unit.address_id)!.push({
+            id: unit.id,
+            floor: unit.etage || '',
+            position: unit.lage || '',
+            status: unit.status || 'offen',
+          });
+        });
 
         // Transform the data to match the expected format
         const transformedAddresses = (addressesData || []).map((addr: any) => ({
@@ -132,11 +185,12 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           postalCode: addr.postal_code,
           city: addr.city,
           coordinates: addr.coordinates ? [addr.coordinates.lng, addr.coordinates.lat] : [0, 0],
-          units: addr.units || [],
+          units: unitsMap.get(addr.id) || [],
           notiz: addr.notiz
         }));
 
         setAddresses(transformedAddresses);
+        setCachedAddresses(transformedAddresses);
       } catch (error: any) {
         console.error("Error loading addresses:", error);
         toast.error("Fehler beim Laden der Adressen");
@@ -284,10 +338,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   };
   // Filter addresses based on all criteria
   const filteredAddresses = addresses.filter(address => {
-    // Only show addresses with at least one unit
-    const hasUnits = address.units && address.units.length > 0;
-    if (!hasUnits) return false;
-
     // Search term filter
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = searchTerm === "" || (
@@ -473,7 +523,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
 
   // Single filter bar that scrolls with content and overlays the addresses
-  const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);

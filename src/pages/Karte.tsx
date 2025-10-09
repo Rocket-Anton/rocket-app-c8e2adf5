@@ -70,7 +70,7 @@ const statusColorMap: Record<string, string> = {
 
 function KarteContent() {
   const { state: sidebarState } = useSidebar();
-  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
+  const { selectedProjectIds, setSelectedProjectIds, mapViewState, setMapViewState } = useProjectContext();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const navigate = useNavigate();
@@ -296,18 +296,31 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Default center on Hamburg when no project is selected
+    // Use saved map view state or default to Hamburg
+    const initialCenter = mapViewState?.center || [9.9937, 53.5511];
+    const initialZoom = mapViewState?.zoom || 12;
+
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [9.9937, 53.5511], // Hamburg coordinates
-      zoom: 12,
+      center: initialCenter,
+      zoom: initialZoom,
       pitch: 45,
       bearing: -17.6,
       antialias: true,
     });
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
+
+    // Save map view state when it moves
+    map.on('moveend', () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      setMapViewState({
+        center: [center.lng, center.lat],
+        zoom: zoom
+      });
+    });
 
     // 3D buildings layer on initial load only (streets style)
     map.once('style.load', () => {
