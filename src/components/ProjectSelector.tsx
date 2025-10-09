@@ -241,7 +241,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           <ChevronDown className="h-4 w-4 ml-1" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[380px] p-0 z-[1001] bg-background">
+      <DropdownMenuContent align="end" className="w-[320px] p-0 z-[1001] bg-background">
         <div className="p-2 border-b space-y-2">
           <div className="flex items-center gap-2">
             {/* Search */}
