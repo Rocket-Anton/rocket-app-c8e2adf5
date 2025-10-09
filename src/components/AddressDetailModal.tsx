@@ -1784,7 +1784,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         >
           <div
             ref={modalContentRef}
-            className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
+            className="relative w-full h-full bg-transparent overflow-hidden flex items-center justify-center"
             style={{ isolation: 'isolate' }}
           >
             <div className="w-full max-w-2xl h-[80vh]">
@@ -2007,7 +2007,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       >
         <div 
           ref={modalContentRef}
-          className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
+          className="relative w-full h-full bg-transparent overflow-hidden flex items-center justify-center"
           style={{ isolation: 'isolate' }}
         >
           <div className="relative w-full max-w-lg h-[95vh] md:h-[88vh]">

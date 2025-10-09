@@ -38,7 +38,7 @@ export const MotionDialog = ({
                     className={cn(
                       "pointer-events-auto isolate",
                       "w-[92vw] max-w-2xl max-h-[80vh]",
-                      "bg-transparent overflow-visible",
+                      "overflow-hidden",
                       "flex flex-col min-h-0",
                       "transform-gpu will-change-[transform,opacity]",
                       className
