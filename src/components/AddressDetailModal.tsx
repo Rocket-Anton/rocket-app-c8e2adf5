@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
@@ -162,6 +163,9 @@ const ITEM_VARIANTS = {
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  
+  // Lock body scroll when modal is open
+  useBodyScrollLock(open);
   
   // Get authenticated user context
   const [currentUser, setCurrentUser] = useState<{id: string, name: string} | null>(null);
@@ -1266,7 +1270,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div 
           ref={setScrollRef(addr.id)} 
           className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y overscroll-contain ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`} 
-          style={{ WebkitOverflowScrolling: 'touch' }}
+          style={{ WebkitOverflowScrolling: 'touch', overscrollBehavior: 'contain' }}
           onWheel={(e) => e.stopPropagation()}
           onTouchStart={(e) => {
             const touch = e.touches[0];
@@ -1717,9 +1721,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
-            <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10100]">
+          <AlertDialogPortal container={modalContentRef.current ?? undefined}>
+            <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
+            <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1807,11 +1811,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Order Creation Dialog (Single Address) */}
-        {orderDialogOpen && (
-          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
-        )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10110]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -1973,6 +1974,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div 
             ref={modalContentRef}
             className="p-0 overflow-visible w-full h-[85vh] bg-transparent shadow-none ring-0 border-0"
+            style={{ isolation: 'isolate', zIndex: 10100 }}
           >
             <HorizontalModalPager
               items={allAddresses}
@@ -2305,11 +2307,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </AlertDialog>
 
       {/* Add Note Dialog */}
-      {addNoteDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddNoteDialogOpen(false)} />
-      )}
       <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10110]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Notiz hinzufügen</DialogTitle>
           </DialogHeader>
@@ -2341,11 +2340,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       {/* Add Appointment Dialog */}
-      {addAppointmentDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
-      )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[65vw] lg:w-[420px] max-w-sm max-h-[80vh] p-0 z-[10100] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl" hideOverlay>
+        <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[65vw] lg:w-[420px] max-w-sm max-h-[80vh] p-0 z-[10110] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl" hideOverlay>
           <DialogHeader className="px-6 pt-4 pb-2 border-b">
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
@@ -2593,11 +2589,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       {/* Delete Note Dialog */}
-      {deleteNoteDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setDeleteNoteDialogOpen(false)} />
-      )}
       <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-        <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
+          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
+          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
             <AlertDialogDescription>
@@ -2615,14 +2610,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               Bestätigen
             </AlertDialogAction>
           </AlertDialogFooter>
-        </AlertDialogContent>
+          </AlertDialogContent>
+        </AlertDialogPortal>
       </AlertDialog>
 
       {/* Add Units Dialog */}
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-        <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10100]">
+        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
+          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
+          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2710,11 +2706,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </AlertDialog>
       
       {/* Order Creation Dialog */}
-      {orderDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
-      )}
       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10110]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Auftrag anlegen</DialogTitle>
           </DialogHeader>
@@ -2811,8 +2804,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           setPendingKeinInteresse(null);
         }
       }}>
-        <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
+        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
+          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
@@ -2870,8 +2863,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
       {/* Potenzial Bewertung - für alle Render-Pfade */}
       <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-        <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
+        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
+          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setPotenzialDialogOpen(false)}
