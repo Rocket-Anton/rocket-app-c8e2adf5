@@ -1798,7 +1798,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10300]">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2007,7 +2007,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       >
         <div className="relative flex items-center justify-center w-full h-full">
           {/* Navigation Arrow - Left */}
-          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && !confirmStatusUpdateOpen && (
             <NavigationArrow
               direction="left"
               onClick={() => pagerRef.current?.scrollPrev()}
@@ -2030,7 +2030,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           />
 
           {/* Navigation Arrow - Right */}
-          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && !confirmStatusUpdateOpen && (
             <NavigationArrow
               direction="right"
               onClick={() => pagerRef.current?.scrollNext()}
@@ -2041,7 +2041,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10300]">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
