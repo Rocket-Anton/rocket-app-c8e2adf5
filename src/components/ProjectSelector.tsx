@@ -290,11 +290,6 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                             IN PLANUNG
                           </div>
                         </SelectItem>
-                        <SelectItem value="Aktiv" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
-                            AKTIV
-                          </div>
-                        </SelectItem>
                         <SelectItem value="Läuft" className="p-0">
                           <div className="px-3 py-1.5 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
                             LÄUFT
