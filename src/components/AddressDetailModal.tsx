@@ -1213,7 +1213,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full min-h-0 overflow-hidden touch-pan-y">
+      <div className="flex flex-col h-full min-h-0 w-full max-w-full overflow-hidden touch-pan-y">
         {/* Single scrollable container */}
         <div 
           ref={setScrollRef(addr.id)} 
@@ -1745,7 +1745,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </DialogHeader>
 
-            <div className="flex-1 min-h-0">
+            <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
               {renderAddressContent(currentAddress)}
             </div>
           </DialogContent>
@@ -2004,7 +2004,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
 
           {/* Card Content */}
-          <div className="flex-1 min-h-0">
+          <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
             {renderAddressContent(addr)}
           </div>
         </div>
@@ -2339,7 +2339,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 return (
                   <div 
                     key={addr.id} 
-                    className="embla__slide basis-full h-full flex flex-col min-h-0"
+                    className="embla__slide basis-full h-full flex flex-col min-h-0 overflow-hidden"
                   >
                        <DialogHeader className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
                         <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -2372,7 +2372,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
                       </DialogHeader>
 
-                      <div className="flex-1 min-h-0">
+                      <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
                         {renderAddressContent(addr)}
                       </div>
                   </div>
