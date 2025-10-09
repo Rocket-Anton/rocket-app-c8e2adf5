@@ -144,6 +144,69 @@ const NavigationArrow: React.FC<{
   );
 };
 
+// Helper-Komponenten: Modal-gebundene Popover und Select für klickbare Dropdowns
+interface ModalBoundPopoverProps extends React.ComponentPropsWithoutRef<typeof PopoverPrimitive.Content> {
+  modalRef: React.RefObject<HTMLDivElement>;
+}
+
+const ModalBoundPopover = forwardRef<
+  React.ElementRef<typeof PopoverPrimitive.Content>,
+  ModalBoundPopoverProps
+>(({ children, modalRef, ...props }, ref) => {
+  return (
+    <PopoverPrimitive.Portal container={modalRef?.current}>
+      <PopoverPrimitive.Content
+        ref={ref}
+        {...props}
+        className={cn(
+          "z-[10120] rounded-md border bg-popover p-4 shadow-xl pointer-events-auto",
+          "data-[state=open]:animate-in data-[state=closed]:animate-out",
+          props.className
+        )}
+        sideOffset={props.sideOffset ?? 8}
+        collisionPadding={8}
+        avoidCollisions={true}
+        collisionBoundary={modalRef?.current}
+      >
+        {children}
+      </PopoverPrimitive.Content>
+    </PopoverPrimitive.Portal>
+  );
+});
+ModalBoundPopover.displayName = "ModalBoundPopover";
+
+interface ModalBoundSelectProps extends React.ComponentPropsWithoutRef<typeof SelectPrimitive.Content> {
+  modalRef: React.RefObject<HTMLDivElement>;
+}
+
+const ModalBoundSelect = forwardRef<
+  React.ElementRef<typeof SelectPrimitive.Content>,
+  ModalBoundSelectProps
+>(({ children, modalRef, ...props }, ref) => {
+  return (
+    <SelectPrimitive.Portal container={modalRef?.current}>
+      <SelectPrimitive.Content
+        ref={ref}
+        {...props}
+        className={cn(
+          "z-[10120] max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-xl pointer-events-auto",
+          props.className
+        )}
+        position="popper"
+        sideOffset={props.sideOffset ?? 4}
+        collisionPadding={8}
+        avoidCollisions={true}
+        collisionBoundary={modalRef?.current}
+      >
+        <SelectPrimitive.Viewport className="p-1">
+          {children}
+        </SelectPrimitive.Viewport>
+      </SelectPrimitive.Content>
+    </SelectPrimitive.Portal>
+  );
+});
+ModalBoundSelect.displayName = "ModalBoundSelect";
+
 // Removed CARD_VARIANTS and ITEM_VARIANTS for better performance
 
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
@@ -152,15 +215,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const isCoarse = useCoarsePointer();
   const isPhone = typeof window !== 'undefined' && window.innerWidth < 768;
   const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
-  const showArrows = !isCoarse && allAddresses.length > 1 && !isPhone;
+  const showArrows = allAddresses.length > 1 && !isPhone && !isTablet; // Pfeile NUR auf Desktop
   
   const emblaOptions = useMemo(
     () => ({
-      watchDrag: false, // Desktop: ONLY arrows, no drag
-      duration: 15, // Faster
+      watchDrag: isPhone || isTablet, // Swipe NUR für Mobile + Tablet, Desktop: nur Pfeile
+      duration: 15, // Apple-Style: Smooth & snappy
       skipSnaps: false,
     }),
-    []
+    [isPhone, isTablet] // Dependencies für korrekte Reaktivität
   );
   
   // Lock body scroll when modal is open
@@ -1347,49 +1410,35 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         {!isNotMarketable ? (
                           <div className="flex gap-3 min-w-0">
                             <div className="flex-[4] min-w-0 pointer-events-auto">
-                              <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
-                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pointer-events-auto">
-                                  <SelectValue placeholder="Stockwerk" />
-                                </SelectTrigger>
-                                <SelectContent 
-                                  side="bottom" 
-                                  align="start" 
-                                  sideOffset={4}
-                                  avoidCollisions={true} 
-                                  collisionPadding={16} 
-                                  className="bg-background z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto"
-                                >
-                                  <SelectItem value="EG">EG</SelectItem>
-                                  <SelectItem value="1. OG">1. OG</SelectItem>
-                                  <SelectItem value="2. OG">2. OG</SelectItem>
-                                  <SelectItem value="3. OG">3. OG</SelectItem>
-                                  <SelectItem value="4. OG">4. OG</SelectItem>
-                                  <SelectItem value="5. OG">5. OG</SelectItem>
-                                  <SelectItem value="6. OG">6. OG</SelectItem>
-                                  <SelectItem value="7. OG">7. OG</SelectItem>
-                                  <SelectItem value="8. OG">8. OG</SelectItem>
-                                </SelectContent>
-                              </Select>
+                                <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
+                                  <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pointer-events-auto">
+                                    <SelectValue placeholder="Stockwerk" />
+                                  </SelectTrigger>
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
+                                    <SelectItem value="EG">EG</SelectItem>
+                                    <SelectItem value="1. OG">1. OG</SelectItem>
+                                    <SelectItem value="2. OG">2. OG</SelectItem>
+                                    <SelectItem value="3. OG">3. OG</SelectItem>
+                                    <SelectItem value="4. OG">4. OG</SelectItem>
+                                    <SelectItem value="5. OG">5. OG</SelectItem>
+                                    <SelectItem value="6. OG">6. OG</SelectItem>
+                                    <SelectItem value="7. OG">7. OG</SelectItem>
+                                    <SelectItem value="8. OG">8. OG</SelectItem>
+                                  </ModalBoundSelect>
+                                </Select>
                             </div>
 
                             <div className="flex-[2] min-w-0 pointer-events-auto">
                               <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
-                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2 pointer-events-auto">
-                                  <SelectValue placeholder="Lage" />
-                                </SelectTrigger>
-                                <SelectContent 
-                                  side="bottom" 
-                                  align="start" 
-                                  sideOffset={4}
-                                  avoidCollisions={true} 
-                                  collisionPadding={16} 
-                                  className="bg-background z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto"
-                                >
-                                  <SelectItem value="Links">Links</SelectItem>
-                                  <SelectItem value="Rechts">Rechts</SelectItem>
-                                  <SelectItem value="Mitte">Mitte</SelectItem>
-                                </SelectContent>
-                              </Select>
+                                  <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2 pointer-events-auto">
+                                    <SelectValue placeholder="Lage" />
+                                  </SelectTrigger>
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
+                                    <SelectItem value="Links">Links</SelectItem>
+                                    <SelectItem value="Rechts">Rechts</SelectItem>
+                                    <SelectItem value="Mitte">Mitte</SelectItem>
+                                  </ModalBoundSelect>
+                                </Select>
                             </div>
                           </div>
                         ) : null}
@@ -1416,14 +1465,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   </SelectValue>
                                 </SelectTrigger>
                                 {!isNotMarketable && (
-                                  <SelectContent 
-                                    side="bottom" 
-                                    align="start" 
-                                    sideOffset={8}
-                                    avoidCollisions={true}
-                                    collisionPadding={16}
-                                    className="z-[10120] max-h-[200px] overflow-y-auto"
-                                  >
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
                                     {statusOptions
                                       .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                                       .map((status) => (
@@ -1433,7 +1475,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                           </div>
                                         </SelectItem>
                                       ))}
-                                  </SelectContent>
+                                  </ModalBoundSelect>
                                 )}
                               </Select>
                             </div>
@@ -1455,13 +1497,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                     )}
                                   </Button>
                                 </PopoverTrigger>
-                                   <PopoverContent
+                                   <ModalBoundPopover
+                                    modalRef={modalContentRef}
                                     align="start"
                                     side="bottom"
-                                    sideOffset={8}
-                                    avoidCollisions={true}
-                                    collisionPadding={16}
-                                    className="w-64 p-0 z-[10120] overflow-hidden rounded-md border bg-popover shadow-xl"
+                                    className="w-64 p-0 overflow-hidden"
                                   >
                                     <div
                                       className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
@@ -1501,7 +1541,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                         </div>
                                        </div>
                                      </div>
-                                   </PopoverContent>
+                                   </ModalBoundPopover>
                               </Popover>
                             </div>
                           </div>
@@ -1675,7 +1715,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div 
         key={addr.id}
-        className="h-full w-[95vw] max-w-lg mx-auto rounded-2xl bg-background shadow-2xl overflow-hidden flex flex-col"
+        className="h-full w-[95vw] max-w-lg mx-auto rounded-2xl bg-background shadow-2xl flex flex-col"
       >
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -1715,7 +1755,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Card Content */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full rounded-b-2xl"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full"
           style={{
             WebkitOverflowScrolling: 'touch',
             background: 'transparent'
@@ -1886,7 +1926,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                     <SelectValue placeholder="Tarif auswählen" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background border border-border z-[10000]">
+                  <SelectContent className="bg-background border border-border z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto">
                     <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
                     <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
                     <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>
@@ -2187,7 +2227,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                     <SelectValue placeholder="Tarif auswählen" />
                   </SelectTrigger>
-                  <SelectContent className="bg-background border border-border z-[10000]">
+                  <SelectContent className="bg-background border border-border z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto">
                     <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
                     <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
                     <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>

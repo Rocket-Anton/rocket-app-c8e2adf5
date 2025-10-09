@@ -30,7 +30,7 @@ export const MotionDialog = ({
               </Dialog.Overlay>
 
               {/* Viewport-Grid - pixelgenaue Zentrierung */}
-              <div className="fixed inset-0 z-[10140] grid place-items-center p-4 sm:p-6 pointer-events-none">
+              <div className="fixed inset-0 z-[10140] grid place-items-center p-4 sm:p-6">
                 <Dialog.Content asChild>
                   <motion.div
                     role="dialog"
