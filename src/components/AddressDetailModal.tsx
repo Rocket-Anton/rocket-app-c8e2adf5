@@ -1353,7 +1353,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                     modalRef={modalContentRef}
                                     align="end"
                                     sideOffset={8}
-                                    className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
+                                    className="w-64 p-0 z-[10130] overflow-hidden rounded-md border bg-popover shadow-xl"
                                   >
                                     <div
                                       className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
