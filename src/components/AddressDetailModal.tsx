@@ -1655,7 +1655,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     
     return (
       <motion.div 
-        className="h-full w-[92vw] max-w-2xl mx-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
+        className="h-full w-[95vw] max-w-lg mx-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
         initial="hidden"
         animate="show"
         variants={CARD_VARIANTS}
@@ -1943,7 +1943,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-        <div className="w-full max-w-2xl h-full">
+        <div className="w-full max-w-lg h-[90vh] sm:h-[85vh]">
           <HorizontalModalPager
             items={allAddresses}
             startIndex={initialIndex}
@@ -2225,7 +2225,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-        <div className="relative w-full max-w-2xl h-full">
+        <div className="relative w-full max-w-lg h-[90vh] sm:h-[85vh]">
           <HorizontalModalPager
             ref={pagerRef}
             items={allAddresses}
