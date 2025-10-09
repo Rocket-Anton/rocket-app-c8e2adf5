@@ -42,15 +42,14 @@ const DialogContent = React.forwardRef<
     <DialogPrimitive.Content
       ref={ref}
       className={cn(
-        "fixed left-[50%] top-[50%] z-[10060] flex flex-col w-[calc(100vw-80px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-4 border-0 bg-background p-6 shadow-lg min-h-0 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:opacity-100 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:translate-x-[-50%] data-[state=open]:translate-y-[-50%] data-[state=closed]:scale-90 data-[state=closed]:translate-x-[-50%] data-[state=closed]:translate-y-[calc(-50%+8px)] sm:rounded-lg sm:w-full",
+        "fixed left-[50%] top-[50%] z-[10060] flex flex-col w-[calc(100vw-80px)] max-w-lg max-h-[90vh] translate-x-[-50%] translate-y-[-50%] gap-4 border-0 bg-background p-6 shadow-lg min-h-0 overflow-hidden transition-all duration-300 ease-[cubic-bezier(0.16,1,0.3,1)] data-[state=open]:opacity-100 data-[state=closed]:opacity-0 data-[state=open]:scale-100 data-[state=open]:translate-x-[-50%] data-[state=open]:translate-y-[-50%] data-[state=closed]:scale-90 data-[state=closed]:translate-x-[-50%] data-[state=closed]:translate-y-[calc(-50%+8px)] sm:rounded-lg sm:w-full transform-gpu",
         className,
       )}
       style={{ 
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
         WebkitBackfaceVisibility: 'hidden',
-        transformOrigin: 'center center',
-        transform: 'translateZ(0)'
+        transformOrigin: 'center center'
       }}
       {...props}
     >
