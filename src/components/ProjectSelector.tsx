@@ -489,7 +489,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                       <Badge 
                         variant="outline" 
                         className={cn(
-                          "text-[10px] px-1 py-0 h-4 border-0 text-white",
+                          "text-[10px] px-1 py-0 h-4 border-0 text-white rounded-sm",
                           statusColors[project.status]
                         )}
                       >
