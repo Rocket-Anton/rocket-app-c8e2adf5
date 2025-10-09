@@ -441,7 +441,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           </div>
         </div>
         
-        <ScrollArea className="h-auto max-h-[132px]">
+        <ScrollArea className={cn("min-h-0", filteredProjects.length > 3 ? "h-[132px]" : "h-auto max-h-[132px]")}>
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Lädt...</div>
