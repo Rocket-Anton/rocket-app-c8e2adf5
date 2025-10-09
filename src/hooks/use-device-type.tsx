@@ -3,8 +3,19 @@ import * as React from "react";
 const PHONE_BREAKPOINT = 768;
 const TABLET_BREAKPOINT = 1024;
 
+// Helper-Funktion für SSR-sichere Window-Checks
+const getInitialIsPhone = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth < PHONE_BREAKPOINT;
+};
+
+const getInitialIsTablet = () => {
+  if (typeof window === 'undefined') return false;
+  return window.innerWidth >= PHONE_BREAKPOINT && window.innerWidth < TABLET_BREAKPOINT;
+};
+
 export function useIsPhone() {
-  const [isPhone, setIsPhone] = React.useState<boolean | undefined>(undefined);
+  const [isPhone, setIsPhone] = React.useState<boolean>(getInitialIsPhone());
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(max-width: ${PHONE_BREAKPOINT - 1}px)`);
@@ -16,11 +27,11 @@ export function useIsPhone() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return !!isPhone;
+  return isPhone;
 }
 
 export function useIsTablet() {
-  const [isTablet, setIsTablet] = React.useState<boolean | undefined>(undefined);
+  const [isTablet, setIsTablet] = React.useState<boolean>(getInitialIsTablet());
 
   React.useEffect(() => {
     const mql = window.matchMedia(`(min-width: ${PHONE_BREAKPOINT}px) and (max-width: ${TABLET_BREAKPOINT - 1}px)`);
@@ -34,5 +45,5 @@ export function useIsTablet() {
     return () => mql.removeEventListener("change", onChange);
   }, []);
 
-  return !!isTablet;
+  return isTablet;
 }
