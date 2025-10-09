@@ -2242,8 +2242,4 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
       </>
     );
-  }
-  
-  // This section should never execute (kept for backwards compatibility)
-  return null;
 };
