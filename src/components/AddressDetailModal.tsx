@@ -2404,16 +2404,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       {/* Add Appointment Dialog */}
-      {addAppointmentDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
-      )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[92vw] max-w-lg rounded-2xl h-[85vh] p-0 z-[10100] flex flex-col min-h-0 overflow-hidden" hideOverlay onClick={(e) => e.stopPropagation()}>
-          <DialogHeader className="px-6 pt-4 pb-2 flex-shrink-0">
+        <DialogContent className="w-[92vw] max-w-lg h-[85vh] p-0 z-[10100] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl">
+          <DialogHeader className="px-6 pt-4 pb-2 border-b">
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
+          <div className="overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
