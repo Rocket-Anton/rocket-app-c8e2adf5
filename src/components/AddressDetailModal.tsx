@@ -1607,7 +1607,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1632,7 +1632,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
           <AlertDialogPortal>
             <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+            <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10100]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1698,7 +1698,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Unit Dialog */}
         <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1888,7 +1888,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </Dialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1951,7 +1951,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setDeleteNoteDialogOpen(false)} />
         )}
         <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1976,7 +1976,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
           <AlertDialogPortal>
             <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+            <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10100]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -2044,7 +2044,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Unit Dialog (Mobile) */}
         <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2209,7 +2209,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+        <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
             <AlertDialogDescription>
@@ -2523,7 +2523,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setDeleteNoteDialogOpen(false)} />
       )}
       <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
             <AlertDialogDescription>
@@ -2548,7 +2548,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
         <AlertDialogPortal>
           <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10100]">
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2614,7 +2614,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
       {/* Delete Unit Dialog (Desktop Carousel) */}
       <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+        <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl">
           <AlertDialogHeader>
             <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
             <AlertDialogDescription>
@@ -2739,7 +2739,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       }}>
         <AlertDialogPortal>
           <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2798,7 +2798,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
         <AlertDialogPortal>
           <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
+          <AlertDialogContent className="px-8 w-[90vw] sm:w-[80vw] md:w-[60vw] lg:w-[420px] max-w-sm rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
