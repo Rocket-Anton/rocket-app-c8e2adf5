@@ -1,5 +1,4 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from "react";
-import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -326,7 +325,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       </PopoverContent>
     );
   };
-  // Filter addresses based on all criteria and memoize for performance
   const displayedAddresses = useMemo(() => {
     return addresses.filter(address => {
       // Search term filter
@@ -392,52 +390,49 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     });
   }, [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
 
-  // Virtual scrolling for performance - only render visible items
-  const rowVirtualizer = useVirtualizer({
-    count: displayedAddresses.length,
-    getScrollElement: () => scrollRef.current,
-    estimateSize: () => 300, // Estimated height per address card
-    overscan: 3, // Render 3 items above/below viewport for smooth scrolling
-  });
-
-  // Load units for visible addresses only
+  // Load units for addresses when they become visible using Intersection Observer
   useEffect(() => {
-    const loadVisibleUnits = async () => {
-      const virtualItems = rowVirtualizer.getVirtualItems();
-      if (virtualItems.length === 0) return;
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach(async (entry) => {
+          if (entry.isIntersecting) {
+            const addressId = parseInt(entry.target.getAttribute('data-address-id') || '0');
+            const address = addresses.find(a => a.id === addressId);
+            
+            if (address && address.units.length === 0) {
+              try {
+                const { data: unitsData, error: unitsError } = await supabase
+                  .from("units")
+                  .select("*")
+                  .eq("address_id", addressId);
 
-      const visibleAddresses = virtualItems.map(item => displayedAddresses[item.index]);
-      const addressIdsToLoad = visibleAddresses
-        .filter(addr => addr && addr.units.length === 0)
-        .map(addr => addr.id);
+                if (unitsError) throw unitsError;
 
-      if (addressIdsToLoad.length === 0) return;
-
-      try {
-        const { data: unitsData, error: unitsError } = await supabase
-          .from("units")
-          .select("*")
-          .in("address_id", addressIdsToLoad);
-
-        if (unitsError) throw unitsError;
-
-        // Update addresses with loaded units
-        setAddresses(prevAddresses => 
-          prevAddresses.map(addr => {
-            if (addressIdsToLoad.includes(addr.id)) {
-              const addressUnits = (unitsData || []).filter((u: any) => u.address_id === addr.id);
-              return { ...addr, units: addressUnits };
+                setAddresses(prevAddresses => 
+                  prevAddresses.map(addr => {
+                    if (addr.id === addressId) {
+                      return { ...addr, units: unitsData || [] };
+                    }
+                    return addr;
+                  })
+                );
+              } catch (error) {
+                console.error("Error loading units:", error);
+              }
             }
-            return addr;
-          })
-        );
-      } catch (error) {
-        console.error("Error loading units:", error);
-      }
-    };
+          }
+        });
+      },
+      { rootMargin: '100px' } // Load units 100px before they enter viewport
+    );
 
-    loadVisibleUnits();
-  }, [rowVirtualizer.range, displayedAddresses.length]);
+    // Observe all address cards
+    addressCardRefs.current.forEach(ref => {
+      if (ref) observer.observe(ref);
+    });
+
+    return () => observer.disconnect();
+  }, [addresses, displayedAddresses]);
 
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
@@ -2059,57 +2054,30 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               />
             </div>
           ) : (
-            <div 
-              ref={scrollRef}
-              className={`pb-20 ${isMobile ? 'px-4' : 'px-6'} overflow-auto`}
-              style={{ 
-                height: 'calc(100vh - 400px)', // Adjust based on header height
-                contain: 'strict'
-              }}
-            >
-              <div
-                style={{
-                  height: `${rowVirtualizer.getTotalSize()}px`,
-                  width: '100%',
-                  position: 'relative',
-                }}
-              >
-                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
-                  const address = displayedAddresses[virtualRow.index];
-                  return (
-                    <div
-                      key={address.id}
-                      data-index={virtualRow.index}
-                      ref={(el) => {
-                        rowVirtualizer.measureElement(el);
-                        addressCardRefs.current[virtualRow.index] = el;
+            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
+              <div className="space-y-4">
+                {displayedAddresses.map((address, index) => (
+                  <div 
+                    key={address.id} 
+                    ref={(el) => addressCardRefs.current[index] = el}
+                    data-address-id={address.id}
+                  >
+                    <AddressCard 
+                      address={address}
+                      allAddresses={displayedAddresses}
+                      currentIndex={index}
+                      onModalClose={handleModalClose}
+                      onOrderCreated={() => {
+                        onOrderCreated?.();
+                        // Trigger Rokki celebration
+                        if ((window as any).rokkiOrderCreatedHandler) {
+                          (window as any).rokkiOrderCreatedHandler();
+                        }
                       }}
-                      style={{
-                        position: 'absolute',
-                        top: 0,
-                        left: 0,
-                        width: '100%',
-                        transform: `translateY(${virtualRow.start}px)`,
-                      }}
-                      className="mb-4"
-                    >
-                      <AddressCard 
-                        address={address}
-                        allAddresses={displayedAddresses}
-                        currentIndex={virtualRow.index}
-                        onModalClose={handleModalClose}
-                        onOrderCreated={() => {
-                          onOrderCreated?.();
-                          // Trigger Rokki celebration
-                          if ((window as any).rokkiOrderCreatedHandler) {
-                            (window as any).rokkiOrderCreatedHandler();
-                          }
-                        }}
-                        onUpdateUnitStatus={updateUnitStatus}
-                      />
-                    </div>
-                  );
-                })}
+                      onUpdateUnitStatus={updateUnitStatus}
+                    />
+                  </div>
+                ))}
               </div>
             </div>
           )}
