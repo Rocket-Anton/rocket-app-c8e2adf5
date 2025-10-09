@@ -190,7 +190,7 @@ const ModalBoundSelect = forwardRef<
         ref={ref}
         {...props}
         className={cn(
-          "z-[10170] max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-xl pointer-events-auto",
+          "z-[10170] max-h-[200px] overflow-y-auto rounded-md border border-border bg-background shadow-xl pointer-events-auto",
           props.className
         )}
         position="popper"
@@ -2566,10 +2566,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogHeader>
             <div className="space-y-4">
               <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
-                <SelectTrigger className="w-full">
+                <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
                   <SelectValue placeholder="Grund auswählen" />
                 </SelectTrigger>
-                <SelectContent className="z-[10400]">
+                <SelectContent className="bg-background border border-border z-[10400] pointer-events-auto max-h-[200px] overflow-y-auto">
                   <SelectItem value="Bereits Kunde">Bereits Kunde</SelectItem>
                   <SelectItem value="Kein Bedarf">Kein Bedarf</SelectItem>
                   <SelectItem value="Zu teuer">Zu teuer</SelectItem>
