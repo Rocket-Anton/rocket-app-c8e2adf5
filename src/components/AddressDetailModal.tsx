@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
+import { useCoarsePointer } from "@/hooks/useCoarsePointer";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
@@ -163,6 +164,15 @@ const ITEM_VARIANTS = {
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
   const { toast } = useToast();
+  const isCoarse = useCoarsePointer();
+  const showArrows = !isCoarse && allAddresses.length > 1;
+  
+  const emblaOptions = useMemo(
+    () => ({
+      watchDrag: isCoarse,
+    }),
+    [isCoarse]
+  );
   
   // Lock body scroll when modal is open
   useBodyScrollLock(open);
@@ -1436,10 +1446,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                     )}
                                   </Button>
                                 </PopoverTrigger>
-                                <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
                                   <BoundedPopoverContent
                                     modalRef={modalContentRef}
-                                    align="end"
+                                    align="start"
                                     sideOffset={8}
                                     className="w-64 p-0 z-[10130] overflow-hidden rounded-md border bg-popover shadow-xl"
                                   >
@@ -1482,7 +1491,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                       </div>
                                     </div>
                                   </BoundedPopoverContent>
-                                </PopoverPrimitive.Portal>
                               </Popover>
                             </div>
                           </div>
@@ -1701,7 +1709,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Card Content */}
           <motion.div 
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full"
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full rounded-b-xl"
             variants={ITEM_VARIANTS}
             style={{ WebkitOverflowScrolling: 'touch' }}
           >
@@ -1952,6 +1960,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               setCurrentIndex(idx);
             }}
             className="bg-transparent shadow-none ring-0"
+            options={emblaOptions}
           />
         </div>
       </div>
@@ -2225,7 +2234,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-        <div className="relative w-full max-w-lg h-[90vh] sm:h-[85vh]">
+        <div className="relative w-full max-w-lg h-[90vh] sm:h-[85vh] px-20">
           <HorizontalModalPager
             ref={pagerRef}
             items={allAddresses}
@@ -2233,10 +2242,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             renderCard={renderCompleteCard}
             onIndexChange={(idx) => setCurrentIndex(idx)}
             className="bg-transparent shadow-none ring-0"
+            options={emblaOptions}
           />
           
           {/* Desktop Navigation Arrows */}
-          {allAddresses.length > 1 && (
+          {showArrows && (
             <>
               <NavigationArrow
                 direction="left"

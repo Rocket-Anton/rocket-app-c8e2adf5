@@ -9,6 +9,7 @@ type Props<T extends Item> = {
   renderCard: (item: T, index: number, total: number) => React.ReactNode;
   onIndexChange?: (index: number) => void;
   className?: string;
+  options?: Parameters<typeof useEmblaCarousel>[0];
 };
 
 export interface HorizontalModalPagerHandle {
@@ -24,6 +25,7 @@ function HorizontalModalPagerInner<T extends Item>({
   renderCard,
   onIndexChange,
   className,
+  options,
 }: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -36,7 +38,8 @@ function HorizontalModalPagerInner<T extends Item>({
     duration: 12, // Ultra-responsive für Apple-Feel
     watchDrag: true,
     startIndex: startIndex,
-    inViewThreshold: 0.6
+    inViewThreshold: 0.6,
+    ...options,
   });
 
 
