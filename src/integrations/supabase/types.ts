@@ -859,6 +859,44 @@ export type Database = {
           },
         ]
       }
+      unit_activities: {
+        Row: {
+          activity_type: string
+          address_id: number
+          created_at: string
+          id: string
+          metadata: Json | null
+          unit_id: number
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          address_id: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          unit_id: number
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          address_id?: number
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          unit_id?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_activities_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units: {
         Row: {
           address_id: number

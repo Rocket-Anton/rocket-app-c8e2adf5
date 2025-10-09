@@ -991,7 +991,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setAddUnitsDialogOpen(true);
   };
 
-  const confirmAddUnits = () => {
+  const confirmAddUnits = async () => {
     if (pendingAddressId === null || addUnitsCount < 1 || addUnitsCount > 3) return;
 
     const targetAddress = allAddresses.length > 0 
@@ -1019,18 +1019,68 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     // Add units to the address
     targetAddress.units.push(...newUnits);
 
-    // Set status for each new unit - NO history, NO notes
-    newUnits.forEach(unit => {
-      const k = `${pendingAddressId}:${unit.id}`;
-      setUnitStatuses(prev => ({ ...prev, [k]: "offen" }));
-      setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
-    });
+    // Save to database and track activities
+    try {
+      const { error: updateError } = await supabase
+        .from('addresses')
+        .update({ 
+          units: targetAddress.units 
+        })
+        .eq('id', pendingAddressId);
 
-    toast({
-      title: `✓ ${addUnitsCount} Wohneinheit${addUnitsCount > 1 ? 'en' : ''} hinzugefügt`,
-      className: "bg-green-400 text-white border-0 w-auto max-w-[300px] p-3 py-2",
-      duration: 1500,
-    });
+      if (updateError) {
+        console.error('Error updating address units:', updateError);
+        toast({
+          title: "Fehler beim Hinzufügen",
+          description: "Die Wohneinheiten konnten nicht hinzugefügt werden.",
+          className: "bg-red-500 text-white",
+          duration: 3000,
+        });
+        return;
+      }
+
+      // Track unit creation activities
+      if (currentUser) {
+        const activities = newUnits.map(unit => ({
+          user_id: currentUser.id,
+          address_id: pendingAddressId,
+          unit_id: unit.id,
+          activity_type: 'created',
+          metadata: {
+            created_at: timestamp
+          }
+        }));
+
+        const { error: activityError } = await supabase
+          .from('unit_activities')
+          .insert(activities);
+
+        if (activityError) {
+          console.error('Error tracking unit creation:', activityError);
+        }
+      }
+
+      // Set status for each new unit - NO history, NO notes
+      newUnits.forEach(unit => {
+        const k = `${pendingAddressId}:${unit.id}`;
+        setUnitStatuses(prev => ({ ...prev, [k]: "offen" }));
+        setLastUpdated(prev => ({ ...prev, [k]: timestamp }));
+      });
+
+      toast({
+        title: `✓ ${addUnitsCount} Wohneinheit${addUnitsCount > 1 ? 'en' : ''} hinzugefügt`,
+        className: "bg-green-400 text-white border-0 w-auto max-w-[300px] p-3 py-2",
+        duration: 1500,
+      });
+    } catch (err) {
+      console.error('Error adding units:', err);
+      toast({
+        title: "Fehler",
+        description: "Ein Fehler ist aufgetreten.",
+        className: "bg-red-500 text-white",
+        duration: 3000,
+      });
+    }
 
     // Close dialog and reset
     setAddUnitsDialogOpen(false);
@@ -1043,7 +1093,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setDeleteUnitDialogOpen(true);
   };
 
-  const confirmDeleteUnit = () => {
+  const confirmDeleteUnit = async () => {
     if (!pendingDeleteUnit) return;
 
     const { addressId, unitId } = pendingDeleteUnit;
@@ -1061,13 +1111,63 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       unit.deleted = true;
       unit.deletedBy = currentUser?.name || "Unbekannt";
       unit.deletedAt = timestamp;
-    }
 
-    toast({
-      title: "✓ Wohneinheit gelöscht",
-      className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
-      duration: 1000,
-    });
+      // Save to database
+      try {
+        const { error: updateError } = await supabase
+          .from('addresses')
+          .update({ 
+            units: targetAddress.units 
+          })
+          .eq('id', addressId);
+
+        if (updateError) {
+          console.error('Error updating address units:', updateError);
+          toast({
+            title: "Fehler beim Löschen",
+            description: "Die Wohneinheit konnte nicht gelöscht werden.",
+            className: "bg-red-500 text-white",
+            duration: 3000,
+          });
+          return;
+        }
+
+        // Track unit deletion activity
+        if (currentUser) {
+          const { error: activityError } = await supabase
+            .from('unit_activities')
+            .insert({
+              user_id: currentUser.id,
+              address_id: addressId,
+              unit_id: unitId,
+              activity_type: 'deleted',
+              metadata: {
+                floor: unit.floor,
+                position: unit.position,
+                deleted_at: timestamp
+              }
+            });
+
+          if (activityError) {
+            console.error('Error tracking unit deletion:', activityError);
+          }
+        }
+
+        toast({
+          title: "✓ Wohneinheit gelöscht",
+          className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
+          duration: 1000,
+        });
+      } catch (err) {
+        console.error('Error deleting unit:', err);
+        toast({
+          title: "Fehler",
+          description: "Ein Fehler ist aufgetreten.",
+          className: "bg-red-500 text-white",
+          duration: 3000,
+        });
+      }
+    }
 
     // Close dialog and reset
     setDeleteUnitDialogOpen(false);
