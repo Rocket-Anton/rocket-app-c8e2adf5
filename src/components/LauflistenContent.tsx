@@ -104,6 +104,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
   // Limit rendering to avoid UI freeze with large datasets
   const [visibleCount, setVisibleCount] = useState(50);
+  const loadMoreRef = useRef<HTMLDivElement>(null);
 
   // Load addresses from database when projects are selected
   useEffect(() => {
@@ -381,6 +382,24 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   });
 
   const displayedAddresses = filteredAddresses.slice(0, visibleCount);
+
+  // Infinite scroll: automatically load more when reaching bottom
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        if (entries[0].isIntersecting && visibleCount < filteredAddresses.length) {
+          setVisibleCount(prev => Math.min(prev + 50, filteredAddresses.length));
+        }
+      },
+      { threshold: 0.1, rootMargin: '100px' }
+    );
+
+    if (loadMoreRef.current) {
+      observer.observe(loadMoreRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [visibleCount, filteredAddresses.length]);
 
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
@@ -2027,16 +2046,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   </div>
                  ))}
                  
-                 {/* Load more button */}
+                 {/* Infinite scroll trigger */}
                  {visibleCount < filteredAddresses.length && (
-                   <div className="flex justify-center mt-8">
-                     <Button 
-                       variant="outline" 
-                       onClick={() => setVisibleCount(prev => prev + 50)}
-                       className="h-8 px-6"
-                     >
-                       Weitere {Math.min(50, filteredAddresses.length - visibleCount)} laden
-                     </Button>
+                   <div ref={loadMoreRef} className="h-20 flex items-center justify-center">
+                     <div className="text-sm text-muted-foreground">Lädt weitere Einträge...</div>
                    </div>
                  )}
               </div>
