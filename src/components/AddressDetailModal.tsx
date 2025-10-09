@@ -1419,15 +1419,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               )}
                             </div>
                             <div className="flex items-center gap-2">
-                              <button 
+                              <div
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   setAddNoteDialogOpen(true);
                                 }}
-                                className="p-1 hover:bg-muted rounded transition-colors"
+                                className="p-1 hover:bg-muted rounded transition-colors cursor-pointer"
                               >
                                 <Plus className="w-4 h-4 text-blue-600" />
-                              </button>
+                              </div>
                               <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
@@ -1479,16 +1479,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               )}
                             </div>
                             <div className="flex items-center gap-2">
-                              <button 
+                              <div
                                 onClick={(e) => {
                                   e.stopPropagation();
                                   handleAddAppointment(unit.id);
                                 }}
-                                className="p-1 hover:bg-muted rounded transition-colors"
-                                disabled={isNotMarketable}
+                                className={`p-1 hover:bg-muted rounded transition-colors ${isNotMarketable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                               >
                                 <Plus className={`w-4 h-4 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
-                              </button>
+                              </div>
                               <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
@@ -1534,15 +1533,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <button 
+                            <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 setAddNoteDialogOpen(true);
                               }}
-                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
+                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors cursor-pointer"
                             >
                               <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
-                            </button>
+                            </div>
                             <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
                           </div>
                         </CollapsibleTrigger>
@@ -1584,16 +1583,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </div>
                           </div>
                           <div className="flex items-center gap-2">
-                            <button 
+                            <div
                               onClick={(e) => {
                                 e.stopPropagation();
                                 handleAddAppointment(unit.id);
                               }}
-                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
-                              disabled={isNotMarketable}
+                              className={`p-1.5 md:p-2 hover:bg-muted rounded transition-colors ${isNotMarketable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
                             >
                               <Plus className={`w-4 md:w-5 h-4 md:h-5 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
-                            </button>
+                            </div>
                             <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
                           </div>
                         </CollapsibleTrigger>
