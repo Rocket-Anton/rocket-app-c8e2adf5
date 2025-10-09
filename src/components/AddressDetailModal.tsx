@@ -2241,7 +2241,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             setPendingAppointmentUnitId(null);
           }
         }}>
-          <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[90vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[85vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <DialogHeader className="flex-shrink-0 px-4 pt-6 pb-2">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
