@@ -148,9 +148,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   const emblaOptions = useMemo(
     () => ({
-      watchDrag: true, // Enable drag for all platforms for smooth UX
+      watchDrag: !isMobile, // Enable drag only on desktop (arrows), mobile uses native swipe
+      duration: 20,
     }),
-    []
+    [isMobile]
   );
   
   // Lock body scroll when modal is open
@@ -373,9 +374,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   useEffect(() => {
     if (open) {
       setCurrentIndex(initialIndex);
-      setContentAnimated(false);
-      const timer = setTimeout(() => setContentAnimated(true), 100);
-      return () => clearTimeout(timer);
+      setContentAnimated(true); // Instant, no delay
     }
   }, [open, initialIndex]);
   
@@ -432,16 +431,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
   }, []);
   
-  // Prefetch states for current and neighbor addresses (deferred to next frame for snappy open)
+  // Prefetch states for current and neighbor addresses (single RAF for performance)
   useEffect(() => {
     if (!open || allAddresses.length === 0) return;
 
     const raf = requestAnimationFrame(() => {
-      const indicesToPrefetch = [
-        currentIndex - 1,
-        currentIndex,
-        currentIndex + 1
-      ].filter(i => i >= 0 && i < allAddresses.length);
+      // Only current + next for faster initialization
+      const indicesToPrefetch = [currentIndex, currentIndex + 1]
+        .filter(i => i >= 0 && i < allAddresses.length);
   
       indicesToPrefetch.forEach(idx => {
         initializeAddressStates(allAddresses[idx]);
@@ -515,7 +512,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [update]);
 
     return (
-      <PopoverPrimitive.Portal container={modalRef?.current ?? undefined}>
+      <PopoverPrimitive.Portal>
         <PopoverPrimitive.Content
           ref={contentRef}
           side="bottom"
@@ -596,7 +593,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [update, modalRef]);
 
     return (
-      <SelectPrimitive.Portal container={modalRef?.current ?? undefined}>
+      <SelectPrimitive.Portal>
         <SelectPrimitive.Content
           ref={contentRef}
           position="popper"
@@ -1517,7 +1514,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-2">
+                          <CollapsibleContent className="mt-2 data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
                             {notes.length > 0 ? (
                               <div className="space-y-2 max-h-[150px] overflow-y-auto">
                                 {notes.map((note) => (
@@ -1555,6 +1552,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         <Collapsible 
                           open={appointmentsOpen[unit.id] || false} 
                           onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}
+                          className="transition-all"
                         >
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
                             <div className="flex items-center gap-2">
@@ -1577,7 +1575,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
                             </div>
                           </CollapsibleTrigger>
-                          <CollapsibleContent className="mt-2">
+                          <CollapsibleContent className="mt-2 data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
                             {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
                               <div className="space-y-2">
                                 {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
@@ -1637,27 +1635,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return null;
   }
 
-  // Render complete card for carousel (used by both mobile and desktop)
+  // Render complete card for carousel (used by both mobile and desktop) - NO Motion conflicts
   const renderCompleteCard = (addr: Address, index: number, total: number) => {
     const allAddrUnits = addr.filteredUnits || addr.units || [];
     const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
     const addrUnitCount = addrUnits.length;
     
-    const direction = index > prevIndex ? 1 : -1;
-    
     return (
-      <motion.div 
+      <div 
         key={addr.id}
         className="h-full w-[95vw] max-w-lg mx-auto rounded-xl bg-background shadow-2xl overflow-hidden flex flex-col"
-        initial={{ x: 30 * direction, opacity: 0 }}
-        animate={{ x: 0, opacity: 1 }}
-        exit={{ x: -30 * direction, opacity: 0 }}
-        transition={{ 
-          type: "spring", 
-          stiffness: 380, 
-          damping: 32, 
-          mass: 0.6 
-        }}
       >
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -1705,7 +1692,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         >
           {renderAddressContent(addr)}
         </div>
-      </motion.div>
+      </div>
     );
   };
 
@@ -1749,8 +1736,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-            <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
             <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
@@ -1810,10 +1795,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               >
                 Hinzufügen
               </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-          </AlertDialogPortal>
-        </AlertDialog>
+             </AlertDialogFooter>
+           </AlertDialogContent>
+         </AlertDialog>
 
         {/* Delete Unit Dialog */}
         <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
@@ -2015,7 +1999,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Note Dialog */}
         <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10100]" onClick={(e) => e.stopPropagation()}>
+          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2038,7 +2022,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog (Mobile) */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10100]">
+          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -2564,8 +2548,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
       {/* Delete Note Dialog */}
       <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
@@ -2585,13 +2567,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             </AlertDialogAction>
           </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialogPortal>
       </AlertDialog>
 
       {/* Add Units Dialog */}
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
@@ -2653,7 +2632,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialogPortal>
       </AlertDialog>
 
       {/* Delete Unit Dialog (Desktop Carousel) */}
@@ -2778,8 +2756,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           setPendingKeinInteresse(null);
         }
       }}>
-        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
@@ -2832,13 +2808,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialogPortal>
       </AlertDialog>
 
       {/* Potenzial Bewertung - für alle Render-Pfade */}
       <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-        <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-          <AlertDialogOverlay className="fixed inset-0 bg-transparent" />
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setPotenzialDialogOpen(false)}
@@ -2872,7 +2845,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
-        </AlertDialogPortal>
       </AlertDialog>
     </>
   );
