@@ -2049,252 +2049,135 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
         )}
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl max-h-[85vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="grid md:grid-cols-2 gap-6">
-              {/* Left Column - Form */}
-              <div className="space-y-4">
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Datum *</label>
-                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-                    <PopoverTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
-                      >
-                        <CalendarIcon className="mr-2 h-4 w-4" />
-                        {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
-                      </Button>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
-                      <Calendar
-                        mode="single"
-                        selected={appointmentDate}
-                        onSelect={(date) => {
-                          setAppointmentDate(date);
-                          setDatePopoverOpen(false);
-                          if (date) {
-                            setMapDisplayDate(date);
-                            setShowAllAppointments(false);
-                          }
-                        }}
-                        disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                        initialFocus
-                        className="p-3 pointer-events-auto"
-                      />
-                    </PopoverContent>
-                  </Popover>
-                </div>
-
-                <div>
-                  <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-                  <div className="flex gap-2">
-                    <Select 
-                      value={appointmentHour} 
-                      onValueChange={(value) => {
-                        setAppointmentHour(value);
-                        if (value && appointmentMinute) {
-                          setAppointmentTime(`${value}:${appointmentMinute}`);
-                        }
-                        // Automatisch 30 min setzen wenn Stunde gewählt wird
-                        if (value && !appointmentDuration) {
-                          setAppointmentDuration("30");
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                        <SelectValue placeholder="Stunde" />
-                      </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                        {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
-                          <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
-                            {hour.toString().padStart(2, '0')}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select 
-                      value={appointmentMinute} 
-                      onValueChange={(value) => {
-                        setAppointmentMinute(value);
-                        if (appointmentHour && value) {
-                          setAppointmentTime(`${appointmentHour}:${value}`);
-                        }
-                      }}
-                    >
-                      <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                        <SelectValue placeholder="Minute" />
-                      </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                        {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
-                          <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
-                            {minute.toString().padStart(2, '0')}
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                    <Select 
-                      value={appointmentDuration} 
-                      onValueChange={setAppointmentDuration}
-                    >
-                      <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                        <SelectValue placeholder="Dauer" />
-                      </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                        {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
-                          <SelectItem key={duration} value={duration.toString()}>
-                            {duration} min
-                          </SelectItem>
-                        ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                </div>
-
-                <Collapsible>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
-                    <span className="text-sm font-medium">Weitere Infos</span>
-                    <ChevronDown className="w-4 h-4 transition-transform ui-expanded:rotate-180" />
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-3 space-y-4">
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Kundenname</label>
-                      <Input
-                        placeholder="Optional"
-                        value={appointmentCustomer}
-                        onChange={(e) => setAppointmentCustomer(e.target.value)}
-                        className="border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
-                      />
-                    </div>
-
-                    <div>
-                      <label className="text-sm font-medium mb-2 block">Notizen</label>
-                      <Textarea
-                        placeholder="Optional"
-                        value={appointmentNotes}
-                        onChange={(e) => setAppointmentNotes(e.target.value)}
-                        className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
-                      />
-                    </div>
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-
-              {/* Right Column - Map (nur Desktop) */}
-              <div className="block space-y-4">
-                <div className="flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-2 block">Datum *</label>
+                <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                  <PopoverTrigger asChild>
                     <Button
                       variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (showAllAppointments) {
-                          setMapDisplayDate(new Date());
+                      className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={appointmentDate}
+                      onSelect={(date) => {
+                        setAppointmentDate(date);
+                        setDatePopoverOpen(false);
+                        if (date) {
+                          setMapDisplayDate(date);
                           setShowAllAppointments(false);
-                        } else if (mapDisplayDate) {
-                          const prevDay = new Date(mapDisplayDate);
-                          prevDay.setDate(prevDay.getDate() - 1);
-                          setMapDisplayDate(prevDay);
                         }
                       }}
-                      className="h-8 w-8 p-0"
-                    >
-                      ←
-                    </Button>
-                    <span className="text-sm font-medium min-w-[100px] text-center">
-                      {showAllAppointments 
-                        ? 'Alle Termine' 
-                        : mapDisplayDate?.toLocaleDateString('de-DE')}
-                    </span>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (showAllAppointments) {
-                          setMapDisplayDate(new Date());
-                          setShowAllAppointments(false);
-                        } else if (mapDisplayDate) {
-                          const nextDay = new Date(mapDisplayDate);
-                          nextDay.setDate(nextDay.getDate() + 1);
-                          setMapDisplayDate(nextDay);
-                        } else {
-                          setMapDisplayDate(new Date());
-                        }
-                      }}
-                      className="h-8 w-8 p-0"
-                    >
-                      →
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm whitespace-nowrap cursor-pointer flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={showAllAppointments}
-                        onChange={(e) => {
-                          setShowAllAppointments(e.target.checked);
-                          if (e.target.checked) {
-                            setMapDisplayDate(undefined);
-                          } else {
-                            setMapDisplayDate(appointmentDate || new Date());
-                          }
-                        }}
-                        className="cursor-pointer"
-                      />
-                      <span>Alle</span>
-                    </label>
-                  </div>
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className="p-3 pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <div>
+                <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
+                <div className="flex gap-2">
+                  <Select 
+                    value={appointmentHour} 
+                    onValueChange={(value) => {
+                      setAppointmentHour(value);
+                      if (value && appointmentMinute) {
+                        setAppointmentTime(`${value}:${appointmentMinute}`);
+                      }
+                      if (value && !appointmentDuration) {
+                        setAppointmentDuration("30");
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                      <SelectValue placeholder="Stunde" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
+                        <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
+                          {hour.toString().padStart(2, '0')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select 
+                    value={appointmentMinute} 
+                    onValueChange={(value) => {
+                      setAppointmentMinute(value);
+                      if (appointmentHour && value) {
+                        setAppointmentTime(`${appointmentHour}:${value}`);
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                      <SelectValue placeholder="Minute" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
+                        <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
+                          {minute.toString().padStart(2, '0')}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Select 
+                    value={appointmentDuration} 
+                    onValueChange={setAppointmentDuration}
+                  >
+                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
+                      <SelectValue placeholder="Dauer" />
+                    </SelectTrigger>
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
+                        <SelectItem key={duration} value={duration.toString()}>
+                          {duration} min
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
                 </div>
-                
-                <AppointmentMap 
-                  appointments={appointments}
-                  selectedDate={showAllAppointments ? undefined : mapDisplayDate}
-                  currentAddress={mapCurrentAddress}
-                  selectedAppointmentId={selectedAppointmentId}
-                />
               </div>
-            </div>
-            
-            {/* Termine Liste - immer sichtbar (Mobile + Desktop) */}
-            <div className="mt-6">
-              <h3 className="text-sm font-medium mb-3">
-                Deine Termine ({appointments.length})
-              </h3>
-              <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
-                {appointments.length > 0 ? (
-                  appointments.map((apt) => (
-                    <div 
-                      key={apt.id} 
-                      onClick={() => {
-                        if (selectedAppointmentId === apt.id) {
-                          setSelectedAppointmentId(null);
-                        } else {
-                          setSelectedAppointmentId(apt.id);
-                        }
-                      }}
-                      className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
-                        selectedAppointmentId === apt.id 
-                          ? 'bg-blue-100 border-blue-400 shadow-md' 
-                          : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                      }`}
-                    >
-                      <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
-                      <div className="text-muted-foreground">{apt.address}</div>
-                      {apt.customer && (
-                        <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
-                      )}
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-sm text-muted-foreground text-center py-8">
-                    Noch keine Termine vorhanden
+
+              <Collapsible>
+                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
+                  <span className="text-sm font-medium">Weitere Infos</span>
+                  <ChevronDown className="w-4 h-4 transition-transform ui-expanded:rotate-180" />
+                </CollapsibleTrigger>
+                <CollapsibleContent className="mt-3 space-y-4">
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Kundenname</label>
+                    <Input
+                      placeholder="Optional"
+                      value={appointmentCustomer}
+                      onChange={(e) => setAppointmentCustomer(e.target.value)}
+                      className="border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
+                    />
                   </div>
-                )}
-              </div>
+
+                  <div>
+                    <label className="text-sm font-medium mb-2 block">Notizen</label>
+                    <Textarea
+                      placeholder="Optional"
+                      value={appointmentNotes}
+                      onChange={(e) => setAppointmentNotes(e.target.value)}
+                      className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
+                    />
+                  </div>
+                </CollapsibleContent>
+              </Collapsible>
             </div>
 
             <div className="flex gap-3 mt-6">
@@ -2658,14 +2541,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
       )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl max-h-[85vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="grid md:grid-cols-2 gap-6">
-            {/* Left Column - Form */}
-            <div className="space-y-4">
+          <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
                 <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
@@ -2793,133 +2674,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </Collapsible>
             </div>
 
-            {/* Right Column - Map and Appointments */}
-            <div className="space-y-4">
-              <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <div className="flex items-center gap-2 flex-1">
-                    <div className="text-sm font-medium whitespace-nowrap">
-                      {showAllAppointments ? (
-                        "Alle"
-                      ) : mapDisplayDate ? (
-                        mapDisplayDate.toLocaleDateString('de-DE', { day: '2-digit', month: '2-digit', year: 'numeric' })
-                      ) : (
-                        "Heute"
-                      )}
-                    </div>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (showAllAppointments) {
-                          setMapDisplayDate(new Date());
-                          setShowAllAppointments(false);
-                        } else if (mapDisplayDate) {
-                          const prevDay = new Date(mapDisplayDate);
-                          prevDay.setDate(prevDay.getDate() - 1);
-                          const today = new Date();
-                          today.setHours(0, 0, 0, 0);
-                          if (prevDay >= today) {
-                            setMapDisplayDate(prevDay);
-                          }
-                        }
-                      }}
-                      disabled={!showAllAppointments && mapDisplayDate && mapDisplayDate <= new Date(new Date().setHours(0, 0, 0, 0))}
-                      className="h-8 w-8 p-0"
-                    >
-                      ←
-                    </Button>
-                    
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        if (showAllAppointments) {
-                          setMapDisplayDate(new Date());
-                          setShowAllAppointments(false);
-                        } else if (mapDisplayDate) {
-                          const nextDay = new Date(mapDisplayDate);
-                          nextDay.setDate(nextDay.getDate() + 1);
-                          setMapDisplayDate(nextDay);
-                        } else {
-                          setMapDisplayDate(new Date());
-                        }
-                      }}
-                      className="h-8 w-8 p-0"
-                    >
-                      →
-                    </Button>
-                  </div>
-                  
-                  <div className="flex items-center gap-2">
-                    <label className="text-sm whitespace-nowrap cursor-pointer flex items-center gap-2">
-                      <input
-                        type="checkbox"
-                        checked={showAllAppointments}
-                        onChange={(e) => {
-                          setShowAllAppointments(e.target.checked);
-                          if (e.target.checked) {
-                            setMapDisplayDate(undefined);
-                          } else {
-                            setMapDisplayDate(appointmentDate || new Date());
-                          }
-                        }}
-                        className="cursor-pointer"
-                      />
-                      <span>Alle</span>
-                    </label>
-                  </div>
-                </div>
-                
-                <AppointmentMap 
-                  appointments={appointments}
-                  selectedDate={showAllAppointments ? undefined : mapDisplayDate}
-                  currentAddress={mapCurrentAddress}
-                  selectedAppointmentId={selectedAppointmentId}
-                />
-              </div>
-              
-              <div>
-                <h3 className="text-sm font-medium mb-3">
-                  Deine Termine ({appointments.length})
-                </h3>
-                <div className="space-y-2 max-h-[250px] overflow-y-auto pr-2">
-                  {appointments.length > 0 ? (
-                    appointments.map((apt) => (
-                      <div 
-                        key={apt.id} 
-                        onClick={() => {
-                          if (selectedAppointmentId === apt.id) {
-                            setSelectedAppointmentId(null);
-                          } else {
-                            setSelectedAppointmentId(apt.id);
-                          }
-                        }}
-                        className={`p-3 rounded-lg border text-xs cursor-pointer transition-all ${
-                          selectedAppointmentId === apt.id 
-                            ? 'bg-blue-100 border-blue-400 shadow-md' 
-                            : 'bg-blue-50 border-blue-200 hover:bg-blue-100'
-                        }`}
-                      >
-                        <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
-                        <div className="text-muted-foreground">{apt.address}</div>
-                        {apt.customer && (
-                          <div className="text-muted-foreground mt-1">Kunde: {apt.customer}</div>
-                        )}
-                      </div>
-                    ))
-                  ) : (
-                    <div className="text-sm text-muted-foreground text-center py-8">
-                      Noch keine Termine vorhanden
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          <div className="flex gap-3 mt-6">
+            <div className="flex gap-3 mt-6">
             <Button
               variant="outline"
               onClick={() => {
