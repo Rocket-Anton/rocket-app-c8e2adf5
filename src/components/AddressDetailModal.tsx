@@ -25,6 +25,8 @@ import {
   AlertDialogFooter,
   AlertDialogHeader,
   AlertDialogTitle,
+  AlertDialogPortal,
+  AlertDialogOverlay,
 } from "./ui/alert-dialog";
 import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
@@ -1714,7 +1716,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Kein Interesse Grund-Dialog */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="z-[10000]" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1764,12 +1768,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+            </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         {/* Potenzial Bewertung */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="z-[10000]" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1801,7 +1808,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+            </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         {/* Add Units Dialog */}
@@ -2079,7 +2087,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Kein Interesse Grund-Dialog (Mobile) */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="z-[10000]" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2130,12 +2140,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+            </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         {/* Potenzial Bewertung (Mobile) */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="z-[10000]" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2167,7 +2180,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Bestätigen
               </AlertDialogAction>
             </AlertDialogFooter>
-          </AlertDialogContent>
+            </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
