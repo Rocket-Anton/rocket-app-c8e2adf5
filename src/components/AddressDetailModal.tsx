@@ -1713,9 +1713,24 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
     const addrUnitCount = addrUnits.length;
     
+    const isActive = index === currentIndex;
+    const isAdjacent = Math.abs(index - currentIndex) === 1;
+    const shouldLoadMap = isActive || isAdjacent;
+    
     return (
-      <div key={addr.id} className="h-full w-full mx-auto">
-        <div className="relative h-full flex flex-col bg-transparent">
+      <div 
+        key={addr.id} 
+        className={cn(
+          "w-[92vw] max-w-2xl h-[80vh]",
+          "rounded-2xl overflow-hidden bg-background shadow-2xl",
+          "[-webkit-mask-image:-webkit-radial-gradient(white,black)]",
+          "flex flex-col"
+        )}
+        style={{
+          contentVisibility: isActive ? 'visible' : 'auto',
+          willChange: isActive ? 'transform' : 'auto'
+        }}
+      >
 
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -1761,9 +1776,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             background: 'transparent'
           }}
         >
-            {renderAddressContent(addr)}
+            {renderAddressContent(addr, shouldLoadMap)}
             <div aria-hidden="true" className="w-full" style={{ height: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }} />
-        </div>
         </div>
       </div>
     );
@@ -1776,21 +1790,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog
           open={open}
           onOpenChange={handleDialogChange}
-          className={cn(
-            "rounded-2xl overflow-hidden bg-background shadow-2xl",
-            "transform-gpu will-change-transform [backface-visibility:hidden]",
-            "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
-          )}
+          className="flex items-center justify-center"
         >
-          <div
-            ref={modalContentRef}
-            className="relative w-full h-full bg-transparent overflow-hidden flex items-center justify-center"
-            style={{ isolation: 'isolate' }}
-          >
-            <div className="w-full max-w-2xl h-[80vh]">
-              {renderCompleteCard(currentAddress, 0, 1)}
-            </div>
-          </div>
+          {renderCompleteCard(currentAddress, 0, 1)}
         </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
@@ -1999,47 +2001,37 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog
         open={open}
         onOpenChange={handleDialogChange}
-        className={cn(
-          "rounded-2xl overflow-hidden bg-background shadow-2xl",
-          "transform-gpu will-change-transform [backface-visibility:hidden]",
-          "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
-        )}
+        className="flex items-center justify-center"
       >
-        <div 
-          ref={modalContentRef}
-          className="relative w-full h-full bg-transparent overflow-hidden flex items-center justify-center"
-          style={{ isolation: 'isolate' }}
-        >
-          <div className="relative w-full max-w-lg h-[95vh] md:h-[88vh]">
-            <HorizontalModalPager
-              items={allAddresses}
-              startIndex={initialIndex}
-              renderCard={renderCompleteCard}
-              onIndexChange={(idx) => {
-                setPrevIndex(currentIndex);
-                setCurrentIndex(idx);
-              }}
-              className="bg-transparent shadow-none ring-0"
-              options={emblaOptions}
-              ref={pagerRef}
-            />
-            
-            {/* Navigation Arrows - Desktop only */}
-            {showArrows && (
-              <>
-                <NavigationArrow
-                  direction="left"
-                  onClick={() => pagerRef.current?.scrollPrev()}
-                  disabled={!pagerRef.current?.canScrollPrev()}
-                />
-                <NavigationArrow
-                  direction="right"
-                  onClick={() => pagerRef.current?.scrollNext()}
-                  disabled={!pagerRef.current?.canScrollNext()}
-                />
-              </>
-            )}
-          </div>
+        <div className="relative w-full max-w-lg h-[95vh] md:h-[88vh]">
+          <HorizontalModalPager
+            items={allAddresses}
+            startIndex={initialIndex}
+            renderCard={renderCompleteCard}
+            onIndexChange={(idx) => {
+              setPrevIndex(currentIndex);
+              setCurrentIndex(idx);
+            }}
+            className="bg-transparent shadow-none ring-0"
+            options={emblaOptions}
+            ref={pagerRef}
+          />
+          
+          {/* Navigation Arrows - Desktop only */}
+          {showArrows && (
+            <>
+              <NavigationArrow
+                direction="left"
+                onClick={() => pagerRef.current?.scrollPrev()}
+                disabled={!pagerRef.current?.canScrollPrev()}
+              />
+              <NavigationArrow
+                direction="right"
+                onClick={() => pagerRef.current?.scrollNext()}
+                disabled={!pagerRef.current?.canScrollNext()}
+              />
+            </>
+          )}
         </div>
       </MotionDialog>
 

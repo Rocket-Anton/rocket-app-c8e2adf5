@@ -28,6 +28,10 @@ function HorizontalModalPagerInner<T extends Item>({
   options,
 }: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
   const [isDragging, setIsDragging] = useState(false);
+  const [currentIndex, setCurrentIndex] = useState(startIndex);
+  const [renderedIndices, setRenderedIndices] = useState<Set<number>>(
+    new Set([startIndex - 1, startIndex, startIndex + 1].filter(i => i >= 0 && i < items.length))
+  );
 
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
@@ -39,6 +43,7 @@ function HorizontalModalPagerInner<T extends Item>({
     watchDrag: options?.watchDrag ?? true,
     startIndex: startIndex,
     inViewThreshold: 0.8,
+    slidesToScroll: 1,
     ...options,
   });
 
@@ -74,8 +79,19 @@ function HorizontalModalPagerInner<T extends Item>({
 
   const onSelect = useCallback(() => {
     if (!embla) return;
-    onIndexChange?.(embla.selectedScrollSnap());
-  }, [embla, onIndexChange]);
+    const newIndex = embla.selectedScrollSnap();
+    setCurrentIndex(newIndex);
+    
+    // Update rendered window: current + adjacent cards
+    const newIndices = new Set([
+      newIndex - 1,
+      newIndex,
+      newIndex + 1
+    ].filter(i => i >= 0 && i < items.length));
+    
+    setRenderedIndices(newIndices);
+    onIndexChange?.(newIndex);
+  }, [embla, items.length, onIndexChange]);
 
   useEffect(() => {
     if (!embla) return;
@@ -95,7 +111,7 @@ function HorizontalModalPagerInner<T extends Item>({
   return (
     <div
       ref={emblaRef}
-      className={cn("h-full overflow-visible touch-pan-y bg-transparent", className)}
+      className={cn("h-full overflow-hidden touch-pan-y bg-transparent", className)}
       style={{
         width: '100vw',
         marginLeft: 'calc(50% - 50vw)',
@@ -106,6 +122,7 @@ function HorizontalModalPagerInner<T extends Item>({
     >
       <div className="flex h-full bg-transparent" style={{ willChange: 'transform' }}>
         {items.map((it, idx) => {
+          const shouldRender = renderedIndices.has(idx);
           const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
           const flexBasis = isTablet ? '90%' : '100%';
           
@@ -118,7 +135,9 @@ function HorizontalModalPagerInner<T extends Item>({
                 contain: 'content'
               }}
             >
-              {renderCard(it, idx, items.length)}
+              {shouldRender ? renderCard(it, idx, items.length) : (
+                <div className="w-[92vw] max-w-2xl h-[80vh] bg-muted/20 animate-pulse rounded-2xl" />
+              )}
             </div>
           );
         })}
