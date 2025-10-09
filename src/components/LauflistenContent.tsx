@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -8,7 +8,6 @@ import { AIAssistant } from "./AIAssistant";
 import { ProjectSelector } from "./ProjectSelector";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
-import { useProjectContext } from "@/contexts/ProjectContext";
 import {
   Select,
   SelectContent,
@@ -52,7 +51,6 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
-import { Link } from "react-router-dom";
 
 // Removed mock addresses - now loading from database
 
@@ -64,10 +62,8 @@ interface LauflistenContentProps {
 }
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
-  const { cachedAddresses, setCachedAddresses, listScrollPosition, setListScrollPosition } = useProjectContext();
-  
-  // State für Adressen - use cached if available
-  const [addresses, setAddresses] = useState<any[]>(cachedAddresses);
+  // State für Adressen
+  const [addresses, setAddresses] = useState<any[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState("");
@@ -83,26 +79,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [swipeMode, setSwipeMode] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   
-  
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
-  const scrollRef = useRef<HTMLDivElement>(null);
-  
-  // Restore scroll position on mount
-  useEffect(() => {
-    if (scrollRef.current && listScrollPosition > 0) {
-      scrollRef.current.scrollTop = listScrollPosition;
-    }
-  }, []);
-
-  // Save scroll position on unmount
-  useEffect(() => {
-    return () => {
-      if (scrollRef.current) {
-        setListScrollPosition(scrollRef.current.scrollTop);
-      }
-    };
-  }, []);
   
   // Temporary input values (nur für Anzeige während der Eingabe)
   const [streetInput, setStreetInput] = useState("");
@@ -130,68 +108,35 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       // Only load addresses if at least one project is selected
       if (selectedProjectIds.size === 0) {
         setAddresses([]);
-        if (cachedAddresses.length) setCachedAddresses([]);
         return;
-      }
-
-      // Use cached addresses if available for the same projects
-      if (cachedAddresses.length > 0) {
-        // Check if addresses are for the same projects
-        const cachedProjectIds = new Set(cachedAddresses.map(addr => addr.projectId).filter(Boolean));
-        const currentProjectIds = selectedProjectIds;
-        if (cachedProjectIds.size === currentProjectIds.size && 
-            [...cachedProjectIds].every(id => currentProjectIds.has(id))) {
-          setAddresses(cachedAddresses);
-          return;
-        }
       }
 
       setIsLoadingAddresses(true);
       try {
         const projectIdsArray = Array.from(selectedProjectIds);
         
-        // Load addresses
-        const { data: addressesData, error: addressError } = await supabase
+        const { data: addressesData, error } = await supabase
           .from("addresses")
           .select("*")
           .in("project_id", projectIdsArray)
           .order("street", { ascending: true })
           .order("house_number", { ascending: true });
 
-        if (addressError) throw addressError;
-
-        // Bulk fetch units for these addresses (original behavior)
-        const addressIds = (addressesData || []).map((a: any) => a.id);
-        let unitsMap = new Map<number, any[]>();
-        if (addressIds.length > 0) {
-          const { data: unitsData, error: unitsError } = await supabase
-            .from("units")
-            .select("*")
-            .in("address_id", addressIds);
-          if (unitsError) throw unitsError;
-          unitsMap = new Map<number, any[]>();
-          (unitsData || []).forEach((u: any) => {
-            const arr = unitsMap.get(u.address_id) || [];
-            arr.push(u);
-            unitsMap.set(u.address_id, arr);
-          });
-        }
+        if (error) throw error;
 
         // Transform the data to match the expected format
         const transformedAddresses = (addressesData || []).map((addr: any) => ({
           id: addr.id,
-          projectId: addr.project_id,
           street: addr.street,
           houseNumber: addr.house_number,
           postalCode: addr.postal_code,
           city: addr.city,
           coordinates: addr.coordinates ? [addr.coordinates.lng, addr.coordinates.lat] : [0, 0],
-          units: unitsMap.get(addr.id) || [],
+          units: addr.units || [],
           notiz: addr.notiz
         }));
 
         setAddresses(transformedAddresses);
-        setCachedAddresses(transformedAddresses);
       } catch (error: any) {
         console.error("Error loading addresses:", error);
         toast.error("Fehler beim Laden der Adressen");
@@ -201,7 +146,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     };
 
     loadAddresses();
-  }, [Array.from(selectedProjectIds).sort().join(',')]);  // Depend only on selected project IDs (stable key)
+  }, [selectedProjectIds]);
 
   // Handle modal close and scroll to the address
   const handleModalClose = (finalIndex: number) => {
@@ -337,74 +282,75 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       </PopoverContent>
     );
   };
-  const displayedAddresses = useMemo(() => {
-    return addresses.filter(address => {
-      // Search term filter
-      const searchLower = searchTerm.toLowerCase();
-      const matchesSearch = searchTerm === "" || (
-        address.street.toLowerCase().includes(searchLower) ||
-        address.houseNumber.includes(searchTerm) ||
-        address.postalCode.includes(searchTerm) ||
-        address.city.toLowerCase().includes(searchLower)
-      );
+  // Filter addresses based on all criteria
+  const filteredAddresses = addresses.filter(address => {
+    // Only show addresses with at least one unit
+    const hasUnits = address.units && address.units.length > 0;
+    if (!hasUnits) return false;
 
-      // Status filter - only show addresses that have units with selected statuses
-      const matchesStatus = statusFilter.length === 0 || 
-        address.units.some(unit => statusFilter.includes(unit.status));
+    // Search term filter
+    const searchLower = searchTerm.toLowerCase();
+    const matchesSearch = searchTerm === "" || (
+      address.street.toLowerCase().includes(searchLower) ||
+      address.houseNumber.includes(searchTerm) ||
+      address.postalCode.includes(searchTerm) ||
+      address.city.toLowerCase().includes(searchLower)
+    );
+
+    // Status filter - only show addresses that have units with selected statuses
+    const matchesStatus = statusFilter.length === 0 || 
+      address.units.some(unit => statusFilter.includes(unit.status));
+    
+    const matchesStreet = streetFilter === "" || address.street === streetFilter;
+    const matchesCity = cityFilter === "" || address.city === cityFilter;
+    const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
+    const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
+    
+    // Sortierung: gerade/ungerade Hausnummern
+    const houseNumberInt = parseInt(address.houseNumber, 10);
+    const matchesSortierung = sortierung === "alle" || 
+      (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
+      (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
+    
+    // Date filter - check if address was last qualified before/after the selected date
+    let matchesLastModified = true;
+    if (lastModifiedDate) {
+      // For mock data, we'll use a random date for each address
+      // In production, this would come from the actual lastModified field
+      const mockLastModified = new Date(2025, 9, 1 + (address.id % 30)); // Mock dates in October
       
-      const matchesStreet = streetFilter === "" || address.street === streetFilter;
-      const matchesCity = cityFilter === "" || address.city === cityFilter;
-      const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
-      const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
-      
-      // Sortierung: gerade/ungerade Hausnummern
-      const houseNumberInt = parseInt(address.houseNumber, 10);
-      const matchesSortierung = sortierung === "alle" || 
-        (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
-        (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
-      
-      // Date filter - check if address was last qualified before/after the selected date
-      let matchesLastModified = true;
-      if (lastModifiedDate) {
-        // For mock data, we'll use a random date for each address
-        // In production, this would come from the actual lastModified field
-        const mockLastModified = new Date(2025, 9, 1 + (address.id % 30)); // Mock dates in October
-        
-        if (dateFilterMode === "vor") {
-          // Show addresses last modified BEFORE this date
-          matchesLastModified = mockLastModified < lastModifiedDate;
-        } else {
-          // Show addresses last modified AFTER this date
-          matchesLastModified = mockLastModified >= lastModifiedDate;
-        }
+      if (dateFilterMode === "vor") {
+        // Show addresses last modified BEFORE this date
+        matchesLastModified = mockLastModified < lastModifiedDate;
+      } else {
+        // Show addresses last modified AFTER this date
+        matchesLastModified = mockLastModified >= lastModifiedDate;
       }
+    }
 
-      return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
-    }).map(address => {
-      // Calculate wohneinheiten and potentiale based on filtered units
-      const filteredUnits = statusFilter.length === 0 
-        ? address.units 
-        : address.units.filter(unit => statusFilter.includes(unit.status));
-      
-      const wohneinheiten = filteredUnits.length;
-      
-      // Potenziale sind: offen, potenzial, termin
-      const potentiale = filteredUnits.filter(unit => 
-        ['offen', 'potenzial', 'termin'].includes(unit.status)
-      ).length;
-      
-      return {
-        ...address,
-        wohneinheiten,
-        potentiale,
-        filteredUnits // Pass filtered units to modal
-      };
-    });
-  }, [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
+    return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
+  }).map(address => {
+    // Calculate wohneinheiten and potentiale based on filtered units
+    const filteredUnits = statusFilter.length === 0 
+      ? address.units 
+      : address.units.filter(unit => statusFilter.includes(unit.status));
+    
+    const wohneinheiten = filteredUnits.length;
+    
+    // Potenziale sind: offen, potenzial, termin
+    const potentiale = filteredUnits.filter(unit => 
+      ['offen', 'potenzial', 'termin'].includes(unit.status)
+    ).length;
+    
+    return {
+      ...address,
+      wohneinheiten,
+      potentiale,
+      filteredUnits // Pass filtered units to modal
+    };
+  });
 
-  // End displayedAddresses computation
-
-  // Units are already loaded in bulk; no IntersectionObserver needed
+  const displayedAddresses = filteredAddresses;
 
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
@@ -527,6 +473,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
 
   // Single filter bar that scrolls with content and overlays the addresses
+  const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);
@@ -600,62 +547,62 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   />
                 </div>
                 
-                  <nav className="space-y-1 pt-4">
-                    <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                      <Home className="w-5 h-5" />
-                      <span>Dashboard</span>
-                    </Link>
-                    <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                      <Clock className="w-5 h-5" />
-                      <span>Aktivitäten</span>
-                    </Link>
-                    <Link to="/" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium">
-                      <PersonStanding className="w-5 h-5" />
-                      <span>Lauflisten</span>
-                    </Link>
-                    <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
-                      <Circle className="w-4 h-4 fill-current" />
-                      <span>Liste</span>
-                    </Link>
-                    <Link to="/karte" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
-                      <Circle className="w-4 h-4" />
-                      <span>Karte</span>
-                    </Link>
-                    <Link to="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                <nav className="space-y-1 pt-4">
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <Home className="w-5 h-5" />
+                    <span>Dashboard</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <Clock className="w-5 h-5" />
+                    <span>Aktivitäten</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium">
+                    <PersonStanding className="w-5 h-5" />
+                    <span>Lauflisten</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                    <Circle className="w-4 h-4 fill-current" />
+                    <span>Liste</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                    <Circle className="w-4 h-4" />
+                    <span>Karte</span>
+                  </a>
+                  <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="w-5 h-5" />
+                      <span>Termine</span>
+                    </div>
+                    <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <User className="w-5 h-5" />
+                    <span>Leads</span>
+                  </a>
+                  
+                  <div className="pt-4 mt-4 border-t">
+                    <div className="px-4 pb-2">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
+                    </div>
+                    <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      <Settings className="w-5 h-5" />
+                      <span>Settings</span>
+                    </a>
+                    <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
                       <div className="flex items-center gap-3">
-                        <CalendarIcon className="w-5 h-5" />
-                        <span>Termine</span>
-                      </div>
-                      <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                    </Link>
-                    <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                      <User className="w-5 h-5" />
-                      <span>Leads</span>
-                    </Link>
-                    
-                    <div className="pt-4 mt-4 border-t">
-                      <div className="px-4 pb-2">
-                        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
-                      </div>
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                        <Settings className="w-5 h-5" />
-                        <span>Settings</span>
-                      </Link>
-                      <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
-                        <div className="flex items-center gap-3">
-                          <Moon className="w-5 h-5" />
-                          <span>Dark mode</span>
-                        </div>
+                        <Moon className="w-5 h-5" />
+                        <span>Dark mode</span>
                       </div>
                     </div>
-                    
-                    <div className="pt-4 mt-4 border-t">
-                      <div className="px-4">
-                        <div className="text-sm font-medium">Oleg Stemnev</div>
-                        <button className="text-xs text-muted-foreground hover:text-foreground">Abmelden</button>
-                      </div>
+                  </div>
+                  
+                  <div className="pt-4 mt-4 border-t">
+                    <div className="px-4">
+                      <div className="text-sm font-medium">Oleg Stemnev</div>
+                      <button className="text-xs text-muted-foreground hover:text-foreground">Abmelden</button>
                     </div>
-                  </nav>
+                  </div>
+                </nav>
               </div>
             </SheetContent>
           </Sheet>
@@ -809,8 +756,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   {searchOpen && searchTerm.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
                       <div className="max-h-60 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
-                        {displayedAddresses.length > 0 ? (
-                          displayedAddresses.slice(0, 5).map((address) => (
+                        {filteredAddresses.length > 0 ? (
+                          filteredAddresses.slice(0, 5).map((address) => (
                             <div
                               key={address.id}
                               className="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
@@ -2040,6 +1987,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                       onModalClose={handleModalClose}
                       onOrderCreated={() => {
                         onOrderCreated?.();
+                        // Trigger Rokki celebration
                         if ((window as any).rokkiOrderCreatedHandler) {
                           (window as any).rokkiOrderCreatedHandler();
                         }

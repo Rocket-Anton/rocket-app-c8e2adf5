@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { SidebarProvider, SidebarInset, useSidebar } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { PolygonStatsPopup } from "@/components/PolygonStatsPopup";
@@ -70,7 +70,7 @@ const statusColorMap: Record<string, string> = {
 
 function KarteContent() {
   const { state: sidebarState } = useSidebar();
-  const { selectedProjectIds, setSelectedProjectIds, mapViewState, setMapViewState } = useProjectContext();
+  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const navigate = useNavigate();
@@ -296,31 +296,18 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Use saved map view state or default to Hamburg
-    const initialCenter = mapViewState?.center || [9.9937, 53.5511];
-    const initialZoom = mapViewState?.zoom || 12;
-
+    // Default center on Hamburg when no project is selected
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: initialCenter,
-      zoom: initialZoom,
+      center: [9.9937, 53.5511], // Hamburg coordinates
+      zoom: 12,
       pitch: 45,
       bearing: -17.6,
       antialias: true,
     });
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
-
-    // Save map view state when it moves
-    map.on('moveend', () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      setMapViewState({
-        center: [center.lng, center.lat],
-        zoom: zoom
-      });
-    });
 
     // 3D buildings layer on initial load only (streets style)
     map.once('style.load', () => {
@@ -743,46 +730,46 @@ function KarteContent() {
                     </div>
                     
                     <nav className="space-y-1 pt-4">
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <Home className="w-5 h-5" />
                         <span>Dashboard</span>
-                      </Link>
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </a>
+                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <Clock className="w-5 h-5" />
                         <span>Aktivitäten</span>
-                      </Link>
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </a>
+                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <PersonStanding className="w-5 h-5" />
                         <span>Lauflisten</span>
-                      </Link>
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                      </a>
+                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
                         <CircleIcon className="w-4 h-4 fill-current" />
                         <span>Liste</span>
-                      </Link>
-                      <Link to="/karte" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium ml-8">
+                      </a>
+                      <a href="/karte" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium ml-8">
                         <CircleIcon className="w-4 h-4" />
                         <span>Karte</span>
-                      </Link>
-                      <Link to="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                      </a>
+                      <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
                         <div className="flex items-center gap-3">
                           <CalendarIcon className="w-5 h-5" />
                           <span>Termine</span>
                         </div>
                         <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                      </Link>
-                      <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      </a>
+                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                         <UserIcon className="w-5 h-5" />
                         <span>Leads</span>
-                      </Link>
+                      </a>
                       
                       <div className="pt-4 mt-4 border-t">
                         <div className="px-4 pb-2">
                           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
                         </div>
-                        <Link to="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                        <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                           <Settings className="w-5 h-5" />
                           <span>Settings</span>
-                        </Link>
+                        </a>
                         <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
                           <div className="flex items-center gap-3">
                             <Moon className="w-5 h-5" />
