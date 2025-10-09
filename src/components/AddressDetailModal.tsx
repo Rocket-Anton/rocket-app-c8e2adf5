@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, 
 import { useCoarsePointer } from "@/hooks/useCoarsePointer";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsPhone, useIsTablet } from "@/hooks/use-device-type";
 import { useBodyScrollLock } from "@/hooks/useBodyScrollLock";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
@@ -213,8 +214,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const isCoarse = useCoarsePointer();
-  const isPhone = typeof window !== 'undefined' && window.innerWidth < 768;
-  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
+  const isPhone = useIsPhone();
+  const isTablet = useIsTablet();
   const showArrows = allAddresses.length > 1 && !isPhone && !isTablet; // Pfeile NUR auf Desktop
   
   const emblaOptions = useMemo(
