@@ -267,6 +267,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const scrollContainerRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const unitCardRefs = useRef<(HTMLDivElement | null)[]>([]);
   const pagerRef = useRef<HorizontalModalPagerHandle>(null);
+  const [contentAnimated, setContentAnimated] = useState(false);
+  const touchStartRef = useRef<{ x: number; y: number } | null>(null);
   
   // Helper to set scroll ref per address
   const setScrollRef = (addrId: number) => (el: HTMLDivElement | null) => {
@@ -310,6 +312,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   useEffect(() => {
     if (open) {
       setCurrentIndex(initialIndex);
+      setContentAnimated(false);
+      const timer = setTimeout(() => setContentAnimated(true), 100);
+      return () => clearTimeout(timer);
     }
   }, [open, initialIndex]);
   
@@ -1183,7 +1188,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
 
-  const renderAddressContent = (addr: Address) => {
+  const renderAddressContent = (addr: Address, isActive: boolean = true) => {
     const allUnits = addr.filteredUnits || addr.units || [];
     const units = allUnits.filter(unit => !unit.deleted);
     const unitCount = units.length;
@@ -1196,8 +1201,20 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y overscroll-contain ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`} 
           style={{ WebkitOverflowScrolling: 'touch' }}
           onWheel={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
-          onTouchMove={(e) => e.stopPropagation()}
+          onTouchStart={(e) => {
+            const touch = e.touches[0];
+            touchStartRef.current = { x: touch.clientX, y: touch.clientY };
+          }}
+          onTouchMove={(e) => {
+            if (!touchStartRef.current) return;
+            const touch = e.touches[0];
+            const deltaX = Math.abs(touch.clientX - touchStartRef.current.x);
+            const deltaY = Math.abs(touch.clientY - touchStartRef.current.y);
+            // Only stop propagation if clearly vertical scroll
+            if (deltaY > deltaX + 5) {
+              e.stopPropagation();
+            }
+          }}
         >
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>

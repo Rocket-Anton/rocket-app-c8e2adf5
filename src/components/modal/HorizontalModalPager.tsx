@@ -1,5 +1,6 @@
 import useEmblaCarousel from 'embla-carousel-react';
-import { useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
+import { useEffect, useCallback, forwardRef, useImperativeHandle, useState } from 'react';
+import { cn } from '@/lib/utils';
 
 type Item = { id: number };
 type Props<T extends Item> = {
@@ -22,10 +23,13 @@ function HorizontalModalPagerInner<T extends Item>({
   renderCard,
   onIndexChange,
 }: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
+  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
+
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
     align: 'center',
-    containScroll: false,
+    containScroll: 'trimSnaps',
     dragFree: false,
     skipSnaps: false,
     duration: 25,
@@ -33,13 +37,37 @@ function HorizontalModalPagerInner<T extends Item>({
     startIndex: startIndex,
   });
 
+  // Entrance animation trigger
+  useEffect(() => {
+    const timer = setTimeout(() => setHasAnimatedIn(true), 50);
+    return () => clearTimeout(timer);
+  }, []);
+
+  // Drag state listeners for visual performance optimization
+  useEffect(() => {
+    if (!embla) return;
+    
+    const onPointerDown = () => setIsDragging(true);
+    const onPointerUp = () => setIsDragging(false);
+    const onSettle = () => setIsDragging(false);
+    
+    embla.on('pointerDown', onPointerDown);
+    embla.on('pointerUp', onPointerUp);
+    embla.on('settle', onSettle);
+    
+    return () => {
+      embla.off('pointerDown', onPointerDown);
+      embla.off('pointerUp', onPointerUp);
+      embla.off('settle', onSettle);
+    };
+  }, [embla]);
+
   useEffect(() => {
     if (!embla) return;
     
     // Jump directly to startIndex without animation on mount
     const currentSnap = embla.selectedScrollSnap();
     if (startIndex !== currentSnap) {
-      // Use instant: false to jump without animation
       embla.scrollTo(startIndex, false);
     }
   }, [embla, startIndex]);
@@ -80,9 +108,27 @@ function HorizontalModalPagerInner<T extends Item>({
     >
       <div className="flex h-full ease-out" style={{ willChange: 'transform', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+          <div 
+            key={it.id} 
+            className={cn(
+              "flex-[0_0_100%] h-full transition-all duration-300 ease-out",
+              hasAnimatedIn ? "opacity-100 scale-100" : "opacity-0 scale-95"
+            )} 
+            style={{ 
+              contain: 'layout style', 
+              backfaceVisibility: 'hidden', 
+              WebkitBackfaceVisibility: 'hidden',
+              transform: 'translateZ(0)'
+            }}
+          >
             <div className="h-full w-full flex items-center justify-center" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-              <div className="w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden z-[10000]" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+              <div 
+                className={cn(
+                  "w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl border flex flex-col overflow-hidden z-[10000] transition-shadow duration-200",
+                  isDragging ? "shadow-md" : "shadow-xl"
+                )} 
+                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden', transform: 'translateZ(0)' }}
+              >
                 {renderCard(it, idx, items.length)}
               </div>
             </div>
