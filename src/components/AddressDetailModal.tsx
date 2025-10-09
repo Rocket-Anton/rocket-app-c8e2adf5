@@ -1822,7 +1822,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-            <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
+            <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2122,7 +2122,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog (Mobile) */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
+          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
