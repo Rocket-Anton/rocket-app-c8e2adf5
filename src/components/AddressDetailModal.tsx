@@ -160,7 +160,7 @@ const ModalBoundPopover = forwardRef<
         ref={ref}
         {...props}
         className={cn(
-          "z-[10120] rounded-md border bg-popover p-4 shadow-xl pointer-events-auto",
+          "z-[10170] rounded-md border bg-popover p-4 shadow-xl pointer-events-auto",
           "data-[state=open]:animate-in data-[state=closed]:animate-out",
           props.className
         )}
@@ -190,7 +190,7 @@ const ModalBoundSelect = forwardRef<
         ref={ref}
         {...props}
         className={cn(
-          "z-[10120] max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-xl pointer-events-auto",
+          "z-[10170] max-h-[200px] overflow-y-auto rounded-md border bg-popover shadow-xl pointer-events-auto",
           props.className
         )}
         position="popper"
@@ -675,7 +675,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           sideOffset={sideOffset}
           avoidCollisions={false}
           className={cn(
-            "z-[1200] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
+            "z-[10170] overflow-hidden rounded-md border bg-popover text-popover-foreground shadow-xl",
             className
           )}
           style={{ maxHeight: maxH ? `${maxH}px` : undefined }}
