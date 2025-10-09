@@ -1228,7 +1228,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     }`}>
                     
                     {/* Desktop: 2-column layout with divider, Mobile: single column */}
-                    <div className="flex flex-col md:grid md:grid-cols-[1fr,1px,380px] md:gap-4">
+                    <div className="flex flex-col md:grid md:grid-cols-[1.5fr,1px,1fr] md:gap-4">
                       {/* Left: Controls */}
                       <div className="space-y-3">
                         {unitCount > 1 && !isNotMarketable ? (
