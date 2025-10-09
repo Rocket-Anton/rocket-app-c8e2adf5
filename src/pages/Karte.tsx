@@ -288,11 +288,12 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
+    // Default center on Hamburg when no project is selected
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [7.0814, 50.9206],
-      zoom: 16,
+      center: [9.9937, 53.5511], // Hamburg coordinates
+      zoom: 12,
       pitch: 45,
       bearing: -17.6,
       antialias: true,
@@ -360,16 +361,7 @@ function KarteContent() {
       toast.success(`${selectedAddrs.length} Adressen ausgewählt`);
     });
 
-    // Initial fit to all valid addresses
-    const initBounds = new mapboxgl.LngLatBounds();
-    addresses.forEach((a) => {
-      if (a.coordinates && a.coordinates[0] !== 0 && a.coordinates[1] !== 0) {
-        initBounds.extend([a.coordinates[0], a.coordinates[1]]);
-      }
-    });
-    if (!initBounds.isEmpty()) {
-      map.fitBounds(initBounds, { padding: 50, maxZoom: 15 });
-    }
+    // Don't fit to addresses on initial load - stay on Hamburg
 
     mapInstance.current = map;
 
@@ -607,7 +599,7 @@ function KarteContent() {
     return inside;
   };
 
-  // Render project markers
+  // Render project markers and fly to project when selected
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || selectedProjectIds.size === 0) {
@@ -629,6 +621,20 @@ function KarteContent() {
         // Clear existing project markers
         projectMarkersRef.current.forEach((m) => m.remove());
         projectMarkersRef.current = [];
+
+        // Fly to first project when selected
+        if (projects && projects.length > 0) {
+          const firstProject = projects[0];
+          const coords = firstProject.coordinates as { lat?: number; lng?: number } | null;
+          if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
+            map.flyTo({
+              center: [coords.lng, coords.lat],
+              zoom: 14,
+              pitch: 45,
+              duration: 1500,
+            });
+          }
+        }
 
         projects?.forEach((project) => {
           if (!project.coordinates) return;
