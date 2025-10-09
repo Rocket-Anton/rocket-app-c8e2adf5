@@ -76,10 +76,66 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
   }, []);
 
   const fetchProjects = async () => {
+    // DUMMY DATA FOR TESTING
+    const dummyProjects: Project[] = [
+      {
+        id: 'dummy-1',
+        name: 'VVM - Stuttgart Mitte',
+        status: 'In Planung',
+        area_name: 'Mitte',
+        city: 'Stuttgart',
+        coordinates: null,
+        color: '#3b82f6',
+        provider_id: 'vvm-id',
+        providers: {
+          id: 'vvm-id',
+          name: 'VVM',
+          color: '#3b82f6'
+        }
+      },
+      {
+        id: 'dummy-2',
+        name: 'NC - Ravensburg',
+        status: 'Laufend',
+        area_name: null,
+        city: 'Ravensburg',
+        coordinates: null,
+        color: '#10b981',
+        provider_id: 'nc-id',
+        providers: {
+          id: 'nc-id',
+          name: 'NC',
+          color: '#10b981'
+        }
+      },
+      {
+        id: 'dummy-3',
+        name: 'VVM - Karlsruhe Nord',
+        status: 'Abgeschlossen',
+        area_name: 'Nord',
+        city: 'Karlsruhe',
+        coordinates: null,
+        color: '#3b82f6',
+        provider_id: 'vvm-id',
+        providers: {
+          id: 'vvm-id',
+          name: 'VVM',
+          color: '#3b82f6'
+        }
+      }
+    ];
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('ProjectSelector: No user found');
+        // Set dummy data even without user for testing
+        setProjects(dummyProjects);
+        setProviders([
+          { id: 'vvm-id', name: 'VVM', color: '#3b82f6' },
+          { id: 'nc-id', name: 'NC', color: '#10b981' }
+        ]);
+        setLoading(false);
         return;
       }
 
@@ -190,7 +246,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       });
 
       setProviders(Array.from(uniqueProviders.values()));
-      setProjects(projectsWithColors);
+      
+      // Merge real data with dummy data
+      const allProjects = [...projectsWithColors, ...dummyProjects];
+      setProjects(allProjects);
     } catch (error) {
       console.error('Error fetching projects:', error);
     } finally {
