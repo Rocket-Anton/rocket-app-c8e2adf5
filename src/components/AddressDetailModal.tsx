@@ -1158,6 +1158,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
           duration: 1000,
         });
+
+        // Reload the page data to reflect the deletion
+        setTimeout(() => {
+          window.location.reload();
+        }, 1100);
       } catch (err) {
         console.error('Error deleting unit:', err);
         toast({
