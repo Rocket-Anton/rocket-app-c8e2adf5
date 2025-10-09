@@ -2306,10 +2306,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
         <DialogContent ref={modalContentRef} hideClose className="relative box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-visible rounded-xl z-[10060] flex flex-col min-h-0">
-          <div className="embla flex h-full w-full overflow-hidden relative rounded-xl">
+          <div className="embla flex h-full w-full overflow-hidden relative rounded-xl" ref={emblaRef}>
             {/* Pfeile neben der Karte (nur Desktop) */}
             {allAddresses.length > 1 && (
-              <div className="hidden sm:block absolute inset-y-0 left-0 right-0 pointer-events-none" ref={emblaRef}>
+              <div className="hidden sm:block absolute inset-y-0 left-0 right-0 pointer-events-none">
                 <Button
                   type="button"
                   aria-label="Zur vorherigen Adresse"
