@@ -651,7 +651,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         </div>
 
         {/* Metrics Dashboard */}
-        <div className="px-4">
+        <div className="px-4 pt-6">
           <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
