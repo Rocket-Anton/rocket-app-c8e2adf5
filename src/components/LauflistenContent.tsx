@@ -114,6 +114,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       setIsLoadingAddresses(true);
       try {
         const projectIdsArray = Array.from(selectedProjectIds);
+        console.info('LauflistenContent: loading addresses for projects', projectIdsArray);
         
         // Fetch addresses for selected projects
         const { data: addressesData, error: addrError } = await supabase
@@ -159,6 +160,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         }));
 
         setAddresses(transformedAddresses);
+        console.info('LauflistenContent: loaded addresses', { count: transformedAddresses.length });
       } catch (error: any) {
         console.error("Error loading addresses:", error);
         toast.error("Fehler beim Laden der Adressen");
