@@ -115,9 +115,9 @@ const NavigationArrow: React.FC<{
       disabled={disabled}
       aria-label={direction === "left" ? "Vorherige Adresse" : "Nächste Adresse"}
       className={cn(
-        "hidden lg:flex items-center justify-center",
-        "absolute top-1/2 -translate-y-1/2 z-[10105]",
-        direction === "left" ? "-left-20" : "-right-20",
+        "flex items-center justify-center",
+        "absolute top-1/2 -translate-y-1/2 z-[10150]",
+        direction === "left" ? "-left-6" : "-right-6",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
         "shadow-lg border border-border",
@@ -1993,7 +1993,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
           style={{ isolation: 'isolate' }}
         >
-          <div className="w-full max-w-lg h-[95vh] md:h-[88vh]">
+          <div className="relative w-full max-w-lg h-[95vh] md:h-[88vh]">
             <HorizontalModalPager
               items={allAddresses}
               startIndex={initialIndex}
@@ -2006,23 +2006,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               options={emblaOptions}
               ref={pagerRef}
             />
+            
+            {/* Navigation Arrows - Desktop only */}
+            {showArrows && (
+              <>
+                <NavigationArrow
+                  direction="left"
+                  onClick={() => pagerRef.current?.scrollPrev()}
+                  disabled={!pagerRef.current?.canScrollPrev()}
+                />
+                <NavigationArrow
+                  direction="right"
+                  onClick={() => pagerRef.current?.scrollNext()}
+                  disabled={!pagerRef.current?.canScrollNext()}
+                />
+              </>
+            )}
           </div>
-          
-          {/* Navigation Arrows - Desktop only */}
-          {showArrows && (
-            <>
-              <NavigationArrow
-                direction="left"
-                onClick={() => pagerRef.current?.scrollPrev()}
-                disabled={!pagerRef.current?.canScrollPrev()}
-              />
-              <NavigationArrow
-                direction="right"
-                onClick={() => pagerRef.current?.scrollNext()}
-                disabled={!pagerRef.current?.canScrollNext()}
-              />
-            </>
-          )}
         </div>
       </MotionDialog>
 
