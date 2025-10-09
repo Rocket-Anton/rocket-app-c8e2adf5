@@ -13,6 +13,7 @@ import { Calendar as CalendarIcon, Upload } from "lucide-react";
 import { format } from "date-fns";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { MAPBOX_ACCESS_TOKEN } from "@/config/mapbox";
 
 const GERMAN_STATES = [
   "Baden-Württemberg", "Bayern", "Berlin", "Brandenburg", "Bremen", 
@@ -158,6 +159,27 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
       const { data: userData } = await supabase.auth.getUser();
       if (!userData.user) throw new Error("Not authenticated");
 
+      // Geocode city if provided and no coordinates exist
+      let coordinates = null;
+      if (formData.city && formData.city.trim()) {
+        try {
+          console.log('Geocoding city:', formData.city);
+          const response = await fetch(
+            `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(formData.city)}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=DE&limit=1`
+          );
+          const data = await response.json();
+          
+          if (data.features && data.features.length > 0) {
+            const [lng, lat] = data.features[0].center;
+            coordinates = { lat, lng };
+            console.log(`Geocoded ${formData.city} to`, coordinates);
+          }
+        } catch (geocodeError) {
+          console.error('Error geocoding city:', geocodeError);
+          // Continue without coordinates
+        }
+      }
+
       const { data: project, error: projectError } = await supabase
         .from('projects')
         .insert({
@@ -168,6 +190,7 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
           federal_state: formData.federalState,
           city: formData.city,
           postal_code: formData.postalCode,
+          coordinates: coordinates,
           marketing_type: formData.marketingType,
           provider_contact_id: formData.providerContactId || null,
           rocket_count: parseInt(formData.rocketCount),
