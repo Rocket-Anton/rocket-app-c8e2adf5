@@ -2408,7 +2408,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
       )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[92vw] max-w-lg rounded-2xl max-h-[85vh] p-0 z-[10100] flex flex-col min-h-0 overflow-hidden" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="w-[92vw] max-w-lg rounded-2xl h-[85vh] p-0 z-[10100] flex flex-col min-h-0 overflow-hidden" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader className="px-6 pt-4 pb-2 flex-shrink-0">
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
