@@ -8,7 +8,7 @@ import { ListsSidebar } from "@/components/ListsSidebar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { ProjectSelector } from "@/components/ProjectSelector";
-import { MobileHeader } from "@/components/MobileHeader";
+
 import { AddressDetailModal } from "@/components/AddressDetailModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
@@ -669,11 +669,6 @@ function KarteContent() {
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
-          {/* Mobile Header */}
-          <MobileHeader 
-            selectedProjectIds={selectedProjectIds}
-            onProjectsChange={setSelectedProjectIds}
-          />
           
           <div className="flex flex-col h-full w-full">
             {/* Header */}

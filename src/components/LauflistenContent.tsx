@@ -546,8 +546,84 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
   return (
     <TooltipProvider>
       <div className="flex flex-col h-dvh max-w-[100vw] overflow-x-hidden">
-        
-        {/* Header */}
+        {/* Mobile Header - nur auf kleinen Bildschirmen */}
+        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4 relative z-50">
+          <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16 mt-1 -ml-1" />
+          <Sheet>
+            <SheetTrigger asChild>
+              <button className="text-white">
+                <div className="space-y-1">
+                  <div className="w-6 h-0.5 bg-white"></div>
+                  <div className="w-6 h-0.5 bg-white"></div>
+                  <div className="w-6 h-0.5 bg-white"></div>
+                </div>
+              </button>
+            </SheetTrigger>
+            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
+              <SheetHeader>
+                <SheetTitle>Menü</SheetTitle>
+              </SheetHeader>
+              <div className="py-4">
+                <nav className="space-y-1">
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <Home className="w-5 h-5" />
+                    <span>Dashboard</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <Clock className="w-5 h-5" />
+                    <span>Aktivitäten</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium">
+                    <PersonStanding className="w-5 h-5" />
+                    <span>Lauflisten</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                    <Circle className="w-4 h-4 fill-current" />
+                    <span>Liste</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
+                    <Circle className="w-4 h-4" />
+                    <span>Karte</span>
+                  </a>
+                  <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                    <div className="flex items-center gap-3">
+                      <CalendarIcon className="w-5 h-5" />
+                      <span>Termine</span>
+                    </div>
+                    <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
+                  </a>
+                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                    <User className="w-5 h-5" />
+                    <span>Leads</span>
+                  </a>
+                  
+                  <div className="pt-4 mt-4 border-t">
+                    <div className="px-4 pb-2">
+                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
+                    </div>
+                    <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
+                      <Settings className="w-5 h-5" />
+                      <span>Settings</span>
+                    </a>
+                    <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
+                      <div className="flex items-center gap-3">
+                        <Moon className="w-5 h-5" />
+                        <span>Dark mode</span>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="pt-4 mt-4 border-t">
+                    <div className="px-4">
+                      <div className="text-sm font-medium">Oleg Stemnev</div>
+                      <button className="text-xs text-muted-foreground hover:text-foreground">Abmelden</button>
+                    </div>
+                  </div>
+                </nav>
+              </div>
+            </SheetContent>
+          </Sheet>
+        </div>
         <div className={`pt-4 pb-0 ${isMobile ? 'px-4' : 'px-4'}`}>
           <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
         </div>
