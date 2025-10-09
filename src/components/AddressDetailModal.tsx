@@ -1170,9 +1170,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col md:flex-row h-full w-full overflow-hidden touch-pan-y">
-        {/* Left Panel - Address Controls (Full width on mobile, 50% on desktop) */}
-        <div ref={scrollContainerRef} className={`flex-1 md:flex-[0.5] min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+      <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
+        {/* Single scrollable container */}
+        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -1217,7 +1217,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     </div>
                   )}
                 {/* Gray Container for Fields - Green background if Neukunde, Red if Kein Interesse */}
-                    <div className={`rounded-lg p-3 sm:p-4 space-y-3 w-full box-border max-w-full ${
+                    <div className={`rounded-lg p-3 sm:p-4 w-full box-border max-w-full ${
                       isNotMarketable 
                         ? "bg-gray-100 dark:bg-gray-900/50"
                         : unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
@@ -1226,175 +1226,405 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           ? "bg-red-100 dark:bg-red-950/30"
                           : "bg-muted/70"
                     }`}>
-                    {unitCount > 1 && !isNotMarketable ? (
-                      <div className="flex gap-3 min-w-0">
-                        <div className="flex-[2] min-w-0">
-                          <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
-                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Stockwerk" />
-                            </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                              <SelectItem value="EG">EG</SelectItem>
-                              <SelectItem value="1. OG">1. OG</SelectItem>
-                              <SelectItem value="2. OG">2. OG</SelectItem>
-                              <SelectItem value="3. OG">3. OG</SelectItem>
-                              <SelectItem value="4. OG">4. OG</SelectItem>
-                              <SelectItem value="5. OG">5. OG</SelectItem>
-                              <SelectItem value="6. OG">6. OG</SelectItem>
-                              <SelectItem value="7. OG">7. OG</SelectItem>
-                              <SelectItem value="8. OG">8. OG</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
+                    
+                    {/* Desktop: 2-column layout with divider, Mobile: single column */}
+                    <div className="flex flex-col md:grid md:grid-cols-[1fr,1px,380px] md:gap-4">
+                      {/* Left: Controls */}
+                      <div className="space-y-3">
+                        {unitCount > 1 && !isNotMarketable ? (
+                          <div className="flex gap-3 min-w-0">
+                            <div className="flex-[2] min-w-0">
+                              <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
+                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                  <SelectValue placeholder="Stockwerk" />
+                                </SelectTrigger>
+                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                                  <SelectItem value="EG">EG</SelectItem>
+                                  <SelectItem value="1. OG">1. OG</SelectItem>
+                                  <SelectItem value="2. OG">2. OG</SelectItem>
+                                  <SelectItem value="3. OG">3. OG</SelectItem>
+                                  <SelectItem value="4. OG">4. OG</SelectItem>
+                                  <SelectItem value="5. OG">5. OG</SelectItem>
+                                  <SelectItem value="6. OG">6. OG</SelectItem>
+                                  <SelectItem value="7. OG">7. OG</SelectItem>
+                                  <SelectItem value="8. OG">8. OG</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
 
-                        <div className="flex-1 min-w-0">
-                          <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
-                            <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue placeholder="Lage" />
-                            </SelectTrigger>
-                            <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                              <SelectItem value="Links">Links</SelectItem>
-                              <SelectItem value="Rechts">Rechts</SelectItem>
-                              <SelectItem value="Mitte">Mitte</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                    ) : null}
+                            <div className="flex-1 min-w-0">
+                              <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
+                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                  <SelectValue placeholder="Lage" />
+                                </SelectTrigger>
+                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                                  <SelectItem value="Links">Links</SelectItem>
+                                  <SelectItem value="Rechts">Rechts</SelectItem>
+                                  <SelectItem value="Mitte">Mitte</SelectItem>
+                                </SelectContent>
+                              </Select>
+                            </div>
+                          </div>
+                        ) : null}
 
-                    <div>
-                      <div className="flex gap-3 min-w-0">
-                        <div className="flex-[2] min-w-0">
-                          <Select 
-                            value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
-                            onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
-                            disabled={unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" || isNotMarketable}
-                          >
-                            <SelectTrigger className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
-                              <SelectValue>
-                                {(() => {
-                                  const currentStatus = unitStatuses[`${addr.id}:${unit.id}`] || "offen";
-                                  const statusOption = statusOptions.find(s => s.value === currentStatus);
-                                  return statusOption ? (
-                                    <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
-                                      {statusOption.label}
-                                    </div>
-                                  ) : null;
-                                })()}
-                              </SelectValue>
-                            </SelectTrigger>
-                            {!isNotMarketable && (
-                              <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
-                                {statusOptions
-                                  .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
-                                  .map((status) => (
-                                    <SelectItem key={status.value} value={status.value}>
-                                      <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
-                                        {status.label}
-                                      </div>
-                                    </SelectItem>
-                                  ))}
-                              </BoundedSelectContent>
-                            )}
-                          </Select>
-                        </div>
-
-                        <div className="flex-1 min-w-0">
-                          <Popover key={`popover-${unit.id}-${popoverKey}`}>
-                            <PopoverTrigger asChild>
-                              <Button 
-                                variant="outline" 
-                                className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative px-3"
-                                disabled={isNotMarketable}
+                        <div>
+                          <div className="flex gap-3 min-w-0">
+                            <div className="flex-[2] min-w-0">
+                              <Select 
+                                value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
+                                onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
+                                disabled={unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" || isNotMarketable}
                               >
-                                <span>Historie</span>
-                                <ChevronDown className="h-4 w-4 opacity-50" />
-                                {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
-                                  <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
-                                    {statusHistories[`${addr.id}:${unit.id}`].length}
-                                  </span>
-                                )}
-                              </Button>
-                            </PopoverTrigger>
-                            <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
-                              <BoundedPopoverContent
-                                modalRef={modalContentRef}
-                                align="end"
-                                sideOffset={8}
-                                className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
-                              >
-                                <div
-                                  className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
-                                  onWheel={(e) => e.stopPropagation()}
-                                  onPointerDown={(e) => e.stopPropagation()}
-                                  onTouchStart={(e) => e.stopPropagation()}
-                                  style={{ WebkitOverflowScrolling: 'touch' }}
-                                >
-                                  <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
-                                    <h3 className="font-medium text-sm">Status Historie</h3>
-                                  </div>
-                                   <div className="p-3 pt-2">
-                                    <div className="space-y-2">
-                                      {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
-                                        (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
-                                          // Extract base status (remove rating info like "(3 ⭐)")
-                                          const baseStatus = history.status.split('(')[0].trim();
-                                          const statusOption = statusOptions.find(s => s.label === baseStatus);
-                                          return (
-                                            <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
-                                              <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
-                                                {history.status}
-                                              </div>
-                                              <div className="text-xs text-muted-foreground">
-                                                {history.changedBy}
-                                              </div>
-                                              <div className="text-xs text-muted-foreground">
-                                                {history.changedAt}
-                                              </div>
-                                            </div>
-                                          );
-                                        })
-                                      ) : (
-                                        <div className="text-sm text-muted-foreground text-center py-4">
-                                          Kein Update vorhanden
+                                <SelectTrigger className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                  <SelectValue>
+                                    {(() => {
+                                      const currentStatus = unitStatuses[`${addr.id}:${unit.id}`] || "offen";
+                                      const statusOption = statusOptions.find(s => s.value === currentStatus);
+                                      return statusOption ? (
+                                        <div className={`px-2 py-1.5 text-xs font-medium rounded ${statusOption.color}`}>
+                                          {statusOption.label}
                                         </div>
+                                      ) : null;
+                                    })()}
+                                  </SelectValue>
+                                </SelectTrigger>
+                                {!isNotMarketable && (
+                                  <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
+                                    {statusOptions
+                                      .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
+                                      .map((status) => (
+                                        <SelectItem key={status.value} value={status.value}>
+                                          <div className={`px-2 py-1 text-xs font-medium rounded ${status.color}`}>
+                                            {status.label}
+                                          </div>
+                                        </SelectItem>
+                                      ))}
+                                  </BoundedSelectContent>
+                                )}
+                              </Select>
+                            </div>
+
+                            <div className="flex-1 min-w-0">
+                              <Popover key={`popover-${unit.id}-${popoverKey}`}>
+                                <PopoverTrigger asChild>
+                                  <Button 
+                                    variant="outline" 
+                                    className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative px-3"
+                                    disabled={isNotMarketable}
+                                  >
+                                    <span>Historie</span>
+                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                    {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
+                                      <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+                                        {statusHistories[`${addr.id}:${unit.id}`].length}
+                                      </span>
+                                    )}
+                                  </Button>
+                                </PopoverTrigger>
+                                <PopoverPrimitive.Portal container={modalContentRef.current ?? undefined}>
+                                  <BoundedPopoverContent
+                                    modalRef={modalContentRef}
+                                    align="end"
+                                    sideOffset={8}
+                                    className="w-64 p-0 z-[9999] overflow-hidden rounded-md border bg-popover shadow-xl"
+                                  >
+                                    <div
+                                      className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
+                                      onWheel={(e) => e.stopPropagation()}
+                                      onPointerDown={(e) => e.stopPropagation()}
+                                      onTouchStart={(e) => e.stopPropagation()}
+                                      style={{ WebkitOverflowScrolling: 'touch' }}
+                                    >
+                                      <div className="sticky top-0 bg-popover z-10 p-3 pb-2 border-b border-border">
+                                        <h3 className="font-medium text-sm">Status Historie</h3>
+                                      </div>
+                                      <div className="p-3 pt-2">
+                                        <div className="space-y-2">
+                                          {(statusHistories[`${addr.id}:${unit.id}`] || []).length > 0 ? (
+                                            (statusHistories[`${addr.id}:${unit.id}`] || []).map((history) => {
+                                              const baseStatus = history.status.split('(')[0].trim();
+                                              const statusOption = statusOptions.find(s => s.label === baseStatus);
+                                              return (
+                                                <div key={history.id} className="pb-2 border-b last:border-0 last:pb-0">
+                                                  <div className={`inline-block px-2 py-1 text-xs font-medium rounded mb-1 ${statusOption?.color || 'bg-gray-500 text-white'}`}>
+                                                    {history.status}
+                                                  </div>
+                                                  <div className="text-xs text-muted-foreground">
+                                                    {history.changedBy}
+                                                  </div>
+                                                  <div className="text-xs text-muted-foreground">
+                                                    {history.changedAt}
+                                                  </div>
+                                                </div>
+                                              );
+                                            })
+                                          ) : (
+                                            <div className="text-sm text-muted-foreground text-center py-4">
+                                              Kein Update vorhanden
+                                            </div>
+                                          )}
+                                        </div>
+                                      </div>
+                                    </div>
+                                  </BoundedPopoverContent>
+                                </PopoverPrimitive.Portal>
+                              </Popover>
+                            </div>
+                          </div>
+                        </div>
+
+                        {showStatusUpdateButton(unitStatuses[`${addr.id}:${unit.id}`] || "offen") && (
+                          <Button 
+                            onClick={() => handleSameStatusUpdate(addr.id, unit.id)}
+                            className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md"
+                          >
+                            <RotateCcw className="w-4 h-4 mr-2" />
+                            Gleicher Status
+                          </Button>
+                        )}
+
+                        {lastUpdated[`${addr.id}:${unit.id}`] && (
+                          <p className="text-xs text-muted-foreground">
+                            Aktualisiert: {lastUpdated[`${addr.id}:${unit.id}`]}
+                          </p>
+                        )}
+
+                        {/* Auftrag Button - Only show if not Neukunde and marketable */}
+                        {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
+                          <Button 
+                            onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
+                            className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Auftrag
+                          </Button>
+                        )}
+                      </div>
+                      
+                      {/* Vertical Divider (Desktop only) */}
+                      <div className="hidden md:block bg-border"></div>
+                      
+                      {/* Right: Notizen & Termine (Desktop only) */}
+                      <div className="hidden md:flex md:flex-col md:space-y-3">
+                        {/* Notizen Collapsible */}
+                        <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
+                            <div className="flex items-center gap-2">
+                              <FileText className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium">Notizen</span>
+                              {notes.length > 0 && (
+                                <span className="text-xs text-muted-foreground">({notes.length})</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setAddNoteDialogOpen(true);
+                                }}
+                                className="p-1 hover:bg-muted rounded transition-colors"
+                              >
+                                <Plus className="w-4 h-4 text-blue-600" />
+                              </button>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-2">
+                            {notes.length > 0 ? (
+                              <div className="space-y-2 max-h-[150px] overflow-y-auto">
+                                {notes.map((note) => (
+                                  <div key={note.id} className="p-2 rounded-lg bg-background text-xs relative pr-7 border">
+                                    <div className="flex items-start justify-between gap-2 mb-1">
+                                      <span className="font-medium text-xs">{note.author}</span>
+                                      {!note.permanent && (
+                                        <Button
+                                          variant="ghost"
+                                          size="icon"
+                                          className="h-5 w-5 -mt-1 -mr-1 text-destructive hover:text-destructive hover:bg-destructive/10 absolute top-1 right-1"
+                                          onClick={() => {
+                                            setPendingDeleteNoteId(note.id);
+                                            setDeleteNoteDialogOpen(true);
+                                          }}
+                                        >
+                                          <Trash2 className="h-3 w-3" />
+                                        </Button>
                                       )}
                                     </div>
+                                    <div className="text-[10px] text-muted-foreground mb-1">{note.timestamp}</div>
+                                    <div className="whitespace-pre-wrap text-xs">{note.content}</div>
                                   </div>
-                                </div>
-                              </BoundedPopoverContent>
-                            </PopoverPrimitive.Portal>
-                          </Popover>
-                        </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground text-center py-3">
+                                Noch keine Notizen vorhanden
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </Collapsible>
+
+                        {/* Termine Collapsible */}
+                        <Collapsible 
+                          open={appointmentsOpen[unit.id] || false} 
+                          onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}
+                        >
+                          <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
+                            <div className="flex items-center gap-2">
+                              <Clock className="w-4 h-4 text-muted-foreground" />
+                              <span className="text-sm font-medium">Termine</span>
+                              {appointments.filter(apt => apt.unitId === unit.id).length > 0 && (
+                                <span className="text-xs text-muted-foreground">({appointments.filter(apt => apt.unitId === unit.id).length})</span>
+                              )}
+                            </div>
+                            <div className="flex items-center gap-2">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleAddAppointment(unit.id);
+                                }}
+                                className="p-1 hover:bg-muted rounded transition-colors"
+                                disabled={isNotMarketable}
+                              >
+                                <Plus className={`w-4 h-4 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
+                              </button>
+                              <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
+                            </div>
+                          </CollapsibleTrigger>
+                          <CollapsibleContent className="mt-2">
+                            {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
+                              <div className="space-y-2">
+                                {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
+                                  <div key={appointment.id} className="rounded-lg p-2 border bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
+                                    <div className="flex items-start gap-2">
+                                      <CalendarIcon className="w-3 h-3 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-xs">{appointment.date} - {appointment.time}</div>
+                                        {appointment.customer && (
+                                          <div className="text-xs text-muted-foreground">Kunde: {appointment.customer}</div>
+                                        )}
+                                        {appointment.notes && (
+                                          <div className="text-[10px] text-muted-foreground mt-1">{appointment.notes}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-xs text-muted-foreground text-center py-3">
+                                Keine Termine vorhanden
+                              </div>
+                            )}
+                          </CollapsibleContent>
+                        </Collapsible>
                       </div>
                     </div>
+                    
+                    {/* Mobile: Notizen & Termine Collapsibles */}
+                    <div className="md:hidden mt-3 space-y-3">
+                      {/* Notizen Collapsible */}
+                      <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
+                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                              {notes.length}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setAddNoteDialogOpen(true);
+                              }}
+                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
+                            >
+                              <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
+                            </button>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent className="border-b border-gray-200">
+                          <div className="p-3 space-y-2">
+                            {notes.length > 0 ? (
+                              notes.map((note) => (
+                                <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
+                                  <button 
+                                    onClick={() => {
+                                      setPendingDeleteNoteId(note.id);
+                                      setDeleteNoteDialogOpen(true);
+                                    }}
+                                    className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground"
+                                  >
+                                    <X className="w-4 h-4" />
+                                  </button>
+                                  <div className="font-medium text-sm">{note.author}</div>
+                                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
+                                  <div className="text-sm">{note.content}</div>
+                                </div>
+                              ))
+                            ) : (
+                              <div className="text-sm text-muted-foreground text-center py-4">
+                                Keine Notizen vorhanden
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
 
-                    {showStatusUpdateButton(unitStatuses[`${addr.id}:${unit.id}`] || "offen") && (
-                      <Button 
-                        onClick={() => handleSameStatusUpdate(addr.id, unit.id)}
-                        className="w-full h-9 bg-blue-600 hover:bg-blue-700 text-white text-sm rounded-md"
-                      >
-                        <RotateCcw className="w-4 h-4 mr-2" />
-                        Gleicher Status
-                      </Button>
-                    )}
-
-                    {lastUpdated[`${addr.id}:${unit.id}`] && (
-                      <p className="text-xs text-muted-foreground">
-                        Aktualisiert: {lastUpdated[`${addr.id}:${unit.id}`]}
-                      </p>
-                    )}
-
-                    {/* Auftrag Button - Only show if not Neukunde and marketable */}
-                    {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
-                      <Button 
-                        onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
-                        className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
-                      >
-                        <FileText className="w-4 h-4 mr-2" />
-                        Auftrag
-                      </Button>
-                    )}
+                      {/* Termine Collapsible */}
+                      <Collapsible open={appointmentsOpen[unit.id] || false} onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}>
+                        <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
+                          <div className="flex items-center gap-2">
+                            <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
+                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
+                              {appointments.filter(apt => apt.unitId === unit.id).length}
+                            </div>
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button 
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                handleAddAppointment(unit.id);
+                              }}
+                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors"
+                              disabled={isNotMarketable}
+                            >
+                              <Plus className={`w-4 md:w-5 h-4 md:h-5 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
+                            </button>
+                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
+                          </div>
+                        </CollapsibleTrigger>
+                        <CollapsibleContent>
+                          <div className="p-3">
+                            {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
+                              <div className="space-y-2">
+                                {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
+                                  <div key={appointment.id} className="rounded-lg p-3 border bg-blue-50 border-blue-200">
+                                    <div className="flex items-start gap-2 mb-2">
+                                      <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
+                                      <div className="flex-1 min-w-0">
+                                        <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
+                                        {appointment.customer && (
+                                          <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
+                                        )}
+                                        {appointment.notes && (
+                                          <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
+                                        )}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            ) : (
+                              <div className="text-sm text-muted-foreground text-center py-4">
+                                Keine Termine vorhanden
+                              </div>
+                            )}
+                          </div>
+                        </CollapsibleContent>
+                      </Collapsible>
+                    </div>
                   </div>
                 </div>
               );
@@ -1405,134 +1635,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             )}
           </div>
-        </div>
-
-        {/* Right Panel - Notizen & Termine (Desktop only) */}
-        <div className="hidden md:block md:flex-[0.5] border-l border-border min-h-0 overflow-y-auto px-6 pt-4 pb-6 bg-muted/30">
-          {/* Notizen Collapsible per Unit */}
-          {units.map((unit, index) => {
-            const isNotMarketable = unit.marketable === false;
-            return (
-              <div key={`notes-${unit.id}`} className={`${index > 0 ? 'mt-6 pt-6 border-t border-border' : ''}`}>
-                {unitCount > 1 && (
-                  <h4 className="text-sm font-semibold mb-3">Wohneinheit {index + 1}</h4>
-                )}
-                
-                {/* Notizen Collapsible */}
-                <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md bg-background">
-                    <div className="flex items-center gap-2">
-                      <FileText className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Notizen</span>
-                      {notes.length > 0 && (
-                        <span className="text-xs text-muted-foreground">({notes.length})</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setAddNoteDialogOpen(true);
-                        }}
-                        className="p-1.5 hover:bg-muted rounded transition-colors"
-                      >
-                        <Plus className="w-4 h-4 text-blue-600" />
-                      </button>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2">
-                    {notes.length > 0 ? (
-                      <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                        {notes.map((note) => (
-                          <div key={note.id} className="p-3 rounded-lg bg-background text-sm relative pr-8 border">
-                            <div className="flex items-start justify-between gap-2 mb-1">
-                              <span className="font-medium">{note.author}</span>
-                              {!note.permanent && (
-                                <Button
-                                  variant="ghost"
-                                  size="icon"
-                                  className="h-6 w-6 -mt-1 -mr-1 text-destructive hover:text-destructive hover:bg-destructive/10 absolute top-2 right-2"
-                                  onClick={() => {
-                                    setPendingDeleteNoteId(note.id);
-                                    setDeleteNoteDialogOpen(true);
-                                  }}
-                                >
-                                  <Trash2 className="h-3.5 w-3.5" />
-                                </Button>
-                              )}
-                            </div>
-                            <div className="text-xs text-muted-foreground mb-1.5">{note.timestamp}</div>
-                            <div className="whitespace-pre-wrap">{note.content}</div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                        Noch keine Notizen vorhanden
-                      </div>
-                    )}
-                  </CollapsibleContent>
-                </Collapsible>
-
-                {/* Termine Collapsible */}
-                <Collapsible 
-                  open={appointmentsOpen[unit.id] || false} 
-                  onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}
-                  className="mt-3"
-                >
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md bg-background">
-                    <div className="flex items-center gap-2">
-                      <Clock className="w-4 h-4 text-muted-foreground" />
-                      <span className="text-sm font-medium">Termine</span>
-                      {appointments.filter(apt => apt.unitId === unit.id).length > 0 && (
-                        <span className="text-xs text-muted-foreground">({appointments.filter(apt => apt.unitId === unit.id).length})</span>
-                      )}
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <button 
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleAddAppointment(unit.id);
-                        }}
-                        className="p-1.5 hover:bg-muted rounded transition-colors"
-                        disabled={isNotMarketable}
-                      >
-                        <Plus className={`w-4 h-4 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
-                      </button>
-                      <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
-                    </div>
-                  </CollapsibleTrigger>
-                  <CollapsibleContent className="mt-2">
-                    {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
-                      <div className="space-y-2">
-                        {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
-                          <div key={appointment.id} className="rounded-lg p-3 border bg-blue-50 dark:bg-blue-950/30 border-blue-200 dark:border-blue-800">
-                            <div className="flex items-start gap-2 mb-2">
-                              <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                              <div className="flex-1 min-w-0">
-                                <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
-                                {appointment.customer && (
-                                  <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
-                                )}
-                                {appointment.notes && (
-                                  <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    ) : (
-                      <div className="text-sm text-muted-foreground text-center py-4">
-                        Keine Termine vorhanden
-                      </div>
-                    )}
-                  </CollapsibleContent>
-                </Collapsible>
-              </div>
-            );
-          })}
         </div>
       </div>
     );
