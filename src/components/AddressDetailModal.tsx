@@ -1840,9 +1840,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnitCount = addrUnits.length;
     
     return (
-      <div className="flex flex-col h-full">
+      <div className="h-full w-full rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform">
         {/* Card Header */}
-        <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
+        <div className="relative px-4 py-4 border-b flex-shrink-0">
           <DialogClose 
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50"
             onClick={() => handleDialogChange(false)}
@@ -1894,7 +1894,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
           <div 
             ref={modalContentRef}
-            className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh]"
+            className="p-0 overflow-visible w-full h-[85vh]"
           >
             <HorizontalModalPager
               items={allAddresses}
@@ -2077,9 +2077,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Order Creation Dialog (Mobile) */}
-        {orderDialogOpen && (
-          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
-        )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
           <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>

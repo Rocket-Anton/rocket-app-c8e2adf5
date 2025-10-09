@@ -23,12 +23,11 @@ function HorizontalModalPagerInner<T extends Item>({
   renderCard,
   onIndexChange,
 }: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
-  const [hasAnimatedIn, setHasAnimatedIn] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
 
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
-    align: 'center',
+    align: 'start',
     containScroll: 'trimSnaps',
     dragFree: false,
     skipSnaps: false,
@@ -38,11 +37,6 @@ function HorizontalModalPagerInner<T extends Item>({
     inViewThreshold: 0.6
   });
 
-  // Entrance animation trigger
-  useEffect(() => {
-    const timer = setTimeout(() => setHasAnimatedIn(true), 50);
-    return () => clearTimeout(timer);
-  }, []);
 
   // Drag state listeners for visual performance optimization
   useEffect(() => {
@@ -107,31 +101,14 @@ function HorizontalModalPagerInner<T extends Item>({
         WebkitBackfaceVisibility: 'hidden'
       }}
     >
-      <div className="flex h-full ease-out" style={{ willChange: 'transform', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+      <div className="flex h-full" style={{ willChange: 'transform' }}>
         {items.map((it, idx) => (
           <div 
             key={it.id} 
-            className={cn(
-              "flex-[0_0_100%] h-full transition-all duration-200 ease-out",
-              hasAnimatedIn ? "opacity-100 scale-100" : "opacity-0 scale-95"
-            )} 
-            style={{ 
-              contain: 'content',
-              backfaceVisibility: 'hidden', 
-              WebkitBackfaceVisibility: 'hidden'
-            }}
+            className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center"
+            style={{ contain: 'content' }}
           >
-            <div className="h-full w-full flex items-center justify-center overflow-visible" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-              <div 
-                className={cn(
-                  "w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl border flex flex-col overflow-hidden z-[10000] transition-shadow duration-200 transform-gpu",
-                  isDragging ? "shadow-md" : "shadow-xl"
-                )} 
-                style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
-              >
-                {renderCard(it, idx, items.length)}
-              </div>
-            </div>
+            {renderCard(it, idx, items.length)}
           </div>
         ))}
       </div>
