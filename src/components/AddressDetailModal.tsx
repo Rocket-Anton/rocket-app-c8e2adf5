@@ -1770,7 +1770,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Card Content */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full"
+          className={cn(
+            "flex-1 min-h-0 overscroll-contain w-full",
+            addrUnitCount > 1 ? "overflow-y-auto" : "overflow-y-hidden"
+          )}
           style={{
             WebkitOverflowScrolling: 'touch',
             background: 'transparent'
