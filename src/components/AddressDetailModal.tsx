@@ -1254,7 +1254,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                             <div className="flex-[2] min-w-0">
                               <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
-                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-8">
+                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2">
                                   <SelectValue placeholder="Lage" />
                                 </SelectTrigger>
                                 <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
