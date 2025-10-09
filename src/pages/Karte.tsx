@@ -9,7 +9,7 @@ import { AIAssistant } from "@/components/AIAssistant";
 import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { ProjectSelector } from "@/components/ProjectSelector";
 import { MobileHeader } from "@/components/MobileHeader";
-import SwipeDeck from "@/components/swipe/SwipeDeck";
+import { AddressDetailModal } from "@/components/AddressDetailModal";
 import { useIsMobile } from "@/hooks/use-mobile";
 import { Button } from "@/components/ui/button";
 import { Pentagon, Filter, Layers, Maximize2, ClipboardList, MapPin } from "lucide-react";
@@ -90,8 +90,8 @@ function KarteContent() {
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
   const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
   const [shouldZoomToProjects, setShouldZoomToProjects] = useState(false);
-  const [swipeMode, setSwipeMode] = useState(false);
-  const [swipeAddresses, setSwipeAddresses] = useState<Address[]>([]);
+  const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
+  const [showAddressModal, setShowAddressModal] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   
   // Map filter states
@@ -534,24 +534,10 @@ function KarteContent() {
       el.style.cssText = `width:${size}px;height:${size}px;background:${color};color:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;cursor:pointer;`;
       el.textContent = String(address.units.length);
 
-      // Add click handler to open swipe mode
+      // Add click handler to open address modal
       el.addEventListener('click', () => {
-        // Filter addresses around the clicked address (same street or nearby)
-        const nearbyAddresses = addresses.filter(a => {
-          // Same street addresses
-          if (a.street === address.street) return true;
-          
-          // Or within ~50m radius (approximately 0.0005 degrees)
-          const lat1 = address.coordinates[1];
-          const lng1 = address.coordinates[0];
-          const lat2 = a.coordinates[1];
-          const lng2 = a.coordinates[0];
-          const distance = Math.sqrt(Math.pow(lat2 - lat1, 2) + Math.pow(lng2 - lng1, 2));
-          return distance < 0.0005;
-        });
-
-        setSwipeAddresses(nearbyAddresses);
-        setSwipeMode(true);
+        setSelectedAddress(address);
+        setShowAddressModal(true);
       });
 
       const marker = new mapboxgl.Marker({ element: el })
@@ -1004,41 +990,18 @@ function KarteContent() {
         }}
       />
 
-      {/* Swipe Mode Dialog */}
-      {swipeMode && (
-        <div className="fixed inset-0 bg-background z-[2000] overflow-auto">
-          <div className="min-h-full flex flex-col">
-            {/* Header */}
-            <div className="sticky top-0 z-10 bg-background border-b px-4 py-3 flex items-center justify-between">
-              <h2 className="text-lg font-semibold">Adressen bearbeiten</h2>
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => {
-                  setSwipeMode(false);
-                  setSwipeAddresses([]);
-                }}
-              >
-                Schließen
-              </Button>
-            </div>
-
-            {/* Swipe Deck */}
-            <div className="flex-1">
-              <SwipeDeck
-                addresses={swipeAddresses}
-                onLeft={(address) => {
-                  console.log('Swipe left:', address);
-                  // TODO: Update status
-                }}
-                onRight={(address) => {
-                  console.log('Swipe right:', address);
-                  // TODO: Update status
-                }}
-              />
-            </div>
-          </div>
-        </div>
+      {/* Address Detail Modal */}
+      {selectedAddress && (
+        <AddressDetailModal
+          address={selectedAddress}
+          allAddresses={addresses}
+          open={showAddressModal}
+          onOpenChange={setShowAddressModal}
+          onClose={() => {
+            setSelectedAddress(null);
+            setShowAddressModal(false);
+          }}
+        />
       )}
     </>
   );
