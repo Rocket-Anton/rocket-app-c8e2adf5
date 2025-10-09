@@ -1714,10 +1714,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnitCount = addrUnits.length;
     
     return (
-      <div 
-        key={addr.id}
-        className="h-full w-[95vw] max-w-lg mx-auto rounded-2xl bg-background shadow-2xl flex flex-col overflow-hidden"
-      >
+      <div key={addr.id} className="h-full w-[95vw] max-w-lg mx-auto">
+        <div
+          className={cn(
+            "relative h-full rounded-2xl bg-background shadow-2xl flex flex-col overflow-hidden",
+            "[clip-path:inset(0_round_1rem)]",
+            "contain-paint will-change-transform"
+          )}
+        >
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
           <DialogClose 
@@ -1764,6 +1768,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         >
             {renderAddressContent(addr)}
             <div aria-hidden="true" className="w-full" style={{ height: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }} />
+        </div>
         </div>
       </div>
     );
