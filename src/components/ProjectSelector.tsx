@@ -353,25 +353,25 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                       <SelectTrigger className="h-7 text-xs">
                         <SelectValue placeholder="Status wählen" />
                       </SelectTrigger>
-                      <SelectContent className="z-[1003]">
-                        <SelectItem value="all">Alle Status</SelectItem>
-                        <SelectItem value="In Planung" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 text-xs font-medium w-full">
+                      <SelectContent className="z-[1003] p-1">
+                        <SelectItem value="all" className="mb-1">Alle Status</SelectItem>
+                        <SelectItem value="In Planung" className="p-0 mb-1">
+                          <div className="px-2 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium w-fit mx-auto">
                             IN PLANUNG
                           </div>
                         </SelectItem>
-                        <SelectItem value="Läuft" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
+                        <SelectItem value="Läuft" className="p-0 mb-1">
+                          <div className="px-2 py-1 rounded-md bg-green-100 text-green-800 text-xs font-medium w-fit mx-auto">
                             LÄUFT
                           </div>
                         </SelectItem>
-                        <SelectItem value="Laufend" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-yellow-100 text-yellow-800 text-xs font-medium w-full">
+                        <SelectItem value="Laufend" className="p-0 mb-1">
+                          <div className="px-2 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs font-medium w-fit mx-auto">
                             LAUFEND
                           </div>
                         </SelectItem>
                         <SelectItem value="Abgeschlossen" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-red-100 text-red-800 text-xs font-medium w-full">
+                          <div className="px-2 py-1 rounded-md bg-red-100 text-red-800 text-xs font-medium w-fit mx-auto">
                             ABGESCHLOSSEN
                           </div>
                         </SelectItem>
