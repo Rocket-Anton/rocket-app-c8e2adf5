@@ -1759,11 +1759,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full"
           style={{
             WebkitOverflowScrolling: 'touch',
-            background: 'transparent',
-            paddingBottom: '1rem'
+            background: 'transparent'
           }}
         >
-          {renderAddressContent(addr)}
+          <div className="pb-8">
+            {renderAddressContent(addr)}
+          </div>
         </div>
       </div>
     );
