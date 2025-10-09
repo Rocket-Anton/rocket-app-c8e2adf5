@@ -1762,9 +1762,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             background: 'transparent'
           }}
         >
-          <div className="pb-8">
             {renderAddressContent(addr)}
-          </div>
+            <div aria-hidden="true" className="w-full" style={{ height: 'calc(env(safe-area-inset-bottom, 0px) + 64px)' }} />
         </div>
       </div>
     );
