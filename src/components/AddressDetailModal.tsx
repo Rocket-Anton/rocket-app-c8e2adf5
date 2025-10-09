@@ -2073,7 +2073,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="flex-1 overflow-y-auto px-6 py-2">
+            <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Datum *</label>
@@ -2202,7 +2202,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 {/* Map Section */}
                 <div className="border-t pt-6 mt-4">
                   <h3 className="font-semibold text-sm mb-3">Karte</h3>
-                  <div className="h-64 rounded-lg overflow-hidden border border-border">
+                  <div className="h-48 md:h-56 rounded-lg overflow-hidden border border-border">
                 <AppointmentMap
                   appointments={appointments.map(apt => ({
                     id: apt.id,
@@ -2766,7 +2766,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               {/* Map Section */}
               <div className="border-t pt-6 mt-4">
                 <h3 className="font-semibold text-sm mb-3">Karte</h3>
-                <div className="h-64 rounded-lg overflow-hidden border border-border">
+                <div className="h-48 md:h-56 rounded-lg overflow-hidden border border-border">
               <AppointmentMap
                 appointments={appointments.map(apt => ({
                   id: apt.id,

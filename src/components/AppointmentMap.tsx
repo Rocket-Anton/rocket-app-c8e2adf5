@@ -326,6 +326,6 @@ export const AppointmentMap = ({ appointments, selectedDate, currentAddress, sel
   }, []);
 
   return (
-    <div className="w-full h-[300px] rounded-lg border border-border overflow-hidden" ref={mapContainer} />
+    <div className="w-full h-full rounded-lg border border-border overflow-hidden" ref={mapContainer} />
   );
 };
