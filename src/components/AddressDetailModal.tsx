@@ -1798,7 +1798,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1821,7 +1821,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-            <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
+            <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1886,7 +1886,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Unit Dialog */}
         <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -1909,7 +1909,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Single Address) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2041,7 +2041,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2064,7 +2064,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Note Dialog */}
         <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10100]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Notiz hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2098,7 +2098,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Note Dialog */}
         <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2121,7 +2121,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog (Mobile) */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -2188,7 +2188,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Delete Unit Dialog (Mobile) */}
         <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
             <AlertDialogHeader>
               <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2211,7 +2211,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Mobile) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
