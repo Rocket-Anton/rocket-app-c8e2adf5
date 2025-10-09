@@ -117,7 +117,7 @@ const NavigationArrow: React.FC<{
       className={cn(
         "flex items-center justify-center",
         "absolute top-1/2 -translate-y-1/2 z-[10150]",
-        direction === "left" ? "left-4 md:left-8 lg:left-16 xl:left-24" : "right-4 md:right-8 lg:right-16 xl:right-24",
+        direction === "left" ? "left-2 md:left-4 lg:left-6 xl:left-8" : "right-2 md:right-4 lg:right-6 xl:right-8",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
         "shadow-lg border border-border",
