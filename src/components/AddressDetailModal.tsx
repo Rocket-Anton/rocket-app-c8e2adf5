@@ -1728,8 +1728,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Kein Interesse Grund-Dialog - für alle Geräte */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
           <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10050] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10060]">
+            <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
               <button
                 onClick={() => setKeinInteresseDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1786,8 +1786,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Potenzial Bewertung - für alle Geräte */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
           <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10050] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10060]">
+            <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
               <button
                 onClick={() => setPotenzialDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
