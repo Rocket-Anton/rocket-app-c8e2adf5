@@ -253,15 +253,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   const [prevIndex, setPrevIndex] = useState(initialIndex); // Track previous index for slide direction
   
+  // Local state for addresses to allow immediate UI updates
+  const [localAddresses, setLocalAddresses] = useState<Address[]>(allAddresses);
+  
+  // Sync local addresses with props when they change
+  useEffect(() => {
+    setLocalAddresses(allAddresses);
+  }, [allAddresses]);
+  
   // Ensure currentAddress always has a valid value
   const currentAddress = useMemo(() => {
-    if (allAddresses.length > 0) {
+    if (localAddresses.length > 0) {
       // Make sure currentIndex is within bounds
-      const validIndex = Math.max(0, Math.min(currentIndex, allAddresses.length - 1));
-      return allAddresses[validIndex];
+      const validIndex = Math.max(0, Math.min(currentIndex, localAddresses.length - 1));
+      return localAddresses[validIndex];
     }
     return address;
-  }, [allAddresses, currentIndex, address]);
+  }, [localAddresses, currentIndex, address]);
   
   // Handle dialog close and notify parent with final index
   const handleDialogChange = (open: boolean) => {
@@ -1095,10 +1103,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   const confirmDeleteUnit = async () => {
     if (!pendingDeleteUnit) return;
-
+    
     const { addressId, unitId } = pendingDeleteUnit;
-    const targetAddress = allAddresses.length > 0 
-      ? allAddresses.find(addr => addr.id === addressId) 
+    const targetAddress = localAddresses.length > 0 
+      ? localAddresses.find(addr => addr.id === addressId) 
       : (currentAddress?.id === addressId ? currentAddress : null);
     
     if (!targetAddress || !targetAddress.units) return;
@@ -1139,7 +1147,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             .insert({
               user_id: currentUser.id,
               address_id: addressId,
-              unit_id: unitId.toString(), // Convert to string for TEXT column
+              unit_id: unitId.toString(),
               activity_type: 'deleted',
               metadata: {
                 floor: unit.floor,
@@ -1153,16 +1161,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           }
         }
 
+        // Update local state to immediately remove the unit from UI
+        setLocalAddresses(prevAddresses => 
+          prevAddresses.map(addr => 
+            addr.id === addressId 
+              ? { ...addr, units: addr.units?.map(u => 
+                  u.id === unitId ? { ...u, deleted: true, deletedBy: currentUser?.name || "Unbekannt", deletedAt: timestamp } : u
+                ) }
+              : addr
+          )
+        );
+
         toast({
           title: "✓ Wohneinheit gelöscht",
           className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
-          duration: 1000,
+          duration: 2000,
         });
-
-        // Reload the page data to reflect the deletion
-        setTimeout(() => {
-          window.location.reload();
-        }, 1100);
       } catch (err) {
         console.error('Error deleting unit:', err);
         toast({
