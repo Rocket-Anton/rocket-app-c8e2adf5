@@ -2413,7 +2413,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
+          <div className="min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
