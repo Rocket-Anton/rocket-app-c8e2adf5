@@ -1744,7 +1744,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
           <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
             <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
@@ -2320,7 +2320,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         {/* Add Units Dialog (Mobile) */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
           <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
             <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
@@ -2882,7 +2882,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       {/* Add Units Dialog */}
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
         <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+          <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" onClick={() => setAddUnitsDialogOpen(false)} />
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
