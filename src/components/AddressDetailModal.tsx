@@ -168,8 +168,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [unitStatuses, setUnitStatuses] = useState<Record<string, string>>({});
   const [statusHistories, setStatusHistories] = useState<Record<string, Array<{id: number, status: string, changedBy: string, changedAt: string}>>>({});
   const [lastUpdated, setLastUpdated] = useState<Record<string, string>>({});
-  const [notesOpen, setNotesOpen] = useState(false);
-  const [appointmentsOpen, setAppointmentsOpen] = useState(false);
+  const [notesOpen, setNotesOpen] = useState<Record<number, boolean>>({});
+  const [appointmentsOpen, setAppointmentsOpen] = useState<Record<number, boolean>>({});
   const [confirmStatusUpdateOpen, setConfirmStatusUpdateOpen] = useState(false);
   const [pendingStatusUpdate, setPendingStatusUpdate] = useState<string | null>(null);
   const [popoverKey, setPopoverKey] = useState(0);
@@ -1388,7 +1388,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     {/* Combined Notizen & Termine Container */}
                     <div className="bg-background border border-border rounded-md overflow-hidden box-border max-w-full w-full">
                       {/* Collapsible Notizen Section */}
-                      <Collapsible open={notesOpen} onOpenChange={setNotesOpen}>
+                      <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
                         <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors border-b border-gray-200 focus:ring-0 focus:outline-none">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
@@ -1406,7 +1406,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             >
                               <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
                             </button>
-                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
                           </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent className="border-b border-gray-200">
@@ -1435,7 +1435,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       </Collapsible>
 
                       {/* Collapsible Termine Section */}
-                      <Collapsible open={appointmentsOpen} onOpenChange={setAppointmentsOpen}>
+                      <Collapsible open={appointmentsOpen[unit.id] || false} onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}>
                         <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
@@ -1454,7 +1454,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             >
                               <Plus className={`w-4 md:w-5 h-4 md:h-5 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
                             </button>
-                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen ? 'rotate-180' : ''}`} />
+                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
                           </div>
                         </CollapsibleTrigger>
                         <CollapsibleContent>
