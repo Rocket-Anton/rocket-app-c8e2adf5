@@ -1717,9 +1717,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <div key={addr.id} className="h-full w-[95vw] max-w-lg mx-auto">
         <div
           className={cn(
-            "relative h-full rounded-2xl bg-background shadow-2xl flex flex-col overflow-hidden",
-            "[clip-path:inset(0_round_1rem)]",
-            "contain-paint will-change-transform"
+            "relative h-full flex flex-col",
+            "rounded-2xl overflow-hidden bg-background shadow-2xl",
+            "transform-gpu will-change-transform [backface-visibility:hidden]",
+            "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
           )}
         >
         {/* Card Header */}
