@@ -77,6 +77,8 @@ export const MotionDialog = ({
                       }
                     }}
                   >
+                    <Dialog.Title className="sr-only">Adressdetails</Dialog.Title>
+                    <Dialog.Description className="sr-only">Details zur ausgewählten Adresse</Dialog.Description>
                     {children}
                   </motion.div>
                 </Dialog.Content>
