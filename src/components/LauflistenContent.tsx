@@ -128,7 +128,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       // Only load addresses if at least one project is selected
       if (selectedProjectIds.size === 0) {
         setAddresses([]);
-        setCachedAddresses([]);
+        if (cachedAddresses.length) setCachedAddresses([]);
         return;
       }
 
@@ -207,7 +207,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     };
 
     loadAddresses();
-  }, [selectedProjectIds, cachedAddresses]);
+  }, [Array.from(selectedProjectIds).sort().join(',')]);  // Depend only on selected project IDs (stable key)
 
   // Handle modal close and scroll to the address
   const handleModalClose = (finalIndex: number) => {
