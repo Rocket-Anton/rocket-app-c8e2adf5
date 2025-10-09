@@ -1309,7 +1309,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 <PopoverTrigger asChild>
                                   <Button 
                                     variant="outline" 
-                                    className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative pl-3 pr-2"
+                                    className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative pl-3 pr-1.5"
                                     disabled={isNotMarketable}
                                   >
                                     <span>Historie</span>
