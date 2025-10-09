@@ -11,6 +11,13 @@ const Toaster = ({ ...props }: ToasterProps) => {
       theme={theme as ToasterProps["theme"]}
       className="toaster group"
       position="top-right"
+      offset={16}
+      style={{
+        zIndex: 10100,
+        '--toast-close-button-start': 'auto',
+        '--toast-close-button-end': '8px',
+        '--toast-swipe-direction': 'right',
+      } as React.CSSProperties}
       toastOptions={{
         classNames: {
           toast:
@@ -19,6 +26,10 @@ const Toaster = ({ ...props }: ToasterProps) => {
           actionButton: "group-[.toast]:bg-primary group-[.toast]:text-primary-foreground",
           cancelButton: "group-[.toast]:bg-muted group-[.toast]:text-muted-foreground",
         },
+        style: {
+          right: '16px',
+          left: 'auto',
+        } as React.CSSProperties,
       }}
       {...props}
     />

@@ -760,7 +760,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     });
   };
   
-  const confirmKeinInteresse = () => {
+  const confirmKeinInteresse = useCallback(() => {
     if (!pendingKeinInteresse || !keinInteresseReason) return;
     
     const { addressId, unitId } = pendingKeinInteresse;
@@ -816,9 +816,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPendingKeinInteresse(null);
     setKeinInteresseReason("");
     setKeinInteresseCustomText("");
-  };
+  }, [pendingKeinInteresse, keinInteresseReason, keinInteresseCustomText, currentUser, statusOptions, toast]);
   
-  const confirmPotenzialRating = () => {
+  const confirmPotenzialRating = useCallback(() => {
     if (!pendingPotenzial || potenzialRating === 0) return;
     
     const { addressId, unitId } = pendingPotenzial;
@@ -856,7 +856,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setPendingPotenzial(null);
     setPotenzialRating(0);
     setPotenzialHoverRating(0);
-  };
+  }, [pendingPotenzial, potenzialRating, currentUser, statusOptions, toast]);
 
   const handleAddUnitsClick = (addressId: number) => {
     setPendingAddressId(addressId);
@@ -3081,8 +3081,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         }
       }}>
         <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
+          <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -3140,8 +3140,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       {/* Potenzial Bewertung - für alle Render-Pfade */}
       <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
         <AlertDialogPortal>
-          <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
+          <AlertDialogOverlay className="fixed inset-0 z-[10110] bg-black/80" style={{ willChange: 'opacity' }} />
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
