@@ -4,7 +4,8 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings, AlertTriangle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -13,6 +14,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ProjectAddListDialog } from "@/components/settings/ProjectAddListDialog";
 import { toast } from "sonner";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FailedAddressesDialog } from "@/components/settings/FailedAddressesDialog";
@@ -59,6 +61,18 @@ const ProjectDetail = () => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
   const [failedDialogOpen, setFailedDialogOpen] = useState(false);
   const [failedListId, setFailedListId] = useState<string | null>(null);
+  
+  // Status settings states
+  const [customStatuses, setCustomStatuses] = useState<any[]>([]);
+  const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
+  const [newStatusName, setNewStatusName] = useState("");
+  const [newStatusLabel, setNewStatusLabel] = useState("");
+  const [newStatusColor, setNewStatusColor] = useState("#3b82f6");
+  const [newReason, setNewReason] = useState("");
+  const [statusDeleteDialogOpen, setStatusDeleteDialogOpen] = useState(false);
+  const [statusToDelete, setStatusToDelete] = useState<any | null>(null);
+  const [replacementStatus, setReplacementStatus] = useState("");
+  const [affectedUnitsCount, setAffectedUnitsCount] = useState(0);
 
   const calculateDaysRemaining = () => {
     if (!project?.end_date) return null;
@@ -92,14 +106,9 @@ const ProjectDetail = () => {
   useEffect(() => {
     loadProject();
     loadLists();
+    loadCustomStatuses();
+    loadRejectionReasons();
   }, [id]);
-
-  // Navigate to settings page when settings tab is clicked
-  useEffect(() => {
-    if (currentTab === "settings") {
-      navigate(`/settings/projects/${id}/status`);
-    }
-  }, [currentTab, id, navigate]);
 
   // Separate effect for polling importing lists
   useEffect(() => {
@@ -152,6 +161,161 @@ const ProjectDetail = () => {
       console.error("Error loading lists:", error);
     }
   };
+
+  const loadCustomStatuses = async () => {
+    if (!id) return;
+    const { data, error } = await supabase
+      .from("custom_statuses")
+      .select("*")
+      .eq("project_id", id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: true });
+
+    if (!error && data) {
+      setCustomStatuses(data);
+    }
+  };
+
+  const loadRejectionReasons = async () => {
+    if (!id) return;
+    const { data, error } = await supabase
+      .from("rejection_reasons")
+      .select("*")
+      .eq("project_id", id)
+      .eq("is_active", true)
+      .order("created_at", { ascending: true });
+
+    if (!error && data) {
+      setRejectionReasons(data);
+    }
+  };
+
+  const addCustomStatus = async () => {
+    if (!newStatusName || !newStatusLabel) {
+      toast.error("Bitte Name und Label eingeben");
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from("custom_statuses").insert({
+      project_id: id,
+      name: newStatusName.toLowerCase().replace(/\s+/g, '-'),
+      label: newStatusLabel,
+      color: newStatusColor,
+      created_by: user.id,
+    });
+
+    if (error) {
+      toast.error("Fehler beim Hinzufügen");
+      return;
+    }
+
+    toast.success("Status hinzugefügt");
+    setNewStatusName("");
+    setNewStatusLabel("");
+    setNewStatusColor("#3b82f6");
+    loadCustomStatuses();
+  };
+
+  const deleteCustomStatus = async (status: any) => {
+    setAffectedUnitsCount(0); // TODO: Implement checking
+    setStatusToDelete(status);
+    setStatusDeleteDialogOpen(true);
+  };
+
+  const confirmDeleteStatus = async () => {
+    if (!statusToDelete) return;
+
+    const { error } = await supabase
+      .from("custom_statuses")
+      .update({ is_active: false })
+      .eq("id", statusToDelete.id);
+
+    if (error) {
+      toast.error("Fehler beim Löschen");
+      return;
+    }
+
+    toast.success("Status gelöscht");
+    setStatusDeleteDialogOpen(false);
+    setStatusToDelete(null);
+    setReplacementStatus("");
+    loadCustomStatuses();
+  };
+
+  const addRejectionReason = async () => {
+    if (!newReason.trim()) {
+      toast.error("Bitte Grund eingeben");
+      return;
+    }
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const { error } = await supabase.from("rejection_reasons").insert({
+      project_id: id,
+      reason: newReason.trim(),
+      created_by: user.id,
+    });
+
+    if (error) {
+      toast.error("Fehler beim Hinzufügen");
+      return;
+    }
+
+    toast.success("Grund hinzugefügt");
+    setNewReason("");
+    loadRejectionReasons();
+  };
+
+  const deleteRejectionReason = async (reasonId: string, reasonText: string) => {
+    if (reasonText === "Anderer Grund") {
+      toast.error("'Anderer Grund' kann nicht gelöscht werden");
+      return;
+    }
+
+    const { error } = await supabase
+      .from("rejection_reasons")
+      .update({ is_active: false })
+      .eq("id", reasonId);
+
+    if (error) {
+      toast.error("Fehler beim Löschen");
+      return;
+    }
+
+    toast.success("Grund gelöscht");
+    loadRejectionReasons();
+  };
+
+  const DEFAULT_STATUSES = [
+    { value: "offen", label: "Offen", color: "bg-gray-500 text-white" },
+    { value: "nicht-angetroffen", label: "Nicht angetroffen", color: "bg-yellow-500 text-white" },
+    { value: "karte-eingeworfen", label: "Karte eingeworfen", color: "bg-amber-500 text-white" },
+    { value: "potenzial", label: "Potenzial", color: "bg-green-500 text-white" },
+    { value: "neukunde", label: "Neukunde", color: "bg-blue-500 text-white" },
+    { value: "bestandskunde", label: "Bestandskunde", color: "bg-emerald-500 text-white" },
+    { value: "kein-interesse", label: "Kein Interesse", color: "bg-red-500 text-white" },
+    { value: "termin", label: "Termin", color: "bg-purple-500 text-white" },
+    { value: "nicht-vorhanden", label: "Nicht vorhanden", color: "bg-gray-400 text-white" },
+    { value: "gewerbe", label: "Gewerbe", color: "bg-orange-500 text-white" },
+  ];
+
+  const DEFAULT_REJECTION_REASONS = [
+    "Zu alt",
+    "Kein Besuch mehr erwünscht",
+    "Ziehen bald weg",
+    "Zur Miete",
+    "Anderer Grund"
+  ];
+
+  const allStatuses = [...DEFAULT_STATUSES, ...customStatuses.map(s => ({
+    value: s.name,
+    label: s.label,
+    color: s.color
+  }))];
 
   const openFailedDialog = (listId: string) => {
     setFailedListId(listId);
@@ -661,6 +825,172 @@ const ProjectDetail = () => {
                         </CardContent>
                       </Card>
                     </TabsContent>
+
+                    <TabsContent value="settings" className="mt-6 space-y-6">
+                      <Tabs defaultValue="statuses" className="w-full">
+                        <TabsList className="grid w-full grid-cols-2 mb-6">
+                          <TabsTrigger value="statuses">Status</TabsTrigger>
+                          <TabsTrigger value="reasons">Kein-Interesse-Gründe</TabsTrigger>
+                        </TabsList>
+
+                        <TabsContent value="statuses" className="space-y-6">
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Standard-Status</CardTitle>
+                              <CardDescription>
+                                Diese Status sind immer verfügbar und können nicht bearbeitet werden.
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                {DEFAULT_STATUSES.map((status) => (
+                                  <div
+                                    key={status.value}
+                                    className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                  >
+                                    <div className="flex items-center gap-3">
+                                      <div className={`px-3 py-1.5 text-sm font-medium rounded ${status.color}`}>
+                                        {status.label}
+                                      </div>
+                                    </div>
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Eigene Status</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                                  <Input
+                                    placeholder="Name (z.B. warten)"
+                                    value={newStatusName}
+                                    onChange={(e) => setNewStatusName(e.target.value)}
+                                  />
+                                  <Input
+                                    placeholder="Anzeigename (z.B. Auf Rückruf warten)"
+                                    value={newStatusLabel}
+                                    onChange={(e) => setNewStatusLabel(e.target.value)}
+                                  />
+                                  <div className="flex gap-2">
+                                    <Input
+                                      type="color"
+                                      value={newStatusColor}
+                                      onChange={(e) => setNewStatusColor(e.target.value)}
+                                      className="w-20"
+                                    />
+                                    <Button onClick={addCustomStatus} className="flex-1">
+                                      <Plus className="w-4 h-4 mr-2" />
+                                      Hinzufügen
+                                    </Button>
+                                  </div>
+                                </div>
+
+                                {customStatuses.length > 0 && (
+                                  <div className="space-y-2 mt-4">
+                                    {customStatuses.map((status) => (
+                                      <div
+                                        key={status.id}
+                                        className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                      >
+                                        <div className="flex items-center gap-3">
+                                          <div
+                                            className="px-3 py-1.5 text-sm font-medium rounded text-white"
+                                            style={{ backgroundColor: status.color }}
+                                          >
+                                            {status.label}
+                                          </div>
+                                          <span className="text-sm text-muted-foreground">({status.name})</span>
+                                        </div>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => deleteCustomStatus(status)}
+                                        >
+                                          <Trash2 className="w-4 h-4 text-destructive" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+
+                        <TabsContent value="reasons" className="space-y-6">
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Standard-Gründe</CardTitle>
+                              <CardDescription>
+                                Diese Gründe sind immer verfügbar. "Anderer Grund" kann nicht gelöscht werden.
+                              </CardDescription>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-2">
+                                {DEFAULT_REJECTION_REASONS.map((reason) => (
+                                  <div
+                                    key={reason}
+                                    className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                  >
+                                    <span className="text-sm font-medium">{reason}</span>
+                                    {reason === "Anderer Grund" && (
+                                      <span className="text-xs text-muted-foreground">(Pflichtfeld)</span>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </CardContent>
+                          </Card>
+
+                          <Card>
+                            <CardHeader>
+                              <CardTitle>Eigene Gründe</CardTitle>
+                            </CardHeader>
+                            <CardContent>
+                              <div className="space-y-4">
+                                <div className="flex gap-2">
+                                  <Input
+                                    placeholder="Neuer Grund..."
+                                    value={newReason}
+                                    onChange={(e) => setNewReason(e.target.value)}
+                                    onKeyDown={(e) => e.key === "Enter" && addRejectionReason()}
+                                  />
+                                  <Button onClick={addRejectionReason}>
+                                    <Plus className="w-4 h-4 mr-2" />
+                                    Hinzufügen
+                                  </Button>
+                                </div>
+
+                                {rejectionReasons.length > 0 && (
+                                  <div className="space-y-2 mt-4">
+                                    {rejectionReasons.map((reason) => (
+                                      <div
+                                        key={reason.id}
+                                        className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                      >
+                                        <span className="text-sm font-medium">{reason.reason}</span>
+                                        <Button
+                                          variant="ghost"
+                                          size="sm"
+                                          onClick={() => deleteRejectionReason(reason.id, reason.reason)}
+                                        >
+                                          <Trash2 className="w-4 h-4 text-destructive" />
+                                        </Button>
+                                      </div>
+                                    ))}
+                                  </div>
+                                )}
+                              </div>
+                            </CardContent>
+                          </Card>
+                        </TabsContent>
+                      </Tabs>
+                    </TabsContent>
                   </Tabs>
           </div>
         ) : (
@@ -693,6 +1023,53 @@ const ProjectDetail = () => {
               <AlertDialogFooter>
                 <AlertDialogCancel>Abbrechen</AlertDialogCancel>
                 <AlertDialogAction onClick={handleDeleteList} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                  Löschen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialog>
+
+          <AlertDialog open={statusDeleteDialogOpen} onOpenChange={setStatusDeleteDialogOpen}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle className="flex items-center gap-2">
+                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
+                  Status löschen
+                </AlertDialogTitle>
+                <AlertDialogDescription>
+                  {affectedUnitsCount > 0 ? (
+                    <>
+                      <p className="mb-4">
+                        {affectedUnitsCount} Wohneinheit(en) verwenden diesen Status.
+                        Bitte wählen Sie einen Ersatz-Status:
+                      </p>
+                      <Select value={replacementStatus} onValueChange={setReplacementStatus}>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Status auswählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {allStatuses
+                            .filter(s => s.value !== statusToDelete?.name)
+                            .map((status) => (
+                              <SelectItem key={status.value} value={status.value}>
+                                {status.label}
+                              </SelectItem>
+                            ))}
+                        </SelectContent>
+                      </Select>
+                    </>
+                  ) : (
+                    "Möchten Sie diesen Status wirklich löschen?"
+                  )}
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={confirmDeleteStatus}
+                  disabled={affectedUnitsCount > 0 && !replacementStatus}
+                  className="bg-destructive hover:bg-destructive/90"
+                >
                   Löschen
                 </AlertDialogAction>
               </AlertDialogFooter>
