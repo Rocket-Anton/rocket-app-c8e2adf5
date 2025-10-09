@@ -619,13 +619,20 @@ function KarteContent() {
 
     const fetchAndRenderProjects = async () => {
       try {
+        console.log('Fetching projects for IDs:', Array.from(selectedProjectIds));
+        
         const { data: projects, error } = await supabase
           .from('projects')
           .select('id, name, status, area_name, city, coordinates, providers(color)')
           .in('id', Array.from(selectedProjectIds));
 
+        console.log('Projects fetched:', projects, 'Error:', error);
+
         if (error) throw error;
-        if (!projects || projects.length === 0) return;
+        if (!projects || projects.length === 0) {
+          console.log('No projects found or empty array');
+          return;
+        }
 
         // Clear existing project markers
         projectMarkersRef.current.forEach((m) => m.remove());

@@ -198,6 +198,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
     } else {
       newSelected.add(projectId);
     }
+    console.log('Project toggle - new selection:', Array.from(newSelected));
     onProjectsChange(newSelected);
   };
 
