@@ -77,7 +77,7 @@ function HorizontalModalPagerInner<T extends Item>({
         {items.map((it, idx) => (
           <div key={it.id} className="flex-[0_0_100%] h-full transition-opacity duration-300" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
             <div className="h-full w-full flex items-center justify-center" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-              <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+              <div className="w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                 {renderCard(it, idx, items.length)}
               </div>
             </div>
