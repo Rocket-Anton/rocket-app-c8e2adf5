@@ -34,8 +34,25 @@ function HorizontalModalPagerInner<T extends Item>({
   });
 
   useEffect(() => {
-    if (embla && startIndex !== embla.selectedScrollSnap()) {
+    if (!embla) return;
+    
+    // Jump directly to startIndex without animation on mount
+    const currentSnap = embla.selectedScrollSnap();
+    if (startIndex !== currentSnap) {
+      // Temporarily disable transitions, jump to index, then re-enable
+      const container = embla.containerNode();
+      const originalTransition = container.style.transition;
+      container.style.transition = 'none';
+      
       embla.scrollTo(startIndex, true);
+      
+      // Force reflow to ensure the transition: none takes effect
+      container.getBoundingClientRect();
+      
+      // Restore transition after a small delay
+      requestAnimationFrame(() => {
+        container.style.transition = originalTransition;
+      });
     }
   }, [embla, startIndex]);
 
