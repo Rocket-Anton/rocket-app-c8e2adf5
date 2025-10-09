@@ -310,16 +310,6 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                             ABGESCHLOSSEN
                           </div>
                         </SelectItem>
-                        <SelectItem value="Pausiert" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-gray-100 text-gray-800 text-xs font-medium w-full">
-                            PAUSIERT
-                          </div>
-                        </SelectItem>
-                        <SelectItem value="Abgebrochen" className="p-0">
-                          <div className="px-3 py-1.5 rounded-md bg-red-100 text-red-800 text-xs font-medium w-full">
-                            ABGEBROCHEN
-                          </div>
-                        </SelectItem>
                       </SelectContent>
                     </Select>
                   </div>
