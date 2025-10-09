@@ -599,13 +599,21 @@ function KarteContent() {
     return inside;
   };
 
-  // Render project markers and fly to project when selected
+  // Render project markers and fly to project bounds when selected
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || selectedProjectIds.size === 0) {
-      // Clear project markers if no projects selected
+      // Clear project markers if no projects selected and return to Hamburg
       projectMarkersRef.current.forEach((m) => m.remove());
       projectMarkersRef.current = [];
+      
+      // Fly back to Hamburg when all projects are deselected
+      map?.flyTo({
+        center: [9.9937, 53.5511],
+        zoom: 12,
+        pitch: 45,
+        duration: 1500,
+      });
       return;
     }
 
@@ -617,24 +625,14 @@ function KarteContent() {
           .in('id', Array.from(selectedProjectIds));
 
         if (error) throw error;
+        if (!projects || projects.length === 0) return;
 
         // Clear existing project markers
         projectMarkersRef.current.forEach((m) => m.remove());
         projectMarkersRef.current = [];
 
-        // Fly to first project when selected
-        if (projects && projects.length > 0) {
-          const firstProject = projects[0];
-          const coords = firstProject.coordinates as { lat?: number; lng?: number } | null;
-          if (coords && typeof coords.lat === 'number' && typeof coords.lng === 'number') {
-            map.flyTo({
-              center: [coords.lng, coords.lat],
-              zoom: 14,
-              pitch: 45,
-              duration: 1500,
-            });
-          }
-        }
+        const bounds = new mapboxgl.LngLatBounds();
+        let hasValidCoords = false;
 
         projects?.forEach((project) => {
           if (!project.coordinates) return;
@@ -642,6 +640,9 @@ function KarteContent() {
           // Type guard for coordinates
           const coords = project.coordinates as { lat?: number; lng?: number } | null;
           if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') return;
+
+          hasValidCoords = true;
+          bounds.extend([coords.lng, coords.lat]);
 
           // Create project marker element
           const el = document.createElement('div');
@@ -695,6 +696,16 @@ function KarteContent() {
 
           projectMarkersRef.current.push(marker);
         });
+
+        // Fly to bounds of all selected projects
+        if (hasValidCoords && !bounds.isEmpty()) {
+          map.fitBounds(bounds, { 
+            padding: 100, 
+            maxZoom: 14,
+            duration: 1500,
+            pitch: 45
+          });
+        }
       } catch (error) {
         console.error('Error rendering project markers:', error);
       }
