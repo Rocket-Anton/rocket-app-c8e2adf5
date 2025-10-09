@@ -15,6 +15,8 @@ import {
   DialogHeader,
   DialogTitle,
   DialogClose,
+  DialogDescription,
+  DialogFooter,
 } from "./ui/dialog";
 import {
   AlertDialog,
@@ -1760,27 +1762,32 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 />
               )}
             </div>
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel 
+            <DialogFooter className="flex-row gap-3 sm:gap-3">
+              <Button 
+                variant="outline"
                 className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
+                onClick={() => { 
+                  setKeinInteresseDialogOpen(false);
+                  setKeinInteresseReason(""); 
+                  setKeinInteresseCustomText(""); 
+                }}
               >
                 Abbrechen
-              </AlertDialogCancel>
-              <AlertDialogAction 
+              </Button>
+              <Button 
                 onClick={confirmKeinInteresse}
                 disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
                 className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
                 Bestätigen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-            </AlertDialogContent>
-        </AlertDialog>
+              </Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
 
         {/* Potenzial Bewertung */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent onPointerDownOutside={() => setPotenzialDialogOpen(false)} onEscapeKeyDown={() => setPotenzialDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2090,7 +2097,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Kein Interesse Grund-Dialog (Mobile) */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogContent onPointerDownOutside={() => setKeinInteresseDialogOpen(false)} onEscapeKeyDown={() => setKeinInteresseDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2146,7 +2153,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Potenzial Bewertung (Mobile) */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent onPointerDownOutside={() => setPotenzialDialogOpen(false)} onEscapeKeyDown={() => setPotenzialDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
