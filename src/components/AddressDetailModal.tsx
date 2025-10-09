@@ -1719,7 +1719,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="h-full w-[95vw] max-w-lg mx-auto rounded-2xl bg-background shadow-2xl flex flex-col overflow-hidden"
       >
         {/* Card Header */}
-        <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background rounded-t-2xl">
+        <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
           <DialogClose 
             className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 z-50"
             onClick={() => handleDialogChange(false)}
@@ -1756,10 +1756,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Card Content */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full rounded-b-2xl"
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full"
           style={{
             WebkitOverflowScrolling: 'touch',
-            background: 'transparent'
+            background: 'transparent',
+            paddingBottom: '1rem'
           }}
         >
           {renderAddressContent(addr)}
