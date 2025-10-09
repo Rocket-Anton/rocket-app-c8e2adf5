@@ -1725,104 +1725,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </AlertDialogContent>
         </AlertDialog>
 
-        {/* Kein Interesse Grund-Dialog - für alle Geräte */}
-        <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
-              <button
-                onClick={() => setKeinInteresseDialogOpen(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Schließen</span>
-              </button>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Bitte wähle einen Grund aus.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="space-y-3">
-                <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
-                  <SelectTrigger className="w-full h-10 rounded-md bg-background border border-border shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
-                    <SelectValue placeholder="Grund auswählen" />
-                  </SelectTrigger>
-                  <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[80]">
-                    <SelectItem value="Zu alt">Zu alt</SelectItem>
-                    <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
-                    <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
-                    <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
-                  </SelectContent>
-                </Select>
-                {keinInteresseReason === "Anderer Grund" && (
-                  <Textarea
-                    placeholder="Grund eingeben…"
-                    value={keinInteresseCustomText}
-                    onChange={(e) => setKeinInteresseCustomText(e.target.value)}
-                    className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-                  />
-                )}
-              </div>
-              <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-                <AlertDialogCancel 
-                  className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg"
-                  onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
-                >
-                  Abbrechen
-                </AlertDialogCancel>
-                <AlertDialogAction 
-                  onClick={confirmKeinInteresse}
-                  disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
-                  className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-                >
-                  Bestätigen
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialogPortal>
-        </AlertDialog>
-
-        {/* Potenzial Bewertung - für alle Geräte */}
-        <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogPortal>
-            <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
-              <button
-                onClick={() => setPotenzialDialogOpen(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Schließen</span>
-              </button>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Wie schätzt du das Potenzial ein?
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <div className="flex justify-center gap-2 py-6">
-                {[1,2,3,4,5].map((star) => (
-                  <button key={star} type="button" onClick={() => setPotenzialRating(star)} onMouseEnter={() => setPotenzialHoverRating(star)} onMouseLeave={() => setPotenzialHoverRating(0)} className="transition-transform hover:scale-110">
-                    <Star className={cn("w-12 h-12 transition-colors", (potenzialHoverRating >= star || (potenzialHoverRating === 0 && potenzialRating >= star)) ? "fill-yellow-400 text-yellow-400" : "fill-none text-gray-300")} />
-                  </button>
-                ))}
-              </div>
-              {potenzialRating > 0 && (
-                <p className="text-center text-sm text-muted-foreground">Bewertung: {potenzialRating} von 5 Sternen</p>
-              )}
-              <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-                <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
-                  Abbrechen
-                </AlertDialogCancel>
-                <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium">
-                  Bestätigen
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialogPortal>
-        </AlertDialog>
-
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
@@ -3208,6 +3110,106 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Kein Interesse Grund-Dialog - für alle Render-Pfade */}
+      <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
+            <button
+              onClick={() => setKeinInteresseDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bitte wähle einen Grund aus.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-3">
+              <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
+                <SelectTrigger className="w-full h-10 rounded-md bg-background border border-border shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
+                  <SelectValue placeholder="Grund auswählen" />
+                </SelectTrigger>
+                <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[10090]">
+                  <SelectItem value="Zu alt">Zu alt</SelectItem>
+                  <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
+                  <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
+                  <SelectItem value="Zur Miete">Zur Miete</SelectItem>
+                  <SelectItem value="Bestehender Vertrag">Bestehender Vertrag</SelectItem>
+                  <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
+                </SelectContent>
+              </Select>
+              {keinInteresseReason === "Anderer Grund" && (
+                <Textarea
+                  placeholder="Grund eingeben…"
+                  value={keinInteresseCustomText}
+                  onChange={(e) => setKeinInteresseCustomText(e.target.value)}
+                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              )}
+            </div>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel 
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" 
+                onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
+              >
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction 
+                onClick={confirmKeinInteresse}
+                disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
+      </AlertDialog>
+
+      {/* Potenzial Bewertung - für alle Render-Pfade */}
+      <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
+            <button
+              onClick={() => setPotenzialDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+            >
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
+              <AlertDialogDescription>
+                Wie schätzt du das Potenzial ein?
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="flex justify-center gap-2 py-4">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button key={star} type="button" onClick={() => setPotenzialRating(star)} onMouseEnter={() => setPotenzialHoverRating(star)} onMouseLeave={() => setPotenzialHoverRating(0)} className="transition-transform hover:scale-110">
+                  <Star className={cn("w-12 h-12 transition-colors", (potenzialHoverRating >= star || (potenzialHoverRating === 0 && potenzialRating >= star)) ? "fill-yellow-400 text-yellow-400" : "fill-none text-gray-300")} />
+                </button>
+              ))}
+            </div>
+            {potenzialRating > 0 && (
+              <p className="text-center text-sm text-muted-foreground">Bewertung: {potenzialRating} von 5 Sternen</p>
+            )}
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium">
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
+      </AlertDialog>
     </>
   );
 };
