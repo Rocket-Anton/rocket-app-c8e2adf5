@@ -28,6 +28,8 @@ function HorizontalModalPagerInner<T extends Item>({
     containScroll: false,
     dragFree: false,
     skipSnaps: false,
+    duration: 25,
+    watchDrag: true,
   });
 
   useEffect(() => {
@@ -68,9 +70,9 @@ function HorizontalModalPagerInner<T extends Item>({
         WebkitBackfaceVisibility: 'hidden'
       }}
     >
-      <div className="flex h-full" style={{ willChange: 'transform', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+      <div className="flex h-full transition-transform duration-300 ease-out" style={{ willChange: 'transform', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+          <div key={it.id} className="flex-[0_0_100%] h-full transition-opacity duration-300" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
             <div className="h-full w-full flex items-center justify-center" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
               <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                 {renderCard(it, idx, items.length)}

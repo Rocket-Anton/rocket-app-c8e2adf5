@@ -1253,9 +1253,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           : "bg-muted/70"
                     }`}>
                     
-                    {/* Desktop: 2-column layout with divider, Mobile: single column */}
-                    <div className="flex flex-col md:grid md:grid-cols-[1fr,1px,1fr] md:gap-4">
-                      {/* Left: Controls */}
+                    {/* All content stacked vertically on all screen sizes */}
+                    <div className="flex flex-col space-y-3">
+                      {/* Controls */}
                       <div className="space-y-3">
                         {unitCount > 1 && !isNotMarketable ? (
                           <div className="flex gap-3 min-w-0">
@@ -1415,24 +1415,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </p>
                         )}
 
-                        {/* Auftrag Button - Only show on desktop if not Neukunde and marketable */}
+                        {/* Auftrag Button - now shown on all screen sizes if not Neukunde and marketable */}
                         {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
                           <Button 
                             onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
-                            className="hidden md:flex w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
+                            className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
                           >
                             <FileText className="w-4 h-4 mr-2" />
                             Auftrag
                           </Button>
                         )}
-                      </div>
-                      
-                      {/* Vertical Divider (Desktop only) */}
-                      <div className="hidden md:block bg-border"></div>
-                      
-                      {/* Right: Notizen & Termine (Desktop only) */}
-                      <div className="hidden md:flex md:flex-col md:space-y-3">
-                        {/* Notizen Collapsible */}
+
+                        {/* Notizen Collapsible - now shown on all screen sizes */}
                         <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
                             <div className="flex items-center gap-2">
@@ -1489,7 +1483,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </CollapsibleContent>
                         </Collapsible>
 
-                        {/* Termine Collapsible */}
+                        {/* Termine Collapsible - now shown on all screen sizes */}
                         <Collapsible 
                           open={appointmentsOpen[unit.id] || false} 
                           onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}
@@ -1542,123 +1536,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             )}
                           </CollapsibleContent>
                         </Collapsible>
-                      </div>
-                    </div>
-                    
-                    {/* Mobile: Notizen & Termine Collapsibles */}
-                    <div className="md:hidden mt-3 space-y-3">
-                      {/* Notizen Collapsible */}
-                      <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
-                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm leading-6 min-w-[60px]">Notizen</span>
-                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
-                              {notes.length}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setAddNoteDialogOpen(true);
-                              }}
-                              className="p-1.5 md:p-2 hover:bg-muted rounded transition-colors cursor-pointer"
-                            >
-                              <Plus className="w-4 md:w-5 h-4 md:h-5 text-blue-600" />
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform ${notesOpen[unit.id] ? 'rotate-180' : ''}`} />
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent className="border-b border-gray-200">
-                          <div className="p-3 space-y-2">
-                            {notes.length > 0 ? (
-                              notes.map((note) => (
-                                <div key={note.id} className="bg-muted/30 rounded-lg p-3 relative border">
-                                  <button 
-                                    onClick={() => {
-                                      setPendingDeleteNoteId(note.id);
-                                      setDeleteNoteDialogOpen(true);
-                                    }}
-                                    className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground"
-                                  >
-                                    <X className="w-4 h-4" />
-                                  </button>
-                                  <div className="font-medium text-sm">{note.author}</div>
-                                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                                  <div className="text-sm">{note.content}</div>
-                                </div>
-                              ))
-                            ) : (
-                              <div className="text-sm text-muted-foreground text-center py-4">
-                                Keine Notizen vorhanden
-                              </div>
-                            )}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-
-                      {/* Termine Collapsible */}
-                      <Collapsible open={appointmentsOpen[unit.id] || false} onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}>
-                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
-                          <div className="flex items-center gap-2">
-                            <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
-                            <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
-                              {appointments.filter(apt => apt.unitId === unit.id).length}
-                            </div>
-                          </div>
-                          <div className="flex items-center gap-2">
-                            <div
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                handleAddAppointment(unit.id);
-                              }}
-                              className={`p-1.5 md:p-2 hover:bg-muted rounded transition-colors ${isNotMarketable ? 'cursor-not-allowed' : 'cursor-pointer'}`}
-                            >
-                              <Plus className={`w-4 md:w-5 h-4 md:h-5 ${isNotMarketable ? 'text-gray-400' : 'text-blue-600'}`} />
-                            </div>
-                            <ChevronDown className={`w-4 h-4 transition-transform ${appointmentsOpen[unit.id] ? 'rotate-180' : ''}`} />
-                          </div>
-                        </CollapsibleTrigger>
-                        <CollapsibleContent>
-                          <div className="p-3">
-                            {appointments.filter(apt => apt.unitId === unit.id).length > 0 ? (
-                              <div className="space-y-2">
-                                {appointments.filter(apt => apt.unitId === unit.id).map((appointment) => (
-                                  <div key={appointment.id} className="rounded-lg p-3 border bg-blue-50 border-blue-200">
-                                    <div className="flex items-start gap-2 mb-2">
-                                      <CalendarIcon className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                                      <div className="flex-1 min-w-0">
-                                        <div className="font-medium text-sm">{appointment.date} - {appointment.time}</div>
-                                        {appointment.customer && (
-                                          <div className="text-sm text-muted-foreground">Kunde: {appointment.customer}</div>
-                                        )}
-                                        {appointment.notes && (
-                                          <div className="text-xs text-muted-foreground mt-1">{appointment.notes}</div>
-                                        )}
-                                      </div>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <div className="text-sm text-muted-foreground text-center py-4">
-                                Keine Termine vorhanden
-                              </div>
-                            )}
-                          </div>
-                        </CollapsibleContent>
-                      </Collapsible>
-                      
-                      {/* Auftrag Button - Mobile only, show if not Neukunde and marketable */}
-                      {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
-                        <Button 
-                          onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
-                          className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md h-11"
-                        >
-                          <FileText className="w-4 h-4 mr-2" />
-                          Auftrag
-                        </Button>
-                      )}
                     </div>
                   </div>
                 </div>
@@ -2288,7 +2165,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           hideClose 
           className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060] flex items-center justify-center"
         >
-          <div className="relative w-[92vw] max-w-2xl h-full">
+          <div className="relative w-full max-w-lg h-full">
             <HorizontalModalPager
               ref={pagerRef}
               items={allAddresses}
