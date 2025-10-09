@@ -65,6 +65,8 @@ export const ProjectsSettings = () => {
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
   const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
   const [expandedStatus, setExpandedStatus] = useState<Set<string>>(new Set());
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [providerFilter, setProviderFilter] = useState<string>("all");
 
   const { data: projects = [], isLoading: loading } = useQuery({
     queryKey: ['projects'],
@@ -102,9 +104,15 @@ export const ProjectsSettings = () => {
     },
   });
 
-  const filteredProjects = projects.filter(project => 
-    project.name.toLowerCase().includes(searchQuery.toLowerCase())
-  );
+  const filteredProjects = projects.filter(project => {
+    // Search filter
+    if (!project.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    // Status filter
+    if (statusFilter !== "all" && project.status !== statusFilter) return false;
+    // Provider filter
+    if (providerFilter !== "all" && project.provider_id !== providerFilter) return false;
+    return true;
+  });
 
   // Group by provider, then by status
   const groupedByProvider = filteredProjects.reduce((acc, project) => {
@@ -265,14 +273,67 @@ export const ProjectsSettings = () => {
       </div>
 
       <div className="mb-4">
-        <div className="relative">
-          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-          <Input
-            placeholder="Projekt suchen..."
-            value={searchQuery}
-            onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-9"
-          />
+        <div className="flex gap-2 items-center">
+          <div className="relative flex-1">
+            <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+            <Input
+              placeholder="Projekt suchen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="pl-9"
+            />
+          </div>
+          
+          {/* Status Filter */}
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Status wählen" />
+            </SelectTrigger>
+            <SelectContent className="bg-background">
+              <SelectItem value="all">Alle Status</SelectItem>
+              <SelectItem value="In Planung">
+                <span className="inline-block px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium w-full">
+                  IN PLANUNG
+                </span>
+              </SelectItem>
+              <SelectItem value="Läuft">
+                <span className="inline-block px-3 py-1 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
+                  LÄUFT
+                </span>
+              </SelectItem>
+              <SelectItem value="Laufend">
+                <span className="inline-block px-3 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs font-medium w-full">
+                  LAUFEND
+                </span>
+              </SelectItem>
+              <SelectItem value="Abgeschlossen">
+                <span className="inline-block px-3 py-1 rounded-md bg-red-100 text-red-800 text-xs font-medium w-full">
+                  ABGESCHLOSSEN
+                </span>
+              </SelectItem>
+            </SelectContent>
+          </Select>
+
+          {/* Provider Filter */}
+          <Select value={providerFilter} onValueChange={setProviderFilter}>
+            <SelectTrigger className="w-[200px]">
+              <SelectValue placeholder="Provider wählen" />
+            </SelectTrigger>
+            <SelectContent className="bg-background">
+              <SelectItem value="all">Alle Provider</SelectItem>
+              {providers.map((provider) => (
+                <SelectItem key={provider.id} value={provider.id}>
+                  <div className="flex items-center gap-2">
+                    <div 
+                      className="w-2 h-2 rounded-full" 
+                      style={{ backgroundColor: provider.color || '#3b82f6' }}
+                    />
+                    <span>{provider.name}</span>
+                  </div>
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
