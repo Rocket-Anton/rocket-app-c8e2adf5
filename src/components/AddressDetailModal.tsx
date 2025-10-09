@@ -2246,7 +2246,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="overflow-y-auto flex-1 px-4 pb-4">
+            <div className="overflow-y-auto flex-1 px-4 pb-4 bg-muted/30">
               {/* 1. DATUM WÄHLEN */}
               <div className="mb-4">
                 <label className="text-sm font-medium mb-1.5 block">Datum *</label>
