@@ -2061,12 +2061,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
         )}
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[92vw] max-w-2xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
-            <DialogHeader>
+          <DialogContent className="w-[92vw] max-w-lg rounded-2xl max-h-[70vh] p-0 z-[10100] flex flex-col" hideOverlay onClick={(e) => e.stopPropagation()}>
+            <DialogHeader className="px-6 pt-4 pb-2 flex-shrink-0">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="mt-4 overflow-y-auto max-h-[calc(85vh-8rem)] pr-2">
+            <div className="flex-1 overflow-y-auto px-6 py-2">
               <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Datum *</label>
@@ -2192,38 +2192,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   </CollapsibleContent>
                 </Collapsible>
 
-                <div className="flex gap-3 pt-4">
-                  <Button
-                    variant="outline"
-                    onClick={() => {
-                      setAddAppointmentDialogOpen(false);
-                      setAppointmentDate(undefined);
-                      setAppointmentTime("");
-                      setAppointmentHour("");
-                      setAppointmentMinute("");
-                      setAppointmentDuration("");
-                      setAppointmentCustomer("");
-                      setAppointmentNotes("");
-                      setPendingAppointmentUnitId(null);
-                    }}
-                    className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                  >
-                    Abbrechen
-                  </Button>
-                  <Button
-                    onClick={saveAppointment}
-                    disabled={!appointmentDate || !appointmentTime}
-                    className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-                  >
-                    Bestätigen
-                  </Button>
-                </div>
-              </div>
-
-              {/* Map Section */}
-              <div className="border-t pt-6 mt-4">
-                <h3 className="font-semibold text-sm mb-3">Karte</h3>
-                <div className="h-64 rounded-lg overflow-hidden border border-border">
+                {/* Map Section */}
+                <div className="border-t pt-6 mt-4">
+                  <h3 className="font-semibold text-sm mb-3">Karte</h3>
+                  <div className="h-64 rounded-lg overflow-hidden border border-border">
                 <AppointmentMap
                   appointments={appointments.map(apt => ({
                     id: apt.id,
@@ -2238,9 +2210,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   selectedAppointmentId={null}
                 />
               </div>
+            </div>
 
-              {/* Termine Liste */}
-              <div className="border-t pt-6 mt-4">
+            {/* Termine Liste */}
+            <div className="border-t pt-6 mt-4">
                 <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-sm">Termine Liste</h3>
                     <Button
@@ -2288,6 +2261,34 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   </div>
                 </div>
               </div>
+            </div>
+
+            {/* Fixed Buttons at Bottom */}
+            <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAddAppointmentDialogOpen(false);
+                  setAppointmentDate(undefined);
+                  setAppointmentTime("");
+                  setAppointmentHour("");
+                  setAppointmentMinute("");
+                  setAppointmentDuration("");
+                  setAppointmentCustomer("");
+                  setAppointmentNotes("");
+                  setPendingAppointmentUnitId(null);
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={saveAppointment}
+                disabled={!appointmentDate || !appointmentTime}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Bestätigen
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -2624,12 +2625,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
       )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[92vw] max-w-2xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
-          <DialogHeader>
+        <DialogContent className="w-[92vw] max-w-lg rounded-2xl max-h-[70vh] p-0 z-[10100] flex flex-col" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogHeader className="px-6 pt-4 pb-2 flex-shrink-0">
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="mt-4 overflow-y-auto max-h-[calc(85vh-8rem)] pr-2">
+          <div className="flex-1 overflow-y-auto px-6 py-2">
             <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
@@ -2755,38 +2756,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </CollapsibleContent>
               </Collapsible>
 
-              <div className="flex gap-3 pt-4">
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setAddAppointmentDialogOpen(false);
-                    setAppointmentDate(undefined);
-                    setAppointmentTime("");
-                    setAppointmentHour("");
-                    setAppointmentMinute("");
-                    setAppointmentDuration("");
-                    setAppointmentCustomer("");
-                    setAppointmentNotes("");
-                    setPendingAppointmentUnitId(null);
-                  }}
-                  className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-                >
-                  Abbrechen
-                </Button>
-                <Button
-                  onClick={saveAppointment}
-                  disabled={!appointmentDate || !appointmentTime}
-                  className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-                >
-                  Bestätigen
-                </Button>
-              </div>
-            </div>
-
-            {/* Map Section */}
-            <div className="border-t pt-6 mt-4">
-              <h3 className="font-semibold text-sm mb-3">Karte</h3>
-              <div className="h-64 rounded-lg overflow-hidden border border-border">
+              {/* Map Section */}
+              <div className="border-t pt-6 mt-4">
+                <h3 className="font-semibold text-sm mb-3">Karte</h3>
+                <div className="h-64 rounded-lg overflow-hidden border border-border">
               <AppointmentMap
                 appointments={appointments.map(apt => ({
                   id: apt.id,
@@ -2801,9 +2774,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 selectedAppointmentId={null}
               />
             </div>
+          </div>
 
-            {/* Termine Liste */}
-            <div className="border-t pt-6 mt-4">
+          {/* Termine Liste */}
+          <div className="border-t pt-6 mt-4">
               <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-sm">Termine Liste</h3>
                   <Button
@@ -2851,6 +2825,34 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Fixed Buttons at Bottom */}
+          <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
+            <Button
+              variant="outline"
+              onClick={() => {
+                setAddAppointmentDialogOpen(false);
+                setAppointmentDate(undefined);
+                setAppointmentTime("");
+                setAppointmentHour("");
+                setAppointmentMinute("");
+                setAppointmentDuration("");
+                setAppointmentCustomer("");
+                setAppointmentNotes("");
+                setPendingAppointmentUnitId(null);
+              }}
+              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
+            >
+              Abbrechen
+            </Button>
+            <Button
+              onClick={saveAppointment}
+              disabled={!appointmentDate || !appointmentTime}
+              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+            >
+              Bestätigen
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
