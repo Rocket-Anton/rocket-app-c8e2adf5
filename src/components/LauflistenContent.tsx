@@ -115,16 +115,38 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       try {
         const projectIdsArray = Array.from(selectedProjectIds);
         
-        const { data: addressesData, error } = await supabase
+        // Fetch addresses for selected projects
+        const { data: addressesData, error: addrError } = await supabase
           .from("addresses")
-          .select("*")
+          .select("id, street, house_number, postal_code, city, coordinates, notiz")
           .in("project_id", projectIdsArray)
           .order("street", { ascending: true })
           .order("house_number", { ascending: true });
 
-        if (error) throw error;
+        if (addrError) throw addrError;
 
-        // Transform the data to match the expected format
+        const addressIds = (addressesData || []).map((a: any) => a.id);
+
+        // Fetch units for these addresses and group by address_id
+        let unitsByAddress = new Map<number, any[]>();
+        if (addressIds.length > 0) {
+          const { data: unitsData, error: unitsError } = await supabase
+            .from("units")
+            .select("id, status, lage, etage, marketable, notiz, address_id, updated_at")
+            .in("address_id", addressIds);
+          if (unitsError) {
+            console.warn("Units fetch error", unitsError);
+          } else {
+            unitsByAddress = (unitsData || []).reduce((map: Map<number, any[]>, u: any) => {
+              const list = map.get(u.address_id) || [];
+              list.push(u);
+              map.set(u.address_id, list);
+              return map;
+            }, new Map<number, any[]>());
+          }
+        }
+
+        // Transform the data to match the expected format with attached units
         const transformedAddresses = (addressesData || []).map((addr: any) => ({
           id: addr.id,
           street: addr.street,
@@ -132,7 +154,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           postalCode: addr.postal_code,
           city: addr.city,
           coordinates: addr.coordinates ? [addr.coordinates.lng, addr.coordinates.lat] : [0, 0],
-          units: addr.units || [],
+          units: unitsByAddress.get(addr.id) ?? [],
           notiz: addr.notiz
         }));
 
@@ -284,9 +306,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   };
   // Filter addresses based on all criteria
   const filteredAddresses = addresses.filter(address => {
-    // Only show addresses with at least one unit
-    const hasUnits = address.units && address.units.length > 0;
-    if (!hasUnits) return false;
+    // Show addresses even if they currently have no units
 
     // Search term filter
     const searchLower = searchTerm.toLowerCase();
