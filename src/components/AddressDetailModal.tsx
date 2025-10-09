@@ -1228,12 +1228,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     }`}>
                     
                     {/* Desktop: 2-column layout with divider, Mobile: single column */}
-                    <div className="flex flex-col md:grid md:grid-cols-[1.5fr,1px,1fr] md:gap-4">
+                    <div className="flex flex-col md:grid md:grid-cols-[1fr,1px,1fr] md:gap-4">
                       {/* Left: Controls */}
                       <div className="space-y-3">
                         {unitCount > 1 && !isNotMarketable ? (
                           <div className="flex gap-3 min-w-0">
-                            <div className="flex-[2] min-w-0">
+                            <div className="flex-1 min-w-0">
                               <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
                                 <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                                   <SelectValue placeholder="Stockwerk" />
@@ -1269,7 +1269,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                         <div>
                           <div className="flex gap-3 min-w-0">
-                            <div className="flex-[2] min-w-0">
+                            <div className="flex-1 min-w-0">
                               <Select 
                                 value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                                 onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
