@@ -400,6 +400,45 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     overscan: 3, // Render 3 items above/below viewport for smooth scrolling
   });
 
+  // Load units for visible addresses only
+  useEffect(() => {
+    const loadVisibleUnits = async () => {
+      const virtualItems = rowVirtualizer.getVirtualItems();
+      if (virtualItems.length === 0) return;
+
+      const visibleAddresses = virtualItems.map(item => displayedAddresses[item.index]);
+      const addressIdsToLoad = visibleAddresses
+        .filter(addr => addr && addr.units.length === 0)
+        .map(addr => addr.id);
+
+      if (addressIdsToLoad.length === 0) return;
+
+      try {
+        const { data: unitsData, error: unitsError } = await supabase
+          .from("units")
+          .select("*")
+          .in("address_id", addressIdsToLoad);
+
+        if (unitsError) throw unitsError;
+
+        // Update addresses with loaded units
+        setAddresses(prevAddresses => 
+          prevAddresses.map(addr => {
+            if (addressIdsToLoad.includes(addr.id)) {
+              const addressUnits = (unitsData || []).filter((u: any) => u.address_id === addr.id);
+              return { ...addr, units: addressUnits };
+            }
+            return addr;
+          })
+        );
+      } catch (error) {
+        console.error("Error loading units:", error);
+      }
+    };
+
+    loadVisibleUnits();
+  }, [rowVirtualizer.range, displayedAddresses.length]);
+
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
     if (orderCount === 0) {
