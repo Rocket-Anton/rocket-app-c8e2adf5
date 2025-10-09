@@ -441,7 +441,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           </div>
         </div>
         
-        <ScrollArea className="max-h-[180px]">
+        <ScrollArea className="h-auto max-h-[132px]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Lädt...</div>
@@ -457,10 +457,18 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           ) : (
             <div className="p-1.5 space-y-0.5">
               {filteredProjects.map((project) => (
-                <button
+                <div
                   key={project.id}
+                  role="button"
+                  tabIndex={0}
                   onClick={() => handleProjectToggle(project.id)}
-                  className="w-full flex items-start gap-2 p-1.5 rounded-md hover:bg-muted/50 transition-colors text-left"
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleProjectToggle(project.id);
+                    }
+                  }}
+                  className="w-full flex items-start gap-2 p-1.5 rounded-md hover:bg-muted/50 transition-colors text-left cursor-pointer"
                 >
                   <Checkbox
                     checked={selectedProjectIds.has(project.id)}
@@ -494,7 +502,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                       )}
                     </div>
                   </div>
-                </button>
+                </div>
               ))}
             </div>
           )}
