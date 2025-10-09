@@ -117,7 +117,7 @@ const NavigationArrow: React.FC<{
       className={cn(
         "flex items-center justify-center",
         "absolute top-1/2 -translate-y-1/2 z-[10150]",
-        direction === "left" ? "-left-10 xl:-left-14 2xl:-left-20" : "-right-10 xl:-right-14 2xl:-right-20",
+        direction === "left" ? "-left-12 xl:-left-16" : "-right-12 xl:-right-16",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
         "shadow-lg border border-border",
@@ -1721,7 +1721,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <div 
         key={addr.id} 
         className={cn(
-          "w-[92vw] max-w-2xl h-[80vh]",
+          "w-[85vw] max-w-lg h-[80vh]",
           "rounded-2xl overflow-hidden bg-background shadow-2xl",
           "[-webkit-mask-image:-webkit-radial-gradient(white,black)]",
           "flex flex-col"
