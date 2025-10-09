@@ -373,22 +373,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
   }, []);
   
-  // Prefetch states for current and neighbor addresses
+  // Prefetch states for current and neighbor addresses (deferred to next frame for snappy open)
   useEffect(() => {
     if (!open || allAddresses.length === 0) return;
-    
-    // Initialize current and neighbors (left and right)
-    const indicesToPrefetch = [
-      currentIndex - 1,
-      currentIndex,
-      currentIndex + 1
-    ].filter(i => i >= 0 && i < allAddresses.length);
-    
-    indicesToPrefetch.forEach(idx => {
-      initializeAddressStates(allAddresses[idx]);
+
+    const raf = requestAnimationFrame(() => {
+      const indicesToPrefetch = [
+        currentIndex - 1,
+        currentIndex,
+        currentIndex + 1
+      ].filter(i => i >= 0 && i < allAddresses.length);
+  
+      indicesToPrefetch.forEach(idx => {
+        initializeAddressStates(allAddresses[idx]);
+      });
+  
+      setPopoverKey(0);
     });
-    
-    setPopoverKey(0);
+
+    return () => cancelAnimationFrame(raf);
   }, [open, currentIndex, allAddresses, initializeAddressStates]);
   
 
