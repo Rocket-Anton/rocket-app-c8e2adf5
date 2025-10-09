@@ -1391,11 +1391,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </p>
                         )}
 
-                        {/* Auftrag Button - Only show if not Neukunde and marketable */}
+                        {/* Auftrag Button - Only show on desktop if not Neukunde and marketable */}
                         {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
                           <Button 
                             onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
-                            className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
+                            className="hidden md:flex w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
                           >
                             <FileText className="w-4 h-4 mr-2" />
                             Auftrag
@@ -1626,6 +1626,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </div>
                         </CollapsibleContent>
                       </Collapsible>
+                      
+                      {/* Auftrag Button - Mobile only, show if not Neukunde and marketable */}
+                      {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
+                        <Button 
+                          onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
+                          className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md h-11"
+                        >
+                          <FileText className="w-4 h-4 mr-2" />
+                          Auftrag
+                        </Button>
+                      )}
                     </div>
                   </div>
                 </div>
