@@ -117,7 +117,7 @@ const NavigationArrow: React.FC<{
       className={cn(
         "flex items-center justify-center",
         "absolute top-1/2 -translate-y-1/2 z-[10150]",
-        direction === "left" ? "-left-12 xl:-left-16" : "-right-12 xl:-right-16",
+        direction === "left" ? "left-4 md:left-8 lg:left-16 xl:left-24" : "right-4 md:right-8 lg:right-16 xl:right-24",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
         "shadow-lg border border-border",
@@ -2001,36 +2001,41 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog
         open={open}
         onOpenChange={handleDialogChange}
-        className="w-full h-full flex items-center justify-center"
+        className="w-full h-full"
       >
-        <HorizontalModalPager
-          items={allAddresses}
-          startIndex={initialIndex}
-          renderCard={renderCompleteCard}
-          onIndexChange={(idx) => {
-            setPrevIndex(currentIndex);
-            setCurrentIndex(idx);
-          }}
-          className="bg-transparent shadow-none ring-0"
-          options={emblaOptions}
-          ref={pagerRef}
-        />
-        
-        {/* Navigation Arrows - Desktop only */}
-        {showArrows && (
-          <>
+        <div className="relative flex items-center justify-center w-full h-full">
+          {/* Navigation Arrow - Left */}
+          {showArrows && (
             <NavigationArrow
               direction="left"
               onClick={() => pagerRef.current?.scrollPrev()}
               disabled={!pagerRef.current?.canScrollPrev()}
             />
+          )}
+
+          {/* Horizontal Carousel */}
+          <HorizontalModalPager
+            items={allAddresses}
+            startIndex={initialIndex}
+            renderCard={renderCompleteCard}
+            onIndexChange={(idx) => {
+              setPrevIndex(currentIndex);
+              setCurrentIndex(idx);
+            }}
+            className="bg-transparent shadow-none ring-0"
+            options={emblaOptions}
+            ref={pagerRef}
+          />
+
+          {/* Navigation Arrow - Right */}
+          {showArrows && (
             <NavigationArrow
               direction="right"
               onClick={() => pagerRef.current?.scrollNext()}
               disabled={!pagerRef.current?.canScrollNext()}
             />
-          </>
-        )}
+          )}
+        </div>
       </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>

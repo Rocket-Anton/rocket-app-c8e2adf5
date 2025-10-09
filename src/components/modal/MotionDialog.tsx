@@ -36,7 +36,7 @@ export const MotionDialog = ({
                     role="dialog"
                     aria-modal="true"
                     className={cn(
-                      "pointer-events-auto isolate",
+                      "pointer-events-auto isolate relative",
                       "min-h-0",
                       "transform-gpu will-change-[transform,opacity]",
                       className
