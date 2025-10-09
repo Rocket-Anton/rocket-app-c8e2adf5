@@ -88,6 +88,7 @@ function KarteContent() {
   const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
   const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
+  const [shouldZoomToProjects, setShouldZoomToProjects] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   
   // Map filter states
@@ -599,21 +600,68 @@ function KarteContent() {
     return inside;
   };
 
-  // Render project markers and fly to project bounds when selected
+  // Zoom to project addresses when "Anzeigen" is clicked
+  useEffect(() => {
+    if (!mapInstance.current || !shouldZoomToProjects || selectedProjectIds.size === 0) return;
+
+    const zoomToProjectAddresses = async () => {
+      try {
+        // Get all addresses for the selected projects
+        const projectAddresses = addresses.filter(addr => 
+          addr.projectId && selectedProjectIds.has(addr.projectId)
+        );
+
+        if (projectAddresses.length === 0) {
+          console.log('No addresses found for selected projects');
+          setShouldZoomToProjects(false);
+          return;
+        }
+
+        // Filter addresses with valid coordinates
+        const validAddresses = projectAddresses.filter(
+          addr => addr.coordinates && 
+                  Array.isArray(addr.coordinates) &&
+                  addr.coordinates.length === 2 &&
+                  typeof addr.coordinates[0] === 'number' && 
+                  typeof addr.coordinates[1] === 'number'
+        );
+
+        if (validAddresses.length === 0) {
+          console.log('No valid coordinates found for project addresses');
+          setShouldZoomToProjects(false);
+          return;
+        }
+
+        // Fit bounds to show all addresses
+        const bounds = new mapboxgl.LngLatBounds();
+        validAddresses.forEach((address) => {
+          bounds.extend([address.coordinates[0], address.coordinates[1]]);
+        });
+
+        mapInstance.current?.fitBounds(bounds, {
+          padding: 80,
+          maxZoom: 15,
+          duration: 1500,
+          pitch: 45
+        });
+
+        setShouldZoomToProjects(false);
+      } catch (error) {
+        console.error('Error zooming to project addresses:', error);
+        setShouldZoomToProjects(false);
+      }
+    };
+
+    zoomToProjectAddresses();
+  }, [shouldZoomToProjects, selectedProjectIds, addresses]);
+
+  // Render project markers (no auto-zoom on selection)
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || selectedProjectIds.size === 0) {
-      // Clear project markers if no projects selected and return to Hamburg
+      // Clear project markers if no projects selected
       projectMarkersRef.current.forEach((m) => m.remove());
       projectMarkersRef.current = [];
-      
-      // Fly back to Hamburg when all projects are deselected
-      map?.flyTo({
-        center: [9.9937, 53.5511],
-        zoom: 12,
-        pitch: 45,
-        duration: 1500,
-      });
       return;
     }
 
@@ -637,9 +685,6 @@ function KarteContent() {
         // Clear existing project markers
         projectMarkersRef.current.forEach((m) => m.remove());
         projectMarkersRef.current = [];
-
-        const bounds = new mapboxgl.LngLatBounds();
-        let hasValidCoords = false;
 
         // Process projects and geocode cities if needed
         for (const project of projects) {
@@ -676,9 +721,6 @@ function KarteContent() {
             console.log('No coordinates available for project:', project.name);
             continue;
           }
-
-          hasValidCoords = true;
-          bounds.extend([coords.lng, coords.lat]);
 
           // Create project marker element
           const el = document.createElement('div');
@@ -732,16 +774,6 @@ function KarteContent() {
 
           projectMarkersRef.current.push(marker);
         }
-
-        // Fly to bounds of all selected projects
-        if (hasValidCoords && !bounds.isEmpty()) {
-          map.fitBounds(bounds, { 
-            padding: 100, 
-            maxZoom: 14,
-            duration: 1500,
-            pitch: 45
-          });
-        }
       } catch (error) {
         console.error('Error rendering project markers:', error);
       }
@@ -773,6 +805,7 @@ function KarteContent() {
                 <ProjectSelector
                   selectedProjectIds={selectedProjectIds}
                   onProjectsChange={setSelectedProjectIds}
+                  onShowProjects={() => setShouldZoomToProjects(true)}
                 />
               )}
             </header>

@@ -50,6 +50,7 @@ interface Project {
 interface ProjectSelectorProps {
   selectedProjectIds: Set<string>;
   onProjectsChange: (projectIds: Set<string>) => void;
+  onShowProjects?: () => void;
   className?: string;
 }
 
@@ -62,7 +63,7 @@ const statusColors: Record<string, string> = {
   "Abgebrochen": "bg-red-500",
 };
 
-export function ProjectSelector({ selectedProjectIds, onProjectsChange, className }: ProjectSelectorProps) {
+export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowProjects, className }: ProjectSelectorProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
@@ -450,7 +451,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
             <Button
               variant="default"
               size="sm"
-              onClick={() => setOpen(false)}
+              onClick={() => {
+                setOpen(false);
+                onShowProjects?.();
+              }}
             >
               Anzeigen
             </Button>
