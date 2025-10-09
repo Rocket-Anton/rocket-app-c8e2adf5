@@ -96,6 +96,7 @@ function KarteContent() {
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
+  const hasAutoZoomedRef = useRef(false);
   
   // Map filter states
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -602,9 +603,9 @@ function KarteContent() {
     return inside;
   };
 
-  // Zoom to project addresses when "Anzeigen" is clicked
+  // Zoom to project addresses when "Anzeigen" is clicked OR when projects are selected
   useEffect(() => {
-    if (!mapInstance.current || !shouldZoomToProjects || selectedProjectIds.size === 0) return;
+    if (!mapInstance.current || selectedProjectIds.size === 0 || !shouldZoomToProjects) return;
 
     const zoomToProjectAddresses = async () => {
       try {
@@ -656,6 +657,30 @@ function KarteContent() {
 
     zoomToProjectAddresses();
   }, [shouldZoomToProjects, selectedProjectIds, addresses]);
+
+  // Auto-zoom to selected projects when entering map page
+  useEffect(() => {
+    if (!mapInstance.current || selectedProjectIds.size === 0 || addresses.length === 0) return;
+    if (hasAutoZoomedRef.current) return; // Only auto-zoom once
+    
+    // Only auto-zoom if we have project addresses
+    const projectAddresses = addresses.filter(addr => 
+      addr.projectId && selectedProjectIds.has(addr.projectId)
+    );
+    
+    if (projectAddresses.length > 0) {
+      // Small delay to ensure map is fully loaded
+      setTimeout(() => {
+        setShouldZoomToProjects(true);
+        hasAutoZoomedRef.current = true;
+      }, 500);
+    }
+  }, [addresses, selectedProjectIds]);
+
+  // Reset auto-zoom flag when projects change
+  useEffect(() => {
+    hasAutoZoomedRef.current = false;
+  }, [selectedProjectIds]);
 
   // Clear project markers when projects are deselected
   useEffect(() => {
