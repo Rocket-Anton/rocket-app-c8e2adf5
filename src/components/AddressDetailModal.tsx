@@ -1734,7 +1734,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
         )}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1825,7 +1825,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
         )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2345,7 +2345,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
         )}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <button
               onClick={() => setAddUnitsDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -2438,7 +2438,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
         )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2955,7 +2955,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
       )}
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <button
             onClick={() => setAddUnitsDialogOpen(false)}
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -3046,7 +3046,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
       )}
       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Auftrag anlegen</DialogTitle>
           </DialogHeader>
