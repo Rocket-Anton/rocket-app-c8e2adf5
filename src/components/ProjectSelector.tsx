@@ -9,12 +9,14 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MapPin, ChevronDown, Search, Filter } from "lucide-react";
+import { MapPin, ChevronDown, Search } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
 
@@ -61,8 +63,8 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
-  const [statusFilter, setStatusFilter] = useState<string[]>([]);
-  const [providerFilter, setProviderFilter] = useState<string[]>([]);
+  const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [providerFilter, setProviderFilter] = useState<string>("all");
 
   useEffect(() => {
     fetchProjects();
@@ -217,9 +219,9 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
     // Search filter
     if (searchQuery && !project.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
     // Status filter
-    if (statusFilter.length > 0 && !statusFilter.includes(project.status)) return false;
+    if (statusFilter !== "all" && project.status !== statusFilter) return false;
     // Provider filter
-    if (providerFilter.length > 0 && project.provider_id && !providerFilter.includes(project.provider_id)) return false;
+    if (providerFilter !== "all" && project.provider_id !== providerFilter) return false;
     return true;
   });
 
@@ -242,128 +244,78 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[280px] p-0 z-[1001] bg-background">
-        <div className="p-2 border-b space-y-2">
-          <div className="flex items-center gap-2">
-            {/* Search */}
-            <div className="relative flex-1">
-              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
-              <Input
-                placeholder="Projekt suchen..."
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="h-7 pl-8 text-xs"
-              />
-            </div>
-
-            {/* Combined Filter Dropdown */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 w-7 p-0">
-                  <Filter className="h-3.5 w-3.5" />
-                  {(statusFilter.length > 0 || providerFilter.length > 0) && (
-                    <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center">
-                      {statusFilter.length + providerFilter.length}
-                    </span>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-56 p-0 z-[1002]" align="end">
-                <div className="p-2 space-y-3">
-                  {/* Status Filter Section */}
-                  <div className="space-y-1.5">
-                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                      Status
-                    </div>
-                    <div className="space-y-0.5">
-                      {uniqueStatuses.map(status => (
-                        <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
-                          <Checkbox
-                            checked={statusFilter.includes(status)}
-                            onCheckedChange={(checked) => {
-                              setStatusFilter(prev =>
-                                checked
-                                  ? [...prev, status]
-                                  : prev.filter(s => s !== status)
-                              );
-                            }}
-                            className="h-3.5 w-3.5"
-                          />
-                          <span>{status}</span>
-                        </label>
-                      ))}
-                    </div>
-                  </div>
-
-                  {/* Provider Filter Section */}
-                  {providers.length > 0 && (
-                    <>
-                      <div className="border-t" />
-                      <div className="space-y-1.5">
-                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
-                          Provider
-                        </div>
-                        <div className="space-y-0.5">
-                          {providers.map(provider => (
-                            <label key={provider.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
-                              <Checkbox
-                                checked={providerFilter.includes(provider.id)}
-                                onCheckedChange={(checked) => {
-                                  setProviderFilter(prev =>
-                                    checked
-                                      ? [...prev, provider.id]
-                                      : prev.filter(p => p !== provider.id)
-                                  );
-                                }}
-                                className="h-3.5 w-3.5"
-                              />
-                              <div className="flex items-center gap-1.5">
-                                <div 
-                                  className="w-2 h-2 rounded-full" 
-                                  style={{ backgroundColor: provider.color }}
-                                />
-                                <span>{provider.name}</span>
-                              </div>
-                            </label>
-                          ))}
-                        </div>
-                      </div>
-                    </>
-                  )}
-
-                  {/* Reset Button */}
-                  {(statusFilter.length > 0 || providerFilter.length > 0) && (
-                    <>
-                      <div className="border-t" />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        onClick={() => {
-                          setStatusFilter([]);
-                          setProviderFilter([]);
-                        }}
-                        className="w-full h-7 text-xs"
-                      >
-                        Filter zurücksetzen
-                      </Button>
-                    </>
-                  )}
-                </div>
-              </PopoverContent>
-            </Popover>
+        <div className="p-3 border-b space-y-2">
+          {/* Search */}
+          <div className="relative">
+            <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+            <Input
+              placeholder="Projekt suchen..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              className="h-8 pl-8 text-xs"
+            />
           </div>
+
+          {/* Status Filter */}
+          <div className="space-y-1">
+            <label className="text-xs font-medium">Status</label>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="h-8 text-xs">
+                <SelectValue placeholder="Status wählen" />
+              </SelectTrigger>
+              <SelectContent className="z-[1002]">
+                <SelectItem value="all">Alle Status</SelectItem>
+                {uniqueStatuses.map(status => (
+                  <SelectItem key={status} value={status}>
+                    {status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
+
+          {/* Provider Filter */}
+          {providers.length > 0 && (
+            <div className="space-y-1">
+              <label className="text-xs font-medium">Provider</label>
+              <Select value={providerFilter} onValueChange={setProviderFilter}>
+                <SelectTrigger className="h-8 text-xs">
+                  <SelectValue placeholder="Provider wählen" />
+                </SelectTrigger>
+                <SelectContent className="z-[1002]">
+                  <SelectItem value="all">Alle Provider</SelectItem>
+                  {providers.map(provider => (
+                    <SelectItem key={provider.id} value={provider.id}>
+                      <div className="flex items-center gap-1.5">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: provider.color }}
+                        />
+                        <span>{provider.name}</span>
+                      </div>
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+          )}
           
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between pt-1">
             <p className="text-[10px] text-muted-foreground">
               {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
             </p>
-            {searchQuery && (
+            {(searchQuery || statusFilter !== "all" || providerFilter !== "all") && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => setSearchQuery("")}
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter("all");
+                  setProviderFilter("all");
+                }}
                 className="h-5 text-[10px] px-2"
               >
-                Suche löschen
+                Zurücksetzen
               </Button>
             )}
           </div>
