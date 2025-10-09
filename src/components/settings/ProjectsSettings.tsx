@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { Button } from "@/components/ui/button";
@@ -63,10 +63,29 @@ export const ProjectsSettings = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProjects, setSelectedProjects] = useState<Set<string>>(new Set());
-  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(new Set());
-  const [expandedStatus, setExpandedStatus] = useState<Set<string>>(new Set());
+  
+  // Load expanded states from localStorage
+  const [expandedProviders, setExpandedProviders] = useState<Set<string>>(() => {
+    const stored = localStorage.getItem('expandedProviders');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  });
+  
+  const [expandedStatus, setExpandedStatus] = useState<Set<string>>(() => {
+    const stored = localStorage.getItem('expandedStatus');
+    return stored ? new Set(JSON.parse(stored)) : new Set();
+  });
+  
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [providerFilter, setProviderFilter] = useState<string>("all");
+
+  // Save expanded states to localStorage whenever they change
+  useEffect(() => {
+    localStorage.setItem('expandedProviders', JSON.stringify(Array.from(expandedProviders)));
+  }, [expandedProviders]);
+
+  useEffect(() => {
+    localStorage.setItem('expandedStatus', JSON.stringify(Array.from(expandedStatus)));
+  }, [expandedStatus]);
 
   const { data: projects = [], isLoading: loading } = useQuery({
     queryKey: ['projects'],
