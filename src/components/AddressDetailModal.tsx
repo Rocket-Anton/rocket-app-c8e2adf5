@@ -2242,11 +2242,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           }
         }}>
           <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[85vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <DialogHeader className="flex-shrink-0 px-4 pt-6 pb-2">
+            <DialogHeader className="flex-shrink-0 px-2 pt-6 pb-2">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="overflow-y-auto flex-1 px-4 pt-4 pb-4 bg-muted rounded-lg mt-2 mx-0 mb-0">
+            <div className="overflow-y-auto flex-1 px-2 pt-4 pb-4 bg-muted rounded-lg mt-2 mx-0 mb-0">
               {/* 1. DATUM WÄHLEN */}
               <div className="mb-4">
                 <label className="text-sm font-medium mb-1.5 block">Datum *</label>
@@ -2472,7 +2472,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
             
-            <DialogFooter className="flex-shrink-0 px-4 pb-3 pt-4 border-t flex-row gap-2">
+            <DialogFooter className="flex-shrink-0 px-2 pb-3 pt-4 border-t flex-row gap-2">
               <Button
                 variant="outline"
                 className="flex-1"
