@@ -2553,12 +2553,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <ChevronRight className="h-4 w-4" />
                     </Button>
                   </div>
-                  <div className="flex items-center gap-2">
-                    <Button variant="outline" size="sm" onClick={() => { setMapDisplayDate(new Date()); setShowAllAppointments(false); }}>Heute</Button>
-                    <Button variant="ghost" size="sm" onClick={() => { setShowAllAppointments(!showAllAppointments); if (!showAllAppointments) { setMapDisplayDate(undefined); } else { setMapDisplayDate(appointmentDate || new Date()); } }} className="text-xs h-7">
-                      {showAllAppointments ? "Datum filtern" : "Alle anzeigen"}
-                    </Button>
-                  </div>
+                  <Button variant="ghost" size="sm" onClick={() => { setShowAllAppointments(!showAllAppointments); if (!showAllAppointments) { setMapDisplayDate(undefined); } else { setMapDisplayDate(appointmentDate || new Date()); } }} className="text-xs h-7">
+                    {showAllAppointments ? "Datum filtern" : "Alle anzeigen"}
+                  </Button>
                 </div>
                 <div className="h-32 md:h-40 rounded-lg overflow-hidden border border-border">
               <AppointmentMap
