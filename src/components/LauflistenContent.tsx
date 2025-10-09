@@ -207,7 +207,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     };
 
     loadAddresses();
-  }, [Array.from(selectedProjectIds).sort().join(',')]);  // Convert Set to sorted string for stable comparison
+  }, [selectedProjectIds, cachedAddresses]);
 
   // Handle modal close and scroll to the address
   const handleModalClose = (finalIndex: number) => {

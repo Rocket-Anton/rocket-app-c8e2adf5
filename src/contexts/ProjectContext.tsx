@@ -37,7 +37,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('selectedProjectIds', JSON.stringify(Array.from(selectedProjectIds)));
   }, [selectedProjectIds]);
 
-  // Memoize setters to prevent re-renders
+  // Memoize context value - only depend on state values, NOT setters (they are stable)
   const value = useMemo(() => ({
     selectedProjectIds, 
     setSelectedProjectIds,
@@ -47,7 +47,7 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     setListScrollPosition,
     mapViewState,
     setMapViewState
-  }), [selectedProjectIds, setSelectedProjectIds, cachedAddresses, setCachedAddresses, listScrollPosition, setListScrollPosition, mapViewState, setMapViewState]);
+  }), [selectedProjectIds, cachedAddresses, listScrollPosition, mapViewState]);
 
   return (
     <ProjectContext.Provider value={value}>
