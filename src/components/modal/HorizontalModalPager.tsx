@@ -28,7 +28,7 @@ function HorizontalModalPagerInner<T extends Item>({
     containScroll: false,
     dragFree: false,
     skipSnaps: false,
-    duration: 0,
+    duration: 25,
     watchDrag: true,
     startIndex: startIndex,
   });
@@ -39,26 +39,8 @@ function HorizontalModalPagerInner<T extends Item>({
     // Jump directly to startIndex without animation on mount
     const currentSnap = embla.selectedScrollSnap();
     if (startIndex !== currentSnap) {
-      // Temporarily disable transitions on both container and root, jump to index, then re-enable
-      const container = embla.containerNode();
-      const root = embla.rootNode();
-      const originalContainerTransition = container.style.transition;
-      const originalRootTransition = root.style.transition;
-      
-      container.style.transition = 'none';
-      root.style.transition = 'none';
-      
-      embla.scrollTo(startIndex, true);
-      
-      // Force reflow to ensure the transition: none takes effect
-      container.getBoundingClientRect();
-      root.getBoundingClientRect();
-      
-      // Restore transitions after a small delay
-      requestAnimationFrame(() => {
-        container.style.transition = originalContainerTransition;
-        root.style.transition = originalRootTransition;
-      });
+      // Use instant: false to jump without animation
+      embla.scrollTo(startIndex, false);
     }
   }, [embla, startIndex]);
 

@@ -1416,17 +1416,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           </p>
                         )}
 
-                        {/* Auftrag Button - now shown on all screen sizes if not Neukunde and marketable */}
-                        {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
-                          <Button 
-                            onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
-                            className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
-                          >
-                            <FileText className="w-4 h-4 mr-2" />
-                            Auftrag
-                          </Button>
-                        )}
-
                         {/* Notizen Collapsible - now shown on all screen sizes */}
                         <Collapsible open={notesOpen[unit.id] || false} onOpenChange={(open) => setNotesOpen(prev => ({ ...prev, [unit.id]: open }))}>
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
@@ -1537,6 +1526,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             )}
                           </CollapsibleContent>
                         </Collapsible>
+
+                        {/* Auftrag Button - now shown on all screen sizes if not Neukunde and marketable */}
+                        {unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && !isNotMarketable && (
+                          <Button 
+                            onClick={() => handleOpenOrderDialog(addr.id, unit.id)}
+                            className="w-full bg-black hover:bg-gray-800 text-white text-sm rounded-md"
+                          >
+                            <FileText className="w-4 h-4 mr-2" />
+                            Auftrag
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -2186,7 +2186,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   size="icon"
                   onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
                   disabled={currentIndex === 0}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-20 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10100]"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
@@ -2198,7 +2198,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   size="icon"
                   onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
                   disabled={currentIndex === allAddresses.length - 1}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-20 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10100]"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
