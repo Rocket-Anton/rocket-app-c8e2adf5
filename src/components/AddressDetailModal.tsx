@@ -1724,8 +1724,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Kein Interesse Grund-Dialog */}
-        <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+        <Dialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
+          <DialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1733,12 +1733,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               <X className="h-4 w-4" />
               <span className="sr-only">Schließen</span>
             </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
-              <AlertDialogDescription>
+            <DialogHeader>
+              <DialogTitle>Kein Interesse - Grund angeben</DialogTitle>
+              <DialogDescription>
                 Bitte wähle einen Grund aus.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+              </DialogDescription>
+            </DialogHeader>
             <div className="space-y-3">
               <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
                 <SelectTrigger className="w-full h-10 rounded-md bg-background border border-border shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
@@ -1780,7 +1780,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Potenzial Bewertung */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent onPointerDownOutside={() => setPotenzialDialogOpen(false)} onEscapeKeyDown={() => setPotenzialDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2090,7 +2090,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Kein Interesse Grund-Dialog (Mobile) */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent onPointerDownOutside={() => setKeinInteresseDialogOpen(false)} onEscapeKeyDown={() => setKeinInteresseDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setKeinInteresseDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2146,7 +2146,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Potenzial Bewertung (Mobile) */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
+          <AlertDialogContent onPointerDownOutside={() => setPotenzialDialogOpen(false)} onEscapeKeyDown={() => setPotenzialDialogOpen(false)} className="px-8 w-[90vw] max-w-md rounded-2xl z-[10001]">
             <button
               onClick={() => setPotenzialDialogOpen(false)}
               className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
