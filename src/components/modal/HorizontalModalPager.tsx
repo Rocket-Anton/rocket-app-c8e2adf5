@@ -1,5 +1,5 @@
 import useEmblaCarousel from 'embla-carousel-react';
-import { useEffect, useCallback, memo } from 'react';
+import { useEffect, useCallback } from 'react';
 
 type Item = { id: number };
 type Props<T extends Item> = {
@@ -9,7 +9,7 @@ type Props<T extends Item> = {
   onIndexChange?: (index: number) => void;
 };
 
-function HorizontalModalPagerComponent<T extends Item>({
+export default function HorizontalModalPager<T extends Item>({
   items,
   startIndex = 0,
   renderCard,
@@ -66,5 +66,3 @@ function HorizontalModalPagerComponent<T extends Item>({
     </div>
   );
 }
-
-export default memo(HorizontalModalPagerComponent) as typeof HorizontalModalPagerComponent;
