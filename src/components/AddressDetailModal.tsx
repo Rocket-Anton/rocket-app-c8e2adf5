@@ -1574,7 +1574,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                       {/* Termine Collapsible */}
                       <Collapsible open={appointmentsOpen[unit.id] || false} onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}>
-                        <CollapsibleTrigger className="w-full h-11 md:h-12 flex items-center justify-between px-3 hover:bg-muted/50 transition-colors focus:ring-0 focus:outline-none">
+                        <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
                           <div className="flex items-center gap-2">
                             <span className="font-medium text-sm leading-6 min-w-[60px]">Termine</span>
                             <div className="w-5 h-5 bg-muted-foreground/20 text-foreground rounded-full flex items-center justify-center text-xs font-medium">
