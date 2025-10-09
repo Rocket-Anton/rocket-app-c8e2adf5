@@ -1044,7 +1044,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         const activities = newUnits.map(unit => ({
           user_id: currentUser.id,
           address_id: pendingAddressId,
-          unit_id: unit.id,
+          unit_id: unit.id.toString(), // Convert to string for TEXT column
           activity_type: 'created',
           metadata: {
             created_at: timestamp
@@ -1139,7 +1139,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             .insert({
               user_id: currentUser.id,
               address_id: addressId,
-              unit_id: unitId,
+              unit_id: unitId.toString(), // Convert to string for TEXT column
               activity_type: 'deleted',
               metadata: {
                 floor: unit.floor,
