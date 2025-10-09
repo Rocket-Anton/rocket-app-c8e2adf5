@@ -43,6 +43,9 @@ const DialogContent = React.forwardRef<
       )}
       {...props}
     >
+      {/* A11y defaults to satisfy Radix requirements even when no title/description provided */}
+      <DialogPrimitive.Title className="sr-only">Dialog</DialogPrimitive.Title>
+      <DialogPrimitive.Description className="sr-only">Dialog content</DialogPrimitive.Description>
       {children}
       {!hideClose && (
         <DialogPrimitive.Close className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none disabled:pointer-events-none">
