@@ -2286,44 +2286,46 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <DialogContent 
           ref={modalContentRef}
           hideClose 
-          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060]"
+          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060] flex items-center justify-center"
         >
-          <HorizontalModalPager
-            ref={pagerRef}
-            items={allAddresses}
-            startIndex={initialIndex}
-            renderCard={renderCompleteCard}
-            onIndexChange={(idx) => setCurrentIndex(idx)}
-          />
-          
-          {/* Pfeile nur Desktop (≥1024px) */}
-          {allAddresses.length > 1 && (
-            <div className="hidden lg:block absolute inset-y-0 left-0 right-0 pointer-events-none z-50">
-              <Button
-                type="button"
-                aria-label="Zur vorherigen Adresse"
-                variant="ghost"
-                size="icon"
-                onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
-                disabled={currentIndex === 0}
-                className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
+          <div className="relative w-[92vw] max-w-2xl h-full">
+            <HorizontalModalPager
+              ref={pagerRef}
+              items={allAddresses}
+              startIndex={initialIndex}
+              renderCard={renderCompleteCard}
+              onIndexChange={(idx) => setCurrentIndex(idx)}
+            />
+            
+            {/* Pfeile nur Desktop (≥1024px) */}
+            {allAddresses.length > 1 && (
+              <>
+                <Button
+                  type="button"
+                  aria-label="Zur vorherigen Adresse"
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
+                  disabled={currentIndex === 0}
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
 
-              <Button
-                type="button"
-                aria-label="Zur nächsten Adresse"
-                variant="ghost"
-                size="icon"
-                onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
-                disabled={currentIndex === allAddresses.length - 1}
-                className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </div>
-          )}
+                <Button
+                  type="button"
+                  aria-label="Zur nächsten Adresse"
+                  variant="ghost"
+                  size="icon"
+                  onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
+                  disabled={currentIndex === allAddresses.length - 1}
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </>
+            )}
+          </div>
         </DialogContent>
       </Dialog>
 
