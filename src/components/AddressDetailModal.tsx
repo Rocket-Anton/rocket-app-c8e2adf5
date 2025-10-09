@@ -1647,52 +1647,82 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return null;
   }
 
-  // Desktop or no carousel mode - REMOVED: Now we always use carousel when there are multiple addresses
+  // Render complete card for carousel (used by both mobile and desktop)
+  const renderCompleteCard = (addr: Address, index: number, total: number) => {
+    const allAddrUnits = addr.filteredUnits || addr.units || [];
+    const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
+    const addrUnitCount = addrUnits.length;
+    
+    return (
+      <motion.div 
+        className="h-full w-[92vw] max-w-2xl mx-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
+        initial="hidden"
+        animate="show"
+        variants={CARD_VARIANTS}
+      >
+        {/* Card Header */}
+          <motion.div 
+            className="relative px-4 py-4 border-b flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+            variants={ITEM_VARIANTS}
+          >
+          <DialogClose 
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 z-50"
+            onClick={() => handleDialogChange(false)}
+            style={{ WebkitTapHighlightColor: "transparent" }}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+          <div className="text-lg font-semibold">
+            {addr.street} {addr.houseNumber}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {addr.postalCode} {addr.city}
+          </p>
+          
+          <div className="flex items-center justify-between w-full pt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Wohneinheiten</span>
+              <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                {addrUnitCount}
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-blue-600 text-xs gap-1 border-0"
+              onClick={() => handleAddUnitsClick(addr.id)}
+            >
+              <Plus className="w-4 h-4" />
+              Hinzufügen
+            </Button>
+          </div>
+        </motion.div>
+
+        {/* Card Content */}
+          <motion.div 
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full"
+            variants={ITEM_VARIANTS}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
+          {renderAddressContent(addr)}
+        </motion.div>
+      </motion.div>
+    );
+  };
+
+  // Single address mode - use the same card as carousel
   if (allAddresses.length <= 1) {
     return (
       <>
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
-          <div ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] p-0 overflow-hidden max-h-[90vh] flex flex-col min-h-0 bg-background">
-            <div className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
-              <button
-                onClick={() => handleDialogChange(false)}
-                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-              >
-                <X className="h-4 w-4" />
-                <span className="sr-only">Close</span>
-              </button>
-              <h2 className="text-lg sm:text-xl font-semibold">
-                {currentAddress?.street || ''} {currentAddress?.houseNumber || ''}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {currentAddress?.postalCode || ''} {currentAddress?.city || ''}
-              </p>
-              
-              <div className="flex items-center justify-between w-full pt-4 sm:pt-6">
-                <div className="flex items-center gap-2">
-                  <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
-                  <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                    {visibleUnitsCount}
-                  </div>
-                </div>
-                <Button 
-                  variant="ghost" 
-                  size="sm" 
-                  className="text-blue-600 text-xs sm:text-sm gap-1 border-0"
-                  onClick={() => {
-                    if (currentAddress?.id) {
-                      handleAddUnitsClick(currentAddress.id);
-                    }
-                  }}
-                >
-                  <Plus className="w-4 h-4" />
-                  Hinzufügen
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
-              {renderAddressContent(currentAddress)}
+          <div
+            ref={modalContentRef}
+            className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
+            style={{ isolation: 'isolate' }}
+          >
+            <div className="w-full max-w-2xl h-[80vh]">
+              {renderCompleteCard(currentAddress, 0, 1)}
             </div>
           </div>
         </MotionDialog>
@@ -1899,70 +1929,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </>
     );
   }
-
-  // Render complete card for carousel (used by both mobile and desktop)
-  const renderCompleteCard = (addr: Address, index: number, total: number) => {
-    const allAddrUnits = addr.filteredUnits || addr.units || [];
-    const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
-    const addrUnitCount = addrUnits.length;
-    
-    return (
-      <motion.div 
-        className="h-full w-full rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
-        initial="hidden"
-        animate="show"
-        variants={CARD_VARIANTS}
-      >
-        {/* Card Header */}
-          <motion.div 
-            className="relative px-4 py-4 border-b flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
-            variants={ITEM_VARIANTS}
-          >
-          <DialogClose 
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 z-50"
-            onClick={() => handleDialogChange(false)}
-            style={{ WebkitTapHighlightColor: "transparent" }}
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Close</span>
-          </DialogClose>
-          <div className="text-lg font-semibold">
-            {addr.street} {addr.houseNumber}
-          </div>
-          <p className="text-sm text-muted-foreground">
-            {addr.postalCode} {addr.city}
-          </p>
-          
-          <div className="flex items-center justify-between w-full pt-4">
-            <div className="flex items-center gap-2">
-              <span className="text-sm font-medium">Wohneinheiten</span>
-              <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                {addrUnitCount}
-              </div>
-            </div>
-            <Button 
-              variant="ghost" 
-              size="sm" 
-              className="text-blue-600 text-xs gap-1 border-0"
-              onClick={() => handleAddUnitsClick(addr.id)}
-            >
-              <Plus className="w-4 h-4" />
-              Hinzufügen
-            </Button>
-          </div>
-        </motion.div>
-
-        {/* Card Content */}
-          <motion.div 
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full"
-            variants={ITEM_VARIANTS}
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
-          {renderAddressContent(addr)}
-        </motion.div>
-      </motion.div>
-    );
-  };
 
   // Carousel mode - Always enabled when multiple addresses exist
   // On mobile, use swipe deck; on desktop, use embla carousel

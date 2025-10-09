@@ -94,9 +94,7 @@ function HorizontalModalPagerInner<T extends Item>({
       ref={emblaRef}
       className={cn("h-full overflow-visible touch-pan-y bg-transparent", className)}
       style={{
-        width: '100vw',
-        marginLeft: 'calc(50% - 50vw)',
-        marginRight: 'calc(50% - 50vw)',
+        width: '100%',
         willChange: 'transform',
         contain: 'content',
       }}
