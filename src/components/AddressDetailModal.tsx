@@ -2292,31 +2292,31 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[9999] relative">
-          {/* Navigation Arrows - Desktop/Tablet Only */}
-          {allAddresses.length > 1 && (
-            <>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => emblaApi?.scrollPrev()}
-                disabled={currentIndex === 0}
-                className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronLeft className="h-5 w-5" />
-              </Button>
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => emblaApi?.scrollNext()}
-                disabled={currentIndex === allAddresses.length - 1}
-                className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
-              >
-                <ChevronRight className="h-5 w-5" />
-              </Button>
-            </>
-          )}
-          <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[10060]">
+          <div className="embla h-full w-full overflow-hidden relative" ref={emblaRef}>
+            {/* Navigation Arrows - Desktop/Tablet Only */}
+            {allAddresses.length > 1 && (
+              <>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => emblaApi?.scrollPrev()}
+                  disabled={currentIndex === 0}
+                  className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronLeft className="h-5 w-5" />
+                </Button>
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={() => emblaApi?.scrollNext()}
+                  disabled={currentIndex === allAddresses.length - 1}
+                  className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+                >
+                  <ChevronRight className="h-5 w-5" />
+                </Button>
+              </>
+            )}
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
                 const allAddrUnits = addr.filteredUnits || addr.units || [];
