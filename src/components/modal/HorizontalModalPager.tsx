@@ -30,10 +30,13 @@ function HorizontalModalPagerInner<T extends Item>({
     skipSnaps: false,
     duration: 25,
     watchDrag: true,
+    startIndex: startIndex,
   });
 
   useEffect(() => {
-    if (embla) embla.scrollTo(startIndex, true);
+    if (embla && startIndex !== embla.selectedScrollSnap()) {
+      embla.scrollTo(startIndex, true);
+    }
   }, [embla, startIndex]);
 
   const onSelect = useCallback(() => {
