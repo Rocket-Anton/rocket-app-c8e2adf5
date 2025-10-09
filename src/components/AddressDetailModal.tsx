@@ -2044,8 +2044,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
 
+        {/* Add Appointment Dialog */}
+        {addAppointmentDialogOpen && (
+          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
+        )}
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+          <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2649,8 +2653,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </DialogContent>
       </Dialog>
 
+      {/* Add Appointment Dialog */}
+      {addAppointmentDialogOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
+      )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4">
+        <DialogContent className="w-[95vw] max-w-6xl rounded-2xl max-h-[90vh] overflow-y-auto py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
