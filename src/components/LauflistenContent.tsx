@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from "react";
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -315,8 +315,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       </PopoverContent>
     );
   };
-  // Filter addresses based on all criteria
-  const filteredAddresses = addresses.filter(address => {
+  
+  // Filter addresses based on all criteria - memoized for performance
+  const filteredAddresses = useMemo(() => addresses.filter(address => {
     // Show addresses even if they currently have no units
 
     // Search term filter
@@ -379,7 +380,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       potentiale,
       filteredUnits // Pass filtered units to modal
     };
-  });
+  }), [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
 
   const displayedAddresses = filteredAddresses.slice(0, visibleCount);
 
