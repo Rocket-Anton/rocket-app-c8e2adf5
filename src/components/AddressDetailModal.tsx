@@ -2087,7 +2087,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
                       </Button>
                     </PopoverTrigger>
-                    <PopoverContent className="w-auto p-0" align="start">
+                    <PopoverContent className="w-auto p-0 z-[10120]" align="start" side="bottom">
                       <Calendar
                         mode="single"
                         selected={appointmentDate}
@@ -2125,7 +2125,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Stunde" />
                       </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
                         {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                           <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                             {hour.toString().padStart(2, '0')}
@@ -2145,7 +2145,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Minute" />
                       </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
                         {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
                           <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                             {minute.toString().padStart(2, '0')}
@@ -2160,7 +2160,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                         <SelectValue placeholder="Dauer" />
                       </SelectTrigger>
-                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                      <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
                         {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
                           <SelectItem key={duration} value={duration.toString()}>
                             {duration} min
@@ -2651,7 +2651,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0" align="start">
+                  <PopoverContent className="w-auto p-0 z-[10120]" align="start" side="bottom">
                     <Calendar
                       mode="single"
                       selected={appointmentDate}
@@ -2689,7 +2689,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Stunde" />
                     </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
                       {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
                         <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
                           {hour.toString().padStart(2, '0')}
@@ -2708,9 +2708,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   >
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Minute" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                      {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
+                     </SelectTrigger>
+                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
+                       {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
                         <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
                           {minute.toString().padStart(2, '0')}
                         </SelectItem>
@@ -2723,9 +2723,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   >
                     <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
                       <SelectValue placeholder="Dauer" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
-                      {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
+                     </SelectTrigger>
+                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
+                       {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
                         <SelectItem key={duration} value={duration.toString()}>
                           {duration} min
                         </SelectItem>
