@@ -2241,7 +2241,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             setPendingAppointmentUnitId(null);
           }
         }}>
-          <DialogContent className="z-[10300] max-h-[85vh] max-w-4xl w-[95vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="z-[10300] max-h-[75vh] max-w-2xl w-[90vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
             <DialogHeader className="flex-shrink-0 px-6 pt-6 pb-4">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2414,7 +2414,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* 5. KARTE */}
-              <div className="h-[300px] rounded-lg overflow-hidden mb-4 border">
+              <div className="h-[220px] rounded-lg overflow-hidden mb-4 border">
                 <AppointmentMap
                   appointments={displayedAppointments}
                   selectedDate={mapDisplayDate}
