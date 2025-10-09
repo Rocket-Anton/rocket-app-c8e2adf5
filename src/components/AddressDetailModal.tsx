@@ -1262,10 +1262,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <div className="flex gap-3 min-w-0">
                             <div className="flex-[4] min-w-0">
                               <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
-                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
+                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pointer-events-auto">
                                   <SelectValue placeholder="Stockwerk" />
                                 </SelectTrigger>
-                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] pointer-events-auto">
                                   <SelectItem value="EG">EG</SelectItem>
                                   <SelectItem value="1. OG">1. OG</SelectItem>
                                   <SelectItem value="2. OG">2. OG</SelectItem>
@@ -1281,10 +1281,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                             <div className="flex-[2] min-w-0">
                               <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
-                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2">
+                                <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2 pointer-events-auto">
                                   <SelectValue placeholder="Lage" />
                                 </SelectTrigger>
-                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000]">
+                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] pointer-events-auto">
                                   <SelectItem value="Links">Links</SelectItem>
                                   <SelectItem value="Rechts">Rechts</SelectItem>
                                   <SelectItem value="Mitte">Mitte</SelectItem>
