@@ -1211,7 +1211,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
         {/* Single scrollable container */}
-        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y overscroll-contain ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`} style={{ WebkitOverflowScrolling: 'touch' }}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -1698,7 +1698,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <>
         <Dialog open={open} onOpenChange={handleDialogChange}>
-          <DialogContent ref={modalContentRef} hideClose className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl z-[10060]">
+          <DialogContent ref={modalContentRef} hideClose className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl z-[10060] flex flex-col min-h-0">
             <DialogHeader className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
               <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                 <X className="h-4 w-4" />
@@ -1734,7 +1734,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </DialogHeader>
 
-            {renderAddressContent(currentAddress)}
+            <div className="flex-1 min-h-0">
+              {renderAddressContent(currentAddress)}
+            </div>
           </DialogContent>
         </Dialog>
 
@@ -1991,7 +1993,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
 
           {/* Card Content */}
-          <div className="flex-1 overflow-y-auto touch-pan-y overscroll-contain">
+          <div className="flex-1 min-h-0">
             {renderAddressContent(addr)}
           </div>
         </div>
@@ -2326,7 +2328,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 return (
                   <div 
                     key={addr.id} 
-                    className="embla__slide flex-shrink-0 flex-grow-0 basis-full h-full"
+                    className="embla__slide basis-full h-full flex flex-col min-h-0"
                   >
                        <DialogHeader className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
                         <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
@@ -2359,7 +2361,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         </div>
                       </DialogHeader>
 
-                      {renderAddressContent(addr)}
+                      <div className="flex-1 min-h-0">
+                        {renderAddressContent(addr)}
+                      </div>
                   </div>
                 );
               })}
