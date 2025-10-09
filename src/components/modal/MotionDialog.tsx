@@ -62,18 +62,18 @@ export const MotionDialog = ({
                       scale: 1,
                       y: 0,
                       transition: {
-                        opacity: { duration: 0.18 },
+                        opacity: { duration: 0.16, ease: [0.22, 1, 0.36, 1] },
                         scale: {
                           type: "spring",
-                          stiffness: 420,
-                          damping: 34,
-                          mass: 0.7
+                          stiffness: 380,
+                          damping: 32,
+                          mass: 0.8
                         },
                         y: {
                           type: "spring",
-                          stiffness: 420,
-                          damping: 34,
-                          mass: 0.7
+                          stiffness: 380,
+                          damping: 32,
+                          mass: 0.8
                         }
                       }
                     }}
@@ -82,7 +82,7 @@ export const MotionDialog = ({
                       scale: 0.98,
                       y: 6,
                       transition: {
-                        duration: 0.14,
+                        duration: 0.12,
                         ease: [0.4, 0, 1, 1]
                       }
                     }}

@@ -9,6 +9,7 @@ import { MotionDialog } from "./modal/MotionDialog";
 import confetti from 'canvas-confetti';
 import { supabase } from "@/integrations/supabase/client";
 import { orderFormSchema, noteSchema, customerNameSchema } from "@/utils/validation";
+import { motion } from "framer-motion";
 import {
   Dialog,
   DialogContent,
@@ -92,6 +93,71 @@ interface AddressDetailModalProps {
   onOrderCreated?: () => void;
   onUpdateUnitStatus?: (addressId: number, unitId: number, newStatus: string) => void;
 }
+
+// Navigation Arrow Component with Apple-style haptic feedback
+const NavigationArrow: React.FC<{
+  direction: "left" | "right";
+  onClick: () => void;
+  disabled?: boolean;
+}> = ({ direction, onClick, disabled }) => {
+  const Icon = direction === "left" ? ChevronLeft : ChevronRight;
+  
+  return (
+    <motion.button
+      type="button"
+      onClick={(e) => { 
+        e.stopPropagation(); 
+        if (!disabled) onClick(); 
+      }}
+      disabled={disabled}
+      aria-label={direction === "left" ? "Vorherige Adresse" : "Nächste Adresse"}
+      className={cn(
+        "hidden lg:flex items-center justify-center",
+        "absolute top-1/2 -translate-y-1/2",
+        direction === "left" ? "-left-20" : "-right-20",
+        "h-10 w-10 rounded-full",
+        "bg-background/95 hover:bg-background",
+        "shadow-lg border border-border",
+        "disabled:opacity-30 disabled:cursor-not-allowed",
+        "outline-none focus:outline-none focus-visible:outline-none",
+        "focus-visible:ring-0 focus-visible:ring-offset-0"
+      )}
+      style={{ WebkitTapHighlightColor: "transparent" }}
+      whileHover={{ scale: disabled ? 1 : 1.08 }}
+      whileTap={{ scale: disabled ? 1 : 0.94 }}
+      transition={{ 
+        type: "spring", 
+        stiffness: 420, 
+        damping: 28, 
+        mass: 0.25 
+      }}
+    >
+      <Icon className="h-5 w-5" />
+    </motion.button>
+  );
+};
+
+// Animation variants for staggered content
+const CARD_VARIANTS = {
+  hidden: { opacity: 0, y: 8 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: {
+      staggerChildren: 0.03,
+      delayChildren: 0.02
+    }
+  }
+} as const;
+
+const ITEM_VARIANTS = {
+  hidden: { opacity: 0, y: 4 },
+  show: { 
+    opacity: 1, 
+    y: 0,
+    transition: { type: "spring" as const, stiffness: 300, damping: 26, mass: 0.6 }
+  }
+} as const;
 
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
@@ -1840,12 +1906,21 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnitCount = addrUnits.length;
     
     return (
-      <div className="h-full w-full rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform">
+      <motion.div 
+        className="h-full w-full rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
+        initial="hidden"
+        animate="show"
+        variants={CARD_VARIANTS}
+      >
         {/* Card Header */}
-        <div className="relative px-4 py-4 border-b flex-shrink-0">
+        <motion.div 
+          className="relative px-4 py-4 border-b flex-shrink-0"
+          variants={ITEM_VARIANTS}
+        >
           <DialogClose 
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50"
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 z-50"
             onClick={() => handleDialogChange(false)}
+            style={{ WebkitTapHighlightColor: "transparent" }}
           >
             <X className="h-4 w-4" />
             <span className="sr-only">Close</span>
@@ -1874,13 +1949,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               Hinzufügen
             </Button>
           </div>
-        </div>
+        </motion.div>
 
         {/* Card Content */}
-        <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
+        <motion.div 
+          className="flex-1 min-h-0 overflow-hidden w-full max-w-full"
+          variants={ITEM_VARIANTS}
+        >
           {renderAddressContent(addr)}
-        </div>
-      </div>
+        </motion.div>
+      </motion.div>
     );
   };
 
@@ -1894,7 +1972,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
           <div 
             ref={modalContentRef}
-            className="p-0 overflow-visible w-full h-[85vh]"
+            className="p-0 overflow-visible w-full h-[85vh] bg-transparent shadow-none ring-0 border-0"
           >
             <HorizontalModalPager
               items={allAddresses}
@@ -1903,6 +1981,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               onIndexChange={(idx) => {
                 setCurrentIndex(idx);
               }}
+              className="bg-transparent shadow-none ring-0"
             />
           </div>
         </MotionDialog>
@@ -2172,7 +2251,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog open={open} onOpenChange={handleDialogChange}>
         <div 
           ref={modalContentRef}
-          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] flex items-center justify-center"
+          className="p-0 overflow-visible w-full h-[85vh] bg-transparent shadow-none ring-0 border-0 flex items-center justify-center"
         >
           <div className="relative w-full max-w-md h-full">
             <HorizontalModalPager
@@ -2181,34 +2260,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               startIndex={initialIndex}
               renderCard={renderCompleteCard}
               onIndexChange={(idx) => setCurrentIndex(idx)}
+              className="bg-transparent shadow-none ring-0"
             />
             
-            {/* Pfeile nur Desktop (≥1024px), außerhalb der Karte */}
+            {/* Desktop Navigation Arrows */}
             {allAddresses.length > 1 && (
               <>
-                <Button
-                  type="button"
-                  aria-label="Zur vorherigen Adresse"
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
+                <NavigationArrow
+                  direction="left"
+                  onClick={() => pagerRef.current?.scrollPrev()}
                   disabled={currentIndex === 0}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-20 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10100]"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
-
-                <Button
-                  type="button"
-                  aria-label="Zur nächsten Adresse"
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
+                />
+                <NavigationArrow
+                  direction="right"
+                  onClick={() => pagerRef.current?.scrollNext()}
                   disabled={currentIndex === allAddresses.length - 1}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-20 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10100]"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
+                />
               </>
             )}
           </div>

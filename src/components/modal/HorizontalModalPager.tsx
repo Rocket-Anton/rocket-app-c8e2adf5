@@ -8,6 +8,7 @@ type Props<T extends Item> = {
   startIndex?: number;
   renderCard: (item: T, index: number, total: number) => React.ReactNode;
   onIndexChange?: (index: number) => void;
+  className?: string;
 };
 
 export interface HorizontalModalPagerHandle {
@@ -22,6 +23,7 @@ function HorizontalModalPagerInner<T extends Item>({
   startIndex = 0,
   renderCard,
   onIndexChange,
+  className,
 }: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
   const [isDragging, setIsDragging] = useState(false);
 
@@ -90,22 +92,20 @@ function HorizontalModalPagerInner<T extends Item>({
   return (
     <div
       ref={emblaRef}
-      className="h-full overflow-visible touch-pan-y"
+      className={cn("h-full overflow-visible touch-pan-y bg-transparent", className)}
       style={{
         width: '100vw',
         marginLeft: 'calc(50% - 50vw)',
         marginRight: 'calc(50% - 50vw)',
         willChange: 'transform',
         contain: 'content',
-        backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden'
       }}
     >
-      <div className="flex h-full" style={{ willChange: 'transform' }}>
+      <div className="flex h-full bg-transparent" style={{ willChange: 'transform' }}>
         {items.map((it, idx) => (
           <div 
             key={it.id} 
-            className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center"
+            className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center bg-transparent"
             style={{ contain: 'content' }}
           >
             {renderCard(it, idx, items.length)}
