@@ -134,8 +134,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
       // Use cached addresses if available for the same projects
       if (cachedAddresses.length > 0) {
-        setAddresses(cachedAddresses);
-        return;
+        // Check if addresses are for the same projects
+        const cachedProjectIds = new Set(cachedAddresses.map(addr => addr.projectId).filter(Boolean));
+        const currentProjectIds = selectedProjectIds;
+        if (cachedProjectIds.size === currentProjectIds.size && 
+            [...cachedProjectIds].every(id => currentProjectIds.has(id))) {
+          setAddresses(cachedAddresses);
+          return;
+        }
       }
 
       setIsLoadingAddresses(true);
@@ -180,6 +186,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         // Transform the data to match the expected format
         const transformedAddresses = (addressesData || []).map((addr: any) => ({
           id: addr.id,
+          projectId: addr.project_id,
           street: addr.street,
           houseNumber: addr.house_number,
           postalCode: addr.postal_code,
@@ -200,7 +207,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     };
 
     loadAddresses();
-  }, [selectedProjectIds]);
+  }, [Array.from(selectedProjectIds).sort().join(',')]);  // Convert Set to sorted string for stable comparison
 
   // Handle modal close and scroll to the address
   const handleModalClose = (finalIndex: number) => {

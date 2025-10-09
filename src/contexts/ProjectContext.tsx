@@ -1,4 +1,4 @@
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useContext, useState, useEffect, ReactNode, useMemo } from 'react';
 
 interface ProjectContextType {
   selectedProjectIds: Set<string>;
@@ -37,17 +37,20 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     localStorage.setItem('selectedProjectIds', JSON.stringify(Array.from(selectedProjectIds)));
   }, [selectedProjectIds]);
 
+  // Memoize setters to prevent re-renders
+  const value = useMemo(() => ({
+    selectedProjectIds, 
+    setSelectedProjectIds,
+    cachedAddresses,
+    setCachedAddresses,
+    listScrollPosition,
+    setListScrollPosition,
+    mapViewState,
+    setMapViewState
+  }), [selectedProjectIds, setSelectedProjectIds, cachedAddresses, setCachedAddresses, listScrollPosition, setListScrollPosition, mapViewState, setMapViewState]);
+
   return (
-    <ProjectContext.Provider value={{ 
-      selectedProjectIds, 
-      setSelectedProjectIds,
-      cachedAddresses,
-      setCachedAddresses,
-      listScrollPosition,
-      setListScrollPosition,
-      mapViewState,
-      setMapViewState
-    }}>
+    <ProjectContext.Provider value={value}>
       {children}
     </ProjectContext.Provider>
   );
