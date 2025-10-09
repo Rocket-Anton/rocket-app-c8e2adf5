@@ -374,7 +374,7 @@ const ProjectDetail = () => {
 
                   {/* Tabs */}
                   <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-                    <TabsList className="w-full justify-start border-b rounded-none h-auto p-0 bg-transparent overflow-x-auto flex-nowrap">
+                    <TabsList className="w-full justify-start border-b rounded-none h-12 p-0 bg-transparent overflow-x-auto flex-nowrap">
                       <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Info className="w-4 h-4" />
                         Details
