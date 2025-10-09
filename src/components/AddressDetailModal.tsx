@@ -2371,17 +2371,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </Collapsible>
 
               {/* 4. DATUM-NAVIGATION */}
-              <div className="flex items-center justify-between gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
+              <div className="flex items-center justify-center gap-2 mb-2">
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  size="icon"
+                  className="h-8 w-8"
                   onClick={prevMapDay}
                   disabled={showAllAppointments}
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 
-                <div className="text-sm font-medium">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8"
+                  disabled
+                >
                   {showAllAppointments 
                     ? 'Alle Termine' 
                     : mapDisplayDate?.toLocaleDateString('de-DE', { 
@@ -2390,11 +2396,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         month: '2-digit' 
                       })
                   }
-                </div>
+                </Button>
                 
                 <Button 
                   variant="outline" 
-                  size="sm"
+                  size="icon"
+                  className="h-8 w-8"
                   onClick={nextMapDay}
                   disabled={showAllAppointments}
                 >
@@ -2402,8 +2409,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </Button>
                 
                 <Button
-                  variant={showAllAppointments ? "default" : "outline"}
+                  variant="outline"
                   size="sm"
+                  className="h-8"
                   onClick={() => {
                     setShowAllAppointments(true);
                     setMapDisplayDate(undefined);
