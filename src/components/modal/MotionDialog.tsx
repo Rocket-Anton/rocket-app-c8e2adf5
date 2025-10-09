@@ -37,8 +37,8 @@ export const MotionDialog = ({
                     aria-modal="true"
                     className={cn(
                       "pointer-events-auto isolate",
-                      "w-[min(92vw,720px)] max-w-2xl max-h-[85vh]",
-                      "rounded-xl bg-transparent shadow-none overflow-hidden",
+                      "w-[92vw] max-w-2xl max-h-[80vh]",
+                      "bg-transparent overflow-visible",
                       "flex flex-col min-h-0",
                       "transform-gpu will-change-[transform,opacity]",
                       className

@@ -1974,8 +1974,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
       <div 
         ref={modalContentRef}
-        className="p-0 w-full max-w-[720px] max-h-[85vh] bg-transparent shadow-none ring-0 border-0 overflow-hidden"
-        style={{ isolation: 'isolate', zIndex: 10100 }}
+        className="relative w-full h-full bg-transparent overflow-visible"
+        style={{ isolation: 'isolate' }}
       >
             <HorizontalModalPager
               items={allAddresses}
@@ -2254,10 +2254,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog open={open} onOpenChange={handleDialogChange}>
       <div 
         ref={modalContentRef}
-        className="p-0 w-full max-w-[720px] max-h-[85vh] bg-transparent shadow-none ring-0 border-0 overflow-hidden"
-        style={{ isolation: 'isolate', zIndex: 10100 }}
+        className="relative w-full h-full bg-transparent overflow-visible"
+        style={{ isolation: 'isolate' }}
       >
-        <div className="relative w-full h-full">
             <HorizontalModalPager
               ref={pagerRef}
               items={allAddresses}
@@ -2283,7 +2282,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </>
             )}
           </div>
-        </div>
       </MotionDialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
