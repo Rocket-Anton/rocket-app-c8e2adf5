@@ -1721,7 +1721,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <div 
         key={addr.id} 
         className={cn(
-          "w-[85vw] max-w-lg h-[80vh]",
+          "w-[85vw] max-w-lg h-[80vh] relative",
           "rounded-2xl overflow-hidden bg-background shadow-2xl",
           "[-webkit-mask-image:-webkit-radial-gradient(white,black)]",
           "flex flex-col"
@@ -1731,6 +1731,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           willChange: isActive ? 'transform' : 'auto'
         }}
       >
+        {/* Darkening Overlay when dialogs are open */}
+        {(addUnitsDialogOpen || deleteUnitDialogOpen || orderDialogOpen || keinInteresseDialogOpen || potenzialDialogOpen) && (
+          <div 
+            className="absolute inset-0 bg-black/60 z-[10160] rounded-2xl"
+            style={{ pointerEvents: 'none' }}
+          />
+        )}
 
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -2007,14 +2014,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="w-full h-full"
       >
         <div className="relative flex items-center justify-center w-full h-full">
-          {/* Darkening Overlay for dialogs */}
-          {(addUnitsDialogOpen || deleteUnitDialogOpen || orderDialogOpen || keinInteresseDialogOpen || potenzialDialogOpen) && (
-            <div 
-              className="absolute inset-0 bg-black/60 z-[10160]"
-              style={{ pointerEvents: 'none' }}
-            />
-          )}
-          
           {/* Navigation Arrow - Left */}
           {showArrows && (
             <NavigationArrow
