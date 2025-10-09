@@ -1726,7 +1726,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <div className="flex items-center gap-2">
                   <span className="text-sm sm:text-base font-medium">Wohneinheiten</span>
                   <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                    {wohneinheiten}
+                    {visibleUnitsCount}
                   </div>
                 </div>
                 <Button 
