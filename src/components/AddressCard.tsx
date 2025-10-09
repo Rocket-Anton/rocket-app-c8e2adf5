@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, memo } from "react";
 import { Home, Users, ChevronRight } from "lucide-react";
 import { Button } from "./ui/button";
 import { Card } from "./ui/card";
@@ -26,7 +26,7 @@ interface AddressCardProps {
   onUpdateUnitStatus?: (addressId: number, unitId: number, newStatus: string) => void;
 }
 
-export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onModalClose, onOrderCreated, onUpdateUnitStatus }: AddressCardProps) => {
+const AddressCardComponent = ({ address, allAddresses = [], currentIndex = 0, onModalClose, onOrderCreated, onUpdateUnitStatus }: AddressCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
   const [justClosed, setJustClosed] = useState(false);
   const isMobile = useIsMobile();
@@ -111,3 +111,12 @@ export const AddressCard = ({ address, allAddresses = [], currentIndex = 0, onMo
     </>
   );
 };
+
+export const AddressCard = memo(AddressCardComponent, (prev, next) => {
+  return (
+    prev.address.id === next.address.id &&
+    prev.address.wohneinheiten === next.address.wohneinheiten &&
+    prev.address.potentiale === next.address.potentiale &&
+    prev.currentIndex === next.currentIndex
+  );
+});

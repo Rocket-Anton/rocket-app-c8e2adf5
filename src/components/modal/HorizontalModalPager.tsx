@@ -1,5 +1,5 @@
 import useEmblaCarousel from 'embla-carousel-react';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, memo } from 'react';
 
 type Item = { id: number };
 type Props<T extends Item> = {
@@ -9,7 +9,7 @@ type Props<T extends Item> = {
   onIndexChange?: (index: number) => void;
 };
 
-export default function HorizontalModalPager<T extends Item>({
+function HorizontalModalPagerComponent<T extends Item>({
   items,
   startIndex = 0,
   renderCard,
@@ -47,12 +47,14 @@ export default function HorizontalModalPager<T extends Item>({
       style={{
         width: '100vw',
         marginLeft: 'calc(50% - 50vw)',
-        marginRight: 'calc(50% - 50vw)'
+        marginRight: 'calc(50% - 50vw)',
+        willChange: 'transform',
+        contain: 'layout style paint'
       }}
     >
-      <div className="flex h-full will-change-transform">
+      <div className="flex h-full" style={{ willChange: 'transform' }}>
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] h-full">
+          <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout' }}>
             <div className="h-full w-full flex items-start justify-center">
               <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden">
                 {renderCard(it, idx, items.length)}
@@ -64,3 +66,5 @@ export default function HorizontalModalPager<T extends Item>({
     </div>
   );
 }
+
+export default memo(HorizontalModalPagerComponent) as typeof HorizontalModalPagerComponent;
