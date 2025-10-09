@@ -6,6 +6,8 @@ import { AddressCard } from "./AddressCard";
 import SwipeDeck from "./swipe/SwipeDeck";
 import { AIAssistant } from "./AIAssistant";
 import { ProjectSelector } from "./ProjectSelector";
+import { supabase } from "@/integrations/supabase/client";
+import { toast } from "sonner";
 import {
   Select,
   SelectContent,
@@ -50,91 +52,7 @@ import { de } from "date-fns/locale";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
 
-const mockAddresses = [
-  { 
-    id: 1, 
-    street: "Am Alten Turm", 
-    houseNumber: "1", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0810, 50.9206] as [number, number], // Köln-Heumar
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "offen" },
-      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
-    ]
-  },
-  { 
-    id: 2, 
-    street: "Am Alten Turm", 
-    houseNumber: "2", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0812, 50.9206] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Rechts", status: "bestandskunde" },
-      { id: 2, floor: "1. OG", position: "Rechts", status: "termin" },
-    ]
-  },
-  { 
-    id: 3, 
-    street: "Am Alten Turm", 
-    houseNumber: "4", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0814, 50.9207] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "kein-interesse" },
-      { id: 2, floor: "1. OG", position: "Links", status: "nicht-angetroffen" },
-    ]
-  },
-  { 
-    id: 4, 
-    street: "Am Alten Turm", 
-    houseNumber: "5", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0815, 50.9207] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Mitte", status: "offen" },
-    ]
-  },
-  { 
-    id: 5, 
-    street: "Am Alten Turm", 
-    houseNumber: "7", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0816, 50.9207] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "potenzial" },
-      { id: 2, floor: "1. OG", position: "Links", status: "potenzial" },
-      { id: 3, floor: "2. OG", position: "Links", status: "offen" },
-    ]
-  },
-  { 
-    id: 6, 
-    street: "Am Alten Turm", 
-    houseNumber: "9", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0817, 50.9207] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Rechts", status: "gewerbe" },
-    ]
-  },
-  { 
-    id: 7, 
-    street: "Am Alten Turm", 
-    houseNumber: "11", 
-    postalCode: "51107", 
-    city: "Köln",
-    coordinates: [7.0819, 50.9207] as [number, number],
-    units: [
-      { id: 1, floor: "EG", position: "Links", status: "termin" },
-      { id: 2, floor: "1. OG", position: "Links", status: "neukunde" },
-    ]
-  },
-];
+// Removed mock addresses - now loading from database
 
 interface LauflistenContentProps {
   onOrderCreated?: () => void;
@@ -144,8 +62,9 @@ interface LauflistenContentProps {
 }
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
-  // State für Adressen, damit Änderungen persistent sind
-  const [addresses, setAddresses] = useState(mockAddresses);
+  // State für Adressen
+  const [addresses, setAddresses] = useState<any[]>([]);
+  const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
   
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -182,6 +101,52 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
   const isMobile = useIsMobile();
+
+  // Load addresses from database when projects are selected
+  useEffect(() => {
+    const loadAddresses = async () => {
+      // Only load addresses if at least one project is selected
+      if (selectedProjectIds.size === 0) {
+        setAddresses([]);
+        return;
+      }
+
+      setIsLoadingAddresses(true);
+      try {
+        const projectIdsArray = Array.from(selectedProjectIds);
+        
+        const { data: addressesData, error } = await supabase
+          .from("addresses")
+          .select("*")
+          .in("project_id", projectIdsArray)
+          .order("street", { ascending: true })
+          .order("house_number", { ascending: true });
+
+        if (error) throw error;
+
+        // Transform the data to match the expected format
+        const transformedAddresses = (addressesData || []).map((addr: any) => ({
+          id: addr.id,
+          street: addr.street,
+          houseNumber: addr.house_number,
+          postalCode: addr.postal_code,
+          city: addr.city,
+          coordinates: addr.coordinates ? [addr.coordinates.lng, addr.coordinates.lat] : [0, 0],
+          units: addr.units || [],
+          notiz: addr.notiz
+        }));
+
+        setAddresses(transformedAddresses);
+      } catch (error: any) {
+        console.error("Error loading addresses:", error);
+        toast.error("Fehler beim Laden der Adressen");
+      } finally {
+        setIsLoadingAddresses(false);
+      }
+    };
+
+    loadAddresses();
+  }, [selectedProjectIds]);
 
   // Handle modal close and scroll to the address
   const handleModalClose = (finalIndex: number) => {
