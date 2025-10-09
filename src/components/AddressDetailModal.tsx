@@ -1790,7 +1790,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog
           open={open}
           onOpenChange={handleDialogChange}
-          className="flex items-center justify-center"
+          className="w-full h-full flex items-center justify-center"
         >
           {renderCompleteCard(currentAddress, 0, 1)}
         </MotionDialog>
@@ -2001,38 +2001,36 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog
         open={open}
         onOpenChange={handleDialogChange}
-        className="flex items-center justify-center"
+        className="w-full h-full flex items-center justify-center"
       >
-        <div className="relative w-full max-w-lg h-[95vh] md:h-[88vh]">
-          <HorizontalModalPager
-            items={allAddresses}
-            startIndex={initialIndex}
-            renderCard={renderCompleteCard}
-            onIndexChange={(idx) => {
-              setPrevIndex(currentIndex);
-              setCurrentIndex(idx);
-            }}
-            className="bg-transparent shadow-none ring-0"
-            options={emblaOptions}
-            ref={pagerRef}
-          />
-          
-          {/* Navigation Arrows - Desktop only */}
-          {showArrows && (
-            <>
-              <NavigationArrow
-                direction="left"
-                onClick={() => pagerRef.current?.scrollPrev()}
-                disabled={!pagerRef.current?.canScrollPrev()}
-              />
-              <NavigationArrow
-                direction="right"
-                onClick={() => pagerRef.current?.scrollNext()}
-                disabled={!pagerRef.current?.canScrollNext()}
-              />
-            </>
-          )}
-        </div>
+        <HorizontalModalPager
+          items={allAddresses}
+          startIndex={initialIndex}
+          renderCard={renderCompleteCard}
+          onIndexChange={(idx) => {
+            setPrevIndex(currentIndex);
+            setCurrentIndex(idx);
+          }}
+          className="bg-transparent shadow-none ring-0"
+          options={emblaOptions}
+          ref={pagerRef}
+        />
+        
+        {/* Navigation Arrows - Desktop only */}
+        {showArrows && (
+          <>
+            <NavigationArrow
+              direction="left"
+              onClick={() => pagerRef.current?.scrollPrev()}
+              disabled={!pagerRef.current?.canScrollPrev()}
+            />
+            <NavigationArrow
+              direction="right"
+              onClick={() => pagerRef.current?.scrollNext()}
+              disabled={!pagerRef.current?.canScrollNext()}
+            />
+          </>
+        )}
       </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
