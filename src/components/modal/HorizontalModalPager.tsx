@@ -28,7 +28,7 @@ function HorizontalModalPagerInner<T extends Item>({
     containScroll: false,
     dragFree: false,
     skipSnaps: false,
-    duration: 25,
+    duration: 0,
     watchDrag: true,
     startIndex: startIndex,
   });
@@ -39,19 +39,25 @@ function HorizontalModalPagerInner<T extends Item>({
     // Jump directly to startIndex without animation on mount
     const currentSnap = embla.selectedScrollSnap();
     if (startIndex !== currentSnap) {
-      // Temporarily disable transitions, jump to index, then re-enable
+      // Temporarily disable transitions on both container and root, jump to index, then re-enable
       const container = embla.containerNode();
-      const originalTransition = container.style.transition;
+      const root = embla.rootNode();
+      const originalContainerTransition = container.style.transition;
+      const originalRootTransition = root.style.transition;
+      
       container.style.transition = 'none';
+      root.style.transition = 'none';
       
       embla.scrollTo(startIndex, true);
       
       // Force reflow to ensure the transition: none takes effect
       container.getBoundingClientRect();
+      root.getBoundingClientRect();
       
-      // Restore transition after a small delay
+      // Restore transitions after a small delay
       requestAnimationFrame(() => {
-        container.style.transition = originalTransition;
+        container.style.transition = originalContainerTransition;
+        root.style.transition = originalRootTransition;
       });
     }
   }, [embla, startIndex]);
@@ -94,7 +100,7 @@ function HorizontalModalPagerInner<T extends Item>({
         {items.map((it, idx) => (
           <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
             <div className="h-full w-full flex items-center justify-center" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
-              <div className="w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+              <div className="w-[92vw] sm:w-[85vw] md:w-[70vw] lg:w-[500px] max-w-md h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden z-[10000]" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                 {renderCard(it, idx, items.length)}
               </div>
             </div>

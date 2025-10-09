@@ -1258,7 +1258,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     <div className="flex flex-col space-y-3">
                       {/* Controls */}
                       <div className="space-y-3">
-                        {unitCount > 1 && !isNotMarketable ? (
+                        {!isNotMarketable ? (
                           <div className="flex gap-3 min-w-0">
                             <div className="flex-[4] min-w-0 pointer-events-auto">
                               <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
@@ -2758,7 +2758,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 <SelectTrigger className="w-full h-10 rounded-md bg-background border border-border shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
                   <SelectValue placeholder="Grund auswählen" />
                 </SelectTrigger>
-                <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[10090]">
+                <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[10130]">
                   <SelectItem value="Zu alt">Zu alt</SelectItem>
                   <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
                   <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
