@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
-import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
+import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
 import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
@@ -295,6 +295,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const filterDate = mapDisplayDate.toLocaleDateString('de-DE');
     return appointments.filter(apt => apt.date === filterDate);
   }, [appointments, showAllAppointments, mapDisplayDate]);
+
+  // Map date navigation helpers
+  const changeMapDate = useCallback((delta: number) => {
+    const base = mapDisplayDate || appointmentDate || new Date();
+    const next = new Date(base);
+    next.setDate(next.getDate() + delta);
+    setMapDisplayDate(next);
+    setShowAllAppointments(false);
+  }, [mapDisplayDate, appointmentDate]);
+
+  const prevMapDay = useCallback(() => changeMapDate(-1), [changeMapDate]);
+  const nextMapDay = useCallback(() => changeMapDate(1), [changeMapDate]);
 
   // Update currentIndex when embla scrolls
   const onSelect = useCallback(() => {
@@ -2529,7 +2541,25 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
               {/* Map Section */}
               <div className="border-t pt-6 mt-4">
-                <h3 className="font-semibold text-sm mb-3">Karte</h3>
+                <div className="mb-3 flex items-center justify-between gap-2">
+                  <div className="flex items-center gap-2">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMapDay}>
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    <div className="text-sm font-medium">
+                      {showAllAppointments ? "Alle Termine" : (mapDisplayDate ? mapDisplayDate.toLocaleDateString('de-DE') : (appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"))}
+                    </div>
+                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMapDay}>
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Button variant="outline" size="sm" onClick={() => { setMapDisplayDate(new Date()); setShowAllAppointments(false); }}>Heute</Button>
+                    <Button variant="ghost" size="sm" onClick={() => { setShowAllAppointments(!showAllAppointments); if (!showAllAppointments) { setMapDisplayDate(undefined); } else { setMapDisplayDate(appointmentDate || new Date()); } }} className="text-xs h-7">
+                      {showAllAppointments ? "Datum filtern" : "Alle anzeigen"}
+                    </Button>
+                  </div>
+                </div>
                 <div className="h-32 md:h-40 rounded-lg overflow-hidden border border-border">
               <AppointmentMap
                 appointments={appointments.map(apt => ({
