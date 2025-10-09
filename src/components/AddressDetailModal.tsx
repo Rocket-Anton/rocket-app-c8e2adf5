@@ -1731,14 +1731,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           willChange: isActive ? 'transform' : 'auto'
         }}
       >
-        {/* Darkening Overlay when dialogs are open */}
-        {(addUnitsDialogOpen || deleteUnitDialogOpen || orderDialogOpen || keinInteresseDialogOpen || potenzialDialogOpen) && (
-          <div 
-            className="absolute inset-0 bg-black/60 z-[10160] rounded-2xl"
-            style={{ pointerEvents: 'none' }}
-          />
-        )}
-
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
           <DialogClose 
@@ -1917,7 +1909,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Single Address) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2015,7 +2007,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       >
         <div className="relative flex items-center justify-center w-full h-full">
           {/* Navigation Arrow - Left */}
-          {showArrows && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && (
             <NavigationArrow
               direction="left"
               onClick={() => pagerRef.current?.scrollPrev()}
@@ -2038,7 +2030,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           />
 
           {/* Navigation Arrow - Right */}
-          {showArrows && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && (
             <NavigationArrow
               direction="right"
               onClick={() => pagerRef.current?.scrollNext()}
@@ -2219,7 +2211,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Mobile) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
