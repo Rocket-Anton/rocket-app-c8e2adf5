@@ -248,7 +248,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           <ChevronDown className="h-3.5 w-3.5 ml-1" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[280px] p-0 z-[1001] bg-background">
+      <DropdownMenuContent align="end" className="w-[240px] p-0 z-[1001] bg-background">
         <div className="p-2 border-b space-y-2">
           <div className="flex items-center gap-2">
             {/* Search */}
@@ -274,13 +274,13 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-56 p-3 z-[1002]" align="end">
-                <div className="space-y-3">
+              <PopoverContent className="w-48 p-2.5 z-[1002] max-h-[320px] overflow-y-auto" align="end">
+                <div className="space-y-2.5">
                   {/* Status Select */}
-                  <div className="space-y-1.5">
-                    <label className="text-xs font-medium">Status</label>
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-medium">Status</label>
                     <Select value={statusFilter} onValueChange={setStatusFilter}>
-                      <SelectTrigger className="h-8 text-xs">
+                      <SelectTrigger className="h-7 text-xs">
                         <SelectValue placeholder="Status wählen" />
                       </SelectTrigger>
                       <SelectContent className="z-[1003]">
@@ -311,10 +311,10 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
                   {/* Provider Select */}
                   {providers.length > 0 && (
-                    <div className="space-y-1.5">
-                      <label className="text-xs font-medium">Provider</label>
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-medium">Provider</label>
                       <Select value={providerFilter} onValueChange={setProviderFilter}>
-                        <SelectTrigger className="h-8 text-xs">
+                        <SelectTrigger className="h-7 text-xs">
                           <SelectValue placeholder="Provider wählen" />
                         </SelectTrigger>
                         <SelectContent className="z-[1003]">
@@ -344,7 +344,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
                         setStatusFilter("all");
                         setProviderFilter("all");
                       }}
-                      className="w-full h-7 text-xs"
+                      className="w-full h-6 text-[11px]"
                     >
                       Filter zurücksetzen
                     </Button>
@@ -371,7 +371,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           </div>
         </div>
         
-        <ScrollArea className="h-[320px]">
+        <ScrollArea className="max-h-[280px]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Lädt...</div>
