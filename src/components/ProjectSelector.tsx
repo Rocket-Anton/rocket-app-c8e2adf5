@@ -71,10 +71,19 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
   const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [providerFilter, setProviderFilter] = useState<string>("all");
+  // Temporary selection that is only applied when "Anzeigen" is clicked
+  const [tempSelectedIds, setTempSelectedIds] = useState<Set<string>>(new Set(selectedProjectIds));
 
   useEffect(() => {
     fetchProjects();
   }, []);
+
+  // Sync tempSelectedIds with selectedProjectIds when the dropdown opens
+  useEffect(() => {
+    if (open) {
+      setTempSelectedIds(new Set(selectedProjectIds));
+    }
+  }, [open, selectedProjectIds]);
 
   const fetchProjects = async () => {
     try {
@@ -200,17 +209,25 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
   };
 
   const handleProjectToggle = (projectId: string) => {
-    const newSelected = new Set(selectedProjectIds);
+    const newSelected = new Set(tempSelectedIds);
     if (newSelected.has(projectId)) {
       newSelected.delete(projectId);
     } else {
       newSelected.add(projectId);
     }
-    console.log('Project toggle - new selection:', Array.from(newSelected));
-    onProjectsChange(newSelected);
+    console.log('Project toggle - new temp selection:', Array.from(newSelected));
+    setTempSelectedIds(newSelected);
+  };
+
+  const handleShowProjects = () => {
+    console.log('Applying project selection:', Array.from(tempSelectedIds));
+    onProjectsChange(tempSelectedIds);
+    setOpen(false);
+    onShowProjects?.();
   };
 
   const selectedCount = selectedProjectIds.size;
+  const tempSelectedCount = tempSelectedIds.size;
   const displayText = selectedCount === 0 
     ? "Projekte wählen" 
     : selectedCount === 1 
@@ -402,7 +419,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
                   className="w-full flex items-start gap-2 p-1.5 rounded-md hover:bg-muted/50 transition-colors text-left cursor-pointer"
                 >
                   <Checkbox
-                    checked={selectedProjectIds.has(project.id)}
+                    checked={tempSelectedIds.has(project.id)}
                     onCheckedChange={() => handleProjectToggle(project.id)}
                     className="mt-0.5 h-3.5 w-3.5"
                   />
@@ -439,22 +456,19 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
           )}
         </ScrollArea>
 
-        {selectedCount > 0 && (
+        {tempSelectedCount > 0 && (
           <div className="p-2 border-t flex justify-between items-center">
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => onProjectsChange(new Set())}
+              onClick={() => setTempSelectedIds(new Set())}
             >
               Alle abwählen
             </Button>
             <Button
               variant="default"
               size="sm"
-              onClick={() => {
-                setOpen(false);
-                onShowProjects?.();
-              }}
+              onClick={handleShowProjects}
             >
               Anzeigen
             </Button>
