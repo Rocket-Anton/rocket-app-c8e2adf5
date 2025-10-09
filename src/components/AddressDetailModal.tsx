@@ -2404,11 +2404,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       {/* Add Appointment Dialog */}
-      {addAppointmentDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
-      )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[92vw] max-w-lg h-[85vh] p-0 z-[10100] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl" hideOverlay>
+        <DialogContent className="w-[92vw] max-w-lg h-[85vh] p-0 z-[10100] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl">
           <DialogHeader className="px-6 pt-4 pb-2 border-b">
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
