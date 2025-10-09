@@ -2095,85 +2095,219 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
 
-        {/* Add Appointment Dialog */}
+        {/* Add Appointment Dialog - Full Featured with Map */}
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10300]" onClick={(e) => e.stopPropagation()}>
-            <DialogHeader>
+          <DialogContent className="z-[10300] max-h-[90vh] max-w-2xl w-[95vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+            <DialogHeader className="flex-shrink-0">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Datum *</label>
-                <input
-                  type="date"
-                  value={appointmentDate ? appointmentDate.toISOString().split('T')[0] : ''}
-                  onChange={(e) => setAppointmentDate(e.target.value ? new Date(e.target.value) : undefined)}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+            
+            {/* Scrollbarer Content-Bereich */}
+            <div className="overflow-y-auto flex-1">
+              {/* Karten-Section */}
+              <div className="h-[300px] rounded-lg overflow-hidden mb-4">
+                <AppointmentMap
+                  appointments={displayedAppointments}
+                  selectedDate={mapDisplayDate}
+                  currentAddress={mapCurrentAddress}
+                  selectedAppointmentId={selectedAppointmentId}
                 />
               </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Uhrzeit *</label>
-                <input
-                  type="time"
-                  value={appointmentTime}
-                  onChange={(e) => setAppointmentTime(e.target.value)}
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                />
+              
+              {/* Datum-Navigation Controls */}
+              <div className="flex items-center justify-between gap-2 mb-4 p-3 bg-muted/50 rounded-lg">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={prevMapDay}
+                  disabled={showAllAppointments}
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <div className="text-sm font-medium">
+                  {showAllAppointments 
+                    ? 'Alle Termine' 
+                    : mapDisplayDate?.toLocaleDateString('de-DE', { 
+                        weekday: 'short', 
+                        day: '2-digit', 
+                        month: '2-digit' 
+                      })
+                  }
+                </div>
+                
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={nextMapDay}
+                  disabled={showAllAppointments}
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant={showAllAppointments ? "default" : "outline"}
+                  size="sm"
+                  onClick={() => {
+                    setShowAllAppointments(true);
+                    setMapDisplayDate(undefined);
+                  }}
+                >
+                  Alle anzeigen
+                </Button>
               </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Dauer (Minuten)</label>
-                <input
-                  type="number"
-                  value={appointmentDuration}
-                  onChange={(e) => setAppointmentDuration(e.target.value)}
-                  placeholder="30"
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Kunde</label>
-                <input
-                  type="text"
-                  value={appointmentCustomer}
-                  onChange={(e) => setAppointmentCustomer(e.target.value)}
-                  placeholder="Name eingeben"
-                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                />
-              </div>
-              <div>
-                <label className="text-sm font-medium mb-1.5 block">Notizen</label>
-                <Textarea
-                  value={appointmentNotes}
-                  onChange={(e) => setAppointmentNotes(e.target.value)}
-                  placeholder="Notizen zum Termin..."
-                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
+              
+              {/* Formular-Felder */}
+              <div className="space-y-4">
+                {/* Datum mit Calendar Picker */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Datum *</label>
+                  <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
+                    <PopoverTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full justify-start text-left font-normal"
+                      >
+                        <CalendarIcon className="mr-2 h-4 w-4" />
+                        {appointmentDate 
+                          ? appointmentDate.toLocaleDateString('de-DE') 
+                          : "Datum wählen"
+                        }
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 z-[10400]" align="start">
+                      <Calendar
+                        mode="single"
+                        selected={appointmentDate}
+                        onSelect={(date) => {
+                          setAppointmentDate(date);
+                          setMapDisplayDate(date);
+                          setShowAllAppointments(false);
+                          setDatePopoverOpen(false);
+                        }}
+                        initialFocus
+                        className="pointer-events-auto"
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+                
+                {/* Zeit mit Stunden/Minuten Dropdowns */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Uhrzeit *</label>
+                  <div className="flex gap-2 items-center">
+                    <Select 
+                      value={appointmentHour} 
+                      onValueChange={(v) => {
+                        setAppointmentHour(v);
+                        if (appointmentMinute) {
+                          setAppointmentTime(`${v}:${appointmentMinute}`);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Std" />
+                      </SelectTrigger>
+                      <SelectContent className="z-[10400]">
+                        {Array.from({ length: 17 }, (_, i) => i + 6).map(h => (
+                          <SelectItem key={h} value={h.toString().padStart(2, '0')}>
+                            {h.toString().padStart(2, '0')}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    
+                    <span className="text-2xl">:</span>
+                    
+                    <Select 
+                      value={appointmentMinute} 
+                      onValueChange={(v) => {
+                        setAppointmentMinute(v);
+                        if (appointmentHour) {
+                          setAppointmentTime(`${appointmentHour}:${v}`);
+                        }
+                      }}
+                    >
+                      <SelectTrigger className="flex-1">
+                        <SelectValue placeholder="Min" />
+                      </SelectTrigger>
+                      <SelectContent className="z-[10400]">
+                        {['00', '15', '30', '45'].map(m => (
+                          <SelectItem key={m} value={m}>{m}</SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+                
+                {/* Dauer Dropdown */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Dauer</label>
+                  <Select 
+                    value={appointmentDuration} 
+                    onValueChange={setAppointmentDuration}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="30 Minuten" />
+                    </SelectTrigger>
+                    <SelectContent className="z-[10400]">
+                      <SelectItem value="15">15 Minuten</SelectItem>
+                      <SelectItem value="30">30 Minuten</SelectItem>
+                      <SelectItem value="45">45 Minuten</SelectItem>
+                      <SelectItem value="60">60 Minuten</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                {/* Kunde */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Kunde</label>
+                  <Input
+                    value={appointmentCustomer}
+                    onChange={(e) => setAppointmentCustomer(e.target.value)}
+                    placeholder="Name eingeben"
+                  />
+                </div>
+                
+                {/* Notizen */}
+                <div>
+                  <label className="text-sm font-medium mb-1.5 block">Notizen</label>
+                  <Textarea
+                    value={appointmentNotes}
+                    onChange={(e) => setAppointmentNotes(e.target.value)}
+                    placeholder="Notizen zum Termin..."
+                    className="min-h-[80px] resize-none"
+                  />
+                </div>
               </div>
             </div>
-            <div className="flex gap-3 mt-4">
+            
+            {/* Footer mit Buttons - fixed */}
+            <DialogFooter className="flex-shrink-0 mt-4">
               <Button
                 variant="outline"
                 onClick={() => {
                   setAddAppointmentDialogOpen(false);
                   setAppointmentDate(undefined);
                   setAppointmentTime('');
+                  setAppointmentHour('');
+                  setAppointmentMinute('');
                   setAppointmentDuration('');
                   setAppointmentCustomer('');
                   setAppointmentNotes('');
                   setPendingAppointmentUnitId(null);
                 }}
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
               >
                 Abbrechen
               </Button>
               <Button
                 onClick={saveAppointment}
                 disabled={!appointmentDate || !appointmentTime}
-                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium disabled:opacity-50"
+                className="bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)]"
               >
                 Bestätigen
               </Button>
-            </div>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
 
@@ -2374,6 +2508,104 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 Bestätigen
               </Button>
             </div>
+          </DialogContent>
+        </Dialog>
+
+        {/* Kein Interesse Dialog */}
+        <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
+          <AlertDialogContent className="z-[10300] w-[90vw] max-w-md">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
+              <AlertDialogDescription>
+                Bitte wählen Sie einen Grund aus, warum kein Interesse besteht.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="space-y-4">
+              <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Grund auswählen" />
+                </SelectTrigger>
+                <SelectContent className="z-[10400]">
+                  <SelectItem value="Bereits Kunde">Bereits Kunde</SelectItem>
+                  <SelectItem value="Kein Bedarf">Kein Bedarf</SelectItem>
+                  <SelectItem value="Zu teuer">Zu teuer</SelectItem>
+                  <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
+                </SelectContent>
+              </Select>
+              
+              {keinInteresseReason === "Anderer Grund" && (
+                <Textarea
+                  value={keinInteresseCustomText}
+                  onChange={(e) => setKeinInteresseCustomText(e.target.value)}
+                  placeholder="Bitte Grund eingeben..."
+                  className="min-h-[80px] resize-none"
+                />
+              )}
+            </div>
+            <AlertDialogFooter>
+              <AlertDialogCancel onClick={() => {
+                setKeinInteresseReason("");
+                setKeinInteresseCustomText("");
+              }}>
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmKeinInteresse}
+                disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
+                className="bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white"
+              >
+                Bestätigen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+
+        {/* Potenzial Bewertung Dialog */}
+        <Dialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
+          <DialogContent className="z-[10300] w-[90vw] max-w-md" onClick={(e) => e.stopPropagation()}>
+            <DialogHeader>
+              <DialogTitle>Potenzial Bewertung</DialogTitle>
+              <DialogDescription>
+                Wie bewerten Sie das Potenzial dieser Einheit? (1-5 Sterne)
+              </DialogDescription>
+            </DialogHeader>
+            <div className="flex justify-center gap-2 py-6">
+              {[1, 2, 3, 4, 5].map((star) => (
+                <button
+                  key={star}
+                  type="button"
+                  onMouseEnter={() => setPotenzialHoverRating(star)}
+                  onMouseLeave={() => setPotenzialHoverRating(0)}
+                  onClick={() => setPotenzialRating(star)}
+                  className="transition-transform hover:scale-110 focus:outline-none"
+                >
+                  <Star
+                    className="h-10 w-10 transition-colors"
+                    fill={(potenzialHoverRating || potenzialRating) >= star ? "#FCD34D" : "none"}
+                    stroke={(potenzialHoverRating || potenzialRating) >= star ? "#FCD34D" : "currentColor"}
+                  />
+                </button>
+              ))}
+            </div>
+            <DialogFooter>
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setPotenzialDialogOpen(false);
+                  setPotenzialRating(0);
+                  setPotenzialHoverRating(0);
+                }}
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={confirmPotenzialRating}
+                disabled={!potenzialRating}
+                className="bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white"
+              >
+                Bestätigen
+              </Button>
+            </DialogFooter>
           </DialogContent>
         </Dialog>
       </>
