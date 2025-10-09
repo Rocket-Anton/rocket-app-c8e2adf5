@@ -2061,14 +2061,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
         )}
         <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-          <DialogContent className="w-[92vw] max-w-4xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[92vw] max-w-2xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="grid md:grid-cols-2 gap-6 mt-4 overflow-hidden h-full">
-              {/* Left Column - Form */}
-              <div className="space-y-4 overflow-y-auto pr-2 max-h-[calc(85vh-8rem)]">
+            <div className="mt-4 overflow-y-auto max-h-[calc(85vh-8rem)] pr-2">
+              <div className="space-y-4">
                 <div>
                   <label className="text-sm font-medium mb-2 block">Datum *</label>
                   <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
@@ -2221,9 +2220,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </div>
               </div>
 
-              {/* Right Column - Map and Appointments */}
-              <div className="flex flex-col gap-4 overflow-hidden max-h-[calc(85vh-8rem)]">
-              <div className="h-64 rounded-lg overflow-hidden border border-border">
+              {/* Map Section */}
+              <div className="border-t pt-6 mt-4">
+                <h3 className="font-semibold text-sm mb-3">Karte</h3>
+                <div className="h-64 rounded-lg overflow-hidden border border-border">
                 <AppointmentMap
                   appointments={appointments.map(apt => ({
                     id: apt.id,
@@ -2239,8 +2239,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 />
               </div>
 
-                <div className="flex-1 overflow-y-auto">
-                  <div className="flex items-center justify-between mb-3">
+              {/* Termine Liste */}
+              <div className="border-t pt-6 mt-4">
+                <div className="flex items-center justify-between mb-3">
                     <h3 className="font-semibold text-sm">Termine Liste</h3>
                     <Button
                       variant="ghost"
@@ -2623,14 +2624,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddAppointmentDialogOpen(false)} />
       )}
       <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[92vw] max-w-4xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
+        <DialogContent className="w-[92vw] max-w-2xl rounded-2xl max-h-[85vh] py-4 z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Termin hinzufügen</DialogTitle>
           </DialogHeader>
           
-          <div className="grid md:grid-cols-2 gap-6 mt-4 overflow-hidden h-full">
-            {/* Left Column - Form */}
-            <div className="space-y-4 overflow-y-auto pr-2 max-h-[calc(85vh-8rem)]">
+          <div className="mt-4 overflow-y-auto max-h-[calc(85vh-8rem)] pr-2">
+            <div className="space-y-4">
               <div>
                 <label className="text-sm font-medium mb-2 block">Datum *</label>
                 <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
@@ -2783,9 +2783,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
 
-            {/* Right Column - Map and Appointments */}
-            <div className="flex flex-col gap-4 overflow-hidden max-h-[calc(85vh-8rem)]">
-            <div className="h-64 rounded-lg overflow-hidden border border-border">
+            {/* Map Section */}
+            <div className="border-t pt-6 mt-4">
+              <h3 className="font-semibold text-sm mb-3">Karte</h3>
+              <div className="h-64 rounded-lg overflow-hidden border border-border">
               <AppointmentMap
                 appointments={appointments.map(apt => ({
                   id: apt.id,
@@ -2801,8 +2802,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               />
             </div>
 
-              <div className="flex-1 overflow-y-auto">
-                <div className="flex items-center justify-between mb-3">
+            {/* Termine Liste */}
+            <div className="border-t pt-6 mt-4">
+              <div className="flex items-center justify-between mb-3">
                   <h3 className="font-semibold text-sm">Termine Liste</h3>
                   <Button
                     variant="ghost"
