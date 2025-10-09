@@ -139,9 +139,11 @@ const mockAddresses = [
 interface LauflistenContentProps {
   onOrderCreated?: () => void;
   orderCount?: number;
+  selectedProjectIds?: Set<string>;
+  onProjectsChange?: (ids: Set<string>) => void;
 }
 
-export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: LauflistenContentProps) => {
+export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
   // State für Adressen, damit Änderungen persistent sind
   const [addresses, setAddresses] = useState(mockAddresses);
   
@@ -571,8 +573,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                     Projekte
                   </div>
                   <ProjectSelector
-                    selectedProjectIds={new Set()}
-                    onProjectsChange={() => {}}
+                    selectedProjectIds={selectedProjectIds}
+                    onProjectsChange={onProjectsChange || (() => {})}
                   />
                 </div>
                 
@@ -636,8 +638,16 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
             </SheetContent>
           </Sheet>
         </div>
-        <div className={`pt-4 pb-0 ${isMobile ? 'px-4' : 'px-4'}`}>
+        <div className={`pt-4 pb-0 ${isMobile ? 'px-4' : 'px-4'} flex items-center justify-between gap-4`}>
           <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
+          {!isMobile && onProjectsChange && (
+            <div className="flex-shrink-0">
+              <ProjectSelector
+                selectedProjectIds={selectedProjectIds}
+                onProjectsChange={onProjectsChange}
+              />
+            </div>
+          )}
         </div>
 
         {/* Metrics Dashboard */}

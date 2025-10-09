@@ -10,6 +10,7 @@ import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { ProjectSelector } from "@/components/ProjectSelector";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 import { AddressDetailModal } from "@/components/AddressDetailModal";
 import { useIsMobile } from "@/hooks/use-mobile";
@@ -69,6 +70,7 @@ const statusColorMap: Record<string, string> = {
 
 function KarteContent() {
   const { state: sidebarState } = useSidebar();
+  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const navigate = useNavigate();
@@ -90,7 +92,6 @@ function KarteContent() {
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(true);
   const [selectedListIds, setSelectedListIds] = useState<Set<string>>(new Set());
   const [listAddressIds, setListAddressIds] = useState<Set<number>>(new Set());
-  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
   const [shouldZoomToProjects, setShouldZoomToProjects] = useState(false);
   const [selectedAddress, setSelectedAddress] = useState<Address | null>(null);
   const [showAddressModal, setShowAddressModal] = useState(false);

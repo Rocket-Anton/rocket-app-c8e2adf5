@@ -1,10 +1,12 @@
 import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { LauflistenContent } from "./LauflistenContent";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 import { useState, useEffect } from "react";
 
 export const Dashboard = () => {
+  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
   const [todayOrderCount, setTodayOrderCount] = useState(() => {
     // Initialisiere aus localStorage
     const today = new Date().toDateString();
@@ -17,8 +19,6 @@ export const Dashboard = () => {
     }
     return 0;
   });
-
-  const [selectedProjectIds, setSelectedProjectIds] = useState<Set<string>>(new Set());
 
   // Save to localStorage whenever count changes
   useEffect(() => {
@@ -52,6 +52,8 @@ export const Dashboard = () => {
             <LauflistenContent 
               onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} 
               orderCount={todayOrderCount}
+              selectedProjectIds={selectedProjectIds}
+              onProjectsChange={setSelectedProjectIds}
             />
           </div>
         </SidebarInset>
