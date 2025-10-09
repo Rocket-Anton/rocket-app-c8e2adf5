@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
+import { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from "react";
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
@@ -326,71 +326,71 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       </PopoverContent>
     );
   };
-  // Filter addresses based on all criteria
-  const filteredAddresses = addresses.filter(address => {
-    // Search term filter
-    const searchLower = searchTerm.toLowerCase();
-    const matchesSearch = searchTerm === "" || (
-      address.street.toLowerCase().includes(searchLower) ||
-      address.houseNumber.includes(searchTerm) ||
-      address.postalCode.includes(searchTerm) ||
-      address.city.toLowerCase().includes(searchLower)
-    );
+  // Filter addresses based on all criteria and memoize for performance
+  const displayedAddresses = useMemo(() => {
+    return addresses.filter(address => {
+      // Search term filter
+      const searchLower = searchTerm.toLowerCase();
+      const matchesSearch = searchTerm === "" || (
+        address.street.toLowerCase().includes(searchLower) ||
+        address.houseNumber.includes(searchTerm) ||
+        address.postalCode.includes(searchTerm) ||
+        address.city.toLowerCase().includes(searchLower)
+      );
 
-    // Status filter - only show addresses that have units with selected statuses
-    const matchesStatus = statusFilter.length === 0 || 
-      address.units.some(unit => statusFilter.includes(unit.status));
-    
-    const matchesStreet = streetFilter === "" || address.street === streetFilter;
-    const matchesCity = cityFilter === "" || address.city === cityFilter;
-    const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
-    const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
-    
-    // Sortierung: gerade/ungerade Hausnummern
-    const houseNumberInt = parseInt(address.houseNumber, 10);
-    const matchesSortierung = sortierung === "alle" || 
-      (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
-      (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
-    
-    // Date filter - check if address was last qualified before/after the selected date
-    let matchesLastModified = true;
-    if (lastModifiedDate) {
-      // For mock data, we'll use a random date for each address
-      // In production, this would come from the actual lastModified field
-      const mockLastModified = new Date(2025, 9, 1 + (address.id % 30)); // Mock dates in October
+      // Status filter - only show addresses that have units with selected statuses
+      const matchesStatus = statusFilter.length === 0 || 
+        address.units.some(unit => statusFilter.includes(unit.status));
       
-      if (dateFilterMode === "vor") {
-        // Show addresses last modified BEFORE this date
-        matchesLastModified = mockLastModified < lastModifiedDate;
-      } else {
-        // Show addresses last modified AFTER this date
-        matchesLastModified = mockLastModified >= lastModifiedDate;
+      const matchesStreet = streetFilter === "" || address.street === streetFilter;
+      const matchesCity = cityFilter === "" || address.city === cityFilter;
+      const matchesPostalCode = postalCodeFilter === "" || address.postalCode === postalCodeFilter;
+      const matchesHouseNumber = houseNumberFilter === "" || houseNumberFilter === "alle" || address.houseNumber === houseNumberFilter;
+      
+      // Sortierung: gerade/ungerade Hausnummern
+      const houseNumberInt = parseInt(address.houseNumber, 10);
+      const matchesSortierung = sortierung === "alle" || 
+        (sortierung === "gerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 0) ||
+        (sortierung === "ungerade" && !isNaN(houseNumberInt) && houseNumberInt % 2 === 1);
+      
+      // Date filter - check if address was last qualified before/after the selected date
+      let matchesLastModified = true;
+      if (lastModifiedDate) {
+        // For mock data, we'll use a random date for each address
+        // In production, this would come from the actual lastModified field
+        const mockLastModified = new Date(2025, 9, 1 + (address.id % 30)); // Mock dates in October
+        
+        if (dateFilterMode === "vor") {
+          // Show addresses last modified BEFORE this date
+          matchesLastModified = mockLastModified < lastModifiedDate;
+        } else {
+          // Show addresses last modified AFTER this date
+          matchesLastModified = mockLastModified >= lastModifiedDate;
+        }
       }
-    }
 
-    return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
-  }).map(address => {
-    // Calculate wohneinheiten and potentiale based on filtered units
-    const filteredUnits = statusFilter.length === 0 
-      ? address.units 
-      : address.units.filter(unit => statusFilter.includes(unit.status));
-    
-    const wohneinheiten = filteredUnits.length;
-    
-    // Potenziale sind: offen, potenzial, termin
-    const potentiale = filteredUnits.filter(unit => 
-      ['offen', 'potenzial', 'termin'].includes(unit.status)
-    ).length;
-    
-    return {
-      ...address,
-      wohneinheiten,
-      potentiale,
-      filteredUnits // Pass filtered units to modal
-    };
-  });
-
-  const displayedAddresses = filteredAddresses;
+      return matchesSearch && matchesStatus && matchesStreet && matchesCity && matchesPostalCode && matchesHouseNumber && matchesSortierung && matchesLastModified;
+    }).map(address => {
+      // Calculate wohneinheiten and potentiale based on filtered units
+      const filteredUnits = statusFilter.length === 0 
+        ? address.units 
+        : address.units.filter(unit => statusFilter.includes(unit.status));
+      
+      const wohneinheiten = filteredUnits.length;
+      
+      // Potenziale sind: offen, potenzial, termin
+      const potentiale = filteredUnits.filter(unit => 
+        ['offen', 'potenzial', 'termin'].includes(unit.status)
+      ).length;
+      
+      return {
+        ...address,
+        wohneinheiten,
+        potentiale,
+        filteredUnits // Pass filtered units to modal
+      };
+    });
+  }, [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
 
   // Virtual scrolling for performance - only render visible items
   const rowVirtualizer = useVirtualizer({
@@ -842,8 +842,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   {searchOpen && searchTerm.length > 0 && (
                     <div className="absolute top-full left-0 right-0 mt-1 bg-background border border-border rounded-md shadow-lg z-50">
                       <div className="max-h-60 overflow-y-auto" style={{ overscrollBehavior: 'none' }}>
-                        {filteredAddresses.length > 0 ? (
-                          filteredAddresses.slice(0, 5).map((address) => (
+                        {displayedAddresses.length > 0 ? (
+                          displayedAddresses.slice(0, 5).map((address) => (
                             <div
                               key={address.id}
                               className="p-3 hover:bg-muted cursor-pointer border-b last:border-b-0"
