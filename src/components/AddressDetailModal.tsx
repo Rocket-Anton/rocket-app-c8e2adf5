@@ -1974,19 +1974,21 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
       <div 
         ref={modalContentRef}
-        className="relative w-full h-full bg-transparent overflow-visible"
+        className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-            <HorizontalModalPager
-              items={allAddresses}
-              startIndex={initialIndex}
-              renderCard={renderCompleteCard}
-              onIndexChange={(idx) => {
-                setCurrentIndex(idx);
-              }}
-              className="bg-transparent shadow-none ring-0"
-            />
-          </div>
+        <div className="w-full max-w-2xl h-full">
+          <HorizontalModalPager
+            items={allAddresses}
+            startIndex={initialIndex}
+            renderCard={renderCompleteCard}
+            onIndexChange={(idx) => {
+              setCurrentIndex(idx);
+            }}
+            className="bg-transparent shadow-none ring-0"
+          />
+        </div>
+      </div>
         </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
@@ -2254,34 +2256,36 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       <MotionDialog open={open} onOpenChange={handleDialogChange}>
       <div 
         ref={modalContentRef}
-        className="relative w-full h-full bg-transparent overflow-visible"
+        className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-            <HorizontalModalPager
-              ref={pagerRef}
-              items={allAddresses}
-              startIndex={initialIndex}
-              renderCard={renderCompleteCard}
-              onIndexChange={(idx) => setCurrentIndex(idx)}
-              className="bg-transparent shadow-none ring-0"
-            />
-            
-            {/* Desktop Navigation Arrows */}
-            {allAddresses.length > 1 && (
-              <>
-                <NavigationArrow
-                  direction="left"
-                  onClick={() => pagerRef.current?.scrollPrev()}
-                  disabled={currentIndex === 0}
-                />
-                <NavigationArrow
-                  direction="right"
-                  onClick={() => pagerRef.current?.scrollNext()}
-                  disabled={currentIndex === allAddresses.length - 1}
-                />
-              </>
-            )}
-          </div>
+        <div className="relative w-full max-w-2xl h-full">
+          <HorizontalModalPager
+            ref={pagerRef}
+            items={allAddresses}
+            startIndex={initialIndex}
+            renderCard={renderCompleteCard}
+            onIndexChange={(idx) => setCurrentIndex(idx)}
+            className="bg-transparent shadow-none ring-0"
+          />
+          
+          {/* Desktop Navigation Arrows */}
+          {allAddresses.length > 1 && (
+            <>
+              <NavigationArrow
+                direction="left"
+                onClick={() => pagerRef.current?.scrollPrev()}
+                disabled={currentIndex === 0}
+              />
+              <NavigationArrow
+                direction="right"
+                onClick={() => pagerRef.current?.scrollNext()}
+                disabled={currentIndex === allAddresses.length - 1}
+              />
+            </>
+          )}
+        </div>
+      </div>
       </MotionDialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
