@@ -1667,7 +1667,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       const val = parseInt(e.target.value) || 1;
                       setAddUnitsCount(Math.min(3, Math.max(1, val)));
                     }}
-                    className="text-center text-xl font-semibold h-12"
+                    className="text-center text-xl font-semibold h-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <Button
@@ -2012,7 +2012,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         const val = parseInt(e.target.value) || 1;
                         setAddUnitsCount(Math.min(3, Math.max(1, val)));
                       }}
-                      className="text-center text-xl font-semibold h-12"
+                      className="text-center text-xl font-semibold h-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                     />
                   </div>
                   <Button
@@ -2583,7 +2583,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       const val = parseInt(e.target.value) || 1;
                       setAddUnitsCount(Math.min(3, Math.max(1, val)));
                     }}
-                    className="text-center text-xl font-semibold h-12"
+                    className="text-center text-xl font-semibold h-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
                   />
                 </div>
                 <Button
