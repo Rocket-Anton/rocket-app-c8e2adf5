@@ -5,6 +5,7 @@ import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager, { HorizontalModalPagerHandle } from "./modal/HorizontalModalPager";
+import { MotionDialog } from "./modal/MotionDialog";
 import confetti from 'canvas-confetti';
 import { supabase } from "@/integrations/supabase/client";
 import { orderFormSchema, noteSchema, customerNameSchema } from "@/utils/validation";
@@ -1580,16 +1581,19 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   if (allAddresses.length <= 1) {
     return (
       <>
-        <Dialog open={open} onOpenChange={handleDialogChange}>
-          <DialogContent ref={modalContentRef} hideClose className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] p-0 overflow-hidden max-h-[90vh] rounded-xl z-[10060] flex flex-col min-h-0 bg-background">
-            <DialogHeader className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
-              <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
+        <MotionDialog open={open} onOpenChange={handleDialogChange}>
+          <div ref={modalContentRef} className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] p-0 overflow-hidden max-h-[90vh] flex flex-col min-h-0 bg-background">
+            <div className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
+              <button
+                onClick={() => handleDialogChange(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
+              >
                 <X className="h-4 w-4" />
                 <span className="sr-only">Close</span>
-              </DialogClose>
-              <DialogTitle className="text-lg sm:text-xl font-semibold">
+              </button>
+              <h2 className="text-lg sm:text-xl font-semibold">
                 {currentAddress?.street || ''} {currentAddress?.houseNumber || ''}
-              </DialogTitle>
+              </h2>
               <p className="text-sm text-muted-foreground">
                 {currentAddress?.postalCode || ''} {currentAddress?.city || ''}
               </p>
@@ -1615,13 +1619,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   Hinzufügen
                 </Button>
               </div>
-            </DialogHeader>
+            </div>
 
             <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
               {renderAddressContent(currentAddress)}
             </div>
-          </DialogContent>
-        </Dialog>
+          </div>
+        </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
@@ -1887,11 +1891,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
     return (
       <>
-        <Dialog open={open} onOpenChange={handleDialogChange}>
-          <DialogContent 
+        <MotionDialog open={open} onOpenChange={handleDialogChange}>
+          <div 
             ref={modalContentRef}
-            hideClose 
-            className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060]"
+            className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh]"
           >
             <HorizontalModalPager
               items={allAddresses}
@@ -1901,8 +1904,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 setCurrentIndex(idx);
               }}
             />
-          </DialogContent>
-        </Dialog>
+          </div>
+        </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
@@ -2178,11 +2181,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Desktop: Use HorizontalModalPager like mobile
   return (
     <>
-      <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent 
+      <MotionDialog open={open} onOpenChange={handleDialogChange}>
+        <div 
           ref={modalContentRef}
-          hideClose 
-          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060] flex items-center justify-center"
+          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] flex items-center justify-center"
         >
           <div className="relative w-full max-w-md h-full">
             <HorizontalModalPager
@@ -2222,8 +2224,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </>
             )}
           </div>
-        </DialogContent>
-      </Dialog>
+        </div>
+      </MotionDialog>
 
       <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
         <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
