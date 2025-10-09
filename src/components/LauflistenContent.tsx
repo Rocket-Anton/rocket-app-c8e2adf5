@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback, useMemo } from "react";
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -390,7 +391,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     });
   }, [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
 
-  // Load units for addresses when they become visible using Intersection Observer
+  // Virtual scrolling for performance
+  const parentRef = useRef<HTMLDivElement>(null);
+  
+  const rowVirtualizer = useVirtualizer({
+    count: displayedAddresses.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 280,
+    overscan: 5,
+  });
+
+  // Load units for visible addresses using Intersection Observer
   useEffect(() => {
     const observer = new IntersectionObserver(
       (entries) => {
@@ -423,10 +434,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           }
         });
       },
-      { rootMargin: '100px' } // Load units 100px before they enter viewport
+      { rootMargin: '200px' }
     );
 
-    // Observe all address cards
     addressCardRefs.current.forEach(ref => {
       if (ref) observer.observe(ref);
     });
@@ -2054,30 +2064,53 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               />
             </div>
           ) : (
-            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
-              <div className="space-y-4">
-                {displayedAddresses.map((address, index) => (
-                  <div 
-                    key={address.id} 
-                    ref={(el) => addressCardRefs.current[index] = el}
-                    data-address-id={address.id}
-                  >
-                    <AddressCard 
-                      address={address}
-                      allAddresses={displayedAddresses}
-                      currentIndex={index}
-                      onModalClose={handleModalClose}
-                      onOrderCreated={() => {
-                        onOrderCreated?.();
-                        // Trigger Rokki celebration
-                        if ((window as any).rokkiOrderCreatedHandler) {
-                          (window as any).rokkiOrderCreatedHandler();
-                        }
+            <div 
+              ref={parentRef}
+              className={`pb-20 ${isMobile ? 'px-4' : 'px-6'} overflow-auto`}
+              style={{ height: '100%', width: '100%' }}
+            >
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: '100%',
+                  position: 'relative',
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const address = displayedAddresses[virtualRow.index];
+                  return (
+                    <div
+                      key={address.id}
+                      data-index={virtualRow.index}
+                      data-address-id={address.id}
+                      ref={(el) => {
+                        addressCardRefs.current[virtualRow.index] = el;
                       }}
-                      onUpdateUnitStatus={updateUnitStatus}
-                    />
-                  </div>
-                ))}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                      className="mb-2"
+                    >
+                      <AddressCard 
+                        address={address}
+                        allAddresses={displayedAddresses}
+                        currentIndex={virtualRow.index}
+                        onModalClose={handleModalClose}
+                        onOrderCreated={() => {
+                          onOrderCreated?.();
+                          if ((window as any).rokkiOrderCreatedHandler) {
+                            (window as any).rokkiOrderCreatedHandler();
+                          }
+                        }}
+                        onUpdateUnitStatus={updateUnitStatus}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
