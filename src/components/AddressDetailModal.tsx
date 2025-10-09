@@ -1309,11 +1309,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 <PopoverTrigger asChild>
                                   <Button 
                                     variant="outline" 
-                                    className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative pl-3 pr-1.5"
+                                    className="w-full h-9 sm:h-10 border border-border rounded-md shadow-none bg-background justify-between text-sm font-normal relative pl-3 pr-2"
                                     disabled={isNotMarketable}
                                   >
                                     <span>Historie</span>
-                                    <ChevronDown className="h-4 w-4 opacity-50" />
+                                    <ChevronDown className="h-4 w-4 opacity-50 -mr-1" />
                                     {statusHistories[`${addr.id}:${unit.id}`] && statusHistories[`${addr.id}:${unit.id}`].length > 0 && (
                                       <span className="absolute -top-1 -right-1 bg-green-500 text-white text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                                         {statusHistories[`${addr.id}:${unit.id}`].length}
