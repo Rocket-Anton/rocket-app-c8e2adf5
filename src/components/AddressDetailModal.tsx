@@ -933,6 +933,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   // Handle opening order dialog
   const handleOpenOrderDialog = (addressId: number, unitId: number) => {
+    console.log('handleOpenOrderDialog called', { addressId, unitId });
     setOrderAddressId(addressId);
     setOrderUnitId(unitId);
     setOrderForm({
@@ -941,6 +942,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       tarif: '',
       zusaetze: []
     });
+    console.log('Setting orderDialogOpen to true');
     setOrderDialogOpen(true);
   };
 
@@ -1817,7 +1819,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Single Address) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2424,7 +2426,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Mobile) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -3026,7 +3028,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       
       {/* Order Creation Dialog */}
       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
           <DialogHeader>
             <DialogTitle>Auftrag anlegen</DialogTitle>
           </DialogHeader>
