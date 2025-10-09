@@ -1233,7 +1233,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       <div className="space-y-3">
                         {unitCount > 1 && !isNotMarketable ? (
                           <div className="flex gap-3 min-w-0">
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-[3] min-w-0">
                               <Select defaultValue={unit.floor || undefined} disabled={isNotMarketable}>
                                 <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                                   <SelectValue placeholder="Stockwerk" />
@@ -1252,7 +1252,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               </Select>
                             </div>
 
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-[2] min-w-0">
                               <Select defaultValue={unit.position || undefined} disabled={isNotMarketable}>
                                 <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none">
                                   <SelectValue placeholder="Lage" />
@@ -1269,7 +1269,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
                         <div>
                           <div className="flex gap-3 min-w-0">
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-[3] min-w-0">
                               <Select 
                                 value={unitStatuses[`${addr.id}:${unit.id}`] || "offen"}
                                 onValueChange={(value) => handleStatusChange(addr.id, unit.id, value)}
@@ -1304,7 +1304,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                               </Select>
                             </div>
 
-                            <div className="flex-1 min-w-0">
+                            <div className="flex-[2] min-w-0">
                               <Popover key={`popover-${unit.id}-${popoverKey}`}>
                                 <PopoverTrigger asChild>
                                   <Button 
@@ -1674,7 +1674,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   variant="ghost" 
                   size="sm" 
                   className="text-blue-600 text-xs sm:text-sm gap-1 border-0"
-                  onClick={() => handleAddUnitsClick(currentAddress?.id)}
+                  onClick={() => {
+                    if (currentAddress?.id) {
+                      handleAddUnitsClick(currentAddress.id);
+                    }
+                  }}
                 >
                   <Plus className="w-4 h-4" />
                   Hinzufügen
