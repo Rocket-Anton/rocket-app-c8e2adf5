@@ -487,8 +487,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
             isMobile ? "h-[calc(60vh-160px)]" : "h-[calc(100vh-160px)]"
           )}>
           {loading ? (
-            <div className="flex items-center justify-center py-8">
-              <div className="text-muted-foreground">Lädt...</div>
+            <div className="flex flex-col items-center justify-center py-12 gap-3">
+              <div className="flex gap-1.5">
+                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.3s]"></div>
+                <div className="w-2 h-2 rounded-full bg-primary animate-bounce [animation-delay:-0.15s]"></div>
+                <div className="w-2 h-2 rounded-full bg-primary animate-bounce"></div>
+              </div>
+              <div className="text-sm text-muted-foreground">Lauflisten werden geladen...</div>
             </div>
           ) : lists.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-12 text-center">
