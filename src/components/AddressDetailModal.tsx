@@ -2305,30 +2305,35 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[10060] flex flex-col min-h-0">
-          <div className="embla flex h-full w-full overflow-hidden relative" ref={emblaRef}>
-            {/* Navigation Arrows - Desktop/Tablet Only */}
+        <DialogContent ref={modalContentRef} hideClose className="relative box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-visible rounded-xl z-[10060] flex flex-col min-h-0">
+          <div className="embla flex h-full w-full overflow-hidden relative rounded-xl">
+            {/* Pfeile neben der Karte (nur Desktop) */}
             {allAddresses.length > 1 && (
-              <>
+              <div className="hidden sm:block absolute inset-y-0 left-0 right-0 pointer-events-none" ref={emblaRef}>
                 <Button
+                  type="button"
+                  aria-label="Zur vorherigen Adresse"
                   variant="ghost"
                   size="icon"
-                  onClick={() => emblaApi?.scrollPrev()}
+                  onClick={(e) => { e.stopPropagation(); emblaApi?.scrollPrev(); }}
                   disabled={currentIndex === 0}
-                  className="hidden sm:flex absolute left-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10070]"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
+
                 <Button
+                  type="button"
+                  aria-label="Zur nächsten Adresse"
                   variant="ghost"
                   size="icon"
-                  onClick={() => emblaApi?.scrollNext()}
+                  onClick={(e) => { e.stopPropagation(); emblaApi?.scrollNext(); }}
                   disabled={currentIndex === allAddresses.length - 1}
-                  className="hidden sm:flex absolute right-4 top-1/2 -translate-y-1/2 z-[10070] h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+                  className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10070]"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
-              </>
+              </div>
             )}
             <div className="embla__container flex h-full">
               {allAddresses.map((addr, index) => {
