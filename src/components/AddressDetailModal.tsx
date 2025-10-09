@@ -584,6 +584,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (newStatus === "kein-interesse") {
       console.log("Opening kein-interesse dialog");
       setPendingKeinInteresse({ addressId, unitId });
+      setKeinInteresseReason(""); // Clear previous selection
+      setKeinInteresseCustomText(""); // Clear previous custom text
       setKeinInteresseDialogOpen(true);
       return; // Nicht direkt Status setzen
     }
@@ -3112,7 +3114,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </Dialog>
 
       {/* Kein Interesse Grund-Dialog - für alle Render-Pfade */}
-      <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
+      <AlertDialog open={keinInteresseDialogOpen} onOpenChange={(open) => {
+        setKeinInteresseDialogOpen(open);
+        if (!open) {
+          // Clear fields when dialog is closed/cancelled
+          setKeinInteresseReason("");
+          setKeinInteresseCustomText("");
+          setPendingKeinInteresse(null);
+        }
+      }}>
         <AlertDialogPortal>
           <AlertDialogOverlay className="fixed inset-0 z-[10070] bg-black/60" />
           <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10080]">
