@@ -31,14 +31,14 @@ function HorizontalModalPagerInner<T extends Item>({
 
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
-    align: 'start',
+    align: 'center',
     containScroll: 'trimSnaps',
     dragFree: false,
     skipSnaps: false,
-    duration: 12, // Ultra-responsive für Apple-Feel
-    watchDrag: true,
+    duration: 15,
+    watchDrag: options?.watchDrag ?? true,
     startIndex: startIndex,
-    inViewThreshold: 0.6,
+    inViewThreshold: 0.8,
     ...options,
   });
 
@@ -105,15 +105,23 @@ function HorizontalModalPagerInner<T extends Item>({
       }}
     >
       <div className="flex h-full bg-transparent" style={{ willChange: 'transform' }}>
-        {items.map((it, idx) => (
-          <div 
-            key={it.id} 
-            className="flex-[0_0_100%] min-w-0 h-full flex items-center justify-center bg-transparent"
-            style={{ contain: 'content' }}
-          >
-            {renderCard(it, idx, items.length)}
-          </div>
-        ))}
+        {items.map((it, idx) => {
+          const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
+          const flexBasis = isTablet ? '90%' : '100%';
+          
+          return (
+            <div 
+              key={it.id} 
+              className="min-w-0 h-full flex items-center justify-center bg-transparent"
+              style={{ 
+                flex: `0 0 ${flexBasis}`,
+                contain: 'content'
+              }}
+            >
+              {renderCard(it, idx, items.length)}
+            </div>
+          );
+        })}
       </div>
     </div>
   );

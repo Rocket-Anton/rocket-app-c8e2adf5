@@ -115,7 +115,7 @@ const NavigationArrow: React.FC<{
       aria-label={direction === "left" ? "Vorherige Adresse" : "Nächste Adresse"}
       className={cn(
         "hidden lg:flex items-center justify-center",
-        "absolute top-1/2 -translate-y-1/2",
+        "absolute top-1/2 -translate-y-1/2 z-[10105]",
         direction === "left" ? "-left-20" : "-right-20",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
@@ -150,14 +150,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const isMobile = useIsMobile();
   const { toast } = useToast();
   const isCoarse = useCoarsePointer();
-  const showArrows = !isCoarse && allAddresses.length > 1;
+  const isPhone = typeof window !== 'undefined' && window.innerWidth < 768;
+  const isTablet = typeof window !== 'undefined' && window.innerWidth >= 768 && window.innerWidth < 1024;
+  const showArrows = !isCoarse && allAddresses.length > 1 && !isPhone;
   
   const emblaOptions = useMemo(
     () => ({
-      watchDrag: !isMobile, // Enable drag only on desktop (arrows), mobile uses native swipe
-      duration: 20,
+      watchDrag: false, // Desktop: ONLY arrows, no drag
+      duration: 15, // Faster
+      skipSnaps: false,
     }),
-    [isMobile]
+    []
   );
   
   // Lock body scroll when modal is open
@@ -1672,7 +1675,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <div 
         key={addr.id}
-        className="h-full w-[95vw] max-w-lg mx-auto rounded-xl bg-background shadow-2xl overflow-hidden flex flex-col"
+        className="h-full w-[95vw] max-w-lg mx-auto rounded-2xl bg-background shadow-2xl overflow-hidden flex flex-col"
       >
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -1712,8 +1715,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Card Content */}
         <div 
-          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full rounded-b-xl"
-          style={{ 
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full rounded-b-2xl"
+          style={{
             WebkitOverflowScrolling: 'touch',
             background: 'transparent'
           }}
@@ -1940,34 +1943,47 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   }
 
-  // Carousel mode - Always enabled when multiple addresses exist
-  // On mobile, use swipe deck; on desktop, use embla carousel
-  if (isMobile) {
-    // Mobile: Use HorizontalModalPager for swipe navigation
-
-    return (
-      <>
-        <MotionDialog open={open} onOpenChange={handleDialogChange}>
-      <div 
-        ref={modalContentRef}
-        className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
-        style={{ isolation: 'isolate' }}
-      >
-        <div className="w-full max-w-lg h-[95vh] md:h-[85vh]">
-          <HorizontalModalPager
-            items={allAddresses}
-            startIndex={initialIndex}
-            renderCard={renderCompleteCard}
-            onIndexChange={(idx) => {
-              setPrevIndex(currentIndex);
-              setCurrentIndex(idx);
-            }}
-            className="bg-transparent shadow-none ring-0"
-            options={emblaOptions}
-          />
+  // Desktop/Tablet carousel with arrows
+  return (
+    <>
+      <MotionDialog open={open} onOpenChange={handleDialogChange}>
+        <div 
+          ref={modalContentRef}
+          className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
+          style={{ isolation: 'isolate' }}
+        >
+          <div className="w-full max-w-lg h-[95vh] md:h-[88vh]">
+            <HorizontalModalPager
+              items={allAddresses}
+              startIndex={initialIndex}
+              renderCard={renderCompleteCard}
+              onIndexChange={(idx) => {
+                setPrevIndex(currentIndex);
+                setCurrentIndex(idx);
+              }}
+              className="bg-transparent shadow-none ring-0"
+              options={emblaOptions}
+              ref={pagerRef}
+            />
+          </div>
+          
+          {/* Navigation Arrows - Desktop only */}
+          {showArrows && (
+            <>
+              <NavigationArrow
+                direction="left"
+                onClick={() => pagerRef.current?.scrollPrev()}
+                disabled={!pagerRef.current?.canScrollPrev()}
+              />
+              <NavigationArrow
+                direction="right"
+                onClick={() => pagerRef.current?.scrollNext()}
+                disabled={!pagerRef.current?.canScrollNext()}
+              />
+            </>
+          )}
         </div>
-      </div>
-        </MotionDialog>
+      </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
           <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
@@ -2227,653 +2243,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </>
     );
   }
-
-  // Desktop: Use HorizontalModalPager like mobile
-  return (
-    <>
-      <MotionDialog open={open} onOpenChange={handleDialogChange}>
-      <div 
-        ref={modalContentRef}
-        className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
-        style={{ isolation: 'isolate' }}
-      >
-        <div className="relative w-full max-w-lg h-[90vh] sm:h-[85vh] px-20">
-          <HorizontalModalPager
-            ref={pagerRef}
-            items={allAddresses}
-            startIndex={initialIndex}
-            renderCard={renderCompleteCard}
-            onIndexChange={(idx) => {
-              setPrevIndex(currentIndex);
-              setCurrentIndex(idx);
-            }}
-            className="bg-transparent shadow-none ring-0"
-            options={emblaOptions}
-          />
-          
-          {/* Desktop Navigation Arrows */}
-          {showArrows && (
-            <>
-              <NavigationArrow
-                direction="left"
-                onClick={() => pagerRef.current?.scrollPrev()}
-                disabled={currentIndex === 0}
-              />
-              <NavigationArrow
-                direction="right"
-                onClick={() => pagerRef.current?.scrollNext()}
-                disabled={currentIndex === allAddresses.length - 1}
-              />
-            </>
-          )}
-        </div>
-      </div>
-      </MotionDialog>
-
-      <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
-        <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Status aktualisieren</AlertDialogTitle>
-            <AlertDialogDescription>
-              Möchtest du den gleichen Status erneut setzen?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmSameStatusUpdate}
-              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
-            >
-              Bestätigen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Add Note Dialog */}
-      <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10110]" hideOverlay onClick={(e) => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle>Notiz hinzufügen</DialogTitle>
-          </DialogHeader>
-          <Textarea
-            placeholder="Notiz eingeben..."
-            value={newNoteText}
-            onChange={(e) => setNewNoteText(e.target.value)}
-            className="min-h-[120px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-          />
-          <div className="flex gap-3">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAddNoteDialogOpen(false);
-                setNewNoteText("");
-              }}
-              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
-            >
-              Abbrechen
-            </Button>
-            <Button
-              onClick={handleAddNote}
-              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
-            >
-              Bestätigen
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Add Appointment Dialog */}
-      <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
-        <DialogContent className="w-[90vw] sm:w-[85vw] md:w-[65vw] lg:w-[420px] max-w-sm max-h-[80vh] p-0 z-[10110] grid grid-rows-[auto,1fr,auto] overflow-hidden rounded-2xl" hideOverlay>
-          <DialogHeader className="px-6 pt-4 pb-2 border-b">
-            <DialogTitle>Termin hinzufügen</DialogTitle>
-          </DialogHeader>
-          
-          <div className="min-h-0 overflow-y-auto overscroll-contain touch-pan-y px-6 py-2" style={{ WebkitOverflowScrolling: 'touch' } as any}>
-            <div className="space-y-4">
-              <div>
-                <label className="text-sm font-medium mb-2 block">Datum *</label>
-                <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
-                  <PopoverTrigger asChild>
-                    <Button
-                      variant="outline"
-                      className={`w-full justify-start text-left font-normal border-border ${!appointmentDate && "text-muted-foreground"}`}
-                    >
-                      <CalendarIcon className="mr-2 h-4 w-4" />
-                      {appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"}
-                    </Button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[10120]" align="start" side="bottom">
-                    <Calendar
-                      mode="single"
-                      selected={appointmentDate}
-                      onSelect={(date) => {
-                        setAppointmentDate(date);
-                        setDatePopoverOpen(false);
-                        if (date) {
-                          setMapDisplayDate(date);
-                          setShowAllAppointments(false);
-                        }
-                      }}
-                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
-                      initialFocus
-                      className="p-3 pointer-events-auto"
-                    />
-                  </PopoverContent>
-                </Popover>
-              </div>
-
-              <div>
-                <label className="text-sm font-medium mb-2 block">Uhrzeit *</label>
-                <div className="flex gap-2">
-                  <Select 
-                    value={appointmentHour} 
-                    onValueChange={(value) => {
-                      setAppointmentHour(value);
-                      if (value && appointmentMinute) {
-                        setAppointmentTime(`${value}:${appointmentMinute}`);
-                      }
-                      if (value && !appointmentDuration) {
-                        setAppointmentDuration("30");
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                      <SelectValue placeholder="Stunde" />
-                    </SelectTrigger>
-                    <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
-                      {Array.from({ length: 14 }, (_, i) => i + 8).map((hour) => (
-                        <SelectItem key={hour} value={hour.toString().padStart(2, '0')}>
-                          {hour.toString().padStart(2, '0')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select 
-                    value={appointmentMinute} 
-                    onValueChange={(value) => {
-                      setAppointmentMinute(value);
-                      if (appointmentHour && value) {
-                        setAppointmentTime(`${appointmentHour}:${value}`);
-                      }
-                    }}
-                  >
-                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                      <SelectValue placeholder="Minute" />
-                     </SelectTrigger>
-                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
-                       {[0, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55].map((minute) => (
-                        <SelectItem key={minute} value={minute.toString().padStart(2, '0')}>
-                          {minute.toString().padStart(2, '0')}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                  <Select 
-                    value={appointmentDuration} 
-                    onValueChange={setAppointmentDuration}
-                  >
-                    <SelectTrigger className="flex-1 border-border focus:ring-0 focus:outline-none">
-                      <SelectValue placeholder="Dauer" />
-                     </SelectTrigger>
-                     <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10120]">
-                       {[10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60].map((duration) => (
-                        <SelectItem key={duration} value={duration.toString()}>
-                          {duration} min
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-
-              <Collapsible>
-                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md">
-                  <span className="text-sm font-medium">Weitere Infos</span>
-                  <ChevronDown className="w-4 h-4 transition-transform ui-expanded:rotate-180" />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-3 space-y-4">
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Kundenname</label>
-                    <Input
-                      placeholder="Optional"
-                      value={appointmentCustomer}
-                      onChange={(e) => setAppointmentCustomer(e.target.value)}
-                      className="border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="text-sm font-medium mb-2 block">Notizen</label>
-                    <Textarea
-                      placeholder="Optional"
-                      value={appointmentNotes}
-                      onChange={(e) => setAppointmentNotes(e.target.value)}
-                      className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0 placeholder:text-sm"
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
-
-              {/* Map Section */}
-              <div className="border-t pt-6 mt-4">
-                <div className="mb-3 flex items-center justify-between gap-2">
-                  <div className="flex items-center gap-2">
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={prevMapDay}>
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
-                    <div className="text-sm font-medium">
-                      {showAllAppointments ? "Alle Termine" : (mapDisplayDate ? mapDisplayDate.toLocaleDateString('de-DE') : (appointmentDate ? appointmentDate.toLocaleDateString('de-DE') : "Datum wählen"))}
-                    </div>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" onClick={nextMapDay}>
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
-                  </div>
-                  <Button variant="ghost" size="sm" onClick={() => { setShowAllAppointments(!showAllAppointments); if (!showAllAppointments) { setMapDisplayDate(undefined); } else { setMapDisplayDate(appointmentDate || new Date()); } }} className="text-xs h-7">
-                    {showAllAppointments ? "Datum filtern" : "Alle anzeigen"}
-                  </Button>
-                </div>
-                <div className="h-32 md:h-40 rounded-lg overflow-hidden border border-border">
-              <AppointmentMap
-                appointments={appointments.map(apt => ({
-                  id: apt.id,
-                  date: apt.date,
-                  time: apt.time,
-                  address: apt.address,
-                  customer: apt.customer,
-                  coordinates: apt.coordinates
-                }))}
-                selectedDate={mapDisplayDate}
-                currentAddress={mapCurrentAddress}
-                selectedAppointmentId={null}
-              />
-            </div>
-          </div>
-
-          {/* Termine Liste */}
-          <div className="border-t pt-6 mt-4">
-              <div className="flex items-center justify-between mb-3">
-                  <h3 className="font-semibold text-sm">Termine Liste</h3>
-                  <Button
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => {
-                      setShowAllAppointments(!showAllAppointments);
-                      if (!showAllAppointments) {
-                        setMapDisplayDate(undefined);
-                      } else {
-                        setMapDisplayDate(appointmentDate);
-                      }
-                    }}
-                    className="text-xs h-7 px-2"
-                  >
-                    {showAllAppointments ? "Datum filtern" : "Alle anzeigen"}
-                  </Button>
-                </div>
-                
-                <div className="space-y-2">
-                  {displayedAppointments.length === 0 ? (
-                    <p className="text-sm text-muted-foreground text-center py-4">
-                      {showAllAppointments ? "Keine Termine vorhanden" : "Keine Termine für dieses Datum"}
-                    </p>
-                  ) : (
-                    displayedAppointments.map((apt) => (
-                      <div
-                        key={apt.id}
-                        className="p-3 bg-muted/50 rounded-lg text-sm space-y-1"
-                      >
-                        <div className="flex justify-between items-start">
-                          <div className="font-medium">
-                            {new Date(apt.date).toLocaleDateString('de-DE')} um {apt.time}
-                          </div>
-                        </div>
-                        {apt.customer && (
-                          <div className="text-muted-foreground">{apt.customer}</div>
-                        )}
-                        {apt.notes && (
-                          <div className="text-muted-foreground text-xs">{apt.notes}</div>
-                        )}
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
-          {/* Fixed Buttons at Bottom */}
-          <div className="flex gap-3 px-6 py-4 border-t flex-shrink-0">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setAddAppointmentDialogOpen(false);
-                setAppointmentDate(undefined);
-                setAppointmentTime("");
-                setAppointmentHour("");
-                setAppointmentMinute("");
-                setAppointmentDuration("");
-                setAppointmentCustomer("");
-                setAppointmentNotes("");
-                setPendingAppointmentUnitId(null);
-              }}
-              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border rounded-lg focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0"
-            >
-              Abbrechen
-            </Button>
-            <Button
-              onClick={saveAppointment}
-              disabled={!appointmentDate || !appointmentTime}
-              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-            >
-              Bestätigen
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Delete Note Dialog */}
-      <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]" onClick={(e) => e.stopPropagation()}>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
-            <AlertDialogDescription>
-              Möchtest du diese Notiz wirklich löschen?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction 
-              onClick={confirmDeleteNote}
-              className="flex-1 bg-[#0EA5E9] hover:bg-[#0284C7] text-white"
-            >
-              Bestätigen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Add Units Dialog */}
-      <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10110]">
-            <button
-              onClick={() => setAddUnitsDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Schließen</span>
-            </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
-              <AlertDialogDescription>
-                Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="py-4">
-              <div className="flex items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
-                  disabled={addUnitsCount <= 1}
-                  className="h-10 w-10 rounded-full"
-                >
-                  -
-                </Button>
-                <div className="w-20 text-center">
-                  <Input
-                    type="number"
-                    min="1"
-                    max="3"
-                    value={addUnitsCount}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setAddUnitsCount(Math.min(3, Math.max(1, val)));
-                    }}
-                    className="text-center text-xl font-semibold h-12 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
-                  disabled={addUnitsCount >= 3}
-                  className="h-10 w-10 rounded-full"
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-                Abbrechen
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmAddUnits}
-                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-              >
-                Hinzufügen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Delete Unit Dialog (Desktop Carousel) */}
-      <AlertDialog open={deleteUnitDialogOpen} onOpenChange={setDeleteUnitDialogOpen}>
-        <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl">
-          <AlertDialogHeader>
-            <AlertDialogTitle>Wohneinheit löschen</AlertDialogTitle>
-            <AlertDialogDescription>
-              Diese Wohneinheit löschen?
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmDeleteUnit}
-              className="flex-1 bg-destructive hover:bg-destructive/90 text-destructive-foreground"
-            >
-              Löschen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
-      </AlertDialog>
-      
-      {/* Order Creation Dialog */}
-      <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10110]" hideOverlay onClick={(e) => e.stopPropagation()}>
-          <DialogHeader>
-            <DialogTitle>Auftrag anlegen</DialogTitle>
-          </DialogHeader>
-          <div className="space-y-4">
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Vorname *</label>
-              <input
-                type="text"
-                value={orderForm.vorname}
-                onChange={(e) => setOrderForm(prev => ({ ...prev, vorname: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                placeholder="Vorname eingeben"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Nachname *</label>
-              <input
-                type="text"
-                value={orderForm.nachname}
-                onChange={(e) => setOrderForm(prev => ({ ...prev, nachname: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
-                placeholder="Nachname eingeben"
-              />
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-1.5 block">Tarif *</label>
-              <Select value={orderForm.tarif} onValueChange={(value) => setOrderForm(prev => ({ ...prev, tarif: value }))}>
-                <SelectTrigger className="w-full px-3 py-2 border border-border rounded-md bg-background">
-                  <SelectValue placeholder="Tarif auswählen" />
-                </SelectTrigger>
-                <SelectContent className="bg-background border border-border z-[10000]">
-                  <SelectItem value="100/20 Mbit/s" className="text-blue-600 dark:text-blue-400 font-medium">100/20 Mbit/s</SelectItem>
-                  <SelectItem value="300/60 Mbit/s" className="text-green-600 dark:text-green-400 font-medium">300/60 Mbit/s</SelectItem>
-                  <SelectItem value="500/100 Mbit/s" className="text-purple-600 dark:text-purple-400 font-medium">500/100 Mbit/s</SelectItem>
-                  <SelectItem value="1000/250 Mbit/s" className="text-orange-600 dark:text-orange-400 font-medium">1000/250 Mbit/s</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            <div>
-              <label className="text-sm font-medium mb-2 block">Zusätze</label>
-              <div className="space-y-2">
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="nc-tv"
-                    checked={orderForm.zusaetze.includes('NC TV')}
-                    onChange={() => toggleZusatz('NC TV')}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary mr-2"
-                  />
-                  <label htmlFor="nc-tv" className="text-sm cursor-pointer">NC TV</label>
-                </div>
-                <div className="flex items-center">
-                  <input
-                    type="checkbox"
-                    id="nc-router"
-                    checked={orderForm.zusaetze.includes('NC Router')}
-                    onChange={() => toggleZusatz('NC Router')}
-                    className="w-4 h-4 rounded border-border text-primary focus:ring-2 focus:ring-primary mr-2"
-                  />
-                  <label htmlFor="nc-router" className="text-sm cursor-pointer">NC Router</label>
-                </div>
-              </div>
-            </div>
-          </div>
-          <div className="flex gap-3 mt-4">
-            <Button
-              variant="outline"
-              onClick={() => {
-                setOrderDialogOpen(false);
-                setOrderUnitId(null);
-                setOrderAddressId(null);
-              }}
-              className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
-            >
-              Abbrechen
-            </Button>
-            <Button
-              onClick={handleConfirmOrder}
-              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-            >
-              Bestätigen
-            </Button>
-          </div>
-        </DialogContent>
-      </Dialog>
-
-      {/* Kein Interesse Grund-Dialog - für alle Render-Pfade */}
-      <AlertDialog open={keinInteresseDialogOpen} onOpenChange={(open) => {
-        setKeinInteresseDialogOpen(open);
-        if (!open) {
-          // Clear fields when dialog is closed/cancelled
-          setKeinInteresseReason("");
-          setKeinInteresseCustomText("");
-          setPendingKeinInteresse(null);
-        }
-      }}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
-            <button
-              onClick={() => setKeinInteresseDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Schließen</span>
-            </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Kein Interesse - Grund angeben</AlertDialogTitle>
-              <AlertDialogDescription>
-                Bitte wähle einen Grund aus.
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="space-y-3">
-              <Select value={keinInteresseReason} onValueChange={setKeinInteresseReason}>
-                <SelectTrigger className="w-full h-10 rounded-md bg-background border border-border shadow-none focus:ring-0 focus:ring-offset-0 focus-visible:ring-0 focus-visible:ring-offset-0">
-                  <SelectValue placeholder="Grund auswählen" />
-                </SelectTrigger>
-                <SelectContent position="popper" className="bg-background border border-border shadow-lg z-[10130]">
-                  <SelectItem value="Zu alt">Zu alt</SelectItem>
-                  <SelectItem value="Kein Besuch mehr erwünscht">Kein Besuch mehr erwünscht</SelectItem>
-                  <SelectItem value="Ziehen bald weg">Ziehen bald weg</SelectItem>
-                  <SelectItem value="Zur Miete">Zur Miete</SelectItem>
-                  <SelectItem value="Anderer Grund">Anderer Grund</SelectItem>
-                </SelectContent>
-              </Select>
-              {keinInteresseReason === "Anderer Grund" && (
-                <Textarea
-                  placeholder="Grund eingeben…"
-                  value={keinInteresseCustomText}
-                  onChange={(e) => setKeinInteresseCustomText(e.target.value)}
-                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
-                />
-              )}
-            </div>
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel 
-                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" 
-                onClick={() => { setKeinInteresseReason(""); setKeinInteresseCustomText(""); }}
-              >
-                Abbrechen
-              </AlertDialogCancel>
-              <AlertDialogAction 
-                onClick={confirmKeinInteresse}
-                disabled={!keinInteresseReason || (keinInteresseReason === "Anderer Grund" && !keinInteresseCustomText.trim())}
-                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
-              >
-                Bestätigen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-
-      {/* Potenzial Bewertung - für alle Render-Pfade */}
-      <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogContent className="px-8 w-[85vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10120]" style={{ willChange: 'transform, opacity' }}>
-            <button
-              onClick={() => setPotenzialDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Schließen</span>
-            </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Potenzial bewerten</AlertDialogTitle>
-              <AlertDialogDescription>
-                Wie schätzt du das Potenzial ein?
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-            <div className="flex justify-center gap-2 py-4">
-              {[1, 2, 3, 4, 5].map((star) => (
-                <button key={star} type="button" onClick={() => setPotenzialRating(star)} onMouseEnter={() => setPotenzialHoverRating(star)} onMouseLeave={() => setPotenzialHoverRating(0)} className="transition-transform hover:scale-110">
-                  <Star className={cn("w-12 h-12 transition-colors", (potenzialHoverRating >= star || (potenzialHoverRating === 0 && potenzialRating >= star)) ? "fill-yellow-400 text-yellow-400" : "fill-none text-gray-300")} />
-                </button>
-              ))}
-            </div>
-            {potenzialRating > 0 && (
-              <p className="text-center text-sm text-muted-foreground">Bewertung: {potenzialRating} von 5 Sternen</p>
-            )}
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0 rounded-lg" onClick={() => { setPotenzialRating(0); setPotenzialHoverRating(0); }}>
-                Abbrechen
-              </AlertDialogCancel>
-              <AlertDialogAction onClick={confirmPotenzialRating} disabled={potenzialRating === 0} className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 disabled:cursor-not-allowed shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium">
-                Bestätigen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
-      </AlertDialog>
-    </>
-  );
+  
+  // This section should never execute (kept for backwards compatibility)
+  return null;
 };
