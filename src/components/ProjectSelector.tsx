@@ -265,11 +265,11 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
             {/* Filter Icon with Popup */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                <Button variant="outline" size="sm" className="h-7 w-7 p-0 relative">
                   <Filter className="h-3.5 w-3.5" />
                   {(statusFilter !== "all" || providerFilter !== "all") && (
-                    <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center">
-                      •
+                    <span className="absolute -top-1.5 -right-1.5 h-4 w-4 rounded-full bg-primary text-[10px] text-primary-foreground flex items-center justify-center font-semibold border-2 border-background">
+                      {(statusFilter !== "all" ? 1 : 0) + (providerFilter !== "all" ? 1 : 0)}
                     </span>
                   )}
                 </Button>
