@@ -1730,24 +1730,23 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Add Units Dialog */}
-        {addUnitsDialogOpen && (
-          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
-        )}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setAddUnitsDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Schließen</span>
-            </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
-              <AlertDialogDescription>
-                Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
-              </AlertDialogDescription>
-            </AlertDialogHeader>
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+              <button
+                onClick={() => setAddUnitsDialogOpen(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
+              >
+                <X className="h-4 w-4" />
+                <span className="sr-only">Schließen</span>
+              </button>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
+                </AlertDialogDescription>
+              </AlertDialogHeader>
             <div className="py-4">
               <div className="flex items-center justify-center gap-4">
                 <Button
@@ -1795,6 +1794,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </AlertDialogAction>
             </AlertDialogFooter>
           </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         {/* Delete Unit Dialog */}
@@ -2236,73 +2236,73 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Add Units Dialog (Mobile) */}
-        {addUnitsDialogOpen && (
-          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
-        )}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
-            <button
-              onClick={() => setAddUnitsDialogOpen(false)}
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Schließen</span>
-            </button>
-            <AlertDialogHeader>
-              <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
-              <AlertDialogDescription>
-                Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
-              </AlertDialogDescription>
-            </AlertDialogHeader>
-
-            <div className="py-4">
-              <div className="flex items-center justify-center gap-4">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
-                  disabled={addUnitsCount <= 1}
-                  className="h-10 w-10 rounded-full"
-                >
-                  -
-                </Button>
-                <div className="w-20 text-center">
-                  <Input
-                    type="number"
-                    min="1"
-                    max="3"
-                    value={addUnitsCount}
-                    onChange={(e) => {
-                      const val = parseInt(e.target.value) || 1;
-                      setAddUnitsCount(Math.min(3, Math.max(1, val)));
-                    }}
-                    className="text-center text-xl font-semibold h-12"
-                  />
-                </div>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
-                  disabled={addUnitsCount >= 3}
-                  className="h-10 w-10 rounded-full"
-                >
-                  +
-                </Button>
-              </div>
-            </div>
-
-            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-                Abbrechen
-              </AlertDialogCancel>
-              <AlertDialogAction
-                onClick={confirmAddUnits}
-                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+              <button
+                onClick={() => setAddUnitsDialogOpen(false)}
+                className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
               >
-                Hinzufügen
-              </AlertDialogAction>
-            </AlertDialogFooter>
-          </AlertDialogContent>
+                <X className="h-4 w-4" />
+                <span className="sr-only">Schließen</span>
+              </button>
+              <AlertDialogHeader>
+                <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
+                <AlertDialogDescription>
+                  Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
+                </AlertDialogDescription>
+              </AlertDialogHeader>
+
+              <div className="py-4">
+                <div className="flex items-center justify-center gap-4">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
+                    disabled={addUnitsCount <= 1}
+                    className="h-10 w-10 rounded-full"
+                  >
+                    -
+                  </Button>
+                  <div className="w-20 text-center">
+                    <Input
+                      type="number"
+                      min="1"
+                      max="3"
+                      value={addUnitsCount}
+                      onChange={(e) => {
+                        const val = parseInt(e.target.value) || 1;
+                        setAddUnitsCount(Math.min(3, Math.max(1, val)));
+                      }}
+                      className="text-center text-xl font-semibold h-12"
+                    />
+                  </div>
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
+                    disabled={addUnitsCount >= 3}
+                    className="h-10 w-10 rounded-full"
+                  >
+                    +
+                  </Button>
+                </div>
+              </div>
+
+              <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+                <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                  Abbrechen
+                </AlertDialogCancel>
+                <AlertDialogAction
+                  onClick={confirmAddUnits}
+                  className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+                >
+                  Hinzufügen
+                </AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+          </AlertDialogPortal>
         </AlertDialog>
 
         {/* Delete Unit Dialog (Mobile) */}
@@ -2730,71 +2730,71 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </AlertDialog>
 
       {/* Add Units Dialog */}
-      {addUnitsDialogOpen && (
-        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddUnitsDialogOpen(false)} />
-      )}
       <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => setAddUnitsDialogOpen(false)}
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
-          >
-            <X className="h-4 w-4" />
-            <span className="sr-only">Schließen</span>
-          </button>
-          <AlertDialogHeader>
-            <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
-            <AlertDialogDescription>
-              Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
-            </AlertDialogDescription>
-          </AlertDialogHeader>
-          <div className="py-4">
-            <div className="flex items-center justify-center gap-4">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
-                disabled={addUnitsCount <= 1}
-                className="h-10 w-10 rounded-full"
-              >
-                -
-              </Button>
-              <div className="w-20 text-center">
-                <Input
-                  type="number"
-                  min="1"
-                  max="3"
-                  value={addUnitsCount}
-                  onChange={(e) => {
-                    const val = parseInt(e.target.value) || 1;
-                    setAddUnitsCount(Math.min(3, Math.max(1, val)));
-                  }}
-                  className="text-center text-xl font-semibold h-12"
-                />
-              </div>
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
-                disabled={addUnitsCount >= 3}
-                className="h-10 w-10 rounded-full"
-              >
-                +
-              </Button>
-            </div>
-          </div>
-          <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
-            <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
-              Abbrechen
-            </AlertDialogCancel>
-            <AlertDialogAction
-              onClick={confirmAddUnits}
-              className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+        <AlertDialogPortal>
+          <AlertDialogOverlay className="fixed inset-0 z-[10090] bg-black/60" />
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]">
+            <button
+              onClick={() => setAddUnitsDialogOpen(false)}
+              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
             >
-              Hinzufügen
-            </AlertDialogAction>
-          </AlertDialogFooter>
-        </AlertDialogContent>
+              <X className="h-4 w-4" />
+              <span className="sr-only">Schließen</span>
+            </button>
+            <AlertDialogHeader>
+              <AlertDialogTitle>Wohneinheit hinzufügen</AlertDialogTitle>
+              <AlertDialogDescription>
+                Wie viele Wohneinheiten möchtest du hinzufügen? (max. 3 pro Aktion)
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <div className="py-4">
+              <div className="flex items-center justify-center gap-4">
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setAddUnitsCount(Math.max(1, addUnitsCount - 1))}
+                  disabled={addUnitsCount <= 1}
+                  className="h-10 w-10 rounded-full"
+                >
+                  -
+                </Button>
+                <div className="w-20 text-center">
+                  <Input
+                    type="number"
+                    min="1"
+                    max="3"
+                    value={addUnitsCount}
+                    onChange={(e) => {
+                      const val = parseInt(e.target.value) || 1;
+                      setAddUnitsCount(Math.min(3, Math.max(1, val)));
+                    }}
+                    className="text-center text-xl font-semibold h-12"
+                  />
+                </div>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  onClick={() => setAddUnitsCount(Math.min(3, addUnitsCount + 1))}
+                  disabled={addUnitsCount >= 3}
+                  className="h-10 w-10 rounded-full"
+                >
+                  +
+                </Button>
+              </div>
+            </div>
+            <AlertDialogFooter className="flex-row gap-3 sm:gap-3">
+              <AlertDialogCancel className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border border-border m-0">
+                Abbrechen
+              </AlertDialogCancel>
+              <AlertDialogAction
+                onClick={confirmAddUnits}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
+              >
+                Hinzufügen
+              </AlertDialogAction>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialogPortal>
       </AlertDialog>
 
       {/* Delete Unit Dialog (Desktop Carousel) */}
