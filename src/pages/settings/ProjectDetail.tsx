@@ -4,7 +4,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -93,6 +93,13 @@ const ProjectDetail = () => {
     loadProject();
     loadLists();
   }, [id]);
+
+  // Navigate to settings page when settings tab is clicked
+  useEffect(() => {
+    if (currentTab === "settings") {
+      navigate(`/settings/projects/${id}/status`);
+    }
+  }, [currentTab, id, navigate]);
 
   // Separate effect for polling importing lists
   useEffect(() => {
@@ -399,6 +406,10 @@ const ProjectDetail = () => {
                       <TabsTrigger value="address-lists" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <List className="w-4 h-4" />
                         Adresslisten
+                      </TabsTrigger>
+                      <TabsTrigger value="settings" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
+                        <Settings className="w-4 h-4" />
+                        Einstellungen
                       </TabsTrigger>
                     </TabsList>
 
