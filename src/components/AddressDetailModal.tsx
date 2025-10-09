@@ -1821,7 +1821,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-            <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
+            <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10300]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1909,7 +1909,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Single Address) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10300]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2007,7 +2007,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       >
         <div className="relative flex items-center justify-center w-full h-full">
           {/* Navigation Arrow - Left */}
-          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && (
             <NavigationArrow
               direction="left"
               onClick={() => pagerRef.current?.scrollPrev()}
@@ -2030,7 +2030,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           />
 
           {/* Navigation Arrow - Right */}
-          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && (
+          {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && (
             <NavigationArrow
               direction="right"
               onClick={() => pagerRef.current?.scrollNext()}
@@ -2064,7 +2064,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Note Dialog */}
         <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10100]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10300]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Notiz hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2095,6 +2095,87 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
 
+        {/* Add Appointment Dialog */}
+        <Dialog open={addAppointmentDialogOpen} onOpenChange={setAddAppointmentDialogOpen}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10300]" onClick={(e) => e.stopPropagation()}>
+            <DialogHeader>
+              <DialogTitle>Termin hinzufügen</DialogTitle>
+            </DialogHeader>
+            <div className="space-y-4">
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Datum *</label>
+                <input
+                  type="date"
+                  value={appointmentDate ? appointmentDate.toISOString().split('T')[0] : ''}
+                  onChange={(e) => setAppointmentDate(e.target.value ? new Date(e.target.value) : undefined)}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Uhrzeit *</label>
+                <input
+                  type="time"
+                  value={appointmentTime}
+                  onChange={(e) => setAppointmentTime(e.target.value)}
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Dauer (Minuten)</label>
+                <input
+                  type="number"
+                  value={appointmentDuration}
+                  onChange={(e) => setAppointmentDuration(e.target.value)}
+                  placeholder="30"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Kunde</label>
+                <input
+                  type="text"
+                  value={appointmentCustomer}
+                  onChange={(e) => setAppointmentCustomer(e.target.value)}
+                  placeholder="Name eingeben"
+                  className="w-full px-3 py-2 border border-border rounded-md bg-background focus:outline-none focus:border-primary"
+                />
+              </div>
+              <div>
+                <label className="text-sm font-medium mb-1.5 block">Notizen</label>
+                <Textarea
+                  value={appointmentNotes}
+                  onChange={(e) => setAppointmentNotes(e.target.value)}
+                  placeholder="Notizen zum Termin..."
+                  className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+                />
+              </div>
+            </div>
+            <div className="flex gap-3 mt-4">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setAddAppointmentDialogOpen(false);
+                  setAppointmentDate(undefined);
+                  setAppointmentTime('');
+                  setAppointmentDuration('');
+                  setAppointmentCustomer('');
+                  setAppointmentNotes('');
+                  setPendingAppointmentUnitId(null);
+                }}
+                className="flex-[0.8] bg-background hover:bg-muted text-muted-foreground border-border"
+              >
+                Abbrechen
+              </Button>
+              <Button
+                onClick={saveAppointment}
+                disabled={!appointmentDate || !appointmentTime}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium disabled:opacity-50"
+              >
+                Bestätigen
+              </Button>
+            </div>
+          </DialogContent>
+        </Dialog>
 
         {/* Delete Note Dialog */}
         <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
@@ -2121,7 +2202,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Add Units Dialog (Mobile) */}
         <AlertDialog open={addUnitsDialogOpen} onOpenChange={setAddUnitsDialogOpen}>
-          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10200]">
+          <AlertDialogContent className="px-8 w-[82vw] sm:w-[75vw] md:w-[55vw] lg:w-[380px] max-w-xs rounded-2xl z-[10300]">
               <button
                 onClick={() => setAddUnitsDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2"
@@ -2211,7 +2292,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Order Creation Dialog (Mobile) */}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10200]" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="w-[82vw] max-w-sm rounded-2xl z-[10300]" onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
