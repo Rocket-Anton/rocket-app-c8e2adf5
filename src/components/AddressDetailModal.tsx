@@ -1,11 +1,10 @@
 import { useState, useEffect, useCallback, useRef, useLayoutEffect, forwardRef, useMemo } from "react";
 import { X, Plus, RotateCcw, FileText, Info, Clock, ChevronDown, ChevronLeft, ChevronRight, Check, Calendar as CalendarIcon, Star, Trash2 } from "lucide-react";
-import useEmblaCarousel from 'embla-carousel-react';
 import { useIsMobile } from "@/hooks/use-mobile";
 import { AppointmentMap } from "./AppointmentMap";
 import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
-import HorizontalModalPager from "./modal/HorizontalModalPager";
+import HorizontalModalPager, { HorizontalModalPagerHandle } from "./modal/HorizontalModalPager";
 import confetti from 'canvas-confetti';
 import { supabase } from "@/integrations/supabase/client";
 import { orderFormSchema, noteSchema, customerNameSchema } from "@/utils/validation";
@@ -117,13 +116,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     };
     if (open) fetchUser();
   }, [open]);
-  const [emblaRef, emblaApi] = useEmblaCarousel({
-    loop: false,
-    skipSnaps: false,
-    startIndex: initialIndex,
-    align: 'center',
-  });
-  
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
   
   // Ensure currentAddress always has a valid value
@@ -274,6 +266,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const modalContentRef = useRef<HTMLDivElement | null>(null);
   const scrollContainerRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const unitCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const pagerRef = useRef<HorizontalModalPagerHandle>(null);
   
   // Helper to set scroll ref per address
   const setScrollRef = (addrId: number) => (el: HTMLDivElement | null) => {
@@ -313,29 +306,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const prevMapDay = useCallback(() => changeMapDate(-1), [changeMapDate]);
   const nextMapDay = useCallback(() => changeMapDate(1), [changeMapDate]);
 
-  // Update currentIndex when embla scrolls
-  const onSelect = useCallback(() => {
-    if (!emblaApi) return;
-    setCurrentIndex(emblaApi.selectedScrollSnap());
-  }, [emblaApi]);
-
+  // Reset currentIndex when modal opens
   useEffect(() => {
-    if (!emblaApi) return;
-    emblaApi.on('select', onSelect);
-    onSelect();
-    
-    return () => {
-      emblaApi.off('select', onSelect);
-    };
-  }, [emblaApi, onSelect]);
-  
-  // Reset embla to initial index when modal opens
-  useEffect(() => {
-    if (open && emblaApi) {
-      emblaApi.scrollTo(initialIndex, true);
+    if (open) {
       setCurrentIndex(initialIndex);
     }
-  }, [open, initialIndex, emblaApi]);
+  }, [open, initialIndex]);
   
   // Helper function to initialize states for an address
   const initializeAddressStates = useCallback((addr: Address) => {
@@ -1957,59 +1933,61 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   }
 
+  // Render complete card for carousel (used by both mobile and desktop)
+  const renderCompleteCard = (addr: Address, index: number, total: number) => {
+    const allAddrUnits = addr.filteredUnits || addr.units || [];
+    const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
+    const addrUnitCount = addrUnits.length;
+    
+    return (
+      <div className="flex flex-col h-full">
+        {/* Card Header */}
+        <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
+          <DialogClose 
+            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50"
+            onClick={() => handleDialogChange(false)}
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </DialogClose>
+          <div className="text-lg font-semibold">
+            {addr.street} {addr.houseNumber}
+          </div>
+          <p className="text-sm text-muted-foreground">
+            {addr.postalCode} {addr.city}
+          </p>
+          
+          <div className="flex items-center justify-between w-full pt-4">
+            <div className="flex items-center gap-2">
+              <span className="text-sm font-medium">Wohneinheiten</span>
+              <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
+                {addrUnitCount}
+              </div>
+            </div>
+            <Button 
+              variant="ghost" 
+              size="sm" 
+              className="text-blue-600 text-xs gap-1 border-0"
+              onClick={() => handleAddUnitsClick(addr.id)}
+            >
+              <Plus className="w-4 h-4" />
+              Hinzufügen
+            </Button>
+          </div>
+        </div>
+
+        {/* Card Content */}
+        <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
+          {renderAddressContent(addr)}
+        </div>
+      </div>
+    );
+  };
+
   // Carousel mode - Always enabled when multiple addresses exist
   // On mobile, use swipe deck; on desktop, use embla carousel
   if (isMobile) {
-    // Mobile: Use ModalSwipeDeck for Tinder-style swiping
-    const renderCompleteCard = (addr: Address, index: number, total: number) => {
-      const allAddrUnits = addr.filteredUnits || addr.units || [];
-      const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
-      const addrUnitCount = addrUnits.length;
-      
-      return (
-        <div className="flex flex-col h-full">
-          {/* Card Header */}
-          <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
-            <DialogClose 
-              className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 z-50"
-              onClick={() => handleDialogChange(false)}
-            >
-              <X className="h-4 w-4" />
-              <span className="sr-only">Close</span>
-            </DialogClose>
-            <div className="text-lg font-semibold">
-              {addr.street} {addr.houseNumber}
-            </div>
-            <p className="text-sm text-muted-foreground">
-              {addr.postalCode} {addr.city}
-            </p>
-            
-            <div className="flex items-center justify-between w-full pt-4">
-              <div className="flex items-center gap-2">
-                <span className="text-sm font-medium">Wohneinheiten</span>
-                <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                  {addrUnitCount}
-                </div>
-              </div>
-              <Button 
-                variant="ghost" 
-                size="sm" 
-                className="text-blue-600 text-xs gap-1 border-0"
-                onClick={() => handleAddUnitsClick(addr.id)}
-              >
-                <Plus className="w-4 h-4" />
-                Hinzufügen
-              </Button>
-            </div>
-          </div>
-
-          {/* Card Content */}
-          <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
-            {renderAddressContent(addr)}
-          </div>
-        </div>
-      );
-    };
+    // Mobile: Use HorizontalModalPager for swipe navigation
 
     return (
       <>
@@ -2301,90 +2279,51 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     );
   }
 
-  // Desktop: Use Embla Carousel
+  // Desktop: Use HorizontalModalPager like mobile
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="relative box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-visible rounded-xl z-[10060] flex flex-col min-h-0 bg-background">
-          <div className="embla flex h-full w-full overflow-hidden relative rounded-xl" ref={emblaRef}>
-            {/* Pfeile neben der Karte (nur Desktop) */}
-            {allAddresses.length > 1 && (
-              <div className="hidden sm:block absolute inset-y-0 left-0 right-0 pointer-events-none z-[10150]">
-                <Button
-                  type="button"
-                  aria-label="Zur vorherigen Adresse"
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); emblaApi?.scrollPrev(); }}
-                  disabled={currentIndex === 0}
-                  className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10070]"
-                >
-                  <ChevronLeft className="h-5 w-5" />
-                </Button>
+        <DialogContent 
+          ref={modalContentRef}
+          hideClose 
+          className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060]"
+        >
+          <HorizontalModalPager
+            ref={pagerRef}
+            items={allAddresses}
+            startIndex={initialIndex}
+            renderCard={renderCompleteCard}
+            onIndexChange={(idx) => setCurrentIndex(idx)}
+          />
+          
+          {/* Pfeile nur Desktop (≥1024px) */}
+          {allAddresses.length > 1 && (
+            <div className="hidden lg:block absolute inset-y-0 left-0 right-0 pointer-events-none z-50">
+              <Button
+                type="button"
+                aria-label="Zur vorherigen Adresse"
+                variant="ghost"
+                size="icon"
+                onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
+                disabled={currentIndex === 0}
+                className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronLeft className="h-5 w-5" />
+              </Button>
 
-                <Button
-                  type="button"
-                  aria-label="Zur nächsten Adresse"
-                  variant="ghost"
-                  size="icon"
-                  onClick={(e) => { e.stopPropagation(); emblaApi?.scrollNext(); }}
-                  disabled={currentIndex === allAddresses.length - 1}
-                  className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-[10070]"
-                >
-                  <ChevronRight className="h-5 w-5" />
-                </Button>
-              </div>
-            )}
-            <div className="embla__container flex h-full">
-              {allAddresses.map((addr, index) => {
-                const allAddrUnits = addr.filteredUnits || addr.units || [];
-                const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
-                const addrUnitCount = addrUnits.length;
-                
-                return (
-                  <div 
-                    key={addr.id} 
-                    className="embla__slide basis-full h-full flex flex-col min-h-0 overflow-hidden"
-                  >
-                       <DialogHeader className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
-                        <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
-                          <X className="h-4 w-4" />
-                          <span className="sr-only">Close</span>
-                        </DialogClose>
-                        <DialogTitle className="text-lg font-semibold">
-                          {addr.street} {addr.houseNumber}
-                        </DialogTitle>
-                        <p className="text-sm text-muted-foreground">
-                          {addr.postalCode} {addr.city}
-                        </p>
-                        
-                        <div className="flex items-center justify-between w-full pt-4">
-                          <div className="flex items-center gap-2">
-                            <span className="text-sm font-medium">Wohneinheiten</span>
-                            <div className="w-6 h-6 bg-foreground text-background rounded-full flex items-center justify-center text-xs font-bold">
-                              {addrUnitCount}
-                            </div>
-                          </div>
-                          <Button 
-                            variant="ghost" 
-                            size="sm" 
-                            className="text-blue-600 text-xs gap-1 border-0"
-                            onClick={() => handleAddUnitsClick(addr.id)}
-                          >
-                            <Plus className="w-4 h-4" />
-                            Hinzufügen
-                          </Button>
-                        </div>
-                      </DialogHeader>
-
-                      <div className="flex-1 min-h-0 overflow-hidden w-full max-w-full">
-                        {renderAddressContent(addr)}
-                      </div>
-                  </div>
-                );
-              })}
+              <Button
+                type="button"
+                aria-label="Zur nächsten Adresse"
+                variant="ghost"
+                size="icon"
+                onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
+                disabled={currentIndex === allAddresses.length - 1}
+                className="pointer-events-auto absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed"
+              >
+                <ChevronRight className="h-5 w-5" />
+              </Button>
             </div>
-          </div>
+          )}
         </DialogContent>
       </Dialog>
 

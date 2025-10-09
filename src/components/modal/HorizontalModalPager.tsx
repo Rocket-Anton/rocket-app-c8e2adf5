@@ -1,5 +1,5 @@
 import useEmblaCarousel from 'embla-carousel-react';
-import { useEffect, useCallback } from 'react';
+import { useEffect, useCallback, forwardRef, useImperativeHandle } from 'react';
 
 type Item = { id: number };
 type Props<T extends Item> = {
@@ -9,12 +9,19 @@ type Props<T extends Item> = {
   onIndexChange?: (index: number) => void;
 };
 
-export default function HorizontalModalPager<T extends Item>({
+export interface HorizontalModalPagerHandle {
+  scrollPrev: () => void;
+  scrollNext: () => void;
+  canScrollPrev: () => boolean;
+  canScrollNext: () => boolean;
+}
+
+function HorizontalModalPagerInner<T extends Item>({
   items,
   startIndex = 0,
   renderCard,
   onIndexChange,
-}: Props<T>) {
+}: Props<T>, ref: React.Ref<HorizontalModalPagerHandle>) {
   const [emblaRef, embla] = useEmblaCarousel({
     loop: false,
     align: 'center',
@@ -39,6 +46,13 @@ export default function HorizontalModalPager<T extends Item>({
       embla.off('select', onSelect);
     };
   }, [embla, onSelect]);
+
+  useImperativeHandle(ref, () => ({
+    scrollPrev: () => embla?.scrollPrev(),
+    scrollNext: () => embla?.scrollNext(),
+    canScrollPrev: () => embla?.canScrollPrev() ?? false,
+    canScrollNext: () => embla?.canScrollNext() ?? false,
+  }), [embla]);
 
   return (
     <div
@@ -68,3 +82,9 @@ export default function HorizontalModalPager<T extends Item>({
     </div>
   );
 }
+
+const HorizontalModalPager = forwardRef(HorizontalModalPagerInner) as <T extends Item>(
+  props: Props<T> & { ref?: React.Ref<HorizontalModalPagerHandle> }
+) => ReturnType<typeof HorizontalModalPagerInner>;
+
+export default HorizontalModalPager;
