@@ -65,7 +65,6 @@ const ProjectDetail = () => {
   // Status settings states
   const [customStatuses, setCustomStatuses] = useState<any[]>([]);
   const [rejectionReasons, setRejectionReasons] = useState<any[]>([]);
-  const [newStatusName, setNewStatusName] = useState("");
   const [newStatusLabel, setNewStatusLabel] = useState("");
   const [newStatusColor, setNewStatusColor] = useState("#3b82f6");
   const [newReason, setNewReason] = useState("");
@@ -191,17 +190,19 @@ const ProjectDetail = () => {
   };
 
   const addCustomStatus = async () => {
-    if (!newStatusName || !newStatusLabel) {
-      toast.error("Bitte Name und Label eingeben");
+    if (!newStatusLabel) {
+      toast.error("Bitte Label eingeben");
       return;
     }
 
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) return;
 
+    const generatedName = newStatusLabel.toLowerCase().replace(/\s+/g, '-');
+
     const { error } = await supabase.from("custom_statuses").insert({
       project_id: id,
-      name: newStatusName.toLowerCase().replace(/\s+/g, '-'),
+      name: generatedName,
       label: newStatusLabel,
       color: newStatusColor,
       created_by: user.id,
@@ -213,7 +214,6 @@ const ProjectDetail = () => {
     }
 
     toast.success("Status hinzugefügt");
-    setNewStatusName("");
     setNewStatusLabel("");
     setNewStatusColor("#3b82f6");
     loadCustomStatuses();
@@ -826,170 +826,174 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="settings" className="mt-6 space-y-6">
-                      <Tabs defaultValue="statuses" className="w-full">
-                        <TabsList className="grid w-full grid-cols-2 mb-6">
-                          <TabsTrigger value="statuses">Status</TabsTrigger>
-                          <TabsTrigger value="reasons">Kein-Interesse-Gründe</TabsTrigger>
-                        </TabsList>
-
-                        <TabsContent value="statuses" className="space-y-6">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Standard-Status</CardTitle>
-                              <CardDescription>
-                                Diese Status sind immer verfügbar und können nicht bearbeitet werden.
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-2">
+                    <TabsContent value="settings" className="mt-6">
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                        {/* Status Card */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Status-Einstellungen</CardTitle>
+                            <CardDescription>
+                              Verwalten Sie Standard- und eigene Status für dieses Projekt
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-6">
+                            {/* Standard Status */}
+                            <div>
+                              <h3 className="text-sm font-semibold mb-3">Standard-Status</h3>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                Diese Status sind immer verfügbar
+                              </p>
+                              <div className="flex flex-wrap gap-2">
                                 {DEFAULT_STATUSES.map((status) => (
                                   <div
                                     key={status.value}
-                                    className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                    className={`px-3 py-1.5 text-sm font-medium rounded ${status.color}`}
                                   >
-                                    <div className="flex items-center gap-3">
-                                      <div className={`px-3 py-1.5 text-sm font-medium rounded ${status.color}`}>
-                                        {status.label}
-                                      </div>
-                                    </div>
+                                    {status.label}
                                   </div>
                                 ))}
                               </div>
-                            </CardContent>
-                          </Card>
+                            </div>
 
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Eigene Status</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-4">
-                                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                            {/* Custom Status */}
+                            <div>
+                              <h3 className="text-sm font-semibold mb-3">Eigene Status</h3>
+                              <div className="space-y-3">
+                                <div className="flex gap-2">
                                   <Input
-                                    placeholder="Name (z.B. warten)"
-                                    value={newStatusName}
-                                    onChange={(e) => setNewStatusName(e.target.value)}
-                                  />
-                                  <Input
-                                    placeholder="Anzeigename (z.B. Auf Rückruf warten)"
+                                    placeholder="Label (z.B. Auf Rückruf warten)"
                                     value={newStatusLabel}
                                     onChange={(e) => setNewStatusLabel(e.target.value)}
+                                    className="flex-1"
                                   />
-                                  <div className="flex gap-2">
-                                    <Input
-                                      type="color"
-                                      value={newStatusColor}
-                                      onChange={(e) => setNewStatusColor(e.target.value)}
-                                      className="w-20"
-                                    />
-                                    <Button onClick={addCustomStatus} className="flex-1">
-                                      <Plus className="w-4 h-4 mr-2" />
-                                      Hinzufügen
-                                    </Button>
-                                  </div>
+                                  <Input
+                                    type="color"
+                                    value={newStatusColor}
+                                    onChange={(e) => setNewStatusColor(e.target.value)}
+                                    className="w-16"
+                                  />
+                                  <Button onClick={addCustomStatus} size="sm">
+                                    <Plus className="w-4 h-4" />
+                                  </Button>
                                 </div>
 
                                 {customStatuses.length > 0 && (
-                                  <div className="space-y-2 mt-4">
-                                    {customStatuses.map((status) => (
-                                      <div
-                                        key={status.id}
-                                        className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
-                                      >
-                                        <div className="flex items-center gap-3">
-                                          <div
-                                            className="px-3 py-1.5 text-sm font-medium rounded text-white"
-                                            style={{ backgroundColor: status.color }}
-                                          >
-                                            {status.label}
-                                          </div>
-                                          <span className="text-sm text-muted-foreground">({status.name})</span>
-                                        </div>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => deleteCustomStatus(status)}
+                                  <Select>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Eigene Status verwalten..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background z-50">
+                                      {customStatuses.map((status) => (
+                                        <div
+                                          key={status.id}
+                                          className="flex items-center justify-between p-2 hover:bg-muted"
                                         >
-                                          <Trash2 className="w-4 h-4 text-destructive" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
+                                          <div className="flex items-center gap-2">
+                                            <div
+                                              className="w-4 h-4 rounded"
+                                              style={{ backgroundColor: status.color }}
+                                            />
+                                            <span className="text-sm">{status.label}</span>
+                                          </div>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              deleteCustomStatus(status);
+                                            }}
+                                          >
+                                            <Trash2 className="w-4 h-4 text-destructive" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 )}
                               </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
+                            </div>
+                          </CardContent>
+                        </Card>
 
-                        <TabsContent value="reasons" className="space-y-6">
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Standard-Gründe</CardTitle>
-                              <CardDescription>
-                                Diese Gründe sind immer verfügbar. "Anderer Grund" kann nicht gelöscht werden.
-                              </CardDescription>
-                            </CardHeader>
-                            <CardContent>
+                        {/* Rejection Reasons Card */}
+                        <Card>
+                          <CardHeader>
+                            <CardTitle>Kein-Interesse-Gründe</CardTitle>
+                            <CardDescription>
+                              Verwalten Sie Standard- und eigene Ablehnungsgründe
+                            </CardDescription>
+                          </CardHeader>
+                          <CardContent className="space-y-6">
+                            {/* Standard Reasons */}
+                            <div>
+                              <h3 className="text-sm font-semibold mb-3">Standard-Gründe</h3>
+                              <p className="text-xs text-muted-foreground mb-3">
+                                "Anderer Grund" kann nicht gelöscht werden
+                              </p>
                               <div className="space-y-2">
                                 {DEFAULT_REJECTION_REASONS.map((reason) => (
                                   <div
                                     key={reason}
-                                    className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
+                                    className="flex items-center justify-between p-2 bg-muted/30 rounded text-sm"
                                   >
-                                    <span className="text-sm font-medium">{reason}</span>
+                                    <span>{reason}</span>
                                     {reason === "Anderer Grund" && (
-                                      <span className="text-xs text-muted-foreground">(Pflichtfeld)</span>
+                                      <span className="text-xs text-muted-foreground">(Pflicht)</span>
                                     )}
                                   </div>
                                 ))}
                               </div>
-                            </CardContent>
-                          </Card>
+                            </div>
 
-                          <Card>
-                            <CardHeader>
-                              <CardTitle>Eigene Gründe</CardTitle>
-                            </CardHeader>
-                            <CardContent>
-                              <div className="space-y-4">
+                            {/* Custom Reasons */}
+                            <div>
+                              <h3 className="text-sm font-semibold mb-3">Eigene Gründe</h3>
+                              <div className="space-y-3">
                                 <div className="flex gap-2">
                                   <Input
                                     placeholder="Neuer Grund..."
                                     value={newReason}
                                     onChange={(e) => setNewReason(e.target.value)}
                                     onKeyDown={(e) => e.key === "Enter" && addRejectionReason()}
+                                    className="flex-1"
                                   />
-                                  <Button onClick={addRejectionReason}>
-                                    <Plus className="w-4 h-4 mr-2" />
-                                    Hinzufügen
+                                  <Button onClick={addRejectionReason} size="sm">
+                                    <Plus className="w-4 h-4" />
                                   </Button>
                                 </div>
 
                                 {rejectionReasons.length > 0 && (
-                                  <div className="space-y-2 mt-4">
-                                    {rejectionReasons.map((reason) => (
-                                      <div
-                                        key={reason.id}
-                                        className="flex items-center justify-between p-3 bg-muted/30 rounded-md"
-                                      >
-                                        <span className="text-sm font-medium">{reason.reason}</span>
-                                        <Button
-                                          variant="ghost"
-                                          size="sm"
-                                          onClick={() => deleteRejectionReason(reason.id, reason.reason)}
+                                  <Select>
+                                    <SelectTrigger className="w-full">
+                                      <SelectValue placeholder="Eigene Gründe verwalten..." />
+                                    </SelectTrigger>
+                                    <SelectContent className="bg-background z-50">
+                                      {rejectionReasons.map((reason) => (
+                                        <div
+                                          key={reason.id}
+                                          className="flex items-center justify-between p-2 hover:bg-muted"
                                         >
-                                          <Trash2 className="w-4 h-4 text-destructive" />
-                                        </Button>
-                                      </div>
-                                    ))}
-                                  </div>
+                                          <span className="text-sm">{reason.reason}</span>
+                                          <Button
+                                            variant="ghost"
+                                            size="sm"
+                                            onClick={(e) => {
+                                              e.stopPropagation();
+                                              deleteRejectionReason(reason.id, reason.reason);
+                                            }}
+                                          >
+                                            <Trash2 className="w-4 h-4 text-destructive" />
+                                          </Button>
+                                        </div>
+                                      ))}
+                                    </SelectContent>
+                                  </Select>
                                 )}
                               </div>
-                            </CardContent>
-                          </Card>
-                        </TabsContent>
-                      </Tabs>
+                            </div>
+                          </CardContent>
+                        </Card>
+                      </div>
                     </TabsContent>
                   </Tabs>
           </div>
