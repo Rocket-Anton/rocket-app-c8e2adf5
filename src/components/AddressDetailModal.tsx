@@ -2414,7 +2414,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* 5. KARTE */}
-              <div className="h-[220px] rounded-lg overflow-hidden mb-4 border">
+              <div className="h-[180px] rounded-lg overflow-hidden mb-4 border">
                 <AppointmentMap
                   appointments={displayedAppointments}
                   selectedDate={mapDisplayDate}
