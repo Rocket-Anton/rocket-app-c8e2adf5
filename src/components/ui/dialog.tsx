@@ -48,7 +48,8 @@ const DialogContent = React.forwardRef<
       style={{ 
         willChange: 'transform, opacity',
         backfaceVisibility: 'hidden',
-        WebkitBackfaceVisibility: 'hidden'
+        WebkitBackfaceVisibility: 'hidden',
+        transformOrigin: 'center center'
       }}
       {...props}
     >
