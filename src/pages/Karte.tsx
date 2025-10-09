@@ -641,12 +641,41 @@ function KarteContent() {
         const bounds = new mapboxgl.LngLatBounds();
         let hasValidCoords = false;
 
-        projects?.forEach((project) => {
-          if (!project.coordinates) return;
-          
-          // Type guard for coordinates
-          const coords = project.coordinates as { lat?: number; lng?: number } | null;
-          if (!coords || typeof coords.lat !== 'number' || typeof coords.lng !== 'number') return;
+        // Process projects and geocode cities if needed
+        for (const project of projects) {
+          let coords: { lat: number; lng: number } | null = null;
+
+          // Try to use existing coordinates
+          if (project.coordinates) {
+            const projectCoords = project.coordinates as { lat?: number; lng?: number } | null;
+            if (projectCoords && typeof projectCoords.lat === 'number' && typeof projectCoords.lng === 'number') {
+              coords = { lat: projectCoords.lat, lng: projectCoords.lng };
+            }
+          }
+
+          // If no coordinates, geocode the city
+          if (!coords && project.city) {
+            try {
+              console.log('Geocoding city:', project.city);
+              const response = await fetch(
+                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(project.city)}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=DE&limit=1`
+              );
+              const data = await response.json();
+              
+              if (data.features && data.features.length > 0) {
+                const [lng, lat] = data.features[0].center;
+                coords = { lat, lng };
+                console.log(`Geocoded ${project.city} to`, coords);
+              }
+            } catch (geocodeError) {
+              console.error('Error geocoding city:', geocodeError);
+            }
+          }
+
+          if (!coords) {
+            console.log('No coordinates available for project:', project.name);
+            continue;
+          }
 
           hasValidCoords = true;
           bounds.extend([coords.lng, coords.lat]);
@@ -669,7 +698,7 @@ function KarteContent() {
 
           el.addEventListener('click', () => {
             map.flyTo({
-              center: [coords.lng, coords.lat],
+              center: [coords!.lng, coords!.lat],
               zoom: 14,
               pitch: 45,
               duration: 1500,
@@ -702,7 +731,7 @@ function KarteContent() {
             .addTo(map);
 
           projectMarkersRef.current.push(marker);
-        });
+        }
 
         // Fly to bounds of all selected projects
         if (hasValidCoords && !bounds.isEmpty()) {
