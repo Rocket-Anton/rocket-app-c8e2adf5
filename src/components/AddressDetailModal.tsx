@@ -1068,6 +1068,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         }
       }
 
+      // Update localAddresses State for immediate UI update
+      setLocalAddresses(prevAddresses => 
+        prevAddresses.map(addr => 
+          addr.id === pendingAddressId 
+            ? { ...addr, units: [...(addr.units || []), ...newUnits] }
+            : addr
+        )
+      );
+
       // Set status for each new unit - NO history, NO notes
       newUnits.forEach(unit => {
         const k = `${pendingAddressId}:${unit.id}`;
@@ -1161,13 +1170,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           }
         }
 
-        // Update local state to immediately remove the unit from UI
+        // Update local state to completely remove the unit from UI
         setLocalAddresses(prevAddresses => 
           prevAddresses.map(addr => 
             addr.id === addressId 
-              ? { ...addr, units: addr.units?.map(u => 
-                  u.id === unitId ? { ...u, deleted: true, deletedBy: currentUser?.name || "Unbekannt", deletedAt: timestamp } : u
-                ) }
+              ? { ...addr, units: addr.units?.filter(u => u.id !== unitId) || [] }
               : addr
           )
         );
@@ -1535,7 +1542,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pointer-events-auto">
                                     <SelectValue placeholder="Stockwerk" />
                                   </SelectTrigger>
-                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="center" className="w-[var(--radix-select-trigger-width)]">
                                     <SelectItem value="EG">EG</SelectItem>
                                     <SelectItem value="1. OG">1. OG</SelectItem>
                                     <SelectItem value="2. OG">2. OG</SelectItem>
@@ -1554,7 +1561,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2 pointer-events-auto">
                                     <SelectValue placeholder="Lage" />
                                   </SelectTrigger>
-                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="center" className="w-[var(--radix-select-trigger-width)]">
                                     <SelectItem value="Links">Links</SelectItem>
                                     <SelectItem value="Rechts">Rechts</SelectItem>
                                     <SelectItem value="Mitte">Mitte</SelectItem>
@@ -1586,7 +1593,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   </SelectValue>
                                 </SelectTrigger>
                                 {!isNotMarketable && (
-                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="start">
+                                  <ModalBoundSelect modalRef={modalContentRef} side="bottom" align="center" className="w-[var(--radix-select-trigger-width)]">
                                     {statusOptions
                                       .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                                       .map((status) => (
@@ -1682,34 +1689,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <p className="text-xs text-muted-foreground">
                             Aktualisiert: {lastUpdated[`${addr.id}:${unit.id}`]}
                           </p>
-                        )}
-
-                        {/* Kein Interesse & Potenzial Buttons */}
-                        {!isNotMarketable && unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && (
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/20"
-                              onClick={() => {
-                                setPendingKeinInteresse({ addressId: addr.id, unitId: unit.id });
-                                setKeinInteresseDialogOpen(true);
-                              }}
-                            >
-                              Kein Interesse
-                            </Button>
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              className="flex-1 text-yellow-600 border-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-950/20"
-                              onClick={() => {
-                                setPendingPotenzial({ addressId: addr.id, unitId: unit.id });
-                                setPotenzialDialogOpen(true);
-                              }}
-                            >
-                              Potenzial
-                            </Button>
-                          </div>
                         )}
 
                         {/* Notizen Collapsible - now shown on all screen sizes */}
