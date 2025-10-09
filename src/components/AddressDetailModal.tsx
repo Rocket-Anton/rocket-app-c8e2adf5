@@ -115,8 +115,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         });
       }
     };
-    fetchUser();
-  }, []);
+    if (open) fetchUser();
+  }, [open]);
   const [emblaRef, emblaApi] = useEmblaCarousel({
     loop: false,
     skipSnaps: false,
