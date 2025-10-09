@@ -1818,8 +1818,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Order Creation Dialog (Single Address) */}
+        {orderDialogOpen && (
+          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
+        )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -2425,8 +2428,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialog>
 
         {/* Order Creation Dialog (Mobile) */}
+        {orderDialogOpen && (
+          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
+        )}
         <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
             <DialogHeader>
               <DialogTitle>Auftrag anlegen</DialogTitle>
             </DialogHeader>
@@ -3027,8 +3033,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       </AlertDialog>
       
       {/* Order Creation Dialog */}
+      {orderDialogOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setOrderDialogOpen(false)} />
+      )}
       <Dialog open={orderDialogOpen} onOpenChange={setOrderDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]">
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay>
           <DialogHeader>
             <DialogTitle>Auftrag anlegen</DialogTitle>
           </DialogHeader>
