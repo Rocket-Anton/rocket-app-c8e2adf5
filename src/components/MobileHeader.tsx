@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
-import { Menu, X, Home, Map, ListChecks, Settings, DollarSign, Users, FolderKanban } from "lucide-react";
+import { Menu, X, Home, Map, ListChecks, Settings, DollarSign, Users, FolderKanban, LogOut } from "lucide-react";
 import { ProjectSelector } from "./ProjectSelector";
+import { supabase } from "@/integrations/supabase/client";
 import rocketLogo from "@/assets/rocket-logo-white.png";
 
 interface MobileHeaderProps {
@@ -13,11 +14,27 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHeaderProps) {
   const [open, setOpen] = useState(false);
+  const [userProfile, setUserProfile] = useState<{ name?: string } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
   const currentPath = location.pathname;
   const showProjectSelector = (currentPath === '/karte' || currentPath === '/') && selectedProjectIds && onProjectsChange;
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        const { data } = await supabase
+          .from('profiles')
+          .select('name')
+          .eq('id', user.id)
+          .single();
+        setUserProfile(data);
+      }
+    };
+    fetchUser();
+  }, []);
 
   const menuItems = [
     { icon: Home, label: "Dashboard", path: "/" },
@@ -31,6 +48,12 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
   const handleNavigation = (path: string) => {
     navigate(path);
+    setOpen(false);
+  };
+
+  const handleLogout = async () => {
+    await supabase.auth.signOut();
+    navigate('/auth');
     setOpen(false);
   };
 
@@ -62,11 +85,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           </SheetTrigger>
           <SheetContent 
             side="right" 
-            className="w-[280px] p-0"
+            className="w-[280px] p-0 flex flex-col"
           >
-            <div className="flex flex-col h-full">
+            <div className="flex flex-col h-full min-h-0">
               {/* Header in menu */}
-              <div className="p-4 border-b bg-[#0066FF]">
+              <div className="p-4 border-b bg-[#0066FF] flex-shrink-0">
                 <div className="flex items-center gap-2">
                   <img 
                     src={rocketLogo} 
@@ -79,7 +102,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
               {/* Project selector if applicable */}
               {showProjectSelector && (
-                <div className="p-4 border-b bg-muted/30">
+                <div className="p-4 border-b bg-muted/30 flex-shrink-0">
                   <div className="text-xs font-medium text-muted-foreground mb-2">
                     PROJEKTE
                   </div>
@@ -92,7 +115,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
               )}
 
               {/* Navigation items */}
-              <nav className="flex-1 overflow-y-auto p-2">
+              <nav className="flex-1 overflow-y-auto p-2 min-h-0">
                 <div className="space-y-1">
                   {menuItems.map((item) => {
                     const Icon = item.icon;
@@ -117,6 +140,24 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                   })}
                 </div>
               </nav>
+
+              {/* User section */}
+              <div className="border-t p-4 flex-shrink-0 bg-background">
+                <div className="space-y-3">
+                  {userProfile?.name && (
+                    <div className="text-sm font-medium text-foreground">
+                      {userProfile.name}
+                    </div>
+                  )}
+                  <button
+                    onClick={handleLogout}
+                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left text-muted-foreground hover:bg-muted hover:text-foreground"
+                  >
+                    <LogOut className="h-5 w-5 flex-shrink-0" />
+                    <span>Abmelden</span>
+                  </button>
+                </div>
+              </div>
             </div>
           </SheetContent>
         </Sheet>
