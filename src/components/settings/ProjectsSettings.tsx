@@ -291,25 +291,25 @@ export const ProjectsSettings = () => {
             </SelectTrigger>
             <SelectContent className="bg-background">
               <SelectItem value="all">Alle Status</SelectItem>
-              <SelectItem value="In Planung">
-                <span className="inline-block px-3 py-1 rounded-md bg-blue-100 text-blue-800 text-xs font-medium w-full">
+              <SelectItem value="In Planung" className="p-0">
+                <div className="px-3 py-1.5 rounded-md bg-blue-100 text-blue-800 text-xs font-medium w-full">
                   IN PLANUNG
-                </span>
+                </div>
               </SelectItem>
-              <SelectItem value="Läuft">
-                <span className="inline-block px-3 py-1 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
+              <SelectItem value="Läuft" className="p-0">
+                <div className="px-3 py-1.5 rounded-md bg-green-100 text-green-800 text-xs font-medium w-full">
                   LÄUFT
-                </span>
+                </div>
               </SelectItem>
-              <SelectItem value="Laufend">
-                <span className="inline-block px-3 py-1 rounded-md bg-yellow-100 text-yellow-800 text-xs font-medium w-full">
+              <SelectItem value="Laufend" className="p-0">
+                <div className="px-3 py-1.5 rounded-md bg-yellow-100 text-yellow-800 text-xs font-medium w-full">
                   LAUFEND
-                </span>
+                </div>
               </SelectItem>
-              <SelectItem value="Abgeschlossen">
-                <span className="inline-block px-3 py-1 rounded-md bg-red-100 text-red-800 text-xs font-medium w-full">
+              <SelectItem value="Abgeschlossen" className="p-0">
+                <div className="px-3 py-1.5 rounded-md bg-red-100 text-red-800 text-xs font-medium w-full">
                   ABGESCHLOSSEN
-                </span>
+                </div>
               </SelectItem>
             </SelectContent>
           </Select>
