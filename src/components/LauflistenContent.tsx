@@ -369,9 +369,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     
     const wohneinheiten = filteredUnits.length;
     
-    // Potenziale sind: offen, potenzial, termin
+    // Vermarktbare Einheiten: Alle außer "kein-interesse", "neukunde", "bestandskunde" und nicht-vermarktbar
     const potentiale = filteredUnits.filter(unit => 
-      ['offen', 'potenzial', 'termin'].includes(unit.status)
+      unit.marketable !== false && 
+      !['kein-interesse', 'neukunde', 'bestandskunde'].includes(unit.status.toLowerCase())
     ).length;
     
     return {

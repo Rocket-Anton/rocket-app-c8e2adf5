@@ -72,8 +72,8 @@ const AddressCardComponent = ({ address, allAddresses = [], currentIndex = 0, on
                   <span className="text-sm font-medium">{address.wohneinheiten || 0}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-green-600 flex-shrink-0" />
-                  <span className="text-sm font-medium text-green-600">{address.potentiale || 0}</span>
+                  <Users className={`w-4 h-4 flex-shrink-0 ${(address.potentiale || 0) > 0 ? 'text-green-600' : 'text-red-600'}`} />
+                  <span className={`text-sm font-medium ${(address.potentiale || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>{address.potentiale || 0}</span>
                 </div>
               </div>
               <ChevronRight className="w-4 h-4 text-muted-foreground flex-shrink-0" />
@@ -88,8 +88,8 @@ const AddressCardComponent = ({ address, allAddresses = [], currentIndex = 0, on
                   <span className="text-sm font-medium">{address.wohneinheiten || 0}</span>
                 </div>
                 <div className="flex items-center gap-1">
-                  <Users className="w-4 h-4 text-green-600 flex-shrink-0" />
-                  <span className="text-sm font-medium text-green-600">{address.potentiale || 0}</span>
+                  <Users className={`w-4 h-4 flex-shrink-0 ${(address.potentiale || 0) > 0 ? 'text-green-600' : 'text-red-600'}`} />
+                  <span className={`text-sm font-medium ${(address.potentiale || 0) > 0 ? 'text-green-600' : 'text-red-600'}`}>{address.potentiale || 0}</span>
                 </div>
               </div>
               <ChevronRight className="w-5 h-5 text-muted-foreground flex-shrink-0" />
