@@ -255,78 +255,98 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
               />
             </div>
 
-            {/* Status Filter */}
+            {/* Combined Filter Dropdown */}
             <Popover>
               <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
-                  <Filter className="h-3 w-3" />
-                  Status
-                  {statusFilter.length > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">
-                      {statusFilter.length}
-                    </Badge>
+                <Button variant="outline" size="sm" className="h-7 w-7 p-0">
+                  <Filter className="h-3.5 w-3.5" />
+                  {(statusFilter.length > 0 || providerFilter.length > 0) && (
+                    <span className="absolute -top-1 -right-1 h-3.5 w-3.5 rounded-full bg-primary text-[8px] text-primary-foreground flex items-center justify-center">
+                      {statusFilter.length + providerFilter.length}
+                    </span>
                   )}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-48 p-2 z-[1002]" align="end">
-                <div className="space-y-1">
-                  {uniqueStatuses.map(status => (
-                    <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
-                      <Checkbox
-                        checked={statusFilter.includes(status)}
-                        onCheckedChange={(checked) => {
-                          setStatusFilter(prev =>
-                            checked
-                              ? [...prev, status]
-                              : prev.filter(s => s !== status)
-                          );
-                        }}
-                        className="h-3.5 w-3.5"
-                      />
-                      <span>{status}</span>
-                    </label>
-                  ))}
-                </div>
-              </PopoverContent>
-            </Popover>
+              <PopoverContent className="w-56 p-0 z-[1002]" align="end">
+                <div className="p-2 space-y-3">
+                  {/* Status Filter Section */}
+                  <div className="space-y-1.5">
+                    <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                      Status
+                    </div>
+                    <div className="space-y-0.5">
+                      {uniqueStatuses.map(status => (
+                        <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
+                          <Checkbox
+                            checked={statusFilter.includes(status)}
+                            onCheckedChange={(checked) => {
+                              setStatusFilter(prev =>
+                                checked
+                                  ? [...prev, status]
+                                  : prev.filter(s => s !== status)
+                              );
+                            }}
+                            className="h-3.5 w-3.5"
+                          />
+                          <span>{status}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
 
-            {/* Provider Filter */}
-            <Popover>
-              <PopoverTrigger asChild>
-                <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
-                  <Filter className="h-3 w-3" />
-                  Provider
-                  {providerFilter.length > 0 && (
-                    <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">
-                      {providerFilter.length}
-                    </Badge>
-                  )}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-52 p-2 z-[1002]" align="end">
-                <div className="space-y-1">
-                  {providers.map(provider => (
-                    <label key={provider.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
-                      <Checkbox
-                        checked={providerFilter.includes(provider.id)}
-                        onCheckedChange={(checked) => {
-                          setProviderFilter(prev =>
-                            checked
-                              ? [...prev, provider.id]
-                              : prev.filter(p => p !== provider.id)
-                          );
-                        }}
-                        className="h-3.5 w-3.5"
-                      />
-                      <div className="flex items-center gap-1.5">
-                        <div 
-                          className="w-2 h-2 rounded-full" 
-                          style={{ backgroundColor: provider.color }}
-                        />
-                        <span>{provider.name}</span>
+                  {/* Provider Filter Section */}
+                  {providers.length > 0 && (
+                    <>
+                      <div className="border-t" />
+                      <div className="space-y-1.5">
+                        <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-wider px-1">
+                          Provider
+                        </div>
+                        <div className="space-y-0.5">
+                          {providers.map(provider => (
+                            <label key={provider.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
+                              <Checkbox
+                                checked={providerFilter.includes(provider.id)}
+                                onCheckedChange={(checked) => {
+                                  setProviderFilter(prev =>
+                                    checked
+                                      ? [...prev, provider.id]
+                                      : prev.filter(p => p !== provider.id)
+                                  );
+                                }}
+                                className="h-3.5 w-3.5"
+                              />
+                              <div className="flex items-center gap-1.5">
+                                <div 
+                                  className="w-2 h-2 rounded-full" 
+                                  style={{ backgroundColor: provider.color }}
+                                />
+                                <span>{provider.name}</span>
+                              </div>
+                            </label>
+                          ))}
+                        </div>
                       </div>
-                    </label>
-                  ))}
+                    </>
+                  )}
+
+                  {/* Reset Button */}
+                  {(statusFilter.length > 0 || providerFilter.length > 0) && (
+                    <>
+                      <div className="border-t" />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        onClick={() => {
+                          setStatusFilter([]);
+                          setProviderFilter([]);
+                        }}
+                        className="w-full h-7 text-xs"
+                      >
+                        Filter zurücksetzen
+                      </Button>
+                    </>
+                  )}
                 </div>
               </PopoverContent>
             </Popover>
@@ -336,18 +356,14 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
             <p className="text-[10px] text-muted-foreground">
               {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
             </p>
-            {(searchQuery || statusFilter.length > 0 || providerFilter.length > 0) && (
+            {searchQuery && (
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => {
-                  setSearchQuery("");
-                  setStatusFilter([]);
-                  setProviderFilter([]);
-                }}
+                onClick={() => setSearchQuery("")}
                 className="h-5 text-[10px] px-2"
               >
-                Filter zurücksetzen
+                Suche löschen
               </Button>
             )}
           </div>
