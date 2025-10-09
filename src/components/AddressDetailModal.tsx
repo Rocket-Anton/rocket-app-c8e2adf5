@@ -1170,9 +1170,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
-        {/* Left Panel */}
-        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
+      <div className="flex flex-col md:flex-row h-full w-full overflow-hidden touch-pan-y">
+        {/* Left Panel - Address Controls (Full width on mobile, 50% on desktop) */}
+        <div ref={scrollContainerRef} className={`flex-1 md:flex-[0.5] min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`}>
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -1510,31 +1510,102 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </div>
         </div>
 
-        {/* Right Panel - Hidden on mobile */}
-        <div className="hidden sm:block sm:w-80 border-l bg-muted/30 overflow-y-auto">
-          {/* Notes Section */}
-          <div className="p-4 border-b">
-            <h3 className="font-medium mb-3">Notizen</h3>
-            <div className="space-y-3">
-              {notes.map((note) => (
-                <div key={note.id} className="bg-background rounded-lg p-3 relative">
-                  <button className="absolute top-2 right-2 w-4 h-4 text-muted-foreground hover:text-foreground">
-                    <X className="w-4 h-4" />
-                  </button>
-                  <div className="font-medium text-sm">{note.author}</div>
-                  <div className="text-xs text-muted-foreground mb-2">{note.timestamp}</div>
-                  <div className="text-sm">{note.content}</div>
-                </div>
-              ))}
+        {/* Right Panel - Notizen & Termine (Desktop only) */}
+        <div className="hidden md:block md:flex-[0.5] border-l border-border min-h-0 overflow-y-auto px-6 pt-4 pb-6 space-y-6">
+          {/* Notizen Section */}
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium flex items-center gap-2">
+                <FileText className="w-4 h-4 text-muted-foreground" />
+                Notizen
+                {notes.length > 0 && (
+                  <span className="text-xs text-muted-foreground">({notes.length})</span>
+                )}
+              </h3>
+            </div>
+            
+            {notes.length > 0 ? (
+              <div className="space-y-2 max-h-[200px] overflow-y-auto mb-3">
+                {notes.map((note) => (
+                  <div key={note.id} className="p-3 rounded-lg bg-muted/50 text-sm relative pr-8">
+                    <div className="flex items-start justify-between gap-2 mb-1">
+                      <span className="font-medium">{note.author}</span>
+                      {!note.permanent && (
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="h-6 w-6 -mt-1 -mr-1 text-destructive hover:text-destructive hover:bg-destructive/10 absolute top-2 right-2"
+                          onClick={() => {
+                            setPendingDeleteNoteId(note.id);
+                            setDeleteNoteDialogOpen(true);
+                          }}
+                        >
+                          <Trash2 className="h-3.5 w-3.5" />
+                        </Button>
+                      )}
+                    </div>
+                    <div className="text-xs text-muted-foreground mb-1.5">{note.timestamp}</div>
+                    <div className="whitespace-pre-wrap">{note.content}</div>
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground text-center py-4 mb-3">
+                Noch keine Notizen vorhanden
+              </div>
+            )}
+            
+            <div className="relative">
+              <Textarea
+                value={newNoteText}
+                onChange={(e) => setNewNoteText(e.target.value)}
+                placeholder="Notiz hinzufügen..."
+                className="min-h-[80px] resize-none border-border focus-visible:ring-0 focus-visible:ring-offset-0"
+              />
+              <Button
+                onClick={handleAddNote}
+                disabled={!newNoteText.trim()}
+                size="sm"
+                className="absolute bottom-2 right-2 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white disabled:opacity-50 shadow-[0_2px_8px_rgba(14,165,233,0.3)]"
+              >
+                <Plus className="w-4 h-4 mr-1" />
+                Hinzufügen
+              </Button>
             </div>
           </div>
 
-          {/* Appointments Section */}
-          <div className="p-4">
-            <h3 className="font-medium mb-3">Termine</h3>
-            <div className="bg-background rounded-lg p-3 text-center text-muted-foreground">
-              Keine Termine
+          {/* Termine Section */}
+          <div className="w-full">
+            <div className="flex items-center justify-between mb-3">
+              <h3 className="text-sm font-medium flex items-center gap-2">
+                <Clock className="w-4 h-4 text-muted-foreground" />
+                Termine
+                {appointments.length > 0 && (
+                  <span className="text-xs text-muted-foreground">({appointments.length})</span>
+                )}
+              </h3>
             </div>
+            
+            {appointments.length > 0 ? (
+              <div className="space-y-2">
+                {appointments.map((apt) => (
+                  <div key={apt.id} className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/30 border border-blue-200 dark:border-blue-800 text-sm">
+                    <div className="font-medium mb-1">{apt.date} - {apt.time}</div>
+                    <div className="text-muted-foreground text-xs">{apt.address}</div>
+                    {apt.customer && (
+                      <div className="text-muted-foreground text-xs mt-1">Kunde: {apt.customer}</div>
+                    )}
+                    {apt.notes && (
+                      <div className="text-muted-foreground text-xs mt-1">{apt.notes}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-sm text-muted-foreground text-center py-4">
+                Noch keine Termine vorhanden
+              </div>
+            )}
           </div>
         </div>
       </div>
