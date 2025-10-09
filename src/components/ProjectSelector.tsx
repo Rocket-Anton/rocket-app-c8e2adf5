@@ -125,16 +125,18 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       }
     ];
 
+    const dummyProviders: Provider[] = [
+      { id: 'vvm-id', name: 'VVM', color: '#3b82f6' },
+      { id: 'nc-id', name: 'NC', color: '#10b981' }
+    ];
+
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
         console.log('ProjectSelector: No user found');
         // Set dummy data even without user for testing
         setProjects(dummyProjects);
-        setProviders([
-          { id: 'vvm-id', name: 'VVM', color: '#3b82f6' },
-          { id: 'nc-id', name: 'NC', color: '#10b981' }
-        ]);
+        setProviders(dummyProviders);
         setLoading(false);
         return;
       }
@@ -211,8 +213,14 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           }
         });
 
+        // Merge with dummy providers
+        dummyProviders.forEach(p => uniqueProviders.set(p.id, p));
+
         setProviders(Array.from(uniqueProviders.values()));
-        setProjects(projectsWithColors);
+        
+        // Merge real data with dummy data
+        const allProjects = [...projectsWithColors, ...dummyProjects];
+        setProjects(allProjects);
         setLoading(false);
         return;
       }
@@ -244,6 +252,9 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           });
         }
       });
+
+      // Merge with dummy providers
+      dummyProviders.forEach(p => uniqueProviders.set(p.id, p));
 
       setProviders(Array.from(uniqueProviders.values()));
       
@@ -430,7 +441,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           </div>
         </div>
         
-        <ScrollArea className="max-h-[280px]">
+        <ScrollArea className="max-h-[180px]">
           {loading ? (
             <div className="flex items-center justify-center py-8">
               <div className="text-sm text-muted-foreground">Lädt...</div>
