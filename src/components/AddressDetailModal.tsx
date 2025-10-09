@@ -1265,7 +1265,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full min-h-0 w-full max-w-full overflow-hidden touch-pan-y">
+      <div className="flex flex-col h-full min-h-0 w-full max-w-full touch-pan-y">
         {/* Single scrollable container */}
         <div 
           ref={setScrollRef(addr.id)} 
@@ -1914,10 +1914,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         variants={CARD_VARIANTS}
       >
         {/* Card Header */}
-        <motion.div 
-          className="relative px-4 py-4 border-b flex-shrink-0"
-          variants={ITEM_VARIANTS}
-        >
+          <motion.div 
+            className="relative px-4 py-4 border-b flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
+            variants={ITEM_VARIANTS}
+          >
           <DialogClose 
             className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 z-50"
             onClick={() => handleDialogChange(false)}
@@ -1953,10 +1953,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </motion.div>
 
         {/* Card Content */}
-        <motion.div 
-          className="flex-1 min-h-0 overflow-hidden w-full max-w-full"
-          variants={ITEM_VARIANTS}
-        >
+          <motion.div 
+            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full"
+            variants={ITEM_VARIANTS}
+            style={{ WebkitOverflowScrolling: 'touch' }}
+          >
           {renderAddressContent(addr)}
         </motion.div>
       </motion.div>
@@ -1971,11 +1972,11 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <>
         <MotionDialog open={open} onOpenChange={handleDialogChange}>
-          <div 
-            ref={modalContentRef}
-            className="p-0 overflow-visible w-full h-[85vh] bg-transparent shadow-none ring-0 border-0"
-            style={{ isolation: 'isolate', zIndex: 10100 }}
-          >
+      <div 
+        ref={modalContentRef}
+        className="p-0 w-full max-w-[720px] max-h-[85vh] bg-transparent shadow-none ring-0 border-0 overflow-hidden"
+        style={{ isolation: 'isolate', zIndex: 10100 }}
+      >
             <HorizontalModalPager
               items={allAddresses}
               startIndex={initialIndex}
@@ -2251,11 +2252,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <MotionDialog open={open} onOpenChange={handleDialogChange}>
-        <div 
-          ref={modalContentRef}
-          className="p-0 overflow-visible w-full h-[85vh] bg-transparent shadow-none ring-0 border-0 flex items-center justify-center"
-        >
-          <div className="relative w-full max-w-md h-full">
+      <div 
+        ref={modalContentRef}
+        className="p-0 w-full max-w-[720px] max-h-[85vh] bg-transparent shadow-none ring-0 border-0 overflow-hidden"
+        style={{ isolation: 'isolate', zIndex: 10100 }}
+      >
+        <div className="relative w-full h-full">
             <HorizontalModalPager
               ref={pagerRef}
               items={allAddresses}
