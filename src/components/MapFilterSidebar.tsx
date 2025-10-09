@@ -217,7 +217,7 @@ export function MapFilterSidebar({
                   sideOffset={8}
                   avoidCollisions={false}
                   collisionPadding={8}
-                  className="p-0 bg-background border border-border rounded-md shadow-md z-[10001]"
+                  className="p-0 bg-background border border-border rounded-md shadow-md z-[10001] overflow-hidden"
                   style={{ 
                     width: "var(--radix-popover-trigger-width)",
                     maxHeight: "min(var(--radix-popper-available-height, 300px), 300px)"
@@ -226,9 +226,8 @@ export function MapFilterSidebar({
                   <div
                     role="listbox"
                     aria-multiselectable
-                    className="overflow-y-auto overscroll-contain touch-pan-y"
+                    className="min-h-0 max-h-[300px] overflow-y-auto overscroll-contain touch-pan-y"
                     style={{ 
-                      maxHeight: "min(300px, var(--radix-popper-available-height, 300px))",
                       WebkitOverflowScrolling: 'touch'
                     }}
                     onWheel={(e) => e.stopPropagation()}
