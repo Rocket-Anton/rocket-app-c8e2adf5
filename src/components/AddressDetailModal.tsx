@@ -2472,14 +2472,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
             
-            <DialogFooter className="flex-shrink-0 px-4 pb-3 pt-4 border-t">
+            <DialogFooter className="flex-shrink-0 px-4 pb-3 pt-4 border-t flex-row gap-2">
               <Button
                 variant="outline"
+                className="flex-1"
                 onClick={() => setAddAppointmentDialogOpen(false)}
               >
                 Abbrechen
               </Button>
               <Button
+                className="flex-1"
                 onClick={saveAppointment}
                 disabled={!appointmentDate || !appointmentTime}
               >
