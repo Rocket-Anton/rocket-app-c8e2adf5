@@ -2464,7 +2464,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
             </div>
             
-            <DialogFooter className="flex-shrink-0 px-4 pb-6 pt-10 border-t">
+            <DialogFooter className="flex-shrink-0 px-4 pb-6 pt-14 border-t">
               <Button
                 variant="outline"
                 onClick={() => setAddAppointmentDialogOpen(false)}
