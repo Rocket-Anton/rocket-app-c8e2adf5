@@ -122,9 +122,15 @@ const NavigationArrow: React.FC<{
         "shadow-lg border border-border",
         "disabled:opacity-30 disabled:cursor-not-allowed",
         "transition-colors duration-200",
-        "outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
+        "outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0",
+        "[&:focus-visible]:outline-none [&:focus-visible]:ring-0",
+        "[&:focus]:outline-none [&:focus]:shadow-none"
       )}
-      style={{ WebkitTapHighlightColor: "transparent" }}
+      style={{ 
+        WebkitTapHighlightColor: "transparent",
+        outline: 'none',
+        boxShadow: 'none'
+      } as React.CSSProperties}
     >
       <motion.span
         className="grid place-items-center"
@@ -1342,7 +1348,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pointer-events-auto">
                                   <SelectValue placeholder="Stockwerk" />
                                 </SelectTrigger>
-                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] pointer-events-auto">
+                                <SelectContent 
+                                  side="bottom" 
+                                  align="start" 
+                                  sideOffset={4}
+                                  avoidCollisions={true} 
+                                  collisionPadding={16} 
+                                  className="bg-background z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto"
+                                >
                                   <SelectItem value="EG">EG</SelectItem>
                                   <SelectItem value="1. OG">1. OG</SelectItem>
                                   <SelectItem value="2. OG">2. OG</SelectItem>
@@ -1361,7 +1374,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                 <SelectTrigger className="w-full max-w-full min-w-0 h-9 sm:h-10 border border-border rounded-md shadow-none bg-background focus:ring-0 focus:outline-none pr-2 pointer-events-auto">
                                   <SelectValue placeholder="Lage" />
                                 </SelectTrigger>
-                                <SelectContent side="bottom" avoidCollisions={false} className="bg-background z-[10000] pointer-events-auto">
+                                <SelectContent 
+                                  side="bottom" 
+                                  align="start" 
+                                  sideOffset={4}
+                                  avoidCollisions={true} 
+                                  collisionPadding={16} 
+                                  className="bg-background z-[10120] pointer-events-auto max-h-[200px] overflow-y-auto"
+                                >
                                   <SelectItem value="Links">Links</SelectItem>
                                   <SelectItem value="Rechts">Rechts</SelectItem>
                                   <SelectItem value="Mitte">Mitte</SelectItem>
@@ -1393,7 +1413,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                   </SelectValue>
                                 </SelectTrigger>
                                 {!isNotMarketable && (
-                                  <BoundedSelectContent modalRef={modalContentRef} align="start" sideOffset={8}>
+                                  <SelectContent 
+                                    side="bottom" 
+                                    align="start" 
+                                    sideOffset={8}
+                                    avoidCollisions={true}
+                                    collisionPadding={16}
+                                    className="z-[10120] max-h-[200px] overflow-y-auto"
+                                  >
                                     {statusOptions
                                       .filter(status => status.value !== "offen" && status.value !== "neukunde" && status.value !== "termin")
                                       .map((status) => (
@@ -1403,7 +1430,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                           </div>
                                         </SelectItem>
                                       ))}
-                                  </BoundedSelectContent>
+                                  </SelectContent>
                                 )}
                               </Select>
                             </div>
@@ -1425,11 +1452,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                     )}
                                   </Button>
                                 </PopoverTrigger>
-                                  <BoundedPopoverContent
-                                    modalRef={modalContentRef}
+                                   <PopoverContent
                                     align="start"
+                                    side="bottom"
                                     sideOffset={8}
-                                    className="w-64 p-0 z-[10130] overflow-hidden rounded-md border bg-popover shadow-xl"
+                                    avoidCollisions={true}
+                                    collisionPadding={16}
+                                    className="w-64 p-0 z-[10120] overflow-hidden rounded-md border bg-popover shadow-xl"
                                   >
                                     <div
                                       className="max-h-[var(--bounded-max-h)] overflow-y-auto overscroll-contain touch-pan-y"
@@ -1467,9 +1496,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                                             </div>
                                           )}
                                         </div>
-                                      </div>
-                                    </div>
-                                  </BoundedPopoverContent>
+                                       </div>
+                                     </div>
+                                   </PopoverContent>
                               </Popover>
                             </div>
                           </div>
@@ -1552,7 +1581,6 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                         <Collapsible 
                           open={appointmentsOpen[unit.id] || false} 
                           onOpenChange={(open) => setAppointmentsOpen(prev => ({ ...prev, [unit.id]: open }))}
-                          className="transition-all"
                         >
                           <CollapsibleTrigger className="w-full flex items-center justify-between p-2 hover:bg-background/50 transition-colors border border-border rounded-md bg-background">
                             <div className="flex items-center gap-2">
@@ -1925,7 +1953,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
         style={{ isolation: 'isolate' }}
       >
-        <div className="w-full max-w-lg h-[90vh] sm:h-[85vh]">
+        <div className="w-full max-w-lg h-[95vh] md:h-[85vh]">
           <HorizontalModalPager
             items={allAddresses}
             startIndex={initialIndex}
