@@ -1242,16 +1242,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       )}
                     </div>
                   )}
-                {/* Gray Container for Fields - Green background if Neukunde, Red if Kein Interesse */}
-                    <div className={`rounded-lg p-3 sm:p-4 w-full box-border max-w-full ${
-                      isNotMarketable 
-                        ? "bg-gray-100 dark:bg-gray-900/50"
-                        : unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
-                          ? "bg-green-100 dark:bg-green-950/30" 
-                          : unitStatuses[`${addr.id}:${unit.id}`] === "kein-interesse"
-                          ? "bg-red-100 dark:bg-red-950/30"
-                          : "bg-muted/70"
-                    }`}>
+                  
+                  {/* Gray Container for Fields - Green background if Neukunde, Red if Kein Interesse */}
+                  <div className={`rounded-lg p-3 sm:p-4 w-full box-border max-w-full ${
+                    isNotMarketable 
+                      ? "bg-gray-100 dark:bg-gray-900/50"
+                      : unitStatuses[`${addr.id}:${unit.id}`] === "neukunde" 
+                        ? "bg-green-100 dark:bg-green-950/30" 
+                        : unitStatuses[`${addr.id}:${unit.id}`] === "kein-interesse"
+                        ? "bg-red-100 dark:bg-red-950/30"
+                        : "bg-muted/70"
+                  }`}>
                     
                     {/* All content stacked vertically on all screen sizes */}
                     <div className="flex flex-col space-y-3">
@@ -1536,11 +1537,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             )}
                           </CollapsibleContent>
                         </Collapsible>
+                      </div>
                     </div>
                   </div>
                 </div>
               );
-              })
+            })
             ) : (
               <div className="p-4 bg-muted/30 rounded-lg text-center text-muted-foreground">
                 Keine Wohneinheiten vorhanden
