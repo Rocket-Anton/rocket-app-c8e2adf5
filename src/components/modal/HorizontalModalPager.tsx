@@ -49,14 +49,16 @@ export default function HorizontalModalPager<T extends Item>({
         marginLeft: 'calc(50% - 50vw)',
         marginRight: 'calc(50% - 50vw)',
         willChange: 'transform',
-        contain: 'layout style paint'
+        contain: 'layout style paint',
+        backfaceVisibility: 'hidden',
+        WebkitBackfaceVisibility: 'hidden'
       }}
     >
-      <div className="flex h-full" style={{ willChange: 'transform' }}>
+      <div className="flex h-full" style={{ willChange: 'transform', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
         {items.map((it, idx) => (
-          <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout' }}>
-            <div className="h-full w-full flex items-start justify-center">
-              <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden">
+          <div key={it.id} className="flex-[0_0_100%] h-full" style={{ contain: 'layout style', backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+            <div className="h-full w-full flex items-start justify-center" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
+              <div className="w-[92vw] max-w-2xl h-full bg-background rounded-xl shadow-xl border flex flex-col overflow-hidden" style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}>
                 {renderCard(it, idx, items.length)}
               </div>
             </div>
