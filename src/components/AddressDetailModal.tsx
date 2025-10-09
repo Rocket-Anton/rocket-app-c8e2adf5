@@ -120,7 +120,6 @@ const NavigationArrow: React.FC<{
         direction === "left" ? "left-32 md:left-48 lg:left-64 xl:left-80" : "right-32 md:right-48 lg:right-64 xl:right-80",
         "h-10 w-10 rounded-full",
         "bg-background/95 hover:bg-background",
-        "shadow-lg border border-border",
         "disabled:opacity-30 disabled:cursor-not-allowed",
         "transition-colors duration-200",
         "outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0",
@@ -130,6 +129,7 @@ const NavigationArrow: React.FC<{
       style={{ 
         WebkitTapHighlightColor: "transparent",
         outline: 'none',
+        border: 'none',
         boxShadow: 'none'
       } as React.CSSProperties}
     >
