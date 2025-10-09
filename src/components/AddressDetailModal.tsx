@@ -1714,15 +1714,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnitCount = addrUnits.length;
     
     return (
-      <div key={addr.id} className="h-full w-[95vw] max-w-lg mx-auto">
-        <div
-          className={cn(
-            "relative h-full flex flex-col",
-            "rounded-2xl overflow-hidden bg-background shadow-2xl",
-            "transform-gpu will-change-transform [backface-visibility:hidden]",
-            "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
-          )}
-        >
+      <div key={addr.id} className="h-full w-full mx-auto">
+        <div className="relative h-full flex flex-col bg-transparent">
+
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
           <DialogClose 
@@ -1779,7 +1773,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   if (allAddresses.length <= 1) {
     return (
       <>
-        <MotionDialog open={open} onOpenChange={handleDialogChange}>
+        <MotionDialog
+          open={open}
+          onOpenChange={handleDialogChange}
+          className={cn(
+            "rounded-2xl overflow-hidden bg-background shadow-2xl",
+            "transform-gpu will-change-transform [backface-visibility:hidden]",
+            "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
+          )}
+        >
           <div
             ref={modalContentRef}
             className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
@@ -1994,7 +1996,15 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   // Desktop/Tablet carousel with arrows
   return (
     <>
-      <MotionDialog open={open} onOpenChange={handleDialogChange}>
+      <MotionDialog
+        open={open}
+        onOpenChange={handleDialogChange}
+        className={cn(
+          "rounded-2xl overflow-hidden bg-background shadow-2xl",
+          "transform-gpu will-change-transform [backface-visibility:hidden]",
+          "[-webkit-mask-image:-webkit-radial-gradient(white,black)]"
+        )}
+      >
         <div 
           ref={modalContentRef}
           className="relative w-full h-full bg-transparent overflow-visible flex items-center justify-center"
