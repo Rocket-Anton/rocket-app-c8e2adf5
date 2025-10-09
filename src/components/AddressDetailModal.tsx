@@ -1663,7 +1663,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return (
       <>
         <Dialog open={open} onOpenChange={handleDialogChange}>
-          <DialogContent ref={modalContentRef} hideClose className="relative max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl">
+          <DialogContent ref={modalContentRef} hideClose className="max-w-2xl w-[95vw] sm:w-full h-[90vh] sm:h-[80vh] overflow-hidden p-0 max-h-[90vh] rounded-xl z-[10060]">
             <DialogHeader className="relative px-4 sm:px-6 py-4 border-b flex-shrink-0">
               <DialogClose className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2">
                 <X className="h-4 w-4" />
@@ -1727,9 +1727,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Kein Interesse Grund-Dialog - für alle Geräte */}
         <AlertDialog open={keinInteresseDialogOpen} onOpenChange={setKeinInteresseDialogOpen}>
-          <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-            <AlertDialogOverlay className="absolute inset-0 z-[60] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[70]">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="fixed inset-0 z-[10050] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10060]">
               <button
                 onClick={() => setKeinInteresseDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -1785,9 +1785,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
         {/* Potenzial Bewertung - für alle Geräte */}
         <AlertDialog open={potenzialDialogOpen} onOpenChange={setPotenzialDialogOpen}>
-          <AlertDialogPortal container={modalContentRef.current ?? undefined}>
-            <AlertDialogOverlay className="absolute inset-0 z-[60] bg-black/60" />
-            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[70]">
+          <AlertDialogPortal>
+            <AlertDialogOverlay className="fixed inset-0 z-[10050] bg-black/60" />
+            <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10060]">
               <button
                 onClick={() => setPotenzialDialogOpen(false)}
                 className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none"
@@ -2061,7 +2061,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <DialogContent 
             ref={modalContentRef}
             hideClose 
-            className="relative p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh]"
+            className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060]"
           >
             <HorizontalModalPager
               items={allAddresses}
@@ -2612,7 +2612,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="relative box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl">
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[10060]">
           <div className="embla h-full w-full overflow-hidden" ref={emblaRef}>
             <div className="embla__container h-full">
               {allAddresses.map((addr, index) => {
