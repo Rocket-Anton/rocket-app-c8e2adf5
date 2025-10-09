@@ -1447,7 +1447,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full min-h-0 w-full max-w-full touch-pan-y">
+      <div className="flex flex-col h-full max-h-full min-h-0 w-full max-w-full overflow-hidden">
         {/* Single scrollable container */}
         <div 
           ref={setScrollRef(addr.id)} 
@@ -1682,6 +1682,34 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                           <p className="text-xs text-muted-foreground">
                             Aktualisiert: {lastUpdated[`${addr.id}:${unit.id}`]}
                           </p>
+                        )}
+
+                        {/* Kein Interesse & Potenzial Buttons */}
+                        {!isNotMarketable && unitStatuses[`${addr.id}:${unit.id}`] !== "neukunde" && (
+                          <div className="flex gap-2">
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-red-600 border-red-300 hover:bg-red-50 dark:hover:bg-red-950/20"
+                              onClick={() => {
+                                setPendingKeinInteresse({ addressId: addr.id, unitId: unit.id });
+                                setKeinInteresseDialogOpen(true);
+                              }}
+                            >
+                              Kein Interesse
+                            </Button>
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              className="flex-1 text-yellow-600 border-yellow-300 hover:bg-yellow-50 dark:hover:bg-yellow-950/20"
+                              onClick={() => {
+                                setPendingPotenzial({ addressId: addr.id, unitId: unit.id });
+                                setPotenzialDialogOpen(true);
+                              }}
+                            >
+                              Potenzial
+                            </Button>
+                          </div>
                         )}
 
                         {/* Notizen Collapsible - now shown on all screen sizes */}
