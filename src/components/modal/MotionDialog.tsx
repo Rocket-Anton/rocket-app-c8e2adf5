@@ -17,82 +17,84 @@ export const MotionDialog = ({
 }: MotionDialogProps) => {
   return (
     <Dialog.Root open={open} onOpenChange={onOpenChange}>
-      <AnimatePresence mode="wait">
-        {open && (
-          <Dialog.Portal forceMount>
-            {/* Overlay - synchron mit Content animiert */}
-            <Dialog.Overlay asChild>
-              <motion.div
-                className="fixed inset-0 z-[10120] bg-black/60 backdrop-blur-sm"
-                initial={{ opacity: 0 }}
-                animate={{
-                  opacity: 1,
-                  transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] }
-                }}
-                exit={{
-                  opacity: 0,
-                  transition: { duration: 0.14, ease: [0.4, 0, 1, 1] }
-                }}
-              />
-            </Dialog.Overlay>
+      <Dialog.Portal forceMount>
+        <AnimatePresence>
+          {open && (
+            <>
+              {/* Overlay - synchron mit Content animiert */}
+              <Dialog.Overlay asChild>
+                <motion.div
+                  className="fixed inset-0 z-[10120] bg-black/60 backdrop-blur-sm"
+                  initial={{ opacity: 0 }}
+                  animate={{
+                    opacity: 1,
+                    transition: { duration: 0.18, ease: [0.22, 1, 0.36, 1] }
+                  }}
+                  exit={{
+                    opacity: 0,
+                    transition: { duration: 0.14, ease: [0.4, 0, 1, 1] }
+                  }}
+                />
+              </Dialog.Overlay>
 
-            {/* Content - mit Spring-Physik */}
-            <Dialog.Content asChild>
-              <motion.div
-                role="dialog"
-                aria-modal="true"
-                className={cn(
-                  "fixed left-1/2 top-1/2 z-[10140] isolate",
-                  "w-[92vw] sm:w-[95vw] max-w-2xl h-[85vh] sm:h-[80vh]",
-                  "rounded-xl bg-background shadow-2xl overflow-hidden",
-                  "flex flex-col min-h-0",
-                  "origin-[50%_45%] -translate-x-1/2 -translate-y-1/2",
-                  "transform-gpu will-change-[transform,opacity]",
-                  className
-                )}
-                style={{
-                  contain: 'layout style paint',
-                  backfaceVisibility: 'hidden',
-                  WebkitBackfaceVisibility: 'hidden'
-                }}
-                initial={{ opacity: 0, scale: 0.96, y: 8 }}
-                animate={{
-                  opacity: 1,
-                  scale: 1,
-                  y: 0,
-                  transition: {
-                    opacity: { duration: 0.18 },
-                    scale: {
-                      type: "spring",
-                      stiffness: 420,
-                      damping: 34,
-                      mass: 0.7
-                    },
-                    y: {
-                      type: "spring",
-                      stiffness: 420,
-                      damping: 34,
-                      mass: 0.7
-                    }
-                  }
-                }}
-                exit={{
-                  opacity: 0,
-                  scale: 0.98,
-                  y: 6,
-                  transition: {
-                    duration: 0.14,
-                    ease: [0.4, 0, 1, 1]
-                  }
-                }}
-                layout
-              >
-                {children}
-              </motion.div>
-            </Dialog.Content>
-          </Dialog.Portal>
-        )}
-      </AnimatePresence>
+              {/* Viewport-Grid - pixelgenaue Zentrierung */}
+              <div className="fixed inset-0 z-[10140] grid place-items-center p-4 sm:p-6 pointer-events-none">
+                <Dialog.Content asChild>
+                  <motion.div
+                    role="dialog"
+                    aria-modal="true"
+                    className={cn(
+                      "pointer-events-auto isolate",
+                      "w-[92vw] sm:w-[95vw] max-w-2xl h-[85vh] sm:h-[80vh]",
+                      "rounded-xl bg-background shadow-2xl overflow-hidden",
+                      "flex flex-col min-h-0",
+                      "transform-gpu will-change-[transform,opacity]",
+                      className
+                    )}
+                    style={{
+                      contain: 'layout style paint',
+                      backfaceVisibility: 'hidden',
+                      WebkitBackfaceVisibility: 'hidden'
+                    }}
+                    initial={{ opacity: 0, scale: 0.96, y: 8 }}
+                    animate={{
+                      opacity: 1,
+                      scale: 1,
+                      y: 0,
+                      transition: {
+                        opacity: { duration: 0.18 },
+                        scale: {
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 34,
+                          mass: 0.7
+                        },
+                        y: {
+                          type: "spring",
+                          stiffness: 420,
+                          damping: 34,
+                          mass: 0.7
+                        }
+                      }
+                    }}
+                    exit={{
+                      opacity: 0,
+                      scale: 0.98,
+                      y: 6,
+                      transition: {
+                        duration: 0.14,
+                        ease: [0.4, 0, 1, 1]
+                      }
+                    }}
+                  >
+                    {children}
+                  </motion.div>
+                </Dialog.Content>
+              </div>
+            </>
+          )}
+        </AnimatePresence>
+      </Dialog.Portal>
     </Dialog.Root>
   );
 };
