@@ -2007,6 +2007,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="w-full h-full"
       >
         <div className="relative flex items-center justify-center w-full h-full">
+          {/* Darkening Overlay for dialogs */}
+          {(addUnitsDialogOpen || deleteUnitDialogOpen || orderDialogOpen || keinInteresseDialogOpen || potenzialDialogOpen) && (
+            <div 
+              className="absolute inset-0 bg-black/60 z-[10160]"
+              style={{ pointerEvents: 'none' }}
+            />
+          )}
+          
           {/* Navigation Arrow - Left */}
           {showArrows && (
             <NavigationArrow
