@@ -2,15 +2,27 @@ import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { MapPin, ChevronDown } from "lucide-react";
+import { MapPin, ChevronDown, Search, Filter } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { cn } from "@/lib/utils";
+
+interface Provider {
+  id: string;
+  name: string;
+  color: string;
+}
 
 interface Project {
   id: string;
@@ -20,6 +32,12 @@ interface Project {
   city: string | null;
   coordinates: any;
   color: string | null;
+  provider_id: string | null;
+  providers?: {
+    id: string;
+    name: string;
+    color: string;
+  } | null;
 }
 
 interface ProjectSelectorProps {
@@ -39,8 +57,10 @@ const statusColors: Record<string, string> = {
 
 export function ProjectSelector({ selectedProjectIds, onProjectsChange, className }: ProjectSelectorProps) {
   const [projects, setProjects] = useState<Project[]>([]);
+  const [providers, setProviders] = useState<Provider[]>([]);
   const [loading, setLoading] = useState(true);
   const [open, setOpen] = useState(false);
+  const [searchQuery, setSearchQuery] = useState("");
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
   const [providerFilter, setProviderFilter] = useState<string[]>([]);
 
@@ -72,7 +92,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
       let query = supabase
         .from('projects')
-        .select('id, name, status, area_name, city, coordinates, providers(color)')
+        .select('id, name, status, area_name, city, coordinates, provider_id, providers(id, name, color)')
         .order('name');
 
       // For non-admins, filter by assigned projects or project manager
@@ -90,7 +110,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         // Fetch managed projects
         const { data: managed = [], error: managedError } = await supabase
           .from('projects')
-          .select('id, name, status, area_name, city, coordinates, providers(color)')
+          .select('id, name, status, area_name, city, coordinates, provider_id, providers(id, name, color)')
           .eq('project_manager_id', user.id);
         if (managedError) console.warn('ProjectSelector: managed projects error', managedError);
 
@@ -99,7 +119,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         if (assignedIds.length > 0) {
           const { data: ap = [], error: apError } = await supabase
             .from('projects')
-            .select('id, name, status, area_name, city, coordinates, providers(color)')
+            .select('id, name, status, area_name, city, coordinates, provider_id, providers(id, name, color)')
             .in('id', assignedIds);
           if (apError) console.warn('ProjectSelector: assigned projects error', apError);
           assignedProjects = ap || [];
@@ -109,13 +129,26 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         const merged = [...managed, ...assignedProjects];
         const unique = Array.from(new Map(merged.map((p: any) => [p.id, p])).values());
 
-        // Assign colors and set state - use provider color
+        // Assign colors and extract providers
         const projectsWithColors = unique.map((project: any) => {
           const providerColor = project.providers?.color;
           const color = providerColor || '#3b82f6';
           return { ...project, color };
         });
 
+        // Extract unique providers from user's projects
+        const uniqueProviders = new Map<string, Provider>();
+        unique.forEach((project: any) => {
+          if (project.providers && project.providers.id) {
+            uniqueProviders.set(project.providers.id, {
+              id: project.providers.id,
+              name: project.providers.name,
+              color: project.providers.color || '#3b82f6'
+            });
+          }
+        });
+
+        setProviders(Array.from(uniqueProviders.values()));
         setProjects(projectsWithColors);
         setLoading(false);
         return;
@@ -127,7 +160,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
 
       if (error) throw error;
 
-      // Use provider color if available, otherwise fallback to hash-based color
+      // Use provider color if available, otherwise fallback
       const projectsWithColors = (data || []).map(project => {
         const providerColor = project.providers?.color;
         const color = providerColor || '#3b82f6';
@@ -137,6 +170,19 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
         };
       });
 
+      // Extract unique providers for admins
+      const uniqueProviders = new Map<string, Provider>();
+      (data || []).forEach((project: any) => {
+        if (project.providers && project.providers.id) {
+          uniqueProviders.set(project.providers.id, {
+            id: project.providers.id,
+            name: project.providers.name,
+            color: project.providers.color || '#3b82f6'
+          });
+        }
+      });
+
+      setProviders(Array.from(uniqueProviders.values()));
       setProjects(projectsWithColors);
     } catch (error) {
       console.error('Error fetching projects:', error);
@@ -162,14 +208,17 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       ? projects.find(p => selectedProjectIds.has(p.id))?.name || "1 Projekt"
       : `${selectedCount} Projekte`;
 
-  // Get unique statuses and providers for filters
+  // Get unique statuses
   const uniqueStatuses = Array.from(new Set(projects.map(p => p.status)));
-  const uniqueProviders = Array.from(new Set(projects.map(p => p.area_name).filter(Boolean)));
 
   // Apply filters to projects
   const filteredProjects = projects.filter(project => {
+    // Search filter
+    if (searchQuery && !project.name.toLowerCase().includes(searchQuery.toLowerCase())) return false;
+    // Status filter
     if (statusFilter.length > 0 && !statusFilter.includes(project.status)) return false;
-    if (providerFilter.length > 0 && !providerFilter.includes(project.area_name || '')) return false;
+    // Provider filter
+    if (providerFilter.length > 0 && project.provider_id && !providerFilter.includes(project.provider_id)) return false;
     return true;
   });
 
@@ -191,55 +240,116 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
           <ChevronDown className="h-4 w-4 ml-1" />
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-[280px] p-0 z-[1001] bg-background">
-        <div className="p-2 border-b space-y-1.5">
-          <div>
-            <h3 className="font-semibold text-xs">Projekte auswählen</h3>
-            <p className="text-[10px] text-muted-foreground mt-0.5">
-              {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
-            </p>
+      <DropdownMenuContent align="end" className="w-[520px] p-0 z-[1001] bg-background">
+        <div className="p-2 border-b space-y-2">
+          <div className="flex items-center gap-2">
+            {/* Search */}
+            <div className="relative flex-1">
+              <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+              <Input
+                placeholder="Projekt suchen..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="h-7 pl-8 text-xs"
+              />
+            </div>
+
+            {/* Status Filter */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
+                  <Filter className="h-3 w-3" />
+                  Status
+                  {statusFilter.length > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">
+                      {statusFilter.length}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-48 p-2 z-[1002]" align="end">
+                <div className="space-y-1">
+                  {uniqueStatuses.map(status => (
+                    <label key={status} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
+                      <Checkbox
+                        checked={statusFilter.includes(status)}
+                        onCheckedChange={(checked) => {
+                          setStatusFilter(prev =>
+                            checked
+                              ? [...prev, status]
+                              : prev.filter(s => s !== status)
+                          );
+                        }}
+                        className="h-3.5 w-3.5"
+                      />
+                      <span>{status}</span>
+                    </label>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
+
+            {/* Provider Filter */}
+            <Popover>
+              <PopoverTrigger asChild>
+                <Button variant="outline" size="sm" className="h-7 text-xs gap-1 px-2">
+                  <Filter className="h-3 w-3" />
+                  Provider
+                  {providerFilter.length > 0 && (
+                    <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">
+                      {providerFilter.length}
+                    </Badge>
+                  )}
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-52 p-2 z-[1002]" align="end">
+                <div className="space-y-1">
+                  {providers.map(provider => (
+                    <label key={provider.id} className="flex items-center gap-2 cursor-pointer hover:bg-muted/50 p-1.5 rounded text-xs">
+                      <Checkbox
+                        checked={providerFilter.includes(provider.id)}
+                        onCheckedChange={(checked) => {
+                          setProviderFilter(prev =>
+                            checked
+                              ? [...prev, provider.id]
+                              : prev.filter(p => p !== provider.id)
+                          );
+                        }}
+                        className="h-3.5 w-3.5"
+                      />
+                      <div className="flex items-center gap-1.5">
+                        <div 
+                          className="w-2 h-2 rounded-full" 
+                          style={{ backgroundColor: provider.color }}
+                        />
+                        <span>{provider.name}</span>
+                      </div>
+                    </label>
+                  ))}
+                </div>
+              </PopoverContent>
+            </Popover>
           </div>
           
-          {/* Status filter chips */}
-          {uniqueStatuses.length > 0 && (
-            <div className="space-y-1">
-              <div className="text-[9px] font-medium text-muted-foreground uppercase tracking-wider">Status</div>
-              <div className="flex gap-1 flex-wrap">
-                {uniqueStatuses.map(status => {
-                  const isSelected = statusFilter.includes(status);
-                  const bgColor = statusColors[status] || "bg-gray-500";
-                  return (
-                    <button
-                      key={status}
-                      onClick={() => {
-                        setStatusFilter(prev => 
-                          prev.includes(status) 
-                            ? prev.filter(s => s !== status)
-                            : [...prev, status]
-                        );
-                      }}
-                      className={cn(
-                        "text-[10px] px-1.5 py-0.5 rounded text-white border transition-all",
-                        isSelected 
-                          ? `${bgColor} border-white shadow-sm` 
-                          : "bg-gray-400 border-gray-300 opacity-50 hover:opacity-75"
-                      )}
-                    >
-                      {status}
-                    </button>
-                  );
-                })}
-                {statusFilter.length > 0 && (
-                  <button
-                    onClick={() => setStatusFilter([])}
-                    className="text-[10px] px-1.5 py-0.5 rounded bg-red-500 text-white hover:bg-red-600 border border-white/20"
-                  >
-                    ✕
-                  </button>
-                )}
-              </div>
-            </div>
-          )}
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] text-muted-foreground">
+              {filteredProjects.length} von {projects.length} {projects.length === 1 ? 'Projekt' : 'Projekten'}
+            </p>
+            {(searchQuery || statusFilter.length > 0 || providerFilter.length > 0) && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => {
+                  setSearchQuery("");
+                  setStatusFilter([]);
+                  setProviderFilter([]);
+                }}
+                className="h-5 text-[10px] px-2"
+              >
+                Filter zurücksetzen
+              </Button>
+            )}
+          </div>
         </div>
         
         <ScrollArea className="h-[320px]">
