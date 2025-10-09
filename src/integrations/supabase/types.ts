@@ -156,6 +156,53 @@ export type Database = {
           },
         ]
       }
+      custom_statuses: {
+        Row: {
+          color: string
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          label: string
+          name: string
+          project_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          color: string
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label: string
+          name: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          color?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          label?: string
+          name?: string
+          project_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "custom_statuses_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       daily_goals: {
         Row: {
           created_at: string
@@ -723,6 +770,44 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      rejection_reasons: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          is_active: boolean
+          is_default: boolean
+          project_id: string | null
+          reason: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          project_id?: string | null
+          reason: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          is_active?: boolean
+          is_default?: boolean
+          project_id?: string | null
+          reason?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "rejection_reasons_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       tariffs: {
         Row: {

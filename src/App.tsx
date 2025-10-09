@@ -8,6 +8,7 @@ import Karte from "./pages/Karte";
 import Auth from "./pages/Auth";
 import Projects from "./pages/settings/Projects";
 import ProjectDetail from "./pages/settings/ProjectDetail";
+import ProjectStatusSettings from "./pages/settings/ProjectStatusSettings";
 import Providers from "./pages/settings/Providers";
 import ProviderDetail from "./pages/settings/ProviderDetail";
 import Addresses from "./pages/settings/Addresses";
@@ -38,8 +39,9 @@ const App = () => {
               <Route path="/abrechnungen/kosten" element={<Kosten />} />
               <Route path="/settings/providers" element={<Providers />} />
               <Route path="/settings/providers/:id" element={<ProviderDetail />} />
-              <Route path="/settings/projects" element={<Projects />} />
-              <Route path="/settings/projects/:id" element={<ProjectDetail />} />
+            <Route path="/settings/projects" element={<Projects />} />
+            <Route path="/settings/projects/:id" element={<ProjectDetail />} />
+            <Route path="/settings/projects/:id/status" element={<ProjectStatusSettings />} />
               <Route path="/projects/karte" element={<ProjectsMap />} />
               <Route path="/settings/addresses" element={<Addresses />} />
               <Route path="/settings/tarife" element={<Tarife />} />

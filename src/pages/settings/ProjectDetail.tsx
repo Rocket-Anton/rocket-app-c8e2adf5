@@ -315,7 +315,7 @@ const ProjectDetail = () => {
                         <Plus className="w-4 h-4 mr-2" />
                         Raketenstart
                       </Button>
-                      <Button variant="default" size="sm">
+                      <Button variant="default" size="sm" onClick={() => navigate(`/settings/projects/${id}/status`)}>
                         Status
                       </Button>
                       <Button variant="ghost" size="sm">
