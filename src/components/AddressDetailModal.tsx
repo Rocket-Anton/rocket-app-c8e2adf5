@@ -2167,7 +2167,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           hideClose 
           className="p-0 overflow-visible bg-transparent border-0 shadow-none w-full h-[85vh] z-[10060] flex items-center justify-center"
         >
-          <div className="relative w-full max-w-lg h-full">
+          <div className="relative w-full max-w-md h-full">
             <HorizontalModalPager
               ref={pagerRef}
               items={allAddresses}
@@ -2176,7 +2176,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               onIndexChange={(idx) => setCurrentIndex(idx)}
             />
             
-            {/* Pfeile nur Desktop (≥1024px) */}
+            {/* Pfeile nur Desktop (≥1024px), außerhalb der Karte */}
             {allAddresses.length > 1 && (
               <>
                 <Button
@@ -2186,7 +2186,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   size="icon"
                   onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollPrev(); }}
                   disabled={currentIndex === 0}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-12 xl:-left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -left-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
                 >
                   <ChevronLeft className="h-5 w-5" />
                 </Button>
@@ -2198,7 +2198,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   size="icon"
                   onClick={(e) => { e.stopPropagation(); pagerRef.current?.scrollNext(); }}
                   disabled={currentIndex === allAddresses.length - 1}
-                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-12 xl:-right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
+                  className="hidden lg:flex absolute top-1/2 -translate-y-1/2 -right-14 h-10 w-10 rounded-full bg-background/95 hover:bg-background shadow-lg border border-border disabled:opacity-30 disabled:cursor-not-allowed z-50"
                 >
                   <ChevronRight className="h-5 w-5" />
                 </Button>
