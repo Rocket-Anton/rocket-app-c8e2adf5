@@ -2008,8 +2008,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </AlertDialogContent>
         </AlertDialog>
 
+        {/* Add Note Dialog */}
+        {addNoteDialogOpen && (
+          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddNoteDialogOpen(false)} />
+        )}
         <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-          <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+          <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <DialogHeader>
               <DialogTitle>Notiz hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2318,8 +2322,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           </DialogContent>
         </Dialog>
 
+        {/* Delete Note Dialog */}
+        {deleteNoteDialogOpen && (
+          <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setDeleteNoteDialogOpen(false)} />
+        )}
         <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+          <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
             <AlertDialogHeader>
               <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
               <AlertDialogDescription>
@@ -2605,8 +2613,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </AlertDialogContent>
       </AlertDialog>
 
+      {/* Add Note Dialog */}
+      {addNoteDialogOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setAddNoteDialogOpen(false)} />
+      )}
       <Dialog open={addNoteDialogOpen} onOpenChange={setAddNoteDialogOpen}>
-        <DialogContent className="w-[90vw] max-w-md rounded-2xl">
+        <DialogContent className="w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <DialogHeader>
             <DialogTitle>Notiz hinzufügen</DialogTitle>
           </DialogHeader>
@@ -2928,8 +2940,12 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         </DialogContent>
       </Dialog>
 
+      {/* Delete Note Dialog */}
+      {deleteNoteDialogOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[10090]" onClick={() => setDeleteNoteDialogOpen(false)} />
+      )}
       <AlertDialog open={deleteNoteDialogOpen} onOpenChange={setDeleteNoteDialogOpen}>
-        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl">
+        <AlertDialogContent className="px-8 w-[90vw] max-w-md rounded-2xl z-[10100]" hideOverlay onClick={(e) => e.stopPropagation()}>
           <AlertDialogHeader>
             <AlertDialogTitle>Notiz löschen</AlertDialogTitle>
             <AlertDialogDescription>
