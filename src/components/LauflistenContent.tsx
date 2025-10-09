@@ -102,6 +102,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   
   const isMobile = useIsMobile();
 
+  // Limit rendering to avoid UI freeze with large datasets
+  const [visibleCount, setVisibleCount] = useState(50);
+
   // Load addresses from database when projects are selected
   useEffect(() => {
     const loadAddresses = async () => {
@@ -228,6 +231,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       setPostalCodeSuggestions([]);
     }
   }, [postalCodeInput]);
+
+  // Reset visible list when filters or project selection change
+  useEffect(() => {
+    setVisibleCount(50);
+  }, [selectedProjectIds, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode, dateFilterType, quickDateOption]);
 
   // Funktion zum Aktualisieren des Status einer Wohneinheit
   const updateUnitStatus = useCallback((addressId: number, unitId: number, newStatus: string) => {
@@ -372,7 +380,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     };
   });
 
-  const displayedAddresses = filteredAddresses;
+  const displayedAddresses = filteredAddresses.slice(0, visibleCount);
 
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
@@ -2017,7 +2025,20 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                       onUpdateUnitStatus={updateUnitStatus}
                     />
                   </div>
-                ))}
+                 ))}
+                 
+                 {/* Load more button */}
+                 {visibleCount < filteredAddresses.length && (
+                   <div className="flex justify-center mt-8">
+                     <Button 
+                       variant="outline" 
+                       onClick={() => setVisibleCount(prev => prev + 50)}
+                       className="h-8 px-6"
+                     >
+                       Weitere {Math.min(50, filteredAddresses.length - visibleCount)} laden
+                     </Button>
+                   </div>
+                 )}
               </div>
             </div>
           )}
