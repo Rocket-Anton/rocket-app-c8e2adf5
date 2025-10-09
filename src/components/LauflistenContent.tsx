@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useLayoutEffect, useCallback } from "react";
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Search, Filter, HelpCircle, Check, ChevronDown, Trash2, X, Info, Target, CheckCircle, Users, TrendingUp, FileText, ChevronLeft, ChevronRight, Calendar as CalendarIcon, Home, Clock, PersonStanding, Circle, Settings, Moon, User, Layers } from "lucide-react";
 import { Dialog, DialogContent } from "./ui/dialog";
 import { Input } from "./ui/input";
@@ -82,6 +83,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [houseNumberFilter, setHouseNumberFilter] = useState("");
   const [swipeMode, setSwipeMode] = useState(false);
   const [showAIAssistant, setShowAIAssistant] = useState(false);
+  
   
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
@@ -389,6 +391,14 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   });
 
   const displayedAddresses = filteredAddresses;
+
+  // Virtual scrolling for performance - only render visible items
+  const rowVirtualizer = useVirtualizer({
+    count: displayedAddresses.length,
+    getScrollElement: () => scrollRef.current,
+    estimateSize: () => 300, // Estimated height per address card
+    overscan: 3, // Render 3 items above/below viewport for smooth scrolling
+  });
 
   // Dynamische Styles für Aufträge heute basierend auf Count
   const getOrderCardStyle = () => {
@@ -2010,29 +2020,57 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               />
             </div>
           ) : (
-            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
-              <div className="space-y-4">
-                {displayedAddresses.map((address, index) => (
-                  <div 
-                    key={address.id} 
-                    ref={(el) => addressCardRefs.current[index] = el}
-                  >
-                    <AddressCard 
-                      address={address}
-                      allAddresses={displayedAddresses}
-                      currentIndex={index}
-                      onModalClose={handleModalClose}
-                      onOrderCreated={() => {
-                        onOrderCreated?.();
-                        // Trigger Rokki celebration
-                        if ((window as any).rokkiOrderCreatedHandler) {
-                          (window as any).rokkiOrderCreatedHandler();
-                        }
+            <div 
+              ref={scrollRef}
+              className={`pb-20 ${isMobile ? 'px-4' : 'px-6'} overflow-auto`}
+              style={{ 
+                height: 'calc(100vh - 400px)', // Adjust based on header height
+                contain: 'strict'
+              }}
+            >
+              <div
+                style={{
+                  height: `${rowVirtualizer.getTotalSize()}px`,
+                  width: '100%',
+                  position: 'relative',
+                }}
+              >
+                {rowVirtualizer.getVirtualItems().map((virtualRow) => {
+                  const address = displayedAddresses[virtualRow.index];
+                  return (
+                    <div
+                      key={address.id}
+                      data-index={virtualRow.index}
+                      ref={(el) => {
+                        rowVirtualizer.measureElement(el);
+                        addressCardRefs.current[virtualRow.index] = el;
                       }}
-                      onUpdateUnitStatus={updateUnitStatus}
-                    />
-                  </div>
-                ))}
+                      style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        width: '100%',
+                        transform: `translateY(${virtualRow.start}px)`,
+                      }}
+                      className="mb-4"
+                    >
+                      <AddressCard 
+                        address={address}
+                        allAddresses={displayedAddresses}
+                        currentIndex={virtualRow.index}
+                        onModalClose={handleModalClose}
+                        onOrderCreated={() => {
+                          onOrderCreated?.();
+                          // Trigger Rokki celebration
+                          if ((window as any).rokkiOrderCreatedHandler) {
+                            (window as any).rokkiOrderCreatedHandler();
+                          }
+                        }}
+                        onUpdateUnitStatus={updateUnitStatus}
+                      />
+                    </div>
+                  );
+                })}
               </div>
             </div>
           )}
