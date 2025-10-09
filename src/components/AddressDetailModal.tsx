@@ -158,7 +158,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   // Scroll zurücksetzen nur wenn aktiv gefiltert wird oder Adresse wechselt
   useEffect(() => {
-    const el = scrollContainerRef.current;
+    const el = scrollContainerRefs.current[currentAddress?.id ?? -1];
     if (!el) return;
     
     // Reset nur wenn filteredUnits aktiv ist (also Filter angewendet)
@@ -272,8 +272,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   ]);
   const [notes, setNotes] = useState<Array<{id: number, author: string, timestamp: string, content: string, permanent?: boolean}>>([]);
   const modalContentRef = useRef<HTMLDivElement | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement | null>(null);
+  const scrollContainerRefs = useRef<Record<number, HTMLDivElement | null>>({});
   const unitCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  
+  // Helper to set scroll ref per address
+  const setScrollRef = (addrId: number) => (el: HTMLDivElement | null) => {
+    scrollContainerRefs.current[addrId] = el;
+  };
 
   // Memoize current address for map to prevent unnecessary re-renders
   const mapCurrentAddress = useMemo(() => ({
@@ -409,9 +414,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
 
   // Disable auto-closing popovers on scroll to ensure 'Historie' opens reliably on mobile
   useEffect(() => {
-    const scrollEl = scrollContainerRef.current;
-    if (!scrollEl) return;
-    // No listeners; rely on user interactions to close.
+    // Note: scrollContainerRefs now is a map, no single ref to attach to
+    // This effect is now a no-op placeholder
     return () => {
       // nothing
     };
@@ -1209,9 +1213,16 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const unitCount = units.length;
     
     return (
-      <div className="flex flex-col h-full w-full overflow-hidden touch-pan-y">
+      <div className="flex flex-col h-full min-h-0 overflow-hidden touch-pan-y">
         {/* Single scrollable container */}
-        <div ref={scrollContainerRef} className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y overscroll-contain ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`} style={{ WebkitOverflowScrolling: 'touch' }}>
+        <div 
+          ref={setScrollRef(addr.id)} 
+          className={`flex-1 min-h-0 w-full max-w-full overflow-y-auto overflow-x-hidden px-3 sm:px-6 pt-4 pb-6 touch-pan-y overscroll-contain ${unitCount > 1 ? 'space-y-4 sm:space-y-6' : ''}`} 
+          style={{ WebkitOverflowScrolling: 'touch' }}
+          onWheel={(e) => e.stopPropagation()}
+          onTouchStart={(e) => e.stopPropagation()}
+          onTouchMove={(e) => e.stopPropagation()}
+        >
           {/* Unit Cards */}
           <div className={`${unitCount === 1 ? '' : 'space-y-4'} w-full`}>
             {units.length > 0 ? (
@@ -2294,8 +2305,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   return (
     <>
       <Dialog open={open} onOpenChange={handleDialogChange}>
-        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[10060]">
-          <div className="embla h-full w-full overflow-hidden relative" ref={emblaRef}>
+        <DialogContent ref={modalContentRef} hideClose className="box-border w-[92vw] max-w-[92vw] sm:max-w-2xl sm:w-[95vw] h-[85vh] sm:h-[80vh] p-0 overflow-hidden rounded-xl z-[10060] flex flex-col min-h-0">
+          <div className="embla flex h-full w-full overflow-hidden relative" ref={emblaRef}>
             {/* Navigation Arrows - Desktop/Tablet Only */}
             {allAddresses.length > 1 && (
               <>
@@ -2319,7 +2330,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </Button>
               </>
             )}
-            <div className="embla__container h-full">
+            <div className="embla__container flex h-full">
               {allAddresses.map((addr, index) => {
                 const allAddrUnits = addr.filteredUnits || addr.units || [];
                 const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
