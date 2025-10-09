@@ -305,17 +305,17 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, classNam
       <DropdownMenuTrigger asChild>
         <Button 
           variant="outline" 
-          className={cn("gap-2 h-8 text-xs", className)}
+          className={cn("gap-1.5 h-8 text-xs px-2.5", className)}
           disabled={loading}
         >
-          <MapPin className="h-3.5 w-3.5" />
-          <span className="text-xs">{displayText}</span>
+          <MapPin className="h-3.5 w-3.5 flex-shrink-0" />
+          <span className="text-xs whitespace-nowrap">{displayText}</span>
           {selectedCount > 0 && (
-            <Badge variant="secondary" className="ml-1 h-4 px-1 text-[9px]">
+            <Badge variant="secondary" className="ml-0.5 h-4 px-1 text-[9px]">
               {selectedCount}
             </Badge>
           )}
-          <ChevronDown className="h-3.5 w-3.5 ml-1" />
+          <ChevronDown className="h-3.5 w-3.5 flex-shrink-0" />
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-[240px] p-0 z-[1001] bg-background">
