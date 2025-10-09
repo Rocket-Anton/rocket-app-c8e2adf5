@@ -330,14 +330,17 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       ...prev,
       ...units.reduce((acc, unit) => {
         const key = `${addr.id}:${unit.id}`;
-        return { ...acc, [key]: unit.status || "offen" };
+        // Normalize status to lowercase
+        const normalizedStatus = (unit.status || "offen").toLowerCase();
+        return { ...acc, [key]: normalizedStatus };
       }, {})
     }));
     
     setStatusHistories(prev => ({
       ...prev,
       ...units.reduce((acc, unit) => {
-        const status = unit.status || "offen";
+        // Normalize status to lowercase
+        const status = (unit.status || "offen").toLowerCase();
         const key = `${addr.id}:${unit.id}`;
         if (status === "offen") {
           return { ...acc, [key]: [] };
@@ -359,7 +362,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setLastUpdated(prev => ({
       ...prev,
       ...units.reduce((acc, unit) => {
-        const status = unit.status || "offen";
+        // Normalize status to lowercase
+        const status = (unit.status || "offen").toLowerCase();
         const key = `${addr.id}:${unit.id}`;
         if (status === "offen") {
           return { ...acc, [key]: "" };
