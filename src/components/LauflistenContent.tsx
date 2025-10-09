@@ -5,6 +5,7 @@ import { Input } from "./ui/input";
 import { AddressCard } from "./AddressCard";
 import SwipeDeck from "./swipe/SwipeDeck";
 import { AIAssistant } from "./AIAssistant";
+import { ProjectSelector } from "./ProjectSelector";
 import {
   Select,
   SelectContent,
@@ -564,7 +565,18 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0 }: Lauflisten
                 <SheetTitle>Menü</SheetTitle>
               </SheetHeader>
               <div className="py-4">
-                <nav className="space-y-1">
+                {/* Projektauswahl */}
+                <div className="px-4 pb-4 border-b">
+                  <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
+                    Projekte
+                  </div>
+                  <ProjectSelector
+                    selectedProjectIds={new Set()}
+                    onProjectsChange={() => {}}
+                  />
+                </div>
+                
+                <nav className="space-y-1 pt-4">
                   <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
                     <Home className="w-5 h-5" />
                     <span>Dashboard</span>
