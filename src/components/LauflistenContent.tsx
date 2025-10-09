@@ -284,6 +284,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   };
   // Filter addresses based on all criteria
   const filteredAddresses = addresses.filter(address => {
+    // Only show addresses with at least one unit
+    const hasUnits = address.units && address.units.length > 0;
+    if (!hasUnits) return false;
+
     // Search term filter
     const searchLower = searchTerm.toLowerCase();
     const matchesSearch = searchTerm === "" || (
