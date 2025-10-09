@@ -8,7 +8,7 @@ import * as PopoverPrimitive from "@radix-ui/react-popover";
 import * as SelectPrimitive from "@radix-ui/react-select";
 import HorizontalModalPager, { HorizontalModalPagerHandle } from "./modal/HorizontalModalPager";
 import { MotionDialog } from "./modal/MotionDialog";
-import confetti from 'canvas-confetti';
+// Lazy load confetti for performance
 import { supabase } from "@/integrations/supabase/client";
 import { orderFormSchema, noteSchema, customerNameSchema } from "@/utils/validation";
 import { motion } from "framer-motion";
@@ -96,7 +96,7 @@ interface AddressDetailModalProps {
   onUpdateUnitStatus?: (addressId: number, unitId: number, newStatus: string) => void;
 }
 
-// Navigation Arrow Component with Apple-style haptic feedback
+// Navigation Arrow Component - only animate icon to prevent jumping
 const NavigationArrow: React.FC<{
   direction: "left" | "right";
   onClick: () => void;
@@ -105,7 +105,7 @@ const NavigationArrow: React.FC<{
   const Icon = direction === "left" ? ChevronLeft : ChevronRight;
   
   return (
-    <motion.button
+    <button
       type="button"
       onClick={(e) => { 
         e.stopPropagation(); 
@@ -121,45 +121,24 @@ const NavigationArrow: React.FC<{
         "bg-background/95 hover:bg-background",
         "shadow-lg border border-border",
         "disabled:opacity-30 disabled:cursor-not-allowed",
-        "outline-none focus:outline-none focus-visible:outline-none",
-        "focus-visible:ring-0 focus-visible:ring-offset-0"
+        "transition-colors duration-200",
+        "outline-none focus:outline-none focus-visible:outline-none focus-visible:ring-0"
       )}
       style={{ WebkitTapHighlightColor: "transparent" }}
-      whileHover={{ scale: disabled ? 1 : 1.08 }}
-      whileTap={{ scale: disabled ? 1 : 0.94 }}
-      transition={{ 
-        type: "spring", 
-        stiffness: 420, 
-        damping: 28, 
-        mass: 0.25 
-      }}
     >
-      <Icon className="h-5 w-5" />
-    </motion.button>
+      <motion.span
+        className="grid place-items-center"
+        whileHover={disabled ? {} : { scale: 1.12 }}
+        whileTap={disabled ? {} : { scale: 0.92 }}
+        transition={{ type: "spring", stiffness: 500, damping: 30, mass: 0.2 }}
+      >
+        <Icon className="h-5 w-5" />
+      </motion.span>
+    </button>
   );
 };
 
-// Animation variants for staggered content
-const CARD_VARIANTS = {
-  hidden: { opacity: 0, y: 8 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: {
-      staggerChildren: 0.03,
-      delayChildren: 0.02
-    }
-  }
-} as const;
-
-const ITEM_VARIANTS = {
-  hidden: { opacity: 0, y: 4 },
-  show: { 
-    opacity: 1, 
-    y: 0,
-    transition: { type: "spring" as const, stiffness: 300, damping: 26, mass: 0.6 }
-  }
-} as const;
+// Removed CARD_VARIANTS and ITEM_VARIANTS for better performance
 
 export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 0, open, onOpenChange, onClose, onOrderCreated, onUpdateUnitStatus }: AddressDetailModalProps) => {
   const isMobile = useIsMobile();
@@ -169,9 +148,9 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   
   const emblaOptions = useMemo(
     () => ({
-      watchDrag: isCoarse,
+      watchDrag: true, // Enable drag for all platforms for smooth UX
     }),
-    [isCoarse]
+    []
   );
   
   // Lock body scroll when modal is open
@@ -198,6 +177,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     if (open) fetchUser();
   }, [open]);
   const [currentIndex, setCurrentIndex] = useState(initialIndex);
+  const [prevIndex, setPrevIndex] = useState(initialIndex); // Track previous index for slide direction
   
   // Ensure currentAddress always has a valid value
   const currentAddress = useMemo(() => {
@@ -497,7 +477,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   ];
 
   // Popover-Inhalt, der die Höhe an die Unterkante der Modal begrenzt und nie nach oben flippt
-  const BoundedPopoverContent = forwardRef<HTMLDivElement, any>(({ modalRef, className, children, sideOffset = 8, align = "end" }, forwardedRef) => {
+  const BoundedPopoverContent = forwardRef<HTMLDivElement, any>(({ modalRef, className, children, sideOffset = 8, align = "start" }, _ref) => {
     const contentRef = useRef<HTMLDivElement | null>(null);
     const [maxH, setMaxH] = useState<number | undefined>();
 
@@ -512,25 +492,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [modalRef]);
 
     useLayoutEffect(() => {
-      // Wait for Radix/Popper to finish positioning, then measure (2x RAF avoids race)
-      let raf1 = 0;
-      let raf2 = 0;
-      const rafUpdate = () => update();
+      let raf1 = 0, raf2 = 0;
       raf1 = requestAnimationFrame(() => {
-        raf2 = requestAnimationFrame(rafUpdate);
+        raf2 = requestAnimationFrame(() => update());
       });
 
       const onScroll = () => update();
       window.addEventListener("resize", update);
       window.addEventListener("scroll", onScroll, true);
 
-      // Observe attribute/style changes on the popover content (position updates)
       const el = contentRef.current;
-      let mo: MutationObserver | undefined;
-      if (el) {
-        mo = new MutationObserver(() => update());
-        mo.observe(el, { attributes: true, attributeFilter: ["style", "data-state", "data-side"] });
-      }
+      const mo = el ? new MutationObserver(() => update()) : undefined;
+      if (el) mo!.observe(el, { attributes: true, attributeFilter: ["style", "data-state"] });
 
       return () => {
         cancelAnimationFrame(raf1);
@@ -542,17 +515,19 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }, [update]);
 
     return (
-      <PopoverContent
-        ref={contentRef}
-        side="bottom"
-        align={align}
-        sideOffset={sideOffset}
-        avoidCollisions={false}
-        className={className}
-        style={{ maxHeight: maxH, ["--bounded-max-h" as any]: `${maxH ?? 0}px` }}
-      >
-        {children}
-      </PopoverContent>
+      <PopoverPrimitive.Portal container={modalRef?.current ?? undefined}>
+        <PopoverPrimitive.Content
+          ref={contentRef}
+          side="bottom"
+          align={align}
+          sideOffset={sideOffset}
+          avoidCollisions={false}
+          className={className}
+          style={{ maxHeight: maxH, ["--bounded-max-h" as any]: `${maxH ?? 0}px` }}
+        >
+          {children}
+        </PopoverPrimitive.Content>
+      </PopoverPrimitive.Portal>
     );
   });
 
@@ -1134,34 +1109,41 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     };
     setNotes(prev => [orderNote, ...prev]);
 
-    // Trigger confetti animation
-    const duration = 3000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
+    // Trigger confetti animation - lazy load for performance
+    const triggerConfetti = async () => {
+      const confettiModule = await import('canvas-confetti');
+      const confetti = confettiModule.default;
+      
+      const duration = 3000;
+      const animationEnd = Date.now() + duration;
+      const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 10000 };
 
-    function randomInRange(min: number, max: number) {
-      return Math.random() * (max - min) + min;
-    }
-
-    const interval: any = setInterval(function() {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
+      function randomInRange(min: number, max: number) {
+        return Math.random() * (max - min) + min;
       }
 
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
-      });
-      confetti({
-        ...defaults,
-        particleCount,
-        origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
-      });
-    }, 250);
+      const interval: any = setInterval(function() {
+        const timeLeft = animationEnd - Date.now();
+
+        if (timeLeft <= 0) {
+          return clearInterval(interval);
+        }
+
+        const particleCount = 50 * (timeLeft / duration);
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 }
+        });
+        confetti({
+          ...defaults,
+          particleCount,
+          origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 }
+        });
+      }, 250);
+    };
+    
+    triggerConfetti();
 
     toast({
       title: "🎉 Neuer Kunde!",
@@ -1661,20 +1643,26 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     const addrUnits = allAddrUnits.filter(unit => !unit.deleted);
     const addrUnitCount = addrUnits.length;
     
+    const direction = index > prevIndex ? 1 : -1;
+    
     return (
       <motion.div 
-        className="h-full w-[95vw] max-w-lg mx-auto rounded-xl bg-background shadow-2xl ring-1 ring-black/5 overflow-hidden flex flex-col transform-gpu will-change-transform"
-        initial="hidden"
-        animate="show"
-        variants={CARD_VARIANTS}
+        key={addr.id}
+        className="h-full w-[95vw] max-w-lg mx-auto rounded-xl bg-background shadow-2xl overflow-hidden flex flex-col"
+        initial={{ x: 30 * direction, opacity: 0 }}
+        animate={{ x: 0, opacity: 1 }}
+        exit={{ x: -30 * direction, opacity: 0 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 380, 
+          damping: 32, 
+          mass: 0.6 
+        }}
       >
         {/* Card Header */}
-          <motion.div 
-            className="relative px-4 py-4 border-b flex-shrink-0 bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/80"
-            variants={ITEM_VARIANTS}
-          >
+        <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
           <DialogClose 
-            className="absolute right-4 top-4 rounded-sm opacity-70 ring-offset-background transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 focus-visible:ring-offset-0 z-50"
+            className="absolute right-4 top-4 rounded-sm opacity-70 transition-opacity hover:opacity-100 focus:outline-none focus-visible:outline-none focus-visible:ring-0 z-50"
             onClick={() => handleDialogChange(false)}
             style={{ WebkitTapHighlightColor: "transparent" }}
           >
@@ -1705,16 +1693,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               Hinzufügen
             </Button>
           </div>
-        </motion.div>
+        </div>
 
         {/* Card Content */}
-          <motion.div 
-            className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full max-w-full rounded-b-xl"
-            variants={ITEM_VARIANTS}
-            style={{ WebkitOverflowScrolling: 'touch' }}
-          >
+        <div 
+          className="flex-1 min-h-0 overflow-y-auto overscroll-contain w-full rounded-b-xl"
+          style={{ 
+            WebkitOverflowScrolling: 'touch',
+            background: 'transparent'
+          }}
+        >
           {renderAddressContent(addr)}
-        </motion.div>
+        </div>
       </motion.div>
     );
   };
@@ -1957,6 +1947,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             startIndex={initialIndex}
             renderCard={renderCompleteCard}
             onIndexChange={(idx) => {
+              setPrevIndex(currentIndex);
               setCurrentIndex(idx);
             }}
             className="bg-transparent shadow-none ring-0"
@@ -2240,7 +2231,10 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             items={allAddresses}
             startIndex={initialIndex}
             renderCard={renderCompleteCard}
-            onIndexChange={(idx) => setCurrentIndex(idx)}
+            onIndexChange={(idx) => {
+              setPrevIndex(currentIndex);
+              setCurrentIndex(idx);
+            }}
             className="bg-transparent shadow-none ring-0"
             options={emblaOptions}
           />
