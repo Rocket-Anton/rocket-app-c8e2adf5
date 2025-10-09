@@ -655,131 +655,14 @@ function KarteContent() {
     zoomToProjectAddresses();
   }, [shouldZoomToProjects, selectedProjectIds, addresses]);
 
-  // Render project markers (no auto-zoom on selection)
+  // Clear project markers when projects are deselected
   useEffect(() => {
     const map = mapInstance.current;
     if (!map || selectedProjectIds.size === 0) {
       // Clear project markers if no projects selected
       projectMarkersRef.current.forEach((m) => m.remove());
       projectMarkersRef.current = [];
-      return;
     }
-
-    const fetchAndRenderProjects = async () => {
-      try {
-        console.log('Fetching projects for IDs:', Array.from(selectedProjectIds));
-        
-        const { data: projects, error } = await supabase
-          .from('projects')
-          .select('id, name, status, area_name, city, coordinates, providers(color)')
-          .in('id', Array.from(selectedProjectIds));
-
-        console.log('Projects fetched:', projects, 'Error:', error);
-
-        if (error) throw error;
-        if (!projects || projects.length === 0) {
-          console.log('No projects found or empty array');
-          return;
-        }
-
-        // Clear existing project markers
-        projectMarkersRef.current.forEach((m) => m.remove());
-        projectMarkersRef.current = [];
-
-        // Process projects and geocode cities if needed
-        for (const project of projects) {
-          let coords: { lat: number; lng: number } | null = null;
-
-          // Try to use existing coordinates
-          if (project.coordinates) {
-            const projectCoords = project.coordinates as { lat?: number; lng?: number } | null;
-            if (projectCoords && typeof projectCoords.lat === 'number' && typeof projectCoords.lng === 'number') {
-              coords = { lat: projectCoords.lat, lng: projectCoords.lng };
-            }
-          }
-
-          // If no coordinates, geocode the city
-          if (!coords && project.city) {
-            try {
-              console.log('Geocoding city:', project.city);
-              const response = await fetch(
-                `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodeURIComponent(project.city)}.json?access_token=${MAPBOX_ACCESS_TOKEN}&country=DE&limit=1`
-              );
-              const data = await response.json();
-              
-              if (data.features && data.features.length > 0) {
-                const [lng, lat] = data.features[0].center;
-                coords = { lat, lng };
-                console.log(`Geocoded ${project.city} to`, coords);
-              }
-            } catch (geocodeError) {
-              console.error('Error geocoding city:', geocodeError);
-            }
-          }
-
-          if (!coords) {
-            console.log('No coordinates available for project:', project.name);
-            continue;
-          }
-
-          // Create project marker element
-          const el = document.createElement('div');
-          const providerColor = (project.providers as any)?.color || '#3b82f6';
-          
-          el.innerHTML = `
-            <div style="display:flex;flex-direction:column;align-items:center;cursor:pointer;">
-              <div style="width:32px;height:32px;background:${providerColor};border:2px solid white;border-radius:50%;box-shadow:0 3px 8px rgba(0,0,0,0.4);display:flex;align-items:center;justify-content:center;">
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                  <path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/>
-                  <circle cx="12" cy="10" r="3"/>
-                </svg>
-              </div>
-              <div style="background:${providerColor};color:white;padding:2px 6px;border-radius:4px;font-size:10px;font-weight:600;margin-top:2px;box-shadow:0 2px 4px rgba(0,0,0,0.3);white-space:nowrap;max-width:120px;overflow:hidden;text-overflow:ellipsis;">${project.name}</div>
-            </div>
-          `;
-
-          el.addEventListener('click', () => {
-            map.flyTo({
-              center: [coords!.lng, coords!.lat],
-              zoom: 14,
-              pitch: 45,
-              duration: 1500,
-            });
-          });
-
-          const statusColors: Record<string, string> = {
-            "In Planung": "#eab308",
-            "Aktiv": "#22c55e",
-            "Läuft": "#22c55e",
-            "Abgeschlossen": "#3b82f6",
-            "Pausiert": "#6b7280",
-            "Abgebrochen": "#ef4444",
-          };
-
-          const statusColor = statusColors[project.status] || "#6b7280";
-
-          const marker = new mapboxgl.Marker({ element: el })
-            .setLngLat([coords.lng, coords.lat])
-            .setPopup(
-              new mapboxgl.Popup({ offset: 20 }).setHTML(`
-                <div style="padding: 10px; font-size: 12px; min-width: 180px;">
-                  <div style="font-weight: 600; margin-bottom: 6px; color: ${providerColor}; font-size: 14px;">${project.name}</div>
-                  <div style="display: inline-block; background: ${statusColor}; color: white; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 500; margin-bottom: 6px;">${project.status}</div>
-                  ${project.area_name ? `<div style="color: #666; margin-top: 4px;"><strong>Gebiet:</strong> ${project.area_name}</div>` : ''}
-                  ${project.city ? `<div style="color: #666; margin-top: 2px;"><strong>Stadt:</strong> ${project.city}</div>` : ''}
-                </div>
-              `)
-            )
-            .addTo(map);
-
-          projectMarkersRef.current.push(marker);
-        }
-      } catch (error) {
-        console.error('Error rendering project markers:', error);
-      }
-    };
-
-    fetchAndRenderProjects();
   }, [selectedProjectIds]);
 
   return (
