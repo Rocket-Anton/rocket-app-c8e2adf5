@@ -86,17 +86,17 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
 
       console.log('ProjectSelector: User ID:', user.id);
 
-      // Check if user is admin
-      const { data: userRoles, error: rolesError } = await supabase
+      // Check if user is admin or super_admin
+      const { data: userRole, error: rolesError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .maybeSingle();
+        .single();
 
-      console.log('ProjectSelector: User roles:', userRoles, 'Error:', rolesError);
+      console.log('ProjectSelector: User role:', userRole, 'Error:', rolesError);
 
-      const isAdmin = userRoles?.role === 'admin';
-      console.log('ProjectSelector: Is admin?', isAdmin);
+      const isAdminLike = userRole?.role === 'admin' || userRole?.role === 'super_admin';
+      console.log('ProjectSelector: Is admin/super_admin?', isAdminLike);
 
       let query = supabase
         .from('projects')
@@ -104,7 +104,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
         .order('name');
 
       // For non-admins, filter by assigned projects or project manager
-      if (!isAdmin) {
+      if (!isAdminLike) {
         // Load assigned project IDs first (no subqueries in PostgREST filters)
         const { data: assignments, error: assignError } = await supabase
           .from('project_rockets')

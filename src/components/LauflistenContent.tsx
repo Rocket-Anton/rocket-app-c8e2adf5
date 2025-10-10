@@ -553,7 +553,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         .eq('user_id', user.id)
         .single();
       
-      const isAdmin = roleData?.role === 'admin';
+      const isAdminLike = roleData?.role === 'admin' || roleData?.role === 'super_admin';
       const addressIds = filteredAddresses.map(a => a.id);
       
       if (addressIds.length === 0) {
@@ -569,7 +569,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         .gte('created_at', todayISO)
         .in('address_id', addressIds);
       
-      if (!isAdmin) {
+      if (!isAdminLike) {
         statusQuery = statusQuery.eq('user_id', user.id);
       }
       
