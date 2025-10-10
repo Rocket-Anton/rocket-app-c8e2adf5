@@ -70,7 +70,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
 
   return (
     <header className="lg:hidden sticky top-0 z-50 w-full bg-[#0066FF] border-b border-white/10">
-      <div className="flex items-center justify-between px-2 h-14">
+      <div className="flex items-center justify-between px-4 h-14">
         {/* Logo */}
         <button 
           onClick={() => handleNavigation("/")}
@@ -89,9 +89,9 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-white hover:bg-white/10 h-14 w-14"
+              className="text-white hover:bg-white/10 h-12 w-12"
             >
-              {open ? <X className="h-9 w-9" /> : <Menu className="h-9 w-9" />}
+              {open ? <X className="h-10 w-10" /> : <Menu className="h-10 w-10" />}
             </Button>
           </SheetTrigger>
           <SheetContent 
