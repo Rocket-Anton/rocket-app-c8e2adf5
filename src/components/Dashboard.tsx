@@ -47,7 +47,7 @@ export const Dashboard = () => {
     <SidebarProvider>
       <div className="flex h-dvh w-full bg-muted/30 gap-0 overflow-x-hidden" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>{/* Only prevent horizontal scroll */}
         <DashboardSidebar />
-        <SidebarInset className="p-0 m-0 border-0 transition-all duration-300 ease-in-out">
+        <SidebarInset className="p-0 m-0 border-0 transition-none lg:transition-all lg:duration-300 lg:ease-in-out">
           <MobileHeader 
             selectedProjectIds={selectedProjectIds}
             onProjectsChange={setSelectedProjectIds}

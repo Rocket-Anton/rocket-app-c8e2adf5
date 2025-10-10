@@ -374,19 +374,6 @@ function KarteContent() {
       bearing: initialBearing,
       antialias: true,
     });
-    
-    // If we have a saved view, ease to it for a smooth transition
-    if (savedMapViewRef.current) {
-      setTimeout(() => {
-        map.easeTo({ 
-          center: initialCenter, 
-          zoom: initialZoom,
-          bearing: initialBearing,
-          pitch: initialPitch,
-          duration: 400 
-        });
-      }, 100);
-    }
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
@@ -660,7 +647,7 @@ function KarteContent() {
       visibleAddressCount++;
     });
 
-    if (!bounds.isEmpty() && selectedListIds.size > 0) {
+    if (!bounds.isEmpty() && selectedListIds.size > 0 && !savedMapViewRef.current) {
       const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0;
       map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0], maxZoom: 17 });
     }
@@ -1125,7 +1112,34 @@ function KarteContent() {
           allAddresses={addresses}
           open={showAddressModal}
           onOpenChange={setShowAddressModal}
-          onClose={() => {
+          onClose={(finalIndex) => {
+            const finalAddress = addresses[finalIndex];
+            
+            if (finalAddress && finalAddress.coordinates && mapInstance.current) {
+              // Zoom to the address with smooth animation
+              mapInstance.current.easeTo({
+                center: [finalAddress.coordinates[0], finalAddress.coordinates[1]],
+                zoom: 17,
+                duration: 800,
+                essential: true
+              });
+              
+              // Find the marker for this address and add blink animation
+              const markerIndex = markersRef.current.findIndex(marker => {
+                const lngLat = marker.getLngLat();
+                return Math.abs(lngLat.lng - finalAddress.coordinates[0]) < 0.0001 && 
+                       Math.abs(lngLat.lat - finalAddress.coordinates[1]) < 0.0001;
+              });
+              
+              if (markerIndex !== -1) {
+                const markerElement = markersRef.current[markerIndex].getElement();
+                markerElement.classList.add('marker-blink');
+                setTimeout(() => {
+                  markerElement.classList.remove('marker-blink');
+                }, 3000);
+              }
+            }
+            
             setSelectedAddress(null);
             setShowAddressModal(false);
           }}
