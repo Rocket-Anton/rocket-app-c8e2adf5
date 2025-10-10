@@ -207,13 +207,13 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-lg max-h-[90vh] flex flex-col p-4">
           <DialogHeader>
             <DialogTitle>Profilbild zuschneiden</DialogTitle>
           </DialogHeader>
           
-          <div className="space-y-4">
-            <div className="relative h-72 w-full bg-muted">
+          <div className="flex-1 min-h-0 overflow-y-auto space-y-4">
+            <div className="relative h-56 sm:h-60 w-full bg-muted rounded-md overflow-hidden">
               {imageSrc && (
                 <Cropper
                   image={imageSrc}
@@ -228,7 +228,7 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
                 />
               )}
             </div>
-
+            
             <div className="space-y-2">
               <label className="text-sm font-medium">Zoom</label>
               <Slider
@@ -240,19 +240,19 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
                 className="w-full"
               />
             </div>
-
-            <div className="flex gap-2 justify-end">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDialogOpen(false)}
-              >
-                Abbrechen
-              </Button>
-              <Button type="button" onClick={handleSave}>
-                Speichern
-              </Button>
-            </div>
+          </div>
+          
+          <div className="mt-2 flex gap-2 justify-end border-t pt-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setIsDialogOpen(false)}
+            >
+              Abbrechen
+            </Button>
+            <Button type="button" onClick={handleSave}>
+              Speichern
+            </Button>
           </div>
         </DialogContent>
       </Dialog>
