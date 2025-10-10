@@ -14,45 +14,8 @@ import { cn } from '@/lib/utils';
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const [leftOffset, setLeftOffset] = useState(16);
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
-
-  useEffect(() => {
-    function computeOffset() {
-      const isMobile = window.innerWidth < 1024;
-      if (isMobile) return; // Button is hidden on mobile anyway
-      
-      // Find the outer sidebar wrapper (the one that actually changes width)
-      const sidebarWrapper = document.querySelector('.group.peer[data-state]') as HTMLElement | null;
-      if (!sidebarWrapper) {
-        setLeftOffset(16);
-        return;
-      }
-      
-      // Get the first child (the transparent spacer div that transitions width)
-      const spacerEl = sidebarWrapper.firstElementChild as HTMLElement | null;
-      const width = spacerEl ? spacerEl.getBoundingClientRect().width : 224;
-      setLeftOffset(Math.round(width) + 16); // Sidebar width + 1rem gap
-    }
-    
-    computeOffset();
-    
-    // Observe the spacer element
-    const sidebarWrapper = document.querySelector('.group.peer[data-state]') as HTMLElement | null;
-    const spacerEl = sidebarWrapper?.firstElementChild as HTMLElement | null;
-    const ro = spacerEl ? new ResizeObserver(computeOffset) : null;
-    if (spacerEl && ro) ro.observe(spacerEl);
-    
-    window.addEventListener('resize', computeOffset);
-    
-    return () => {
-      window.removeEventListener('resize', computeOffset);
-      if (ro && spacerEl) ro.unobserve(spacerEl);
-    };
-  }, []);
-
-  // Early return MUST be after all hooks
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -86,8 +49,11 @@ export const UserImpersonationButton = () => {
   return (
     <>
       <div 
-        className="hidden lg:block fixed bottom-4 z-50 transition-[left] duration-200 ease-linear"
-        style={{ left: `${leftOffset}px` }}
+        className={cn(
+          "hidden lg:block fixed bottom-4 z-50 transition-[left] duration-200 ease-linear left-4",
+          "group-has-[[data-side=left][data-state=expanded]]/sidebar-wrapper:left-[calc(var(--sidebar-width)+1rem)]",
+          "group-has-[[data-side=left][data-state=collapsed]]/sidebar-wrapper:left-[calc(var(--sidebar-width-icon)+1rem)]"
+        )}
       >
         <Button
           onClick={() => setIsOpen(true)}
