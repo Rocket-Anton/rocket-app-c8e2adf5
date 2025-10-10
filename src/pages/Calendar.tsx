@@ -415,55 +415,62 @@ export default function Calendar() {
 
                 {/* Mobile: Filters Row */}
                 <div className="flex lg:hidden items-center gap-2 w-full overflow-x-auto pb-1">
-                  {isAdminLike && (
-                    <UserMultiSelect
-                      users={users}
-                      selectedUserIds={selectedUserIds}
-                      onSelectionChange={setSelectedUserIds}
-                    />
-                  )}
-
-                  {projects.length > 0 && (
-                    <ProjectMultiSelect
-                      projects={projects}
-                      selectedProjectIds={selectedProjectIds}
-                      onSelectionChange={setSelectedProjectIds}
-                    />
-                  )}
-
-                  {userRole === 'project_manager' && (
-                    <Select value={showTeamEvents ? 'team' : 'own'} onValueChange={(v) => setShowTeamEvents(v === 'team')}>
-                      <SelectTrigger className="h-8 rounded-md bg-muted/40 border border-input text-sm px-3 min-w-[100px]">
+                  {/* Links: ViewMode + Create Button */}
+                  <div className="flex items-center gap-2">
+                    <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
+                      <SelectTrigger className="h-8 w-[90px] rounded-md bg-muted/40 border border-input text-sm px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="own">Eigene</SelectItem>
-                        <SelectItem value="team">Team</SelectItem>
+                        <SelectItem value="month">Monat</SelectItem>
+                        <SelectItem value="week">Woche</SelectItem>
+                        <SelectItem value="day">Tag</SelectItem>
                       </SelectContent>
                     </Select>
-                  )}
+                    
+                    <Button 
+                      onClick={handleCreateEvent} 
+                      size="sm"
+                      className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden md:inline">Termin</span>
+                    </Button>
+                  </div>
+                  
+                  {/* Spacer für Rechts-Ausrichtung */}
+                  <div className="flex-1" />
+                  
+                  {/* Rechts: Filter-Buttons */}
+                  <div className="flex items-center gap-2">
+                    {isAdminLike && (
+                      <UserMultiSelect
+                        users={users}
+                        selectedUserIds={selectedUserIds}
+                        onSelectionChange={setSelectedUserIds}
+                      />
+                    )}
 
-                  {/* View Mode Select Mobile */}
-                  <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
-                    <SelectTrigger className="h-8 w-[100px] rounded-md bg-muted/40 border border-input text-sm px-3">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="month">Monat</SelectItem>
-                      <SelectItem value="week">Woche</SelectItem>
-                      <SelectItem value="day">Tag</SelectItem>
-                    </SelectContent>
-                  </Select>
+                    {projects.length > 0 && (
+                      <ProjectMultiSelect
+                        projects={projects}
+                        selectedProjectIds={selectedProjectIds}
+                        onSelectionChange={setSelectedProjectIds}
+                      />
+                    )}
 
-                  {/* Create Event Button Mobile */}
-                  <Button 
-                    onClick={handleCreateEvent} 
-                    size="sm"
-                    className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
-                  >
-                    <Plus className="h-4 w-4" />
-                    <span className="hidden md:inline">Termin</span>
-                  </Button>
+                    {userRole === 'project_manager' && (
+                      <Select value={showTeamEvents ? 'team' : 'own'} onValueChange={(v) => setShowTeamEvents(v === 'team')}>
+                        <SelectTrigger className="h-8 rounded-md bg-muted/40 border border-input text-sm px-3 min-w-[100px]">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="own">Eigene</SelectItem>
+                          <SelectItem value="team">Team</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
+                  </div>
                 </div>
               </div>
 
