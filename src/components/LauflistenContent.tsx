@@ -671,8 +671,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         </div>
 
         {/* Metrics Dashboard */}
-        <div className="px-4 pt-6">
-          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+        <div className="pt-6">
+          <div className="flex w-full gap-3 pb-3 pl-4 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
@@ -1536,40 +1536,35 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                                     onTouchEnd={(e) => e.stopPropagation()}
                                     style={{ WebkitOverflowScrolling: 'touch' }}
                                   >
-                                    <Command className="bg-background">
-                                      <CommandList className="overflow-visible">
-                                        <CommandGroup>
-                                          {statusOptions.map((option) => (
-                                            <CommandItem
-                                              key={option.value}
-                                              onSelect={() => {
-                                                setStatusFilter(
-                                                  statusFilter.includes(option.value)
-                                                    ? statusFilter.filter((s) => s !== option.value)
-                                                    : [...statusFilter, option.value]
-                                                );
-                                              }}
-                                              className="cursor-pointer"
-                                            >
-                                              <div className="flex items-center gap-2 w-full">
-                                                <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
-                                                  statusFilter.includes(option.value)
-                                                    ? 'border-green-500 bg-white'
-                                                    : 'border-input bg-white'
-                                                } flex items-center justify-center`}>
-                                                  {statusFilter.includes(option.value) && (
-                                                    <Check className="w-3 h-3 text-green-500 stroke-[3]" />
-                                                  )}
-                                                </div>
-                                                <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
-                                                  {option.label}
-                                                </div>
-                                              </div>
-                                            </CommandItem>
-                                          ))}
-                                        </CommandGroup>
-                                      </CommandList>
-                                    </Command>
+                                    {statusOptions.map((option) => {
+                                      const checked = statusFilter.includes(option.value);
+                                      return (
+                                        <button
+                                          key={option.value}
+                                          role="option"
+                                          aria-selected={checked}
+                                          onClick={() =>
+                                            setStatusFilter((prev) =>
+                                              checked ? prev.filter((s) => s !== option.value) : [...prev, option.value]
+                                            )
+                                          }
+                                          className="w-full text-left px-3 py-2 hover:bg-muted/50 flex items-center gap-2"
+                                        >
+                                          <div className={`flex-shrink-0 w-4 h-4 border-2 rounded ${
+                                            checked
+                                              ? 'border-green-500 bg-white'
+                                              : 'border-input bg-white'
+                                          } flex items-center justify-center`}>
+                                            {checked && (
+                                              <Check className="w-3 h-3 text-green-500 stroke-[3]" />
+                                            )}
+                                          </div>
+                                          <div className={`px-2 py-1 text-xs font-medium rounded ${option.color}`}>
+                                            {option.label}
+                                          </div>
+                                        </button>
+                                      );
+                                    })}
                                   </div>
                                 </PopoverContent>
                               </Popover>

@@ -46,7 +46,7 @@ export const Dashboard = () => {
     <SidebarProvider>
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
-        <SidebarInset className="p-0 m-0 border-0">
+        <SidebarInset className="p-0 m-0 border-0 overflow-hidden">
           
           <div className="relative h-full">
             <LauflistenContent 
