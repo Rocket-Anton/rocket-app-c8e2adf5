@@ -15,15 +15,15 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
   const weekdays = getWeekdayNames();
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden shadow-sm w-full">
+    <div className="bg-background rounded-lg border overflow-hidden shadow-sm w-full pr-px sm:pr-0">
       {/* Weekday headers - integrated with grid */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 w-full min-w-0">
         {weekdays.map((day, index) => (
           <div
             key={day}
             className={cn(
-              "py-1.5 px-0.5 sm:py-2 sm:px-3 text-center text-[9px] sm:text-xs font-semibold text-muted-foreground bg-muted/50",
-              index < 6 && "border-r"
+              "relative py-1.5 px-0.5 sm:py-2 sm:px-3 text-center text-[9px] sm:text-xs font-semibold text-muted-foreground bg-muted/50",
+              index < 6 && 'after:content-[""] after:absolute after:top-0 after:bottom-0 after:right-0 after:w-px after:bg-border'
             )}
           >
             <span className="hidden sm:inline">{day}</span>
@@ -33,7 +33,7 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
       </div>
 
       {/* Calendar grid - vertical lines go through weekday headers */}
-      <div className="grid grid-cols-7">
+      <div className="grid grid-cols-7 w-full min-w-0 overflow-x-hidden">
         {days.map((day, index) => {
           const dayEvents = filterEventsByDate(events, day);
           const isCurrentMonth = isSameMonth(day, currentDate);
@@ -43,8 +43,8 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
             <div
               key={index}
               className={cn(
-                "min-h-[75px] sm:min-h-[100px] lg:min-h-[120px] border-t p-0.5 sm:p-2 cursor-pointer transition-colors hover:bg-accent/50 relative",
-                index % 7 < 6 && "border-r",
+                "relative min-h-[75px] sm:min-h-[100px] lg:min-h-[120px] border-t p-0.5 sm:p-2 cursor-pointer transition-colors hover:bg-accent/50",
+                index % 7 < 6 && 'after:content-[""] after:absolute after:top-0 after:bottom-0 after:right-0 after:w-px after:bg-border',
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isTodayDate && "bg-blue-50/50 dark:bg-blue-950/20"
               )}
