@@ -448,7 +448,7 @@ export const RaketenSettings = () => {
                         setFormData({ ...formData, role: value })
                       }
                     >
-                      <SelectTrigger>
+                      <SelectTrigger className="border">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
