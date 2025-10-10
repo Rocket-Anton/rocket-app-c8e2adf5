@@ -371,104 +371,106 @@ export const RaketenSettings = () => {
                 Neue Rakete
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl">
+            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>
                   {editingRakete ? "Rakete bearbeiten" : "Neue Rakete"}
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                {/* Vorname & Nachname - Responsive Grid */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="firstName">Vorname *</Label>
-                    <Input
-                      id="firstName"
-                      value={formData.firstName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, firstName: e.target.value })
-                      }
-                      required
-                    />
+              <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto space-y-4 px-1">
+                  {/* Vorname & Nachname - Responsive Grid */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="firstName">Vorname *</Label>
+                      <Input
+                        id="firstName"
+                        value={formData.firstName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, firstName: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                    <div>
+                      <Label htmlFor="lastName">Nachname *</Label>
+                      <Input
+                        id="lastName"
+                        value={formData.lastName}
+                        onChange={(e) =>
+                          setFormData({ ...formData, lastName: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
                   </div>
+
+                  {/* E-Mail & Handy */}
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                      <Label htmlFor="email">E-Mail *</Label>
+                      <Input
+                        id="email"
+                        type="email"
+                        value={formData.email}
+                        onChange={(e) =>
+                          setFormData({ ...formData, email: e.target.value })
+                        }
+                        required
+                        disabled={!!editingRakete}
+                      />
+                      {editingRakete && (
+                        <p className="text-xs text-muted-foreground mt-1">
+                          E-Mail kann nicht geändert werden
+                        </p>
+                      )}
+                    </div>
+                    <div>
+                      <Label htmlFor="phone">Handy *</Label>
+                      <Input
+                        id="phone"
+                        type="tel"
+                        value={formData.phone}
+                        onChange={(e) =>
+                          setFormData({ ...formData, phone: e.target.value })
+                        }
+                        required
+                      />
+                    </div>
+                  </div>
+
+                  {/* Rolle */}
                   <div>
-                    <Label htmlFor="lastName">Nachname *</Label>
-                    <Input
-                      id="lastName"
-                      value={formData.lastName}
-                      onChange={(e) =>
-                        setFormData({ ...formData, lastName: e.target.value })
+                    <Label htmlFor="role">Rolle *</Label>
+                    <Select
+                      value={formData.role}
+                      onValueChange={(value: "rocket" | "project_manager") =>
+                        setFormData({ ...formData, role: value })
                       }
-                      required
+                    >
+                      <SelectTrigger>
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="rocket">Rakete</SelectItem>
+                        <SelectItem value="project_manager">Projektleiter</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  {/* Profilbild (optional) */}
+                  <div>
+                    <Label>Profilbild (optional)</Label>
+                    <AvatarUploader 
+                      onAvatarProcessed={(blob) => 
+                        setFormData({...formData, avatarBlob: blob, avatarUrl: URL.createObjectURL(blob)})
+                      }
+                      currentAvatarUrl={formData.avatarUrl}
                     />
                   </div>
                 </div>
 
-                {/* E-Mail & Handy */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                  <div>
-                    <Label htmlFor="email">E-Mail *</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) =>
-                        setFormData({ ...formData, email: e.target.value })
-                      }
-                      required
-                      disabled={!!editingRakete}
-                    />
-                    {editingRakete && (
-                      <p className="text-xs text-muted-foreground mt-1">
-                        E-Mail kann nicht geändert werden
-                      </p>
-                    )}
-                  </div>
-                  <div>
-                    <Label htmlFor="phone">Handy *</Label>
-                    <Input
-                      id="phone"
-                      type="tel"
-                      value={formData.phone}
-                      onChange={(e) =>
-                        setFormData({ ...formData, phone: e.target.value })
-                      }
-                      required
-                    />
-                  </div>
-                </div>
-
-                {/* Rolle */}
-                <div>
-                  <Label htmlFor="role">Rolle *</Label>
-                  <Select
-                    value={formData.role}
-                    onValueChange={(value: "rocket" | "project_manager") =>
-                      setFormData({ ...formData, role: value })
-                    }
-                  >
-                    <SelectTrigger>
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="rocket">Rakete</SelectItem>
-                      <SelectItem value="project_manager">Projektleiter</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
-
-                {/* Profilbild (optional) */}
-                <div>
-                  <Label>Profilbild (optional)</Label>
-                  <AvatarUploader 
-                    onAvatarProcessed={(blob) => 
-                      setFormData({...formData, avatarBlob: blob, avatarUrl: URL.createObjectURL(blob)})
-                    }
-                    currentAvatarUrl={formData.avatarUrl}
-                  />
-                </div>
-
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end pt-4 mt-2 border-t">
                   <Button type="button" variant="outline" onClick={() => {
                     setIsCreateOpen(false);
                     setEditingRakete(null);
