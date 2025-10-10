@@ -117,7 +117,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       return;
     }
     
-    // Desktop/Tablet: Delayed expand after sidebar animation
+    // Desktop (>=1024): Always expanded
+    if (window.innerWidth >= 1024) {
+      setIsDashboardExpanded(true);
+      return;
+    }
+    
+    // Tablet (768-1023): Delayed expand after sidebar animation
     if (isSidebarCollapsed) {
       const timer = setTimeout(() => {
         setIsDashboardExpanded(true);
@@ -128,14 +134,18 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     }
   }, [isSidebarCollapsed]);
 
-  // Handle viewport resize (Mobile <-> Desktop switch)
+  // Handle viewport resize (Mobile <-> Tablet <-> Desktop switch)
   useEffect(() => {
     const handleResize = () => {
-      if (window.innerWidth < 768) {
+      const width = window.innerWidth;
+      if (width < 768) {
         // Mobile: Force scroll mode
         setIsDashboardExpanded(false);
+      } else if (width >= 1024) {
+        // Desktop: Always expanded
+        setIsDashboardExpanded(true);
       } else {
-        // Desktop: Sync with sidebar status
+        // Tablet: Sync with sidebar status
         setIsDashboardExpanded(isSidebarCollapsed);
       }
     };
@@ -599,7 +609,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       return {
         borderColor: '',
         textColor: 'text-foreground',
-        bgColor: 'bg-background'
+        bgColor: 'bg-background',
+        shimmer: false
       };
     }
     
@@ -607,19 +618,24 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       return {
         borderColor: 'border-green-500 border-2',
         textColor: 'text-green-600',
-        bgColor: 'bg-green-50'
+        bgColor: 'bg-gradient-to-br from-green-50 via-emerald-100 to-green-50',
+        shimmer: true,
+        shimmerColor: 'silver'
       };
     } else if (rate <= 15) {
       return {
         borderColor: 'border-yellow-500 border-2',
         textColor: 'text-yellow-600',
-        bgColor: 'bg-yellow-50'
+        bgColor: 'bg-gradient-to-br from-yellow-50 via-amber-100 to-yellow-50',
+        shimmer: true,
+        shimmerColor: 'gold'
       };
     } else {
       return {
         borderColor: 'border-red-500 border-2',
         textColor: 'text-red-600',
-        bgColor: 'bg-red-50'
+        bgColor: 'bg-red-50',
+        shimmer: false
       };
     }
   };
@@ -627,6 +643,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const conversionStyle = getConversionStyle(conversionRate, orderCount > 0);
 
   const metricsData = [
+    {
+      title: "Conversion",
+      value: orderCount > 0 ? conversionRate.toFixed(1) : "0",
+      icon: TrendingUp,
+      color: conversionStyle.textColor,
+      bgColor: conversionStyle.bgColor,
+      explanation: "Durchschnittliche Anzahl Statusänderungen pro Auftrag",
+      borderColor: conversionStyle.borderColor,
+      shimmer: conversionStyle.shimmer,
+      shimmerColor: conversionStyle.shimmerColor,
+    },
     {
       title: "Aufträge heute",
       value: orderCount.toString(),
@@ -640,15 +667,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       emoji: orderStyle.emoji,
       iconBg: orderStyle.iconBg,
       isOrderCard: true
-    },
-    {
-      title: "Conversion",
-      value: orderCount > 0 ? conversionRate.toFixed(1) : "0",
-      icon: TrendingUp,
-      color: conversionStyle.textColor,
-      bgColor: conversionStyle.bgColor,
-      explanation: "Durchschnittliche Anzahl Statusänderungen pro Auftrag",
-      borderColor: conversionStyle.borderColor,
     },
     {
       title: "Qualifiziert heute",
@@ -765,6 +783,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             {/* DASHBOARD HERE - Part of the fixed header */}
             <div className={cn(
               "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap,grid-template-columns] ease-in-out",
+              "lg:overflow-visible lg:grid-flow-row lg:auto-cols-auto lg:grid-cols-4 lg:gap-4",
               isDashboardExpanded 
                 ? "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible duration-50"
                 : "duration-300"
@@ -778,9 +797,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   ? "md:w-auto duration-50" 
                   : "lg:w-auto duration-300",
                 isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
-              )}>
-                {/* Shimmer Effect für Aufträge Card */}
-                {isOrderCard && metric.shimmer && (
+                )}>
+                {/* Shimmer Effect */}
+                {metric.shimmer && (
                   <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
                     <div
                       className={`h-full w-full ${
@@ -830,36 +849,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               </Card>
               );
             })}
-            
-            {/* Gauge Chart Card */}
-            <Card className={cn(
-              "relative p-4 hover:shadow-md transition-[width,shadow] border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px]",
-              isDashboardExpanded 
-                ? "md:w-auto duration-50" 
-                : "lg:w-auto duration-300"
-            )}>
-              <div className="absolute -top-0.5 right-0.5">
-                <Popover>
-                  <PopoverTrigger asChild>
-                    <button className="p-0 hover:bg-muted/50 rounded-full transition-colors">
-                      <Info className={`text-green-600 cursor-pointer ${isMobile ? 'w-4 h-4' : 'w-3.5 h-3.5'}`} />
-                    </button>
-                  </PopoverTrigger>
-                  <PopoverContent className="w-80 p-3" align="end" side="bottom">
-                    <p className="text-sm">Anzahl der heute bearbeiteten Aufträge</p>
-                  </PopoverContent>
-                </Popover>
-              </div>
-              <div className="absolute -bottom-3 -right-3 z-10 pointer-events-none">
-                <div className="w-6 h-6 bg-red-500 rounded-full flex items-center justify-center">
-                  <X className="w-4 h-4 text-white" />
-                </div>
-              </div>
-              <div className="flex flex-col items-center justify-center text-center mt-2">
-                <div className={`font-bold text-foreground mb-2 ${isMobile ? 'text-xl' : 'text-3xl'}`}>6,5%</div>
-                <div className="text-sm text-muted-foreground">Conversion</div>
-              </div>
-            </Card>
             </div>
           </div>
           
