@@ -31,6 +31,19 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
     }
   };
 
+  const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    const file = e.dataTransfer.files?.[0];
+    if (file && file.type.startsWith('image/')) {
+      const reader = new FileReader();
+      reader.onload = () => {
+        setImageSrc(reader.result as string);
+        setIsDialogOpen(true);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const onCropComplete = (_: Area, croppedAreaPixels: Area) => {
     setCroppedAreaPixels(croppedAreaPixels);
   };
@@ -142,42 +155,65 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
         className="hidden"
       />
 
-      <div className="flex items-center gap-4">
-        <Button
-          type="button"
-          variant="outline"
+      <div className="space-y-4">
+        {/* Drag & Drop Area */}
+        <div 
           onClick={() => fileInputRef.current?.click()}
-          className="w-full"
+          onDragOver={(e) => e.preventDefault()}
+          onDrop={handleDrop}
+          className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-12 hover:border-primary/50 hover:bg-accent/5 transition-all cursor-pointer group"
         >
-          <Upload className="mr-2 h-4 w-4" />
-          Profilbild hochladen
-        </Button>
-        
-        {currentAvatarUrl && (
-          <div className="relative h-16 w-16 rounded-full overflow-hidden border-2 border-border flex-shrink-0">
-            <img
-              src={currentAvatarUrl}
-              alt="Current avatar"
-              className="h-full w-full object-cover"
-            />
+          <div className="flex flex-col items-center justify-center gap-4 text-center">
+            <div className="rounded-full bg-muted p-4 group-hover:bg-muted/80 transition-colors">
+              <Upload className="h-8 w-8 text-muted-foreground" />
+            </div>
+            
+            <div className="space-y-2">
+              <p className="text-base font-medium text-foreground">
+                Drag files to upload
+              </p>
+              <p className="text-sm text-muted-foreground">or</p>
+            </div>
+            
+            <Button
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                fileInputRef.current?.click();
+              }}
+              className="bg-primary hover:bg-primary/90"
+            >
+              Browse file
+            </Button>
           </div>
-        )}
-        
-        {!currentAvatarUrl && (
-          <div className="relative h-16 w-16 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-            <User className="h-8 w-8 text-muted-foreground" />
+        </div>
+
+        {/* Current Avatar Preview */}
+        {currentAvatarUrl && (
+          <div className="flex items-center gap-3 p-4 rounded-lg border bg-card">
+            <div className="relative h-12 w-12 rounded-full overflow-hidden border-2 border-border flex-shrink-0">
+              <img
+                src={currentAvatarUrl}
+                alt="Current avatar"
+                className="h-full w-full object-cover"
+              />
+            </div>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium truncate">Aktuelles Profilbild</p>
+              <p className="text-xs text-muted-foreground">Klicke oben, um zu ändern</p>
+            </div>
           </div>
         )}
       </div>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-lg">
           <DialogHeader>
             <DialogTitle>Profilbild zuschneiden</DialogTitle>
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="relative h-96 w-full bg-muted">
+            <div className="relative h-80 w-full bg-muted">
               {imageSrc && (
                 <Cropper
                   image={imageSrc}
