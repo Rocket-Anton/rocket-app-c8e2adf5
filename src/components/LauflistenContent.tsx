@@ -672,11 +672,11 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
         {/* Metrics Dashboard */}
         <div className="px-4 pt-6">
-          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+          <div className="flex w-full gap-3 pb-3 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] md:w-auto ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
+              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] lg:w-auto ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
                 {/* Shimmer Effect für Aufträge Card */}
                 {isOrderCard && metric.shimmer && (
                   <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
@@ -730,7 +730,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             })}
             
             {/* Gauge Chart Card */}
-            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px] md:w-auto`}>
+            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px] lg:w-auto`}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
