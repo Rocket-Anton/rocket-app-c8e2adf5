@@ -73,7 +73,7 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
         </Button>
       </PopoverTrigger>
       
-      <PopoverContent className="w-[280px] p-3" align="start">
+      <PopoverContent className="w-[240px] lg:w-[280px] p-3" align="start">
         {/* Search Input */}
         <div className="relative mb-3">
           <Search className="absolute left-2 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
@@ -81,25 +81,25 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
             placeholder="Projekt suchen..."
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
-            className="pl-8 h-8 text-sm"
+            className="pl-8 h-7 lg:h-8 text-sm"
           />
         </div>
         
         {/* Select All Checkbox */}
         <div 
-          className="flex items-center gap-2 px-2 py-1.5 mb-2 hover:bg-muted rounded-md cursor-pointer"
+          className="flex items-center gap-2 px-2 py-1 lg:py-1.5 mb-2 hover:bg-muted rounded-md cursor-pointer"
           onClick={handleToggleSelectAll}
         >
           <Checkbox
             checked={isAllSelected}
             onCheckedChange={handleToggleSelectAll}
-            className="pointer-events-none"
+            className="pointer-events-none h-3.5 w-3.5 lg:h-4 lg:w-4"
           />
           <span className="text-xs text-muted-foreground">Alle auswählen</span>
         </div>
         
         {/* Project List with Provider Colors */}
-        <ScrollArea className="h-[300px] pr-3">
+        <ScrollArea className="h-[250px] lg:h-[300px] pr-3">
           <div className="space-y-1">
             {filteredProjects.length === 0 ? (
               <div className="text-sm text-muted-foreground text-center py-4">
@@ -110,18 +110,18 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
                 <div
                   key={project.id}
                   onClick={() => handleToggle(project.id)}
-                  className="flex items-center gap-2.5 p-2 hover:bg-muted rounded-md cursor-pointer group"
+                  className="flex items-center gap-2 lg:gap-2.5 p-1.5 lg:p-2 hover:bg-muted rounded-md cursor-pointer group"
                 >
                   <Checkbox
                     checked={selectedProjectIds.has(project.id)}
                     onCheckedChange={() => handleToggle(project.id)}
-                    className="pointer-events-none"
+                    className="pointer-events-none h-3.5 w-3.5 lg:h-4 lg:w-4"
                   />
                   <div
-                    className="w-2 h-2 rounded-full flex-shrink-0"
+                    className="w-1.5 h-1.5 lg:w-2 lg:h-2 rounded-full flex-shrink-0"
                     style={{ backgroundColor: project.providers?.color || '#666' }}
                   />
-                  <span className="text-sm flex-1 truncate">{project.name}</span>
+                  <span className="text-xs lg:text-sm flex-1 truncate">{project.name}</span>
                 </div>
               ))
             )}
