@@ -204,9 +204,9 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
 
           {/* Time */}
           {!isAllDay && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-2 gap-2 sm:gap-4">
               <div className="space-y-2">
-                <Label htmlFor="start-time">Von</Label>
+                <Label htmlFor="start-time" className="text-xs sm:text-sm">Von</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -217,7 +217,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                       {startTime || "00:00"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[10320]" align="start">
+                  <PopoverContent className="w-auto p-0 z-[10320]" align="center" side="bottom">
                     <TimePicker
                       hour={parseInt(startTime.split(':')[0]) || 0}
                       minute={parseInt(startTime.split(':')[1]) || 0}
@@ -228,7 +228,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                 </Popover>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="end-time">Bis</Label>
+                <Label htmlFor="end-time" className="text-xs sm:text-sm">Bis</Label>
                 <Popover>
                   <PopoverTrigger asChild>
                     <Button
@@ -239,7 +239,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                       {endTime || "00:00"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[10320]" align="start">
+                  <PopoverContent className="w-auto p-0 z-[10320]" align="center" side="bottom">
                     <TimePicker
                       hour={parseInt(endTime.split(':')[0]) || 0}
                       minute={parseInt(endTime.split(':')[1]) || 0}

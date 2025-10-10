@@ -56,13 +56,13 @@ export const TimePicker = ({ hour, minute, onHourChange, onMinuteChange }: TimeP
   };
 
   return (
-    <div className="relative flex gap-2 p-6 bg-popover">
+    <div className="relative flex gap-1 sm:gap-2 p-3 sm:p-6 bg-popover">
       {/* Hours */}
       <div className="flex flex-col items-center gap-3">
-        <div className="text-sm font-semibold text-foreground">Stunde</div>
+        <div className="text-xs sm:text-sm font-semibold text-foreground">Stunde</div>
         <div 
           ref={hourScrollRef}
-          className="relative h-[240px] w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+          className="relative h-[200px] sm:h-[240px] w-[60px] sm:w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
           onScroll={(e) => handleScroll(e, 'hour')}
         >
           {/* Top padding */}
@@ -96,10 +96,10 @@ export const TimePicker = ({ hour, minute, onHourChange, onMinuteChange }: TimeP
 
       {/* Minutes */}
       <div className="flex flex-col items-center gap-3">
-        <div className="text-sm font-semibold text-foreground">Minute</div>
+        <div className="text-xs sm:text-sm font-semibold text-foreground">Minute</div>
         <div 
           ref={minuteScrollRef}
-          className="relative h-[240px] w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+          className="relative h-[200px] sm:h-[240px] w-[60px] sm:w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
           onScroll={(e) => handleScroll(e, 'minute')}
         >
           {/* Top padding */}
