@@ -45,20 +45,30 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
     onSelectionChange(new Set(filteredProjects.map(p => p.id)));
   };
 
-  const handleDeselectAll = () => {
-    onSelectionChange(new Set());
+  const isAllSelected = filteredProjects.length > 0 && filteredProjects.every(p => selectedProjectIds.has(p.id));
+
+  const handleToggleSelectAll = () => {
+    if (isAllSelected) {
+      const newSelection = new Set(selectedProjectIds);
+      filteredProjects.forEach(p => newSelection.delete(p.id));
+      onSelectionChange(newSelection);
+    } else {
+      const newSelection = new Set(selectedProjectIds);
+      filteredProjects.forEach(p => newSelection.add(p.id));
+      onSelectionChange(newSelection);
+    }
   };
 
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-8 rounded-md text-sm gap-2">
+        <Button variant="outline" className="h-8 rounded-md text-sm gap-1.5 relative">
           <MapPin className="h-4 w-4" />
           <span>
             {selectedProjectIds.size === 0 ? "Alle Projekte" : `${selectedProjectIds.size} Projekt${selectedProjectIds.size !== 1 ? 'e' : ''}`}
           </span>
           {selectedProjectIds.size > 0 && (
-            <Badge variant="secondary" className="ml-1 h-5 px-1.5 text-xs">
+            <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
               {selectedProjectIds.size}
             </Badge>
           )}
@@ -77,24 +87,17 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
           />
         </div>
         
-        {/* Select All / Deselect All */}
-        <div className="flex gap-2 mb-3">
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleSelectAll}
-            className="h-7 flex-1 text-xs"
-          >
-            Alle
-          </Button>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={handleDeselectAll}
-            className="h-7 flex-1 text-xs"
-          >
-            Keine
-          </Button>
+        {/* Select All Checkbox */}
+        <div 
+          className="flex items-center gap-2 px-2 py-1.5 mb-2 hover:bg-muted rounded-md cursor-pointer"
+          onClick={handleToggleSelectAll}
+        >
+          <Checkbox
+            checked={isAllSelected}
+            onCheckedChange={handleToggleSelectAll}
+            className="pointer-events-none"
+          />
+          <span className="text-xs text-muted-foreground">Alle auswählen</span>
         </div>
         
         {/* Project List with Provider Colors */}

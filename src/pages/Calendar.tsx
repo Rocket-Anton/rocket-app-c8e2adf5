@@ -65,11 +65,17 @@ export default function Calendar() {
   const { start: rangeStart, end: rangeEnd } = getDateRange();
   
   // Fetch events with role-based filtering
-  const { data: events = [], isLoading } = useEvents(rangeStart, rangeEnd, {
+  const { data: allEvents = [], isLoading } = useEvents(rangeStart, rangeEnd, {
     projectIds: selectedProjectIds && selectedProjectIds.size > 0 ? Array.from(selectedProjectIds) : undefined,
     userIds: userRole === 'admin' && selectedUserIds.size > 0 ? Array.from(selectedUserIds) : undefined,
     showTeamEvents: userRole === 'project_manager' ? showTeamEvents : undefined
   });
+
+  // Client-side filtering by event type
+  const events = useMemo(() => {
+    if (eventType === 'all') return allEvents;
+    return allEvents.filter(e => e.category === eventType);
+  }, [allEvents, eventType]);
 
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
