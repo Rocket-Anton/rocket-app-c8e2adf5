@@ -319,19 +319,23 @@ export const CalendarContent = ({
             {/* Alles nach rechts: Raketen, Projekte, Woche, neuer Termin */}
             <div className="flex items-center gap-2">
               {isAdminLike && (
-                <UserMultiSelect
-                  users={users}
-                  selectedUserIds={selectedUserIds}
-                  onSelectionChange={setSelectedUserIds}
-                />
+                <div className="[&_span]:hidden">
+                  <UserMultiSelect
+                    users={users}
+                    selectedUserIds={selectedUserIds}
+                    onSelectionChange={setSelectedUserIds}
+                  />
+                </div>
               )}
 
               {projects.length > 0 && (
-                <ProjectMultiSelect
-                  projects={projects}
-                  selectedProjectIds={selectedProjectIds}
-                  onSelectionChange={setSelectedProjectIds}
-                />
+                <div className="[&_span]:hidden">
+                  <ProjectMultiSelect
+                    projects={projects}
+                    selectedProjectIds={selectedProjectIds}
+                    onSelectionChange={setSelectedProjectIds}
+                  />
+                </div>
               )}
 
               {userRole === 'project_manager' && (
