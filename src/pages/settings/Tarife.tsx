@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { TarifeSettings } from "@/components/settings/TarifeSettings";
 
 const Tarife = () => {
   return (
@@ -9,8 +10,7 @@ const Tarife = () => {
         <SidebarInset className="flex-1 p-0 m-0 border-0 overflow-hidden">
           <div className="h-full overflow-auto" style={{ scrollbarGutter: 'stable' }}>
             <div className="w-full max-w-7xl mx-auto p-6">
-              <h2 className="text-2xl font-semibold mb-4">Tarife</h2>
-              <p className="text-muted-foreground">Tarifverwaltung wird hier implementiert.</p>
+              <TarifeSettings />
             </div>
           </div>
         </SidebarInset>

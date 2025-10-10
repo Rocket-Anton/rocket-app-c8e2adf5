@@ -1,5 +1,6 @@
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { RaketenSettings } from "@/components/settings/RaketenSettings";
 
 const Raketen = () => {
   return (
@@ -9,8 +10,7 @@ const Raketen = () => {
         <SidebarInset className="flex-1 p-0 m-0 border-0 overflow-hidden">
           <div className="h-full overflow-auto" style={{ scrollbarGutter: 'stable' }}>
             <div className="w-full max-w-7xl mx-auto p-6">
-              <h2 className="text-2xl font-semibold mb-4">Raketen (Userverwaltung)</h2>
-              <p className="text-muted-foreground">Userverwaltung wird hier implementiert.</p>
+              <RaketenSettings />
             </div>
           </div>
         </SidebarInset>
