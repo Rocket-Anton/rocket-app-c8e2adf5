@@ -232,44 +232,123 @@ export type Database = {
       }
       events: {
         Row: {
+          address_id: number | null
           category: string
           color: string | null
           created_at: string | null
           description: string | null
           end_datetime: string
+          external_id: string | null
+          external_source: string | null
           id: string
           is_all_day: boolean | null
+          is_external: boolean | null
           location: string | null
+          project_id: string | null
           start_datetime: string
           title: string
+          unit_id: string | null
           updated_at: string | null
           user_id: string
         }
         Insert: {
+          address_id?: number | null
           category?: string
           color?: string | null
           created_at?: string | null
           description?: string | null
           end_datetime: string
+          external_id?: string | null
+          external_source?: string | null
           id?: string
           is_all_day?: boolean | null
+          is_external?: boolean | null
           location?: string | null
+          project_id?: string | null
           start_datetime: string
           title: string
+          unit_id?: string | null
           updated_at?: string | null
           user_id: string
         }
         Update: {
+          address_id?: number | null
           category?: string
           color?: string | null
           created_at?: string | null
           description?: string | null
           end_datetime?: string
+          external_id?: string | null
+          external_source?: string | null
           id?: string
           is_all_day?: boolean | null
+          is_external?: boolean | null
           location?: string | null
+          project_id?: string | null
           start_datetime?: string
           title?: string
+          unit_id?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "events_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "events_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      external_calendar_connections: {
+        Row: {
+          access_token: string
+          calendar_id: string
+          created_at: string | null
+          id: string
+          is_active: boolean | null
+          provider: string
+          refresh_token: string | null
+          token_expires_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          calendar_id: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          provider: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          calendar_id?: string
+          created_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          provider?: string
+          refresh_token?: string | null
+          token_expires_at?: string | null
           updated_at?: string | null
           user_id?: string
         }

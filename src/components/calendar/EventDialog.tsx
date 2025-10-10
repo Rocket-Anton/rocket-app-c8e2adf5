@@ -3,15 +3,15 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
 import { CalendarEvent } from "@/utils/calendar";
+import { AddressAutocomplete } from "./AddressAutocomplete";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
-import { CalendarIcon, Clock, MapPin, Trash2 } from "lucide-react";
+import { CalendarIcon, Clock, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface EventDialogProps {
@@ -21,6 +21,7 @@ interface EventDialogProps {
   defaultDate?: Date;
   onSave: (event: Omit<CalendarEvent, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => void;
   onDelete?: (id: string) => void;
+  projectFilter?: string[];
 }
 
 const EVENT_COLORS = [
@@ -28,14 +29,18 @@ const EVENT_COLORS = [
   '#8b5cf6', '#ec4899', '#06b6d4', '#84cc16'
 ];
 
-export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, onDelete }: EventDialogProps) => {
+export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, onDelete, projectFilter }: EventDialogProps) => {
   const [title, setTitle] = useState('');
   const [description, setDescription] = useState('');
   const [date, setDate] = useState<Date | undefined>(undefined);
   const [startTime, setStartTime] = useState('09:00');
   const [endTime, setEndTime] = useState('10:00');
-  const [location, setLocation] = useState('');
-  const [category, setCategory] = useState<'all' | 'business' | 'personal'>('business');
+  const [addressData, setAddressData] = useState<{
+    address_id: number;
+    unit_id?: string;
+    project_id?: string;
+    display: string;
+  } | undefined>();
   const [color, setColor] = useState(EVENT_COLORS[0]);
   const [isAllDay, setIsAllDay] = useState(false);
 
@@ -46,8 +51,19 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
       setDate(new Date(event.start_datetime));
       setStartTime(format(new Date(event.start_datetime), 'HH:mm'));
       setEndTime(format(new Date(event.end_datetime), 'HH:mm'));
-      setLocation(event.location || '');
-      setCategory(event.category);
+      
+      // Set address data if exists
+      if (event.address_id) {
+        setAddressData({
+          address_id: event.address_id,
+          unit_id: event.unit_id || undefined,
+          project_id: event.project_id || undefined,
+          display: event.location || ''
+        });
+      } else {
+        setAddressData(undefined);
+      }
+      
       setColor(event.color);
       setIsAllDay(event.is_all_day);
     } else {
@@ -61,8 +77,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
       const nextHourEnd = new Date(nextHour);
       nextHourEnd.setHours(nextHourEnd.getHours() + 1);
       setEndTime(format(nextHourEnd, 'HH:mm'));
-      setLocation('');
-      setCategory('business');
+      setAddressData(undefined);
       setColor(EVENT_COLORS[0]);
       setIsAllDay(false);
     }
@@ -93,8 +108,11 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
       description: description.trim() || undefined,
       start_datetime: startDateTime.toISOString(),
       end_datetime: endDateTime.toISOString(),
-      location: location.trim() || undefined,
-      category,
+      location: addressData?.display || undefined,
+      address_id: addressData?.address_id,
+      unit_id: addressData?.unit_id,
+      project_id: addressData?.project_id,
+      category: 'business', // Default category
       color,
       is_all_day: isAllDay,
     });
@@ -198,34 +216,12 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
             </div>
           )}
 
-          {/* Category */}
-          <div className="space-y-2">
-            <Label htmlFor="category">Kategorie</Label>
-            <Select value={category} onValueChange={(value: any) => setCategory(value)}>
-              <SelectTrigger id="category">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="business">Geschäftlich</SelectItem>
-                <SelectItem value="personal">Privat</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
-
-          {/* Location */}
-          <div className="space-y-2">
-            <Label htmlFor="location">Ort</Label>
-            <div className="relative">
-              <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="location"
-                value={location}
-                onChange={(e) => setLocation(e.target.value)}
-                placeholder="Ort hinzufügen"
-                className="pl-10"
-              />
-            </div>
-          </div>
+          {/* Address Autocomplete */}
+          <AddressAutocomplete
+            value={addressData}
+            onChange={setAddressData}
+            projectFilter={projectFilter}
+          />
 
           {/* Description */}
           <div className="space-y-2">

@@ -4,28 +4,35 @@ import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MobileHeader } from "@/components/MobileHeader";
 import { useProjectContext } from "@/contexts/ProjectContext";
 import { MonthView } from "@/components/calendar/MonthView";
+import { WeekView } from "@/components/calendar/WeekView";
+import { DayView } from "@/components/calendar/DayView";
 import { EventDialog } from "@/components/calendar/EventDialog";
 import { useEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from "@/hooks/useEvents";
-import { CalendarEvent, formatDateRange, getCategoryLabel } from "@/utils/calendar";
+import { useUserRole } from "@/hooks/useUserRole";
+import { CalendarEvent } from "@/utils/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { ChevronLeft, ChevronRight, Plus, Search } from "lucide-react";
-import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek } from "date-fns";
+import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon } from "lucide-react";
+import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays } from "date-fns";
 import { de } from "date-fns/locale";
+import { useQuery } from "@tanstack/react-query";
+import { supabase } from "@/integrations/supabase/client";
+import { cn } from "@/lib/utils";
 
 type ViewMode = 'month' | 'week' | 'day';
-type CategoryFilter = 'all' | 'business' | 'personal';
 
 export default function Calendar() {
   const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
-  const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [showEventDialog, setShowEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  const [showTeamEvents, setShowTeamEvents] = useState(true);
+
+  const { data: userRole } = useUserRole();
 
   // Calculate date range based on view mode
   const getDateRange = () => {
@@ -48,11 +55,70 @@ export default function Calendar() {
 
   const { start: rangeStart, end: rangeEnd } = getDateRange();
   
-  // Fetch events
-  const { data: events = [], isLoading } = useEvents(rangeStart, rangeEnd, categoryFilter);
+  // Fetch events with role-based filtering
+  const { data: events = [], isLoading } = useEvents(rangeStart, rangeEnd, {
+    projectIds: selectedProjectIds && selectedProjectIds.size > 0 ? Array.from(selectedProjectIds) : undefined,
+    userId: userRole === 'admin' ? selectedUserId : undefined,
+    showTeamEvents: userRole === 'project_manager' ? showTeamEvents : undefined
+  });
+
   const createEvent = useCreateEvent();
   const updateEvent = useUpdateEvent();
   const deleteEvent = useDeleteEvent();
+
+  // Fetch users (for admin)
+  const { data: users = [] } = useQuery({
+    queryKey: ['users-list'],
+    queryFn: async () => {
+      if (userRole !== 'admin') return [];
+
+      const { data } = await supabase
+        .from('profiles')
+        .select('id, name')
+        .order('name');
+
+      return data || [];
+    },
+    enabled: userRole === 'admin',
+  });
+
+  // Fetch projects (role-based)
+  const { data: projects = [] } = useQuery({
+    queryKey: ['projects-calendar', userRole],
+    queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return [];
+
+      if (userRole === 'admin') {
+        const { data } = await supabase
+          .from('projects')
+          .select('id, name')
+          .order('name');
+        return data || [];
+      }
+
+      if (userRole === 'project_manager') {
+        const { data } = await supabase
+          .from('projects')
+          .select('id, name')
+          .eq('project_manager_id', user.id)
+          .order('name');
+        return data || [];
+      }
+
+      if (userRole === 'rocket') {
+        const { data: projectRockets } = await supabase
+          .from('project_rockets')
+          .select('project_id, projects(id, name)')
+          .eq('user_id', user.id);
+
+        return projectRockets?.map(pr => pr.projects).filter(Boolean).flat() || [];
+      }
+
+      return [];
+    },
+    enabled: !!userRole,
+  });
 
   const handlePrevious = () => {
     switch (viewMode) {
@@ -60,10 +126,10 @@ export default function Calendar() {
         setSelectedDate(subMonths(selectedDate, 1));
         break;
       case 'week':
-        setSelectedDate(new Date(selectedDate.getTime() - 7 * 24 * 60 * 60 * 1000));
+        setSelectedDate(subWeeks(selectedDate, 1));
         break;
       case 'day':
-        setSelectedDate(new Date(selectedDate.getTime() - 24 * 60 * 60 * 1000));
+        setSelectedDate(subDays(selectedDate, 1));
         break;
     }
   };
@@ -74,10 +140,10 @@ export default function Calendar() {
         setSelectedDate(addMonths(selectedDate, 1));
         break;
       case 'week':
-        setSelectedDate(new Date(selectedDate.getTime() + 7 * 24 * 60 * 60 * 1000));
+        setSelectedDate(addWeeks(selectedDate, 1));
         break;
       case 'day':
-        setSelectedDate(new Date(selectedDate.getTime() + 24 * 60 * 60 * 1000));
+        setSelectedDate(addDays(selectedDate, 1));
         break;
     }
   };
@@ -97,6 +163,16 @@ export default function Calendar() {
   };
 
   const handleCreateEvent = () => {
+    setSelectedEvent(null);
+    setShowEventDialog(true);
+  };
+
+  const handleTimeSlotClick = (date: Date, hour?: number) => {
+    const newDate = new Date(date);
+    if (hour !== undefined) {
+      newDate.setHours(hour, 0, 0, 0);
+    }
+    setSelectedDate(newDate);
     setSelectedEvent(null);
     setShowEventDialog(true);
   };
@@ -123,71 +199,136 @@ export default function Calendar() {
             onProjectsChange={setSelectedProjectIds}
           />
           <div className="relative h-full flex flex-col overflow-hidden">
-            {/* Header */}
-            <div className="border-b bg-card">
-              <div className="p-4 space-y-4">
-                {/* Top bar */}
-                <div className="flex items-center justify-between">
-                  <h1 className="text-2xl font-semibold">Kalender</h1>
-                  <div className="flex items-center gap-2">
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                      <Input
-                        placeholder="Suchen..."
-                        value={searchQuery}
-                        onChange={(e) => setSearchQuery(e.target.value)}
-                        className="pl-9 w-[200px]"
-                      />
-                    </div>
+            {/* Header - Complete Redesign */}
+            <div className="bg-card border-b">
+              <div className="p-3 lg:p-4 space-y-3">
+                {/* Top bar: Title + Search */}
+                <div className="flex items-center justify-between gap-4">
+                  <h1 className="text-xl lg:text-2xl font-semibold">Kalender</h1>
+                  <div className="relative flex-1 max-w-xs">
+                    <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-3.5 w-3.5 text-muted-foreground" />
+                    <Input
+                      placeholder="Suchen..."
+                      value={searchQuery}
+                      onChange={(e) => setSearchQuery(e.target.value)}
+                      className="pl-9 h-8 text-sm rounded-xl w-full"
+                    />
                   </div>
                 </div>
 
-                {/* Category tabs */}
-                <Tabs value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as CategoryFilter)}>
-                  <TabsList>
-                    <TabsTrigger value="all">Alle Termine</TabsTrigger>
-                    <TabsTrigger value="business">Geschäftlich</TabsTrigger>
-                    <TabsTrigger value="personal">Privat</TabsTrigger>
-                  </TabsList>
-                </Tabs>
+                {/* Controls bar */}
+                <div className="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+                  {/* Left: Date card + Navigation */}
+                  <div className="flex items-center gap-3">
+                    {/* Date Card */}
+                    <div className="bg-gradient-to-br from-blue-500 to-blue-600 text-white rounded-lg p-2 min-w-[56px] text-center shadow-sm">
+                      <div className="text-[10px] font-medium uppercase opacity-90">
+                        {format(new Date(), 'MMM', { locale: de })}
+                      </div>
+                      <div className="text-2xl font-bold leading-none">
+                        {format(new Date(), 'd')}
+                      </div>
+                    </div>
 
-                {/* Date header and controls */}
-                <div className="flex items-center justify-between">
-                  <div>
-                    <h2 className="text-lg font-medium">
-                      {format(selectedDate, 'MMMM yyyy', { locale: de })}
-                    </h2>
-                    <p className="text-sm text-muted-foreground">
-                      {formatDateRange(rangeStart, rangeEnd)}
-                    </p>
+                    {/* Month/Period Display */}
+                    <div className="hidden lg:block">
+                      <div className="text-base font-semibold">
+                        {format(selectedDate, 'MMMM yyyy', { locale: de })}
+                      </div>
+                    </div>
+
+                    {/* Navigation Buttons - Connected group */}
+                    <div className="flex items-center">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handlePrevious}
+                        className="h-8 rounded-r-none border-r-0"
+                      >
+                        <ChevronLeft className="h-4 w-4" />
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleToday}
+                        className="h-8 rounded-none px-3"
+                      >
+                        Heute
+                      </Button>
+
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={handleNext}
+                        className="h-8 rounded-l-none border-l-0"
+                      >
+                        <ChevronRight className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
 
-                  <div className="flex items-center gap-2">
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handlePrevious}
-                    >
-                      <ChevronLeft className="h-4 w-4" />
-                    </Button>
+                  {/* Right: Filters + View Mode + Create */}
+                  <div className="flex items-center gap-2 w-full lg:w-auto">
+                    {/* Admin: User Filter */}
+                    {userRole === 'admin' && (
+                      <Select value={selectedUserId || 'all'} onValueChange={(v) => setSelectedUserId(v === 'all' ? undefined : v)}>
+                        <SelectTrigger className="h-8 rounded-xl w-full lg:w-[140px] text-sm">
+                          <SelectValue placeholder="Alle Raketen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Alle Raketen</SelectItem>
+                          {users.map(user => (
+                            <SelectItem key={user.id} value={user.id}>
+                              {user.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                    <Button
-                      variant="outline"
-                      onClick={handleToday}
-                    >
-                      Heute
-                    </Button>
+                    {/* Project Filter */}
+                    {projects.length > 0 && (
+                      <Select 
+                        value={selectedProjectIds.size === 1 ? Array.from(selectedProjectIds)[0] : 'all'} 
+                        onValueChange={(v) => {
+                          if (v === 'all') {
+                            setSelectedProjectIds(new Set());
+                          } else {
+                            setSelectedProjectIds(new Set([v]));
+                          }
+                        }}
+                      >
+                        <SelectTrigger className="h-8 rounded-xl w-full lg:w-[140px] text-sm">
+                          <SelectValue placeholder="Alle Projekte" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="all">Alle Projekte</SelectItem>
+                          {projects.map((project: any) => (
+                            <SelectItem key={project.id} value={project.id}>
+                              {project.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      onClick={handleNext}
-                    >
-                      <ChevronRight className="h-4 w-4" />
-                    </Button>
+                    {/* Project Manager: Team Toggle */}
+                    {userRole === 'project_manager' && (
+                      <Select value={showTeamEvents ? 'team' : 'own'} onValueChange={(v) => setShowTeamEvents(v === 'team')}>
+                        <SelectTrigger className="h-8 rounded-xl w-full lg:w-[120px] text-sm">
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="own">Eigene</SelectItem>
+                          <SelectItem value="team">Team</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    )}
 
-                    <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
-                      <SelectTrigger className="w-[140px]">
+                    {/* View Mode Selector */}
+                    <Select value={viewMode} onValueChange={(v) => setViewMode(v as ViewMode)}>
+                      <SelectTrigger className="h-8 rounded-xl w-full lg:w-[110px] text-sm">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
@@ -197,9 +338,14 @@ export default function Calendar() {
                       </SelectContent>
                     </Select>
 
-                    <Button onClick={handleCreateEvent} className="bg-blue-600 hover:bg-blue-700">
-                      <Plus className="h-4 w-4 mr-2" />
-                      Termin erstellen
+                    {/* Create Button */}
+                    <Button 
+                      onClick={handleCreateEvent} 
+                      size="sm"
+                      className="h-8 px-3 rounded-xl bg-blue-600 hover:bg-blue-700 text-white"
+                    >
+                      <Plus className="h-4 w-4 lg:mr-1" />
+                      <span className="hidden lg:inline">Termin</span>
                     </Button>
                   </div>
                 </div>
@@ -207,7 +353,7 @@ export default function Calendar() {
             </div>
 
             {/* Calendar content */}
-            <div className="flex-1 overflow-auto p-4">
+            <div className="flex-1 overflow-auto p-3 lg:p-4">
               {isLoading ? (
                 <div className="flex items-center justify-center h-full">
                   <div className="text-muted-foreground">Lädt Termine...</div>
@@ -223,14 +369,20 @@ export default function Calendar() {
                     />
                   )}
                   {viewMode === 'week' && (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      Wochenansicht (wird noch implementiert)
-                    </div>
+                    <WeekView
+                      currentDate={selectedDate}
+                      events={events}
+                      onEventClick={handleEventClick}
+                      onTimeSlotClick={handleTimeSlotClick}
+                    />
                   )}
                   {viewMode === 'day' && (
-                    <div className="flex items-center justify-center h-full text-muted-foreground">
-                      Tagesansicht (wird noch implementiert)
-                    </div>
+                    <DayView
+                      currentDate={selectedDate}
+                      events={events}
+                      onEventClick={handleEventClick}
+                      onTimeSlotClick={(hour) => handleTimeSlotClick(selectedDate, hour)}
+                    />
                   )}
                 </>
               )}
@@ -244,6 +396,7 @@ export default function Calendar() {
               defaultDate={selectedDate}
               onSave={handleSaveEvent}
               onDelete={selectedEvent ? handleDeleteEvent : undefined}
+              projectFilter={selectedProjectIds && selectedProjectIds.size > 0 ? Array.from(selectedProjectIds) : undefined}
             />
           </div>
         </SidebarInset>

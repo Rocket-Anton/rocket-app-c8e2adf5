@@ -14,6 +14,13 @@ export interface CalendarEvent {
   is_all_day: boolean;
   created_at: string;
   updated_at: string;
+  // New fields for address/project linking
+  address_id?: number;
+  unit_id?: string;
+  project_id?: string;
+  is_external?: boolean;
+  external_id?: string;
+  external_source?: string;
 }
 
 // Date Utilities

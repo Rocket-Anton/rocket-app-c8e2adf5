@@ -4,12 +4,21 @@ import { CalendarEvent } from '@/utils/calendar';
 import { toast } from 'sonner';
 import { useEffect } from 'react';
 
-// Fetch events for a date range
-export const useEvents = (startDate: Date, endDate: Date, categoryFilter?: string) => {
+// Fetch events for a date range with filtering
+export const useEvents = (
+  startDate: Date, 
+  endDate: Date, 
+  options?: {
+    categoryFilter?: string;
+    projectIds?: string[];
+    userId?: string;
+    showTeamEvents?: boolean;
+  }
+) => {
   const queryClient = useQueryClient();
 
   const query = useQuery({
-    queryKey: ['events', startDate.toISOString(), endDate.toISOString(), categoryFilter],
+    queryKey: ['events', startDate.toISOString(), endDate.toISOString(), options],
     queryFn: async () => {
       let query = supabase
         .from('events')
@@ -18,8 +27,19 @@ export const useEvents = (startDate: Date, endDate: Date, categoryFilter?: strin
         .lte('start_datetime', endDate.toISOString())
         .order('start_datetime', { ascending: true });
 
-      if (categoryFilter && categoryFilter !== 'all') {
-        query = query.eq('category', categoryFilter);
+      // Category filter
+      if (options?.categoryFilter && options.categoryFilter !== 'all') {
+        query = query.eq('category', options.categoryFilter);
+      }
+
+      // Project filter
+      if (options?.projectIds && options.projectIds.length > 0) {
+        query = query.in('project_id', options.projectIds);
+      }
+
+      // User filter (for admin viewing specific user's events)
+      if (options?.userId) {
+        query = query.eq('user_id', options.userId);
       }
 
       const { data, error } = await query;

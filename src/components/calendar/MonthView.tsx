@@ -1,6 +1,5 @@
-import { getDaysInMonth, getWeekdayNames, isSameDayUtil, filterEventsByDate, CalendarEvent } from "@/utils/calendar";
+import { getDaysInMonth, getWeekdayNames, filterEventsByDate, CalendarEvent } from "@/utils/calendar";
 import { format, isSameMonth, isToday } from "date-fns";
-import { de } from "date-fns/locale";
 import { cn } from "@/lib/utils";
 
 interface MonthViewProps {
@@ -15,20 +14,23 @@ export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: Mon
   const weekdays = getWeekdayNames();
 
   return (
-    <div className="bg-background rounded-lg border">
-      {/* Weekday headers */}
-      <div className="grid grid-cols-7 border-b">
-        {weekdays.map((day) => (
+    <div className="bg-background rounded-xl border overflow-hidden shadow-sm">
+      {/* Weekday headers - integrated with grid */}
+      <div className="grid grid-cols-7">
+        {weekdays.map((day, index) => (
           <div
             key={day}
-            className="p-2 text-center text-sm font-medium text-muted-foreground"
+            className={cn(
+              "p-3 text-center text-sm font-semibold text-muted-foreground bg-muted/50",
+              index < 6 && "border-r"
+            )}
           >
             {day}
           </div>
         ))}
       </div>
 
-      {/* Calendar grid */}
+      {/* Calendar grid - vertical lines go through weekday headers */}
       <div className="grid grid-cols-7">
         {days.map((day, index) => {
           const dayEvents = filterEventsByDate(events, day);
@@ -39,24 +41,25 @@ export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: Mon
             <div
               key={index}
               className={cn(
-                "min-h-[100px] border-b border-r p-2 cursor-pointer transition-colors hover:bg-accent/50",
-                !isCurrentMonth && "bg-muted/30 text-muted-foreground",
-                isTodayDate && "bg-blue-50 dark:bg-blue-950/20"
+                "min-h-[120px] border-t p-2 cursor-pointer transition-colors hover:bg-accent/50 relative",
+                index % 7 < 6 && "border-r",
+                !isCurrentMonth && "bg-muted/20 text-muted-foreground",
+                isTodayDate && "bg-blue-50/50 dark:bg-blue-950/20"
               )}
               onClick={() => onDayClick(day)}
             >
-              <div className="flex items-center justify-between mb-1">
+              <div className="flex items-center justify-between mb-2">
                 <span
                   className={cn(
-                    "text-sm font-medium",
-                    isTodayDate && "bg-blue-600 text-white rounded-full w-6 h-6 flex items-center justify-center"
+                    "text-sm font-semibold min-w-[24px] text-center",
+                    isTodayDate && "bg-blue-600 text-white rounded-full w-7 h-7 flex items-center justify-center"
                   )}
                 >
                   {format(day, 'd')}
                 </span>
               </div>
 
-              {/* Event dots */}
+              {/* Events */}
               <div className="space-y-1">
                 {dayEvents.slice(0, 3).map((event) => (
                   <div
@@ -65,18 +68,18 @@ export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: Mon
                       e.stopPropagation();
                       onEventClick(event);
                     }}
-                    className="text-xs p-1 rounded truncate cursor-pointer hover:opacity-80 transition-opacity"
+                    className="text-xs p-1.5 rounded-md truncate cursor-pointer hover:opacity-80 transition-opacity"
                     style={{
-                      backgroundColor: event.color + '20',
+                      backgroundColor: event.color + '25',
                       borderLeft: `3px solid ${event.color}`
                     }}
                   >
-                    {format(new Date(event.start_datetime), 'HH:mm')} {event.title}
+                    <span className="font-medium">{format(new Date(event.start_datetime), 'HH:mm')}</span> {event.title}
                   </div>
                 ))}
                 {dayEvents.length > 3 && (
-                  <div className="text-xs text-muted-foreground px-1">
-                    +{dayEvents.length - 3} mehr
+                  <div className="text-xs text-blue-600 dark:text-blue-400 px-1.5 font-medium">
+                    +{dayEvents.length - 3} weitere
                   </div>
                 )}
               </div>
