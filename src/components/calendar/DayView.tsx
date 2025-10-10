@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CalendarEvent, filterEventsByDate } from "@/utils/calendar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -10,7 +11,7 @@ interface DayViewProps {
   onTimeSlotClick: (hour: number) => void;
 }
 
-export const DayView = ({ currentDate, events, onEventClick, onTimeSlotClick }: DayViewProps) => {
+export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClick }: DayViewProps) => {
   const dayEvents = filterEventsByDate(events, currentDate);
   const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
 
@@ -92,4 +93,4 @@ export const DayView = ({ currentDate, events, onEventClick, onTimeSlotClick }: 
       </div>
     </div>
   );
-};
+});

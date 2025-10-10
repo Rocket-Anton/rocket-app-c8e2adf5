@@ -51,7 +51,7 @@ export function UserMultiSelect({ users, selectedUserIds, onSelectionChange }: U
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-8 rounded-xl text-sm gap-2">
+        <Button variant="outline" className="h-8 rounded-md text-sm gap-2">
           <Users className="h-4 w-4" />
           <span>
             {selectedUserIds.size === 0 ? "Alle Raketen" : `${selectedUserIds.size} Rakete${selectedUserIds.size !== 1 ? 'n' : ''}`}

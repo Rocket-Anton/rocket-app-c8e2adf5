@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useMemo } from "react";
 import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
 import { DashboardSidebar } from "@/components/DashboardSidebar";
 import { MobileHeader } from "@/components/MobileHeader";
@@ -223,46 +223,46 @@ export default function Calendar() {
               </div>
             </div>
 
+            {/* Event Type Filter - Outside Calendar Card */}
+            <div className="mx-4 px-4 py-2 flex gap-2 bg-background border-b">
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEventType('all')}
+                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'all' && "bg-accent")}
+              >
+                Alle Events
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEventType('private')}
+                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'private' && "bg-accent")}
+              >
+                Privat
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={() => setEventType('business')}
+                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'business' && "bg-accent")}
+              >
+                Geschäftlich
+              </Button>
+            </div>
+
             {/* Calendar Card with integrated Header */}
             <div className="mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1">
-              {/* Event Type Filter */}
-              <div className="border-b px-4 py-2.5 flex gap-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEventType('all')}
-                  className={cn("h-9 rounded-md", eventType === 'all' && "bg-accent")}
-                >
-                  Alle Events
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEventType('private')}
-                  className={cn("h-9 rounded-md", eventType === 'private' && "bg-accent")}
-                >
-                  Privat
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={() => setEventType('business')}
-                  className={cn("h-9 rounded-md", eventType === 'business' && "bg-accent")}
-                >
-                  Geschäftlich
-                </Button>
-              </div>
-
               {/* Header Controls */}
               <div className="border-b px-4 py-2.5 flex items-center justify-between gap-4">
                 {/* Left: Date Badge + Month Info */}
                 <div className="flex items-center gap-3">
                   {/* Date Badge */}
-                  <div className="flex flex-col bg-muted/40 border rounded-md p-2 min-w-[56px]">
-                    <div className="text-[9px] font-semibold tracking-wider text-blue-600 uppercase -mb-0.5">
-                      {format(selectedDate, 'MMM', { locale: de }).toUpperCase()}.
+                  <div className="flex flex-col items-center justify-center bg-muted/40 border rounded-md p-2 min-w-[56px]">
+                    <div className="text-[9px] font-semibold tracking-wide text-muted-foreground uppercase">
+                      {format(selectedDate, 'MMM', { locale: de }).toUpperCase()}
                     </div>
-                    <div className="text-3xl font-bold leading-none text-foreground">
+                    <div className="text-2xl font-bold leading-none text-foreground mt-0.5">
                       {format(selectedDate, 'd')}
                     </div>
                   </div>
@@ -345,9 +345,9 @@ export default function Calendar() {
                   <Button 
                     onClick={handleCreateEvent} 
                     size="sm"
-                    className="h-8 px-4 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
                   >
-                    <Plus className="h-4 w-4 mr-1.5" />
+                    <Plus className="h-4 w-4 mr-1" />
                     <span>Neuer Termin</span>
                   </Button>
                 </div>

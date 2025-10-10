@@ -52,7 +52,7 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
   return (
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className="h-8 rounded-xl text-sm gap-2">
+        <Button variant="outline" className="h-8 rounded-md text-sm gap-2">
           <MapPin className="h-4 w-4" />
           <span>
             {selectedProjectIds.size === 0 ? "Alle Projekte" : `${selectedProjectIds.size} Projekt${selectedProjectIds.size !== 1 ? 'e' : ''}`}

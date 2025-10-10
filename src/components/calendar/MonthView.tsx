@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { getDaysInMonth, getWeekdayNames, filterEventsByDate, CalendarEvent } from "@/utils/calendar";
 import { format, isSameMonth, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -9,7 +10,7 @@ interface MonthViewProps {
   onEventClick: (event: CalendarEvent) => void;
 }
 
-export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: MonthViewProps) => {
+export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }: MonthViewProps) => {
   const days = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
   const weekdays = getWeekdayNames();
 
@@ -89,4 +90,4 @@ export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: Mon
       </div>
     </div>
   );
-};
+});

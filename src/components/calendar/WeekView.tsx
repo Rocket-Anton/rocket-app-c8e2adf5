@@ -1,3 +1,4 @@
+import { memo } from "react";
 import { CalendarEvent, filterEventsByDate, getWeekDays, layoutOverlappingEvents } from "@/utils/calendar";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -10,7 +11,7 @@ interface WeekViewProps {
   onTimeSlotClick: (date: Date, hour: number) => void;
 }
 
-export const WeekView = ({ currentDate, events, onEventClick, onTimeSlotClick }: WeekViewProps) => {
+export const WeekView = memo(({ currentDate, events, onEventClick, onTimeSlotClick }: WeekViewProps) => {
   const weekDays = getWeekDays(currentDate);
   const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
 
@@ -83,4 +84,4 @@ export const WeekView = ({ currentDate, events, onEventClick, onTimeSlotClick }:
       </div>
     </div>
   );
-};
+});
