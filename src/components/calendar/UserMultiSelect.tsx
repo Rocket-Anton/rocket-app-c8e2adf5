@@ -63,14 +63,10 @@ export function UserMultiSelect({ users, selectedUserIds, onSelectionChange }: U
       <PopoverTrigger asChild>
         <Button variant="outline" className="h-8 rounded-md text-sm gap-1.5 relative">
           <Users className="h-4 w-4" />
-          <span>
-            {selectedUserIds.size === 0 ? "Alle Raketen" : `${selectedUserIds.size} Rakete${selectedUserIds.size !== 1 ? 'n' : ''}`}
-          </span>
-          {selectedUserIds.size > 0 && (
-            <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
-              {selectedUserIds.size}
-            </Badge>
-          )}
+          <span>Filter Raketen</span>
+          <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
+            {selectedUserIds.size}
+          </Badge>
         </Button>
       </PopoverTrigger>
       

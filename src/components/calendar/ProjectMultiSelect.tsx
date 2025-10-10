@@ -64,14 +64,10 @@ export function ProjectMultiSelect({ projects, selectedProjectIds, onSelectionCh
       <PopoverTrigger asChild>
         <Button variant="outline" className="h-8 rounded-md text-sm gap-1.5 relative">
           <MapPin className="h-4 w-4" />
-          <span>
-            {selectedProjectIds.size === 0 ? "Alle Projekte" : `${selectedProjectIds.size} Projekt${selectedProjectIds.size !== 1 ? 'e' : ''}`}
-          </span>
-          {selectedProjectIds.size > 0 && (
-            <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
-              {selectedProjectIds.size}
-            </Badge>
-          )}
+          <span>Filter Projekte</span>
+          <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
+            {selectedProjectIds.size}
+          </Badge>
         </Button>
       </PopoverTrigger>
       

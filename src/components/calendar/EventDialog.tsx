@@ -6,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Switch } from "@/components/ui/switch";
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { CalendarEvent } from "@/utils/calendar";
 import { AddressAutocomplete } from "./AddressAutocomplete";
 import { useState, useEffect } from "react";
@@ -41,7 +42,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
     project_id?: string;
     display: string;
   } | undefined>();
-  const [color, setColor] = useState(EVENT_COLORS[0]);
+  const [eventType, setEventType] = useState<'business' | 'personal'>('business');
   const [isAllDay, setIsAllDay] = useState(false);
 
   useEffect(() => {
@@ -64,7 +65,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
         setAddressData(undefined);
       }
       
-      setColor(event.color);
+      setEventType(event.category === 'personal' ? 'personal' : 'business');
       setIsAllDay(event.is_all_day);
     } else {
       // Reset for new event
@@ -78,7 +79,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
       nextHourEnd.setHours(nextHourEnd.getHours() + 1);
       setEndTime(format(nextHourEnd, 'HH:mm'));
       setAddressData(undefined);
-      setColor(EVENT_COLORS[0]);
+      setEventType('business');
       setIsAllDay(false);
     }
   }, [event, defaultDate, open]);
@@ -112,8 +113,8 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
       address_id: addressData?.address_id,
       unit_id: addressData?.unit_id,
       project_id: addressData?.project_id,
-      category: 'business', // Default category
-      color,
+      category: eventType,
+      color: eventType === 'business' ? '#3b82f6' : '#6b7280',
       is_all_day: isAllDay,
     });
 
@@ -129,7 +130,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
         </DialogHeader>
@@ -172,6 +173,20 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                 />
               </PopoverContent>
             </Popover>
+          </div>
+
+          {/* Event Type Dropdown */}
+          <div className="space-y-2">
+            <Label htmlFor="event-type">Terminart</Label>
+            <Select value={eventType} onValueChange={(value: 'business' | 'personal') => setEventType(value)}>
+              <SelectTrigger id="event-type">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="business">Geschäftlich</SelectItem>
+                <SelectItem value="personal">Privat</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
 
           {/* All Day Toggle */}
@@ -233,25 +248,6 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
               placeholder="Notizen zum Termin..."
               rows={3}
             />
-          </div>
-
-          {/* Color */}
-          <div className="space-y-2">
-            <Label>Farbe</Label>
-            <div className="flex gap-2 flex-wrap">
-              {EVENT_COLORS.map((c) => (
-                <button
-                  key={c}
-                  type="button"
-                  onClick={() => setColor(c)}
-                  className={cn(
-                    "w-8 h-8 rounded-full border-2 transition-transform hover:scale-110",
-                    color === c ? "border-foreground" : "border-transparent"
-                  )}
-                  style={{ backgroundColor: c }}
-                />
-              ))}
-            </div>
           </div>
         </div>
 
