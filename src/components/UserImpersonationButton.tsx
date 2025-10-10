@@ -9,7 +9,6 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useActualUserRole } from '@/hooks/useUserRole';
-import { useSidebar } from '@/components/ui/sidebar';
 import { cn } from '@/lib/utils';
 
 export const UserImpersonationButton = () => {
@@ -17,7 +16,6 @@ export const UserImpersonationButton = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
-  const { state } = useSidebar();
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -51,10 +49,7 @@ export const UserImpersonationButton = () => {
   return (
     <>
       <div 
-        className={cn(
-          "hidden lg:block fixed bottom-4 z-50 transition-all duration-200 ease-linear",
-          state === "expanded" ? "left-[calc(14rem+1rem)]" : "left-[calc(5.5rem+1rem)]"
-        )}
+        className="hidden lg:block fixed bottom-4 left-4 z-50 transition-all duration-200 ease-linear peer-data-[state=expanded]:left-[calc(14rem+1rem)] peer-data-[state=collapsed]:left-[calc(5.5rem+1rem)]"
       >
         <Button
           onClick={() => setIsOpen(true)}
