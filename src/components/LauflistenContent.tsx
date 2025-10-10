@@ -52,6 +52,7 @@ import { de } from "date-fns/locale";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
 import { useSidebar } from "./ui/sidebar";
+import { useProjectContext } from "@/contexts/ProjectContext";
 
 // Removed mock addresses - now loading from database
 
@@ -64,6 +65,7 @@ interface LauflistenContentProps {
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
   const { state: sidebarState } = useSidebar();
+  const { cachedAddresses, setCachedAddresses } = useProjectContext();
   const isSidebarCollapsed = sidebarState === "collapsed";
   const [isDashboardExpanded, setIsDashboardExpanded] = useState(false);
   
@@ -186,6 +188,32 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         return;
       }
 
+      // Use cached addresses if available and projects haven't changed
+      if (cachedAddresses && cachedAddresses.length > 0) {
+        // Filter cached addresses by selected projects
+        const filteredCached = cachedAddresses.filter(addr => 
+          addr.projectId && selectedProjectIds.has(addr.projectId)
+        );
+        
+        if (filteredCached.length > 0) {
+          // Transform cached addresses to match the expected format
+          const transformedCached = filteredCached.map((addr: any) => ({
+            id: addr.id,
+            street: addr.street,
+            houseNumber: addr.houseNumber,
+            postalCode: addr.postalCode,
+            city: addr.city,
+            coordinates: addr.coordinates || [0, 0],
+            units: addr.units ?? [],
+            notiz: addr.notiz
+          }));
+          
+          console.info('LauflistenContent: using cached addresses', { count: transformedCached.length });
+          setAddresses(transformedCached);
+          return;
+        }
+      }
+
       setIsLoadingAddresses(true);
       try {
         const projectIdsArray = Array.from(selectedProjectIds);
@@ -194,7 +222,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         // Fetch addresses for selected projects
         const { data: addressesData, error: addrError } = await supabase
           .from("addresses")
-          .select("id, street, house_number, postal_code, city, coordinates, notiz")
+          .select("id, street, house_number, postal_code, city, coordinates, notiz, project_id")
           .in("project_id", projectIdsArray)
           .order("street", { ascending: true })
           .order("house_number", { ascending: true });
@@ -231,10 +259,29 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           city: addr.city,
           coordinates: addr.coordinates ? [addr.coordinates.lng, addr.coordinates.lat] : [0, 0],
           units: unitsByAddress.get(addr.id) ?? [],
-          notiz: addr.notiz
+          notiz: addr.notiz,
+          projectId: addr.project_id
         }));
 
         setAddresses(transformedAddresses);
+        
+        // Cache the loaded addresses
+        const cacheableAddresses = transformedAddresses.map((addr: any) => ({
+          id: addr.id,
+          projectId: addr.projectId,
+          street: addr.street,
+          houseNumber: addr.houseNumber,
+          postalCode: addr.postalCode,
+          city: addr.city,
+          coordinates: addr.coordinates,
+          units: addr.units
+        }));
+        
+        // Merge with existing cached addresses from other projects
+        const existingCached = cachedAddresses || [];
+        const mergedCache = [...existingCached.filter((a: any) => !selectedProjectIds.has(a.projectId)), ...cacheableAddresses];
+        setCachedAddresses(mergedCache);
+        
         console.info('LauflistenContent: loaded addresses', { count: transformedAddresses.length });
       } catch (error: any) {
         console.error("Error loading addresses:", error);
@@ -644,17 +691,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
   const metricsData = [
     {
-      title: "Conversion",
-      value: orderCount > 0 ? conversionRate.toFixed(1) : "0",
-      icon: TrendingUp,
-      color: conversionStyle.textColor,
-      bgColor: conversionStyle.bgColor,
-      explanation: "Durchschnittliche Anzahl Statusänderungen pro Auftrag",
-      borderColor: conversionStyle.borderColor,
-      shimmer: conversionStyle.shimmer,
-      shimmerColor: conversionStyle.shimmerColor,
-    },
-    {
       title: "Aufträge heute",
       value: orderCount.toString(),
       icon: Users,
@@ -667,6 +703,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       emoji: orderStyle.emoji,
       iconBg: orderStyle.iconBg,
       isOrderCard: true
+    },
+    {
+      title: "Conversion",
+      value: orderCount > 0 ? conversionRate.toFixed(1) + '%' : "0.0%",
+      icon: TrendingUp,
+      color: conversionStyle.textColor,
+      bgColor: conversionStyle.bgColor,
+      explanation: "Durchschnittliche Anzahl Statusänderungen pro Auftrag",
+      borderColor: conversionStyle.borderColor,
+      shimmer: conversionStyle.shimmer,
+      shimmerColor: conversionStyle.shimmerColor,
     },
     {
       title: "Qualifiziert heute",

@@ -69,7 +69,7 @@ const statusColorMap: Record<string, string> = {
 
 function KarteContent() {
   const { state: sidebarState } = useSidebar();
-  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
+  const { selectedProjectIds, setSelectedProjectIds, cachedAddresses, setCachedAddresses } = useProjectContext();
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [showFilterSidebar, setShowFilterSidebar] = useState(false);
   const navigate = useNavigate();
@@ -153,6 +153,14 @@ function KarteContent() {
   }, []);
 
   const loadAddresses = async () => {
+    // Use cached addresses if available
+    if (cachedAddresses && cachedAddresses.length > 0) {
+      console.log('Using cached addresses:', cachedAddresses);
+      setAddresses(cachedAddresses);
+      setIsLoadingAddresses(false);
+      return;
+    }
+
     setIsLoadingAddresses(true);
     
     // Load addresses with their units from the separate units table
@@ -229,6 +237,7 @@ function KarteContent() {
 
     console.log('Loaded addresses:', loadedAddresses);
     setAddresses(loadedAddresses);
+    setCachedAddresses(loadedAddresses); // Cache the addresses
     setIsLoadingAddresses(false);
   };
 
@@ -311,14 +320,51 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Use saved view or default to Hamburg
-    const initialCenter = savedMapViewRef.current?.center || [9.9937, 53.5511];
-    const initialZoom = savedMapViewRef.current?.zoom || 12;
+    // Determine initial center and zoom
+    let initialCenter: [number, number];
+    let initialZoom: number;
+
+    if (savedMapViewRef.current) {
+      // Use saved view if available
+      initialCenter = savedMapViewRef.current.center;
+      initialZoom = savedMapViewRef.current.zoom;
+    } else if (selectedProjectIds.size > 0 && addresses.length > 0) {
+      // Zoom to project coordinates if projects are selected
+      const projectAddresses = addresses.filter(addr => 
+        addr.projectId && selectedProjectIds.has(addr.projectId)
+      );
+      
+      if (projectAddresses.length > 0) {
+        // Calculate center of all project addresses
+        const validCoords = projectAddresses.filter(
+          addr => addr.coordinates && addr.coordinates[0] !== 0 && addr.coordinates[1] !== 0
+        );
+        
+        if (validCoords.length > 0) {
+          const avgLng = validCoords.reduce((sum, addr) => sum + addr.coordinates[0], 0) / validCoords.length;
+          const avgLat = validCoords.reduce((sum, addr) => sum + addr.coordinates[1], 0) / validCoords.length;
+          initialCenter = [avgLng, avgLat];
+          initialZoom = 13;
+        } else {
+          // Fallback to Hamburg
+          initialCenter = [9.9937, 53.5511];
+          initialZoom = 12;
+        }
+      } else {
+        // Fallback to Hamburg
+        initialCenter = [9.9937, 53.5511];
+        initialZoom = 12;
+      }
+    } else {
+      // Default to Hamburg
+      initialCenter = [9.9937, 53.5511];
+      initialZoom = 12;
+    }
 
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: initialCenter as [number, number],
+      center: initialCenter,
       zoom: initialZoom,
       pitch: 45,
       bearing: -17.6,
@@ -468,11 +514,14 @@ function KarteContent() {
     const map = mapInstance.current;
 
     // Update selected list IDs immediately for filtering
+    const prevListIds = new Set(selectedListIds);
+    const hasChanged = listIds.length !== prevListIds.size || listIds.some(id => !prevListIds.has(id));
+    
     setSelectedListIds(new Set(listIds));
 
     if (!map) return;
 
-    if (listIds.length > 0) {
+    if (listIds.length > 0 && hasChanged) {
       // Save current view once when entering focus mode
       if (!previousViewRef.current) {
         previousViewRef.current = { center: map.getCenter(), zoom: map.getZoom() } as any;
@@ -494,7 +543,7 @@ function KarteContent() {
         const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0; // half of sidebar width
         map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0], maxZoom: 17 });
       }
-    } else {
+    } else if (listIds.length === 0) {
       // Clear focus when no lists selected
       setListAddressIds(new Set());
       // Do not modify zoom or center on deselection

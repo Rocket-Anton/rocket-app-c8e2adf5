@@ -1,8 +1,21 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
 
+interface Address {
+  id: number;
+  projectId: string | null;
+  street: string;
+  houseNumber: string;
+  postalCode: string;
+  city: string;
+  coordinates: [number, number];
+  units: any[];
+}
+
 interface ProjectContextType {
   selectedProjectIds: Set<string>;
   setSelectedProjectIds: (ids: Set<string>) => void;
+  cachedAddresses: Address[] | null;
+  setCachedAddresses: (addresses: Address[] | null) => void;
 }
 
 const ProjectContext = createContext<ProjectContextType | undefined>(undefined);
@@ -22,13 +35,16 @@ export function ProjectProvider({ children }: { children: ReactNode }) {
     return new Set();
   });
 
+  // Cache addresses to avoid reloading on navigation
+  const [cachedAddresses, setCachedAddresses] = useState<Address[] | null>(null);
+
   // Persist to localStorage whenever it changes
   useEffect(() => {
     localStorage.setItem('selectedProjectIds', JSON.stringify(Array.from(selectedProjectIds)));
   }, [selectedProjectIds]);
 
   return (
-    <ProjectContext.Provider value={{ selectedProjectIds, setSelectedProjectIds }}>
+    <ProjectContext.Provider value={{ selectedProjectIds, setSelectedProjectIds, cachedAddresses, setCachedAddresses }}>
       {children}
     </ProjectContext.Provider>
   );

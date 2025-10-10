@@ -26,15 +26,27 @@ export const MotionDialog = ({
                 <div 
                   className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
                   style={{ zIndex: 10090 }}
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    onOpenChange(false);
+                  onMouseDown={(e) => {
+                    // Use mousedown instead of click for better reliability
+                    if (e.target === e.currentTarget) {
+                      e.preventDefault();
+                      onOpenChange(false);
+                    }
                   }}
                 />
               </Dialog.Overlay>
 
               {/* Viewport-Grid - pixelgenaue Zentrierung */}
-              <div className="fixed inset-0 z-[10140] grid place-items-center p-4 sm:p-6">
+              <div 
+                className="fixed inset-0 z-[10140] grid place-items-center p-4 sm:p-6 pointer-events-none"
+                onMouseDown={(e) => {
+                  // Click on the grid container (outside the card) should close
+                  if (e.target === e.currentTarget) {
+                    e.preventDefault();
+                    onOpenChange(false);
+                  }
+                }}
+              >
                 <Dialog.Content asChild>
                   <motion.div
                     role="dialog"
