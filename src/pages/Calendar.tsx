@@ -217,9 +217,9 @@ export default function Calendar() {
           />
           <div className="relative h-full flex flex-col overflow-hidden">
             {/* Title and Search - Outside Calendar Card */}
-            <div className="px-4 py-3 flex items-center justify-between">
+            <div className="px-4 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
               <h1 className="text-2xl font-bold">Kalender</h1>
-              <div className="relative w-full max-w-sm">
+              <div className="relative w-full lg:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
                 <Input
                   type="search"
@@ -232,9 +232,9 @@ export default function Calendar() {
             </div>
 
             {/* Event Type Filter - Outside Calendar Card */}
-            <div className="mx-4 px-4 py-1.5 flex">
+            <div className="mx-4 px-4 py-1.5 flex overflow-x-auto">
               <div
-                className="inline-flex p-0.5 rounded-md border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)]"
+                className="inline-flex p-0.5 rounded-md border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)] w-full lg:w-auto"
                 role="tablist"
                 aria-label="Event-Filter"
               >
@@ -244,14 +244,14 @@ export default function Calendar() {
                   aria-selected={eventType === 'all'}
                   onClick={() => setEventType('all')}
                   className={cn(
-                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150 flex-1 lg:flex-none",
                     "outline-none focus:outline-none select-none",
                     eventType === 'all'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
                       : "text-[#111827]/70 bg-transparent hover:bg-black/5"
                   )}
                 >
-                  Alle Events
+                  Alle
                 </button>
                 <button
                   type="button"
@@ -259,7 +259,7 @@ export default function Calendar() {
                   aria-selected={eventType === 'private'}
                   onClick={() => setEventType('private')}
                   className={cn(
-                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150 flex-1 lg:flex-none",
                     "outline-none focus:outline-none select-none",
                     eventType === 'private'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
@@ -274,7 +274,7 @@ export default function Calendar() {
                   aria-selected={eventType === 'business'}
                   onClick={() => setEventType('business')}
                   className={cn(
-                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150 flex-1 lg:flex-none",
                     "outline-none focus:outline-none select-none",
                     eventType === 'business'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
@@ -289,32 +289,53 @@ export default function Calendar() {
             {/* Calendar Card with integrated Header */}
             <div className="mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1">
               {/* Header Controls */}
-              <div className="border-b px-4 py-2.5 flex items-center justify-between gap-4">
+              <div className="border-b px-4 py-2.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
                 {/* Left: Date Badge + Month Info */}
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-3 w-full lg:w-auto">
                   {/* Date Badge */}
-                  <div className="flex flex-col items-center justify-center bg-muted/40 border rounded-md p-2 min-w-[56px]">
+                  <div className="flex flex-col items-center justify-center bg-muted/40 border rounded-md p-2 min-w-[48px] lg:min-w-[56px]">
                     <div className="text-[9px] font-semibold tracking-wide text-muted-foreground uppercase">
                       {format(selectedDate, 'MMM', { locale: de }).toUpperCase()}
                     </div>
-                    <div className="text-2xl font-bold leading-none text-foreground mt-0.5">
+                    <div className="text-xl lg:text-2xl font-bold leading-none text-foreground mt-0.5">
                       {format(selectedDate, 'd')}
                     </div>
                   </div>
 
                   {/* Month & Period */}
-                  <div className="flex flex-col">
-                    <div className="text-base font-semibold leading-tight">
+                  <div className="flex flex-col flex-1">
+                    <div className="text-sm lg:text-base font-semibold leading-tight">
                       {format(selectedDate, 'MMMM yyyy', { locale: de })}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-0.5">
+                    <div className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
                       {getVisibleDateRange()}
                     </div>
                   </div>
+
+                  {/* Mobile: View Mode & Navigation */}
+                  <div className="flex items-center gap-1 lg:hidden">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handlePrevious}
+                      className="h-8 w-8 p-0 rounded-md border-muted-foreground/20"
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+                    
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleNext}
+                      className="h-8 w-8 p-0 rounded-md border-muted-foreground/20"
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
 
-                 {/* Right: Filters + Controls */}
-                <div className="flex items-center gap-2">
+                 {/* Right: Filters + Controls (Desktop) */}
+                <div className="hidden lg:flex items-center gap-2">
                   {isAdminLike && (
                     <UserMultiSelect
                       users={users}
@@ -384,6 +405,59 @@ export default function Calendar() {
                   >
                     <Plus className="h-4 w-4 mr-1" />
                     <span>Neuer Termin</span>
+                  </Button>
+                </div>
+
+                {/* Mobile: Filters Row */}
+                <div className="flex lg:hidden items-center gap-2 w-full overflow-x-auto pb-1">
+                  {isAdminLike && (
+                    <UserMultiSelect
+                      users={users}
+                      selectedUserIds={selectedUserIds}
+                      onSelectionChange={setSelectedUserIds}
+                    />
+                  )}
+
+                  {projects.length > 0 && (
+                    <ProjectMultiSelect
+                      projects={projects}
+                      selectedProjectIds={selectedProjectIds}
+                      onSelectionChange={setSelectedProjectIds}
+                    />
+                  )}
+
+                  {userRole === 'project_manager' && (
+                    <Select value={showTeamEvents ? 'team' : 'own'} onValueChange={(v) => setShowTeamEvents(v === 'team')}>
+                      <SelectTrigger className="h-8 rounded-md bg-muted/40 border border-input text-sm px-3 min-w-[100px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="own">Eigene</SelectItem>
+                        <SelectItem value="team">Team</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  )}
+
+                  {/* View Mode Select Mobile */}
+                  <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
+                    <SelectTrigger className="h-8 w-[100px] rounded-md bg-muted/40 border border-input text-sm px-3">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="month">Monat</SelectItem>
+                      <SelectItem value="week">Woche</SelectItem>
+                      <SelectItem value="day">Tag</SelectItem>
+                    </SelectContent>
+                  </Select>
+
+                  {/* Create Event Button Mobile */}
+                  <Button 
+                    onClick={handleCreateEvent} 
+                    size="sm"
+                    className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+                  >
+                    <Plus className="h-4 w-4 lg:mr-1" />
+                    <span className="hidden sm:inline">Termin</span>
                   </Button>
                 </div>
               </div>

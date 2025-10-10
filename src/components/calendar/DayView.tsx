@@ -18,12 +18,12 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
   return (
     <div className="bg-background rounded-lg border overflow-hidden">
       {/* Day header */}
-      <div className="border-b p-4 sticky top-0 bg-background z-10">
+      <div className="border-b p-3 sm:p-4 sticky top-0 bg-background z-10">
         <div className="text-center">
-          <div className="text-sm text-muted-foreground">
+          <div className="text-xs sm:text-sm text-muted-foreground">
             {format(currentDate, 'EEEE', { locale: de })}
           </div>
-          <div className="text-2xl font-semibold mt-1">
+          <div className="text-lg sm:text-2xl font-semibold mt-1">
             {format(currentDate, 'd. MMMM yyyy', { locale: de })}
           </div>
         </div>
@@ -47,13 +47,13 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
           return (
             <div 
               key={hour} 
-              className="flex border-b min-h-[80px] cursor-pointer hover:bg-accent/30 transition-colors relative"
+              className="flex border-b min-h-[60px] sm:min-h-[80px] cursor-pointer hover:bg-accent/30 transition-colors relative"
               onClick={() => onTimeSlotClick(hour)}
             >
-              <div className="w-20 border-r p-3 text-sm text-muted-foreground text-right font-medium">
+              <div className="w-14 sm:w-20 border-r p-2 sm:p-3 text-xs sm:text-sm text-muted-foreground text-right font-medium">
                 {hour}:00
               </div>
-              <div className="flex-1 p-2 relative">
+              <div className="flex-1 p-1 sm:p-2 relative">
                 {hourEvents.map((event) => {
                   const eventStart = new Date(event.start_datetime);
                   const eventEnd = new Date(event.end_datetime);
@@ -71,29 +71,29 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
                         e.stopPropagation();
                         onEventClick(event);
                       }}
-                      className="absolute left-2 right-2 p-3 rounded-md cursor-pointer hover:opacity-90 transition-opacity"
+                      className="absolute left-1 right-1 sm:left-2 sm:right-2 p-2 sm:p-3 rounded-md cursor-pointer hover:opacity-90 transition-opacity"
                       style={{
                         backgroundColor: event.color + '30',
-                        borderLeft: `4px solid ${event.color}`,
+                        borderLeft: `3px solid ${event.color}`,
                         top: `${top}%`,
                         height: `${Math.max(height, 20)}%`,
-                        minHeight: '40px'
+                        minHeight: '35px'
                       }}
                     >
                       <div className="flex items-start justify-between">
                         <div className="flex-1 overflow-hidden">
-                          <div className="font-semibold text-sm truncate">{event.title}</div>
-                          <div className="text-xs text-muted-foreground mt-1">
+                          <div className="font-semibold text-xs sm:text-sm truncate">{event.title}</div>
+                          <div className="text-[10px] sm:text-xs text-muted-foreground mt-0.5 sm:mt-1">
                             {format(new Date(event.start_datetime), 'HH:mm')} - {format(new Date(event.end_datetime), 'HH:mm')}
                           </div>
-                          {event.location && (
-                            <div className="text-xs text-muted-foreground mt-1 flex items-center gap-1 truncate">
+                          {event.location && height > 25 && (
+                            <div className="text-[10px] sm:text-xs text-muted-foreground mt-1 flex items-center gap-1 truncate">
                               <span className="text-xs">📍</span>
                               {event.location}
                             </div>
                           )}
-                          {event.description && height > 30 && (
-                            <div className="text-xs mt-2 text-muted-foreground line-clamp-2">
+                          {event.description && height > 35 && (
+                            <div className="text-[10px] sm:text-xs mt-1 sm:mt-2 text-muted-foreground line-clamp-2 hidden sm:block">
                               {event.description}
                             </div>
                           )}
@@ -103,7 +103,7 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
                   );
                 })}
                 {hourEvents.length === 0 && (
-                  <div className="text-xs text-muted-foreground/50 p-2">
+                  <div className="text-xs text-muted-foreground/50 p-2 hidden sm:block">
                     Keine Termine
                   </div>
                 )}
