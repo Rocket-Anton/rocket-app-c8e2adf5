@@ -45,7 +45,7 @@ export const Dashboard = () => {
 
   return (
     <SidebarProvider>
-      <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
+      <div className="flex h-dvh w-full bg-muted/30 gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0 overflow-hidden transition-all duration-300 ease-in-out">
           <MobileHeader 

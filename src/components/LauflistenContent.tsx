@@ -106,6 +106,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
+  const [todayStatusChanges, setTodayStatusChanges] = useState<number>(0);
+  const [conversionRate, setConversionRate] = useState<number>(0);
+  
   // Dashboard layout: Delayed expand based on sidebar state (Desktop/Tablet)
   useEffect(() => {
     // Mobile: Always scroll mode
@@ -427,19 +430,91 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     
     const wohneinheiten = filteredUnits.length;
     
-    // Vermarktbare Einheiten: Alle außer "kein-interesse", "neukunde", "bestandskunde" und nicht-vermarktbar
-    const potentiale = filteredUnits.filter(unit => 
-      unit.marketable !== false && 
-      !['kein-interesse', 'neukunde', 'bestandskunde'].includes(unit.status.toLowerCase())
+    // Potenziale: Zähle Units mit spezifischen Status
+    const potenziale = filteredUnits.filter(unit => 
+      ['offen', 'nicht-angetroffen', 'karte-eingeworfen', 'potenzial', 'termin']
+        .includes(unit.status.toLowerCase())
     ).length;
     
     return {
       ...address,
       wohneinheiten,
-      potentiale,
+      potenziale,
       filteredUnits // Pass filtered units to modal
     };
   }), [addresses, searchTerm, statusFilter, streetFilter, cityFilter, postalCodeFilter, houseNumberFilter, sortierung, lastModifiedDate, dateFilterMode]);
+
+  // Fetch status change statistics
+  const fetchStatusChangeStats = useCallback(async () => {
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+    
+    try {
+      const today = new Date();
+      today.setHours(0, 0, 0, 0);
+      const todayISO = today.toISOString();
+      
+      const { data: roleData } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id)
+        .single();
+      
+      const isAdmin = roleData?.role === 'admin';
+      const addressIds = filteredAddresses.map(a => a.id);
+      
+      if (addressIds.length === 0) {
+        setTodayStatusChanges(0);
+        setConversionRate(0);
+        return;
+      }
+      
+      let statusQuery = supabase
+        .from('unit_activities')
+        .select('*', { count: 'exact', head: false })
+        .eq('activity_type', 'status_changed')
+        .gte('created_at', todayISO)
+        .in('address_id', addressIds);
+      
+      if (!isAdmin) {
+        statusQuery = statusQuery.eq('user_id', user.id);
+      }
+      
+      const { data: statusChanges } = await statusQuery;
+      setTodayStatusChanges(statusChanges?.length || 0);
+      
+      const neukunden = filteredAddresses.flatMap(addr => 
+        (addr.units || []).filter(unit => 
+          unit.status.toLowerCase() === 'neukunde'
+        )
+      );
+      
+      const neukundenCount = neukunden.length;
+      
+      if (neukundenCount === 0) {
+        setConversionRate(0);
+        return;
+      }
+      
+      const { data: allChanges } = await supabase
+        .from('unit_activities')
+        .select('*', { count: 'exact', head: false })
+        .eq('activity_type', 'status_changed')
+        .in('address_id', addressIds);
+      
+      const totalChanges = allChanges?.length || 0;
+      const rate = neukundenCount > 0 ? totalChanges / neukundenCount : 0;
+      
+      setConversionRate(Math.round(rate * 10) / 10);
+      
+    } catch (error) {
+      console.error('Error in fetchStatusChangeStats:', error);
+    }
+  }, [filteredAddresses]);
+
+  useEffect(() => {
+    fetchStatusChangeStats();
+  }, [fetchStatusChangeStats]);
 
   const displayedAddresses = filteredAddresses.slice(0, visibleCount);
 
@@ -515,6 +590,42 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
   const orderStyle = getOrderCardStyle();
 
+  const totalPotenziale = useMemo(() => {
+    return filteredAddresses.reduce((sum, address) => sum + (address.potenziale || 0), 0);
+  }, [filteredAddresses]);
+
+  const getConversionStyle = (rate: number, hasOrders: boolean) => {
+    if (!hasOrders || rate === 0) {
+      return {
+        borderColor: '',
+        textColor: 'text-foreground',
+        bgColor: 'bg-background'
+      };
+    }
+    
+    if (rate <= 10) {
+      return {
+        borderColor: 'border-green-500 border-2',
+        textColor: 'text-green-600',
+        bgColor: 'bg-green-50'
+      };
+    } else if (rate <= 15) {
+      return {
+        borderColor: 'border-yellow-500 border-2',
+        textColor: 'text-yellow-600',
+        bgColor: 'bg-yellow-50'
+      };
+    } else {
+      return {
+        borderColor: 'border-red-500 border-2',
+        textColor: 'text-red-600',
+        bgColor: 'bg-red-50'
+      };
+    }
+  };
+
+  const conversionStyle = getConversionStyle(conversionRate, orderCount > 0);
+
   const metricsData = [
     {
       title: "Aufträge heute",
@@ -531,20 +642,29 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
       isOrderCard: true
     },
     {
-      title: "Potentiale",
-      value: "127",
-      icon: Target,
-      color: "text-blue-600",
-      bgColor: "bg-blue-100",
-      explanation: "Anzahl der identifizierten potentiellen Kunden basierend auf Bewertungskriterien"
+      title: "Conversion",
+      value: orderCount > 0 ? conversionRate.toFixed(1) : "0",
+      icon: TrendingUp,
+      color: conversionStyle.textColor,
+      bgColor: conversionStyle.bgColor,
+      explanation: "Durchschnittliche Anzahl Statusänderungen pro Auftrag",
+      borderColor: conversionStyle.borderColor,
     },
     {
       title: "Qualifiziert heute",
-      value: "23",
+      value: todayStatusChanges.toString(),
       icon: CheckCircle,
       color: "text-green-600",
       bgColor: "bg-green-100",
-      explanation: "Anzahl der heute qualifizierten Leads, die bereit für den Vertrieb sind"
+      explanation: "Anzahl der heute durchgeführten Statusänderungen"
+    },
+    {
+      title: "Potenziale",
+      value: totalPotenziale.toString(),
+      icon: Target,
+      color: "text-blue-600",
+      bgColor: "bg-blue-100",
+      explanation: "Anzahl potenzieller Kunden (Status: Offen, Nicht angetroffen, Karte eingeworfen, Potenzial, Termin)"
     }
   ];
 

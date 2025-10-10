@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { Menu, X, Home, Clock, ClipboardList, Calendar, User, Rocket, FolderOpen, Receipt, Package, Settings, LogOut, ChevronDown, ChevronRight } from "lucide-react";
 import { ProjectSelector } from "./ProjectSelector";
@@ -15,7 +16,7 @@ interface MobileHeaderProps {
 
 export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHeaderProps) {
   const [open, setOpen] = useState(false);
-  const [userProfile, setUserProfile] = useState<{ name?: string } | null>(null);
+  const [userProfile, setUserProfile] = useState<{ name?: string; color?: string } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
 
@@ -39,7 +40,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
       if (user) {
         const { data } = await supabase
           .from('profiles')
-          .select('name')
+          .select('name, color')
           .eq('id', user.id)
           .single();
         setUserProfile(data);
@@ -123,7 +124,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
               {/* Navigation items */}
               <nav className="flex-1 overflow-y-auto px-3 min-h-0">
                 {/* Main Section */}
-                <div className="space-y-1">
+                <div className="space-y-0.5">
                   {/* Dashboard */}
                   <button 
                     onClick={() => handleNavigation("/")}
@@ -162,7 +163,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </button>
                     
                     {isLauflistenExpanded && (
-                      <div className="ml-5 mt-0 space-y-0.5">
+                      <div className="ml-5 mt-1 space-y-0.5">
                         <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                           <button 
                             onClick={() => handleNavigation("/")}
@@ -211,7 +212,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </span>
                   </div>
                   
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     {/* Raketen */}
                     <button 
                       onClick={() => handleNavigation("/settings/raketen")}
@@ -244,7 +245,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isProjekteExpanded && (
-                        <div className="ml-5 mt-0 space-y-0.5">
+                        <div className="ml-5 mt-1 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/projects")}
@@ -298,7 +299,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isAbrechnungenExpanded && (
-                        <div className="ml-5 mt-0 space-y-0.5">
+                        <div className="ml-5 mt-1 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/abrechnungen/abrechnen")}
@@ -352,7 +353,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isProviderExpanded && (
-                        <div className="ml-5 mt-0 space-y-0.5">
+                        <div className="ml-5 mt-1 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/providers")}
@@ -384,7 +385,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </span>
                   </div>
                   
-                  <div className="space-y-1">
+                  <div className="space-y-0.5">
                     <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3">
                       <Settings className="!w-4 !h-4 flex-shrink-0" />
                       <span className="text-sm whitespace-nowrap">Einstellungen</span>
@@ -394,19 +395,37 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
               </nav>
 
               {/* User section */}
-              <div className="border-t p-4 flex-shrink-0 bg-background">
-                <div className="space-y-3">
+              <div className="border-t p-3 flex-shrink-0 bg-background">
+                <div className="space-y-2">
                   {userProfile?.name && (
-                    <div className="text-sm font-medium text-foreground">
-                      {userProfile.name}
+                    <div className="flex items-center gap-2 px-2">
+                      <Avatar className="w-7 h-7">
+                        <AvatarFallback 
+                          className="text-[10px] font-medium"
+                          style={{ 
+                            backgroundColor: userProfile.color || '#3b82f6', 
+                            color: 'white' 
+                          }}
+                        >
+                          {userProfile.name
+                            .split(' ')
+                            .map(n => n[0])
+                            .join('')
+                            .toUpperCase()
+                            .slice(0, 2)}
+                        </AvatarFallback>
+                      </Avatar>
+                      <span className="text-sm font-medium text-foreground">
+                        {userProfile.name}
+                      </span>
                     </div>
                   )}
                   <button
                     onClick={handleLogout}
-                    className="w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors text-left text-muted-foreground hover:bg-muted hover:text-foreground"
+                    className="w-full flex items-center gap-2.5 px-2 py-2 rounded-lg transition-colors text-left text-muted-foreground hover:bg-muted hover:text-foreground"
                   >
-                    <LogOut className="h-5 w-5 flex-shrink-0" />
-                    <span>Abmelden</span>
+                    <LogOut className="h-4 w-4 flex-shrink-0" />
+                    <span className="text-sm">Abmelden</span>
                   </button>
                 </div>
               </div>

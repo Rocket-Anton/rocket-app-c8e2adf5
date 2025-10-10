@@ -24,8 +24,12 @@ export const MotionDialog = ({
               {/* Overlay - static, no animation */}
               <Dialog.Overlay asChild>
                 <div 
-                  className="fixed inset-0 bg-black/60 backdrop-blur-sm"
+                  className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
                   style={{ zIndex: 10090 }}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onOpenChange(false);
+                  }}
                 />
               </Dialog.Overlay>
 

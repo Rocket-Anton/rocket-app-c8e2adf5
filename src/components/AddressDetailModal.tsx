@@ -712,7 +712,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     return ["nicht-angetroffen", "karte-eingeworfen", "potenzial"].includes(status);
   };
 
-  const handleStatusChange = useCallback((addressId: number, unitId: number, newStatus: string) => {
+  const handleStatusChange = useCallback(async (addressId: number, unitId: number, newStatus: string) => {
     const k = `${addressId}:${unitId}`;
     
     // Check if unit is marketable
@@ -778,6 +778,30 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
       duration: 1000,
     });
+
+    // Track status change in database
+    if (currentUser) {
+      const oldStatus = unitStatuses[k] || "offen";
+      
+      // Don't track if status hasn't actually changed
+      if (oldStatus !== newStatus) {
+        try {
+          await supabase.from('unit_activities').insert({
+            user_id: currentUser.id,
+            address_id: addressId,
+            unit_id: unitId.toString(),
+            activity_type: 'status_changed',
+            metadata: { 
+              status_from: oldStatus, 
+              status_to: newStatus,
+              timestamp: timestamp
+            }
+          });
+        } catch (error) {
+          console.error('Error tracking status change:', error);
+        }
+      }
+    }
   }, [allAddresses, currentAddress, toast, statusOptions, currentUser]);
 
   const handleSameStatusUpdate = useCallback((addressId: number, unitId: number) => {
@@ -786,7 +810,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     setConfirmStatusUpdateOpen(true);
   }, []);
 
-  const confirmSameStatusUpdate = useCallback(() => {
+  const confirmSameStatusUpdate = useCallback(async () => {
     if (pendingStatusUpdate === null) return;
     
     const currentStatus = unitStatuses[pendingStatusUpdate] || "offen";
@@ -831,6 +855,29 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       className: "bg-green-400 text-white border-0 w-auto max-w-[250px] p-3 py-2",
       duration: 1000,
     });
+
+    // Track status update in database (same status repeated)
+    if (currentUser) {
+      const [addressIdStr, unitIdStr] = pendingStatusUpdate.split(':');
+      const addressId = parseInt(addressIdStr);
+      const unitId = parseInt(unitIdStr);
+      
+      try {
+        await supabase.from('unit_activities').insert({
+          user_id: currentUser.id,
+          address_id: addressId,
+          unit_id: unitId.toString(),
+          activity_type: 'status_changed',
+          metadata: { 
+            status_from: currentStatus, 
+            status_to: currentStatus,
+            timestamp: timestamp
+          }
+        });
+      } catch (error) {
+        console.error('Error tracking status update:', error);
+      }
+    }
     
     setConfirmStatusUpdateOpen(false);
     setPendingStatusUpdate(null);
@@ -1902,6 +1949,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           contentVisibility: isActive ? 'visible' : 'auto',
           willChange: isActive ? 'transform' : 'auto'
         }}
+        onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
       >
         {/* Card Header */}
         <div className="relative px-4 py-4 border-b flex-shrink-0 bg-background">
@@ -2193,7 +2242,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           <div
             className="absolute inset-0 z-0"
             onMouseDown={() => {
-              if (!isPhone && !isTablet) handleDialogChange(false);
+              if (!isPhone) handleDialogChange(false);
             }}
           />
 
