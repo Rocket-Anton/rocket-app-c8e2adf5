@@ -217,7 +217,7 @@ export default function Calendar() {
           />
           <div className="relative h-full flex flex-col overflow-hidden">
             {/* Title and Search - Outside Calendar Card */}
-            <div className="px-4 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
+            <div className="px-2 sm:px-4 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
               <h1 className="text-2xl font-bold">Kalender</h1>
               <div className="relative w-full lg:max-w-sm">
                 <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
@@ -232,7 +232,7 @@ export default function Calendar() {
             </div>
 
             {/* Event Type Filter - Outside Calendar Card */}
-            <div className="mx-4 px-4 py-1.5 flex overflow-x-auto">
+            <div className="mx-2 sm:mx-4 px-2 sm:px-4 py-1.5 flex overflow-x-auto">
               <div
                 className="inline-flex p-0.5 rounded-md border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)] w-full lg:w-auto"
                 role="tablist"
@@ -287,9 +287,9 @@ export default function Calendar() {
             </div>
 
             {/* Calendar Card with integrated Header */}
-            <div className="mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1">
+            <div className="mx-2 sm:mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1">
               {/* Header Controls */}
-              <div className="border-b px-4 py-2.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
+              <div className="border-b px-2 sm:px-4 py-2.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
                 {/* Left: Date Badge + Month Info */}
                 <div className="flex items-center gap-3 w-full lg:w-auto">
                   {/* Date Badge */}

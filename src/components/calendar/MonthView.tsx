@@ -15,7 +15,7 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
   const weekdays = getWeekdayNames();
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden shadow-sm">
+    <div className="bg-background rounded-lg border overflow-hidden shadow-sm w-full">
       {/* Weekday headers - integrated with grid */}
       <div className="grid grid-cols-7">
         {weekdays.map((day, index) => (
