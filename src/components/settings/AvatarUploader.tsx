@@ -161,22 +161,23 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
           onClick={() => fileInputRef.current?.click()}
           onDragOver={(e) => e.preventDefault()}
           onDrop={handleDrop}
-          className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-12 hover:border-primary/50 hover:bg-accent/5 transition-all cursor-pointer group"
+          className="relative border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 hover:border-primary/50 hover:bg-accent/5 transition-all cursor-pointer group"
         >
-          <div className="flex flex-col items-center justify-center gap-4 text-center">
-            <div className="rounded-full bg-muted p-4 group-hover:bg-muted/80 transition-colors">
-              <Upload className="h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center gap-3 text-center">
+            <div className="rounded-full bg-muted p-3 group-hover:bg-muted/80 transition-colors">
+              <Upload className="h-6 w-6 text-muted-foreground" />
             </div>
             
-            <div className="space-y-2">
-              <p className="text-base font-medium text-foreground">
+            <div className="space-y-1">
+              <p className="text-sm font-medium text-foreground">
                 Drag files to upload
               </p>
-              <p className="text-sm text-muted-foreground">or</p>
+              <p className="text-xs text-muted-foreground">or</p>
             </div>
             
             <Button
               type="button"
+              size="sm"
               onClick={(e) => {
                 e.stopPropagation();
                 fileInputRef.current?.click();
