@@ -1227,6 +1227,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_admin_or_super: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
     }
     Enums: {
       app_role: "admin" | "user" | "project_manager" | "rocket" | "super_admin"
