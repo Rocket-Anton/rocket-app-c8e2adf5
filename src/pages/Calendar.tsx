@@ -1,4 +1,8 @@
 import { useState } from "react";
+import { SidebarProvider, SidebarInset } from "@/components/ui/sidebar";
+import { DashboardSidebar } from "@/components/DashboardSidebar";
+import { MobileHeader } from "@/components/MobileHeader";
+import { useProjectContext } from "@/contexts/ProjectContext";
 import { MonthView } from "@/components/calendar/MonthView";
 import { EventDialog } from "@/components/calendar/EventDialog";
 import { useEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from "@/hooks/useEvents";
@@ -15,6 +19,7 @@ type ViewMode = 'month' | 'week' | 'day';
 type CategoryFilter = 'all' | 'business' | 'personal';
 
 export default function Calendar() {
+  const { selectedProjectIds, setSelectedProjectIds } = useProjectContext();
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [viewMode, setViewMode] = useState<ViewMode>('month');
   const [categoryFilter, setCategoryFilter] = useState<CategoryFilter>('all');
@@ -109,129 +114,140 @@ export default function Calendar() {
   };
 
   return (
-    <div className="flex flex-col h-screen bg-background">
-      {/* Header */}
-      <div className="border-b bg-card">
-        <div className="p-4 space-y-4">
-          {/* Top bar */}
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-semibold">Kalender</h1>
-            <div className="flex items-center gap-2">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                <Input
-                  placeholder="Suchen..."
-                  value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
-                  className="pl-9 w-[200px]"
-                />
+    <SidebarProvider>
+      <div className="flex h-dvh w-full bg-muted/30 gap-0 overflow-hidden" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
+        <DashboardSidebar />
+        <SidebarInset className="p-0 m-0 border-0 transition-none lg:transition-all lg:duration-300 lg:ease-in-out">
+          <MobileHeader 
+            selectedProjectIds={selectedProjectIds}
+            onProjectsChange={setSelectedProjectIds}
+          />
+          <div className="relative h-full flex flex-col overflow-hidden">
+            {/* Header */}
+            <div className="border-b bg-card">
+              <div className="p-4 space-y-4">
+                {/* Top bar */}
+                <div className="flex items-center justify-between">
+                  <h1 className="text-2xl font-semibold">Kalender</h1>
+                  <div className="flex items-center gap-2">
+                    <div className="relative">
+                      <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        placeholder="Suchen..."
+                        value={searchQuery}
+                        onChange={(e) => setSearchQuery(e.target.value)}
+                        className="pl-9 w-[200px]"
+                      />
+                    </div>
+                  </div>
+                </div>
+
+                {/* Category tabs */}
+                <Tabs value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as CategoryFilter)}>
+                  <TabsList>
+                    <TabsTrigger value="all">Alle Termine</TabsTrigger>
+                    <TabsTrigger value="business">Geschäftlich</TabsTrigger>
+                    <TabsTrigger value="personal">Privat</TabsTrigger>
+                  </TabsList>
+                </Tabs>
+
+                {/* Date header and controls */}
+                <div className="flex items-center justify-between">
+                  <div>
+                    <h2 className="text-lg font-medium">
+                      {format(selectedDate, 'MMMM yyyy', { locale: de })}
+                    </h2>
+                    <p className="text-sm text-muted-foreground">
+                      {formatDateRange(rangeStart, rangeEnd)}
+                    </p>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handlePrevious}
+                    >
+                      <ChevronLeft className="h-4 w-4" />
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      onClick={handleToday}
+                    >
+                      Heute
+                    </Button>
+
+                    <Button
+                      variant="outline"
+                      size="icon"
+                      onClick={handleNext}
+                    >
+                      <ChevronRight className="h-4 w-4" />
+                    </Button>
+
+                    <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+                      <SelectTrigger className="w-[140px]">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="month">Monat</SelectItem>
+                        <SelectItem value="week">Woche</SelectItem>
+                        <SelectItem value="day">Tag</SelectItem>
+                      </SelectContent>
+                    </Select>
+
+                    <Button onClick={handleCreateEvent} className="bg-blue-600 hover:bg-blue-700">
+                      <Plus className="h-4 w-4 mr-2" />
+                      Termin erstellen
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
-          </div>
 
-          {/* Category tabs */}
-          <Tabs value={categoryFilter} onValueChange={(value) => setCategoryFilter(value as CategoryFilter)}>
-            <TabsList>
-              <TabsTrigger value="all">Alle Termine</TabsTrigger>
-              <TabsTrigger value="business">Geschäftlich</TabsTrigger>
-              <TabsTrigger value="personal">Privat</TabsTrigger>
-            </TabsList>
-          </Tabs>
-
-          {/* Date header and controls */}
-          <div className="flex items-center justify-between">
-            <div>
-              <h2 className="text-lg font-medium">
-                {format(selectedDate, 'MMMM yyyy', { locale: de })}
-              </h2>
-              <p className="text-sm text-muted-foreground">
-                {formatDateRange(rangeStart, rangeEnd)}
-              </p>
+            {/* Calendar content */}
+            <div className="flex-1 overflow-auto p-4">
+              {isLoading ? (
+                <div className="flex items-center justify-center h-full">
+                  <div className="text-muted-foreground">Lädt Termine...</div>
+                </div>
+              ) : (
+                <>
+                  {viewMode === 'month' && (
+                    <MonthView
+                      currentDate={selectedDate}
+                      events={events}
+                      onDayClick={handleDayClick}
+                      onEventClick={handleEventClick}
+                    />
+                  )}
+                  {viewMode === 'week' && (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      Wochenansicht (wird noch implementiert)
+                    </div>
+                  )}
+                  {viewMode === 'day' && (
+                    <div className="flex items-center justify-center h-full text-muted-foreground">
+                      Tagesansicht (wird noch implementiert)
+                    </div>
+                  )}
+                </>
+              )}
             </div>
 
-            <div className="flex items-center gap-2">
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handlePrevious}
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-
-              <Button
-                variant="outline"
-                onClick={handleToday}
-              >
-                Heute
-              </Button>
-
-              <Button
-                variant="outline"
-                size="icon"
-                onClick={handleNext}
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-
-              <Select value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
-                <SelectTrigger className="w-[140px]">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="month">Monat</SelectItem>
-                  <SelectItem value="week">Woche</SelectItem>
-                  <SelectItem value="day">Tag</SelectItem>
-                </SelectContent>
-              </Select>
-
-              <Button onClick={handleCreateEvent} className="bg-blue-600 hover:bg-blue-700">
-                <Plus className="h-4 w-4 mr-2" />
-                Termin erstellen
-              </Button>
-            </div>
+            {/* Event Dialog */}
+            <EventDialog
+              open={showEventDialog}
+              onOpenChange={setShowEventDialog}
+              event={selectedEvent}
+              defaultDate={selectedDate}
+              onSave={handleSaveEvent}
+              onDelete={selectedEvent ? handleDeleteEvent : undefined}
+            />
           </div>
-        </div>
+        </SidebarInset>
       </div>
-
-      {/* Calendar content */}
-      <div className="flex-1 overflow-auto p-4">
-        {isLoading ? (
-          <div className="flex items-center justify-center h-full">
-            <div className="text-muted-foreground">Lädt Termine...</div>
-          </div>
-        ) : (
-          <>
-            {viewMode === 'month' && (
-              <MonthView
-                currentDate={selectedDate}
-                events={events}
-                onDayClick={handleDayClick}
-                onEventClick={handleEventClick}
-              />
-            )}
-            {viewMode === 'week' && (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Wochenansicht (wird noch implementiert)
-              </div>
-            )}
-            {viewMode === 'day' && (
-              <div className="flex items-center justify-center h-full text-muted-foreground">
-                Tagesansicht (wird noch implementiert)
-              </div>
-            )}
-          </>
-        )}
-      </div>
-
-      {/* Event Dialog */}
-      <EventDialog
-        open={showEventDialog}
-        onOpenChange={setShowEventDialog}
-        event={selectedEvent}
-        defaultDate={selectedDate}
-        onSave={handleSaveEvent}
-        onDelete={selectedEvent ? handleDeleteEvent : undefined}
-      />
-    </div>
+    </SidebarProvider>
   );
 }
