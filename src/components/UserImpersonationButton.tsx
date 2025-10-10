@@ -17,8 +17,6 @@ export const UserImpersonationButton = () => {
   const { data: actualRole } = useActualUserRole();
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
 
-  if (actualRole !== 'super_admin') return null;
-
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -32,6 +30,8 @@ export const UserImpersonationButton = () => {
     },
     enabled: isOpen,
   });
+
+  if (actualRole !== 'super_admin') return null;
 
   const filteredUsers = users.filter(u => 
     u.name.toLowerCase().includes(searchQuery.toLowerCase())
