@@ -232,28 +232,58 @@ export default function Calendar() {
             </div>
 
             {/* Event Type Filter - Outside Calendar Card */}
-            <div className="mx-4 px-4 py-1.5 flex gap-2">
-              <Button
-                variant={eventType === 'all' ? "outline" : "ghost"}
-                size="sm"
-                onClick={() => setEventType('all')}
+            <div className="mx-4 px-4 py-1.5 flex">
+              <div
+                className="inline-flex p-1 rounded-full border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)]"
+                role="tablist"
+                aria-label="Event-Filter"
               >
-                Alle Events
-              </Button>
-              <Button
-                variant={eventType === 'private' ? "outline" : "ghost"}
-                size="sm"
-                onClick={() => setEventType('private')}
-              >
-                Privat
-              </Button>
-              <Button
-                variant={eventType === 'business' ? "outline" : "ghost"}
-                size="sm"
-                onClick={() => setEventType('business')}
-              >
-                Geschäftlich
-              </Button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={eventType === 'all'}
+                  onClick={() => setEventType('all')}
+                  className={cn(
+                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "outline-none focus:outline-none select-none",
+                    eventType === 'all'
+                      ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
+                      : "text-[#111827]/70 bg-transparent hover:bg-black/5"
+                  )}
+                >
+                  Alle Events
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={eventType === 'private'}
+                  onClick={() => setEventType('private')}
+                  className={cn(
+                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "outline-none focus:outline-none select-none",
+                    eventType === 'private'
+                      ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
+                      : "text-[#111827]/70 bg-transparent hover:bg-black/5"
+                  )}
+                >
+                  Privat
+                </button>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={eventType === 'business'}
+                  onClick={() => setEventType('business')}
+                  className={cn(
+                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "outline-none focus:outline-none select-none",
+                    eventType === 'business'
+                      ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
+                      : "text-[#111827]/70 bg-transparent hover:bg-black/5"
+                  )}
+                >
+                  Geschäftlich
+                </button>
+              </div>
             </div>
 
             {/* Calendar Card with integrated Header */}
