@@ -90,7 +90,7 @@ export const TarifeSettings = () => {
     queryFn: async () => {
       const { data, error } = await supabase
         .from("providers")
-        .select("id, name")
+        .select("id, name, logo_url")
         .eq("is_active", true)
         .order("name");
       
@@ -322,13 +322,18 @@ export const TarifeSettings = () => {
                     }
                     required
                   >
-                    <SelectTrigger>
+                    <SelectTrigger className="border">
                       <SelectValue placeholder="Provider wählen" />
                     </SelectTrigger>
                     <SelectContent>
                       {providers.map((provider) => (
                         <SelectItem key={provider.id} value={provider.id}>
-                          {provider.name}
+                          <div className="flex items-center gap-2">
+                            {provider.logo_url && (
+                              <img src={provider.logo_url} alt={provider.name} className="h-5 w-5 object-contain" />
+                            )}
+                            <span>{provider.name}</span>
+                          </div>
                         </SelectItem>
                       ))}
                     </SelectContent>
