@@ -677,17 +677,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         {/* Metrics Dashboard */}
         <div className="pt-6">
           <div className={cn(
-            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[gap,padding,grid-template-columns] duration-300 ease-in-out",
-            isSidebarCollapsed && "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4"
+            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap] duration-300 ease-in-out",
+            isSidebarCollapsed && "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4 md:transition-[padding,gap,grid-template-columns] md:delay-[0ms,0ms,300ms]"
           )} style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
-              <Card key={index} className={cn(
-                "relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px]",
-                isSidebarCollapsed ? "md:w-auto" : "lg:w-auto",
-                isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
-              )}>
+            <Card key={index} className={cn(
+              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] transition-[width,box-shadow] duration-300 ease-in-out",
+              isSidebarCollapsed ? "md:w-auto md:transition-[width,box-shadow] md:delay-[300ms,0ms]" : "lg:w-auto",
+              isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
+            )}>
                 {/* Shimmer Effect für Aufträge Card */}
                 {isOrderCard && metric.shimmer && (
                   <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
