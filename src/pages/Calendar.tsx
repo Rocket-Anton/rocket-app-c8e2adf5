@@ -224,12 +224,17 @@ export default function Calendar() {
             </div>
 
             {/* Event Type Filter - Outside Calendar Card */}
-            <div className="mx-4 px-4 py-2 flex gap-2 bg-background border-b">
+            <div className="mx-4 px-4 py-1.5 flex gap-1">
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => setEventType('all')}
-                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'all' && "bg-accent")}
+                className={cn(
+                  "h-7 rounded px-2.5 text-xs font-medium",
+                  eventType === 'all' 
+                    ? "bg-muted/50 text-foreground" 
+                    : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                )}
               >
                 Alle Events
               </Button>
@@ -237,7 +242,12 @@ export default function Calendar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setEventType('private')}
-                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'private' && "bg-accent")}
+                className={cn(
+                  "h-7 rounded px-2.5 text-xs font-medium",
+                  eventType === 'private' 
+                    ? "bg-muted/50 text-foreground" 
+                    : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                )}
               >
                 Privat
               </Button>
@@ -245,7 +255,12 @@ export default function Calendar() {
                 variant="ghost"
                 size="sm"
                 onClick={() => setEventType('business')}
-                className={cn("h-8 rounded-sm px-3 text-sm font-normal", eventType === 'business' && "bg-accent")}
+                className={cn(
+                  "h-7 rounded px-2.5 text-xs font-medium",
+                  eventType === 'business' 
+                    ? "bg-muted/50 text-foreground" 
+                    : "text-muted-foreground hover:bg-muted/30 hover:text-foreground"
+                )}
               >
                 Geschäftlich
               </Button>
