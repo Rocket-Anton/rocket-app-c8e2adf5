@@ -133,11 +133,11 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="h-[85vh] sm:h-[90vh] max-h-[90vh] max-w-[95vw] sm:max-w-md p-0">
         <div className="flex flex-col min-h-0">
-          <DialogHeader className="px-6 pt-6">
+          <DialogHeader className="px-6 pt-6 pb-4 border-b">
             <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
           </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0 pb-24 touch-pan-y [-webkit-overflow-scrolling:touch]" style={{ overscrollBehavior: 'contain' }}>
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0 pb-6 touch-pan-y [-webkit-overflow-scrolling:touch]" style={{ overscrollBehavior: 'contain' }}>
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
