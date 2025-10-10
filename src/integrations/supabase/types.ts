@@ -16,28 +16,67 @@ export type Database = {
     Tables: {
       addons: {
         Row: {
+          bonus_project_manager: number | null
+          bonus_quota_percentage: number | null
+          bonus_revenue: number | null
+          bonus_rocket: number | null
+          bonus_sales_partner: number | null
+          commission_project_manager: number | null
+          commission_rocket: number | null
+          commission_sales_partner: number | null
           created_at: string
           created_by: string
+          has_bonus: boolean | null
+          has_bonus_quota: boolean | null
           id: string
           is_active: boolean
+          is_single_option: boolean | null
           name: string
           provider_id: string
+          revenue: number | null
+          single_option_group: string | null
         }
         Insert: {
+          bonus_project_manager?: number | null
+          bonus_quota_percentage?: number | null
+          bonus_revenue?: number | null
+          bonus_rocket?: number | null
+          bonus_sales_partner?: number | null
+          commission_project_manager?: number | null
+          commission_rocket?: number | null
+          commission_sales_partner?: number | null
           created_at?: string
           created_by: string
+          has_bonus?: boolean | null
+          has_bonus_quota?: boolean | null
           id?: string
           is_active?: boolean
+          is_single_option?: boolean | null
           name: string
           provider_id: string
+          revenue?: number | null
+          single_option_group?: string | null
         }
         Update: {
+          bonus_project_manager?: number | null
+          bonus_quota_percentage?: number | null
+          bonus_revenue?: number | null
+          bonus_rocket?: number | null
+          bonus_sales_partner?: number | null
+          commission_project_manager?: number | null
+          commission_rocket?: number | null
+          commission_sales_partner?: number | null
           created_at?: string
           created_by?: string
+          has_bonus?: boolean | null
+          has_bonus_quota?: boolean | null
           id?: string
           is_active?: boolean
+          is_single_option?: boolean | null
           name?: string
           provider_id?: string
+          revenue?: number | null
+          single_option_group?: string | null
         }
         Relationships: [
           {

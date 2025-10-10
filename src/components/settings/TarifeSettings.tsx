@@ -63,6 +63,19 @@ interface Addon {
   name: string;
   provider_id: string;
   is_active: boolean;
+  revenue?: number;
+  commission_rocket?: number;
+  commission_project_manager?: number;
+  commission_sales_partner?: number;
+  has_bonus?: boolean;
+  bonus_revenue?: number;
+  bonus_rocket?: number;
+  bonus_project_manager?: number;
+  bonus_sales_partner?: number;
+  has_bonus_quota?: boolean;
+  bonus_quota_percentage?: number;
+  is_single_option?: boolean;
+  single_option_group?: string;
   created_at: string;
   provider_name?: string;
 }
@@ -74,8 +87,8 @@ export const TarifeSettings = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Tariff | Addon | null>(null);
   const [formData, setFormData] = useState({ 
-    name: "",
-    provider_id: "",
+    name: "", 
+    provider_id: "", 
     revenue: 0,
     commission_rocket: 0,
     commission_project_manager: 0,
@@ -87,9 +100,41 @@ export const TarifeSettings = () => {
     bonus_sales_partner: 0,
     has_bonus_quota: false,
     bonus_quota_percentage: 0,
+    is_single_option: false,
+    single_option_group: "",
+    single_option_group_mode: "existing" as "existing" | "new",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+
+  // Query für existierende Einzeloption-Gruppen
+  const { data: existingGroups = [] } = useQuery({
+    queryKey: ['addon-single-option-groups'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("addons")
+        .select("single_option_group")
+        .not("single_option_group", "is", null)
+        .order("single_option_group");
+
+      if (error) throw error;
+      
+      // Gruppieren und zählen
+      const groupMap = new Map<string, number>();
+      data.forEach(addon => {
+        const group = addon.single_option_group;
+        if (group) {
+          groupMap.set(group, (groupMap.get(group) || 0) + 1);
+        }
+      });
+
+      return Array.from(groupMap.entries()).map(([name, count]) => ({
+        name,
+        count
+      }));
+    },
+    staleTime: 30 * 1000, // 30 Sekunden cache
+  });
 
   const { data: providers = [] } = useQuery({
     queryKey: ['providers'],
@@ -148,6 +193,20 @@ export const TarifeSettings = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validierung für Einzeloption
+    if (activeTab === "addons" && formData.is_single_option) {
+      if (!formData.single_option_group || formData.single_option_group.trim() === "") {
+        toast.error("Bitte wähle eine Gruppe oder erstelle eine neue");
+        return;
+      }
+      
+      // Bereinige Gruppennamen
+      formData.single_option_group = formData.single_option_group
+        .toLowerCase()
+        .trim()
+        .replace(/\s+/g, '-');
+    }
+    
     try {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error("Nicht angemeldet");
@@ -200,13 +259,29 @@ export const TarifeSettings = () => {
         }
         queryClient.invalidateQueries({ queryKey: ['tariffs'] });
       } else {
+        // Addons
+        const addonData = {
+          name: formData.name,
+          provider_id: formData.provider_id,
+          revenue: formData.revenue,
+          commission_rocket: formData.commission_rocket,
+          commission_project_manager: formData.commission_project_manager,
+          commission_sales_partner: formData.commission_sales_partner,
+          has_bonus: formData.has_bonus,
+          bonus_revenue: formData.bonus_revenue,
+          bonus_rocket: formData.bonus_rocket,
+          bonus_project_manager: formData.bonus_project_manager,
+          bonus_sales_partner: formData.bonus_sales_partner,
+          has_bonus_quota: formData.has_bonus_quota,
+          bonus_quota_percentage: formData.bonus_quota_percentage,
+          is_single_option: formData.is_single_option,
+          single_option_group: formData.is_single_option ? formData.single_option_group : null,
+        };
+
         if (editingItem) {
           const { error } = await supabase
             .from("addons")
-            .update({
-              name: formData.name,
-              provider_id: formData.provider_id,
-            })
+            .update(addonData)
             .eq("id", editingItem.id);
 
           if (error) throw error;
@@ -215,15 +290,16 @@ export const TarifeSettings = () => {
           const { error } = await supabase
             .from("addons")
             .insert({
-              name: formData.name,
-              provider_id: formData.provider_id,
+              ...addonData,
               created_by: user.id,
             });
 
           if (error) throw error;
           toast.success("Zusatz erstellt");
         }
+        
         queryClient.invalidateQueries({ queryKey: ['addons'] });
+        queryClient.invalidateQueries({ queryKey: ['addon-single-option-groups'] });
       }
 
       setFormData({ 
@@ -240,6 +316,9 @@ export const TarifeSettings = () => {
         bonus_sales_partner: 0,
         has_bonus_quota: false,
         bonus_quota_percentage: 0,
+        is_single_option: false,
+        single_option_group: "",
+        single_option_group_mode: "existing" as "existing" | "new",
       });
       setIsCreateOpen(false);
       setEditingItem(null);
@@ -251,14 +330,15 @@ export const TarifeSettings = () => {
 
   const handleEdit = (item: Tariff | Addon) => {
     setEditingItem(item);
-    if ('commission_rocket' in item) {
+    if (activeTab === "tarife") {
+      // Tarif bearbeiten
       setFormData({
         name: item.name,
         provider_id: item.provider_id,
         revenue: (item as any).revenue || 0,
-        commission_rocket: item.commission_rocket || 0,
-        commission_project_manager: item.commission_project_manager || 0,
-        commission_sales_partner: item.commission_sales_partner || 0,
+        commission_rocket: (item as any).commission_rocket || 0,
+        commission_project_manager: (item as any).commission_project_manager || 0,
+        commission_sales_partner: (item as any).commission_sales_partner || 0,
         has_bonus: (item as any).has_bonus || false,
         bonus_revenue: (item as any).bonus_revenue || 0,
         bonus_rocket: (item as any).bonus_rocket || 0,
@@ -266,22 +346,33 @@ export const TarifeSettings = () => {
         bonus_sales_partner: (item as any).bonus_sales_partner || 0,
         has_bonus_quota: (item as any).has_bonus_quota || false,
         bonus_quota_percentage: (item as any).bonus_quota_percentage || 0,
+        is_single_option: false,
+        single_option_group: "",
+        single_option_group_mode: "existing" as "existing" | "new",
       });
     } else {
+      // Addon bearbeiten
+      const addon = item as any;
       setFormData({
         name: item.name,
         provider_id: item.provider_id,
-        revenue: 0,
-        commission_rocket: 0,
-        commission_project_manager: 0,
-        commission_sales_partner: 0,
-        has_bonus: false,
-        bonus_revenue: 0,
-        bonus_rocket: 0,
-        bonus_project_manager: 0,
-        bonus_sales_partner: 0,
-        has_bonus_quota: false,
-        bonus_quota_percentage: 0,
+        revenue: addon.revenue || 0,
+        commission_rocket: addon.commission_rocket || 0,
+        commission_project_manager: addon.commission_project_manager || 0,
+        commission_sales_partner: addon.commission_sales_partner || 0,
+        has_bonus: addon.has_bonus || false,
+        bonus_revenue: addon.bonus_revenue || 0,
+        bonus_rocket: addon.bonus_rocket || 0,
+        bonus_project_manager: addon.bonus_project_manager || 0,
+        bonus_sales_partner: addon.bonus_sales_partner || 0,
+        has_bonus_quota: addon.has_bonus_quota || false,
+        bonus_quota_percentage: addon.bonus_quota_percentage || 0,
+        is_single_option: addon.is_single_option || false,
+        single_option_group: addon.single_option_group || "",
+        single_option_group_mode: (addon.single_option_group && 
+          existingGroups.some(g => g.name === addon.single_option_group)
+            ? "existing" 
+            : "new") as "existing" | "new",
       });
     }
     setIsCreateOpen(true);
@@ -543,6 +634,272 @@ export const TarifeSettings = () => {
                         )}
                       </>
                     )}
+                  </>
+                )}
+
+                {/* Zusätze-spezifische Felder */}
+                {activeTab === "addons" && (
+                  <>
+                    <div>
+                      <Label htmlFor="addon_revenue">Umsatz (€)</Label>
+                      <Input
+                        id="addon_revenue"
+                        type="number"
+                        step="0.01"
+                        value={formData.revenue}
+                        onChange={(e) =>
+                          setFormData({ ...formData, revenue: parseFloat(e.target.value) || 0 })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="addon_commission_rocket">Provision Rakete (€)</Label>
+                      <Input
+                        id="addon_commission_rocket"
+                        type="number"
+                        step="0.01"
+                        value={formData.commission_rocket}
+                        onChange={(e) =>
+                          setFormData({ ...formData, commission_rocket: parseFloat(e.target.value) || 0 })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="addon_commission_project_manager">Provision Projektleiter (€)</Label>
+                      <Input
+                        id="addon_commission_project_manager"
+                        type="number"
+                        step="0.01"
+                        value={formData.commission_project_manager}
+                        onChange={(e) =>
+                          setFormData({ ...formData, commission_project_manager: parseFloat(e.target.value) || 0 })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="addon_commission_sales_partner">Provision Werber (€)</Label>
+                      <Input
+                        id="addon_commission_sales_partner"
+                        type="number"
+                        step="0.01"
+                        value={formData.commission_sales_partner}
+                        onChange={(e) =>
+                          setFormData({ ...formData, commission_sales_partner: parseFloat(e.target.value) || 0 })
+                        }
+                      />
+                    </div>
+
+                    <div>
+                      <Label htmlFor="addon_has_bonus">Bonus *</Label>
+                      <Select
+                        value={formData.has_bonus.toString()}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, has_bonus: value === "true" })
+                        }
+                        required
+                      >
+                        <SelectTrigger className="border">
+                          <SelectValue placeholder="Bonus wählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Ja</SelectItem>
+                          <SelectItem value="false">Nein</SelectItem>
+                        </SelectContent>
+                      </Select>
+                    </div>
+
+                    {formData.has_bonus && (
+                      <>
+                        <div>
+                          <Label htmlFor="addon_bonus_revenue">Umsatz Bonus (€)</Label>
+                          <Input
+                            id="addon_bonus_revenue"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_revenue}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_revenue: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="addon_bonus_rocket">Bonus Rakete (€)</Label>
+                          <Input
+                            id="addon_bonus_rocket"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_rocket}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_rocket: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="addon_bonus_project_manager">Bonus Projektleiter (€)</Label>
+                          <Input
+                            id="addon_bonus_project_manager"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_project_manager}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_project_manager: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="addon_bonus_sales_partner">Bonus Werber (€)</Label>
+                          <Input
+                            id="addon_bonus_sales_partner"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_sales_partner}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_sales_partner: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <Checkbox
+                            id="addon_has_bonus_quota"
+                            checked={formData.has_bonus_quota}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, has_bonus_quota: checked as boolean })
+                            }
+                          />
+                          <Label htmlFor="addon_has_bonus_quota">Bonus Quote</Label>
+                        </div>
+
+                        {formData.has_bonus_quota && (
+                          <div>
+                            <Label htmlFor="addon_bonus_quota_percentage">Bonusquote (%)</Label>
+                            <Input
+                              id="addon_bonus_quota_percentage"
+                              type="number"
+                              step="0.01"
+                              value={formData.bonus_quota_percentage}
+                              onChange={(e) =>
+                                setFormData({ ...formData, bonus_quota_percentage: parseFloat(e.target.value) || 0 })
+                              }
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
+
+                    {/* Einzeloption Bereich */}
+                    <div className="pt-4 border-t">
+                      <div className="flex items-center gap-2 mb-4">
+                        <Checkbox
+                          id="is_single_option"
+                          checked={formData.is_single_option}
+                          onCheckedChange={(checked) => 
+                            setFormData({ 
+                              ...formData, 
+                              is_single_option: checked as boolean,
+                              single_option_group: checked ? formData.single_option_group : "",
+                              single_option_group_mode: checked ? "existing" : "existing"
+                            })
+                          }
+                        />
+                        <Label htmlFor="is_single_option" className="cursor-pointer">
+                          Einzeloption
+                          <span className="text-sm text-muted-foreground ml-2">
+                            (nur einer aus der Gruppe kann ausgewählt werden)
+                          </span>
+                        </Label>
+                      </div>
+                      
+                      {formData.is_single_option && (
+                        <div className="space-y-4 pl-6 border-l-2 border-muted">
+                          <div>
+                            <Label>Gruppenverwaltung</Label>
+                            <Select
+                              value={formData.single_option_group_mode}
+                              onValueChange={(value: "existing" | "new") =>
+                                setFormData({ 
+                                  ...formData, 
+                                  single_option_group_mode: value,
+                                  single_option_group: value === "new" ? "" : formData.single_option_group
+                                })
+                              }
+                            >
+                              <SelectTrigger className="border">
+                                <SelectValue />
+                              </SelectTrigger>
+                              <SelectContent>
+                                <SelectItem value="existing">Bestehende Gruppe wählen</SelectItem>
+                                <SelectItem value="new">Neue Gruppe anlegen</SelectItem>
+                              </SelectContent>
+                            </Select>
+                          </div>
+
+                          {formData.single_option_group_mode === "existing" ? (
+                            <div>
+                              <Label htmlFor="single_option_group_select">
+                                Einzeloption-Gruppe auswählen *
+                              </Label>
+                              <Select
+                                value={formData.single_option_group}
+                                onValueChange={(value) =>
+                                  setFormData({ ...formData, single_option_group: value })
+                                }
+                                required={formData.is_single_option}
+                              >
+                                <SelectTrigger className="border">
+                                  <SelectValue placeholder="Gruppe wählen..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                  {existingGroups.length === 0 ? (
+                                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
+                                      Keine Gruppen vorhanden
+                                    </div>
+                                  ) : (
+                                    existingGroups.map((group) => (
+                                      <SelectItem key={group.name} value={group.name}>
+                                        <div className="flex items-center justify-between w-full gap-2">
+                                          <span>{group.name}</span>
+                                          <Badge variant="secondary" className="ml-2">
+                                            {group.count}
+                                          </Badge>
+                                        </div>
+                                      </SelectItem>
+                                    ))
+                                  )}
+                                </SelectContent>
+                              </Select>
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Zusätze in der gleichen Gruppe schließen sich gegenseitig aus
+                              </p>
+                            </div>
+                          ) : (
+                            <div>
+                              <Label htmlFor="single_option_group_input">
+                                Neue Einzeloption-Gruppe *
+                              </Label>
+                              <Input
+                                id="single_option_group_input"
+                                value={formData.single_option_group}
+                                onChange={(e) =>
+                                  setFormData({ ...formData, single_option_group: e.target.value })
+                                }
+                                placeholder="z.B. router, modem, tv-paket"
+                                required={formData.is_single_option}
+                              />
+                              <p className="text-xs text-muted-foreground mt-1">
+                                Gib einen eindeutigen Namen für die neue Gruppe ein (nur Kleinbuchstaben, Bindestriche)
+                              </p>
+                            </div>
+                          )}
+                        </div>
+                      )}
+                    </div>
                   </>
                 )}
                 </div>
