@@ -62,8 +62,8 @@ export function UserMultiSelect({ users, selectedUserIds, onSelectionChange }: U
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button variant="outline" className="h-8 rounded-md text-sm gap-1.5 relative">
-          <Users className="h-4 w-4" />
-          <span>Filter Raketen</span>
+      <Users className="h-4 w-4" />
+      <span className="hidden sm:inline">Filter Raketen</span>
           {selectedUserIds.size > 0 && (
             <Badge variant="default" className="absolute -top-1 -right-1 h-4 min-w-4 px-1 text-[10px] bg-green-500 hover:bg-green-500">
               {selectedUserIds.size}

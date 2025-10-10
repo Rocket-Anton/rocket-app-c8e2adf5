@@ -131,13 +131,13 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md p-0 max-h-[90vh]">
+      <DialogContent className="max-w-[95vw] sm:max-w-md p-0 max-h-[85vh] sm:max-h-[90vh]">
         <div className="flex h-full flex-col">
           <DialogHeader className="px-6 pt-6">
             <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
           </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
@@ -204,7 +204,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
 
           {/* Time */}
           {!isAllDay && (
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start-time">Von</Label>
                 <Popover>

@@ -16,21 +16,21 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
   const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 - 23:00
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden w-full min-w-0 h-full">
-      {/* Day header */}
-      <div className="border-b p-3 sm:p-4 sticky top-0 bg-background z-10">
+    <div className="bg-background rounded-lg border w-full h-full min-h-0 flex flex-col overflow-hidden">
+      {/* Day header - compact */}
+      <div className="border-b p-2 sm:p-3 sticky top-0 bg-background z-10 shrink-0">
         <div className="text-center">
-          <div className="text-xs sm:text-sm text-muted-foreground">
+          <div className="text-[10px] sm:text-xs text-muted-foreground">
             {format(currentDate, 'EEEE', { locale: de })}
           </div>
-          <div className="text-lg sm:text-2xl font-semibold mt-1">
+          <div className="text-base sm:text-lg font-semibold mt-0.5">
             {format(currentDate, 'd. MMMM yyyy', { locale: de })}
           </div>
         </div>
       </div>
 
-      {/* Time grid */}
-      <div className="relative">
+      {/* Time grid - vertical scroll */}
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {hours.map((hour) => {
           const hourStart = new Date(currentDate);
           hourStart.setHours(hour, 0, 0, 0);
@@ -50,7 +50,8 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
               className="flex border-b min-h-[60px] sm:min-h-[80px] cursor-pointer hover:bg-accent/30 transition-colors relative"
               onClick={() => onTimeSlotClick(hour)}
             >
-              <div className="w-14 sm:w-20 border-r p-2 sm:p-3 text-xs sm:text-sm text-muted-foreground text-right font-medium">
+              {/* Time column - sticky left */}
+              <div className="w-12 sm:w-16 border-r p-1.5 sm:p-2 text-[11px] sm:text-sm text-muted-foreground text-right sticky left-0 bg-background z-10">
                 {hour}:00
               </div>
               <div className="flex-1 p-1 sm:p-2 relative">

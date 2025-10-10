@@ -340,7 +340,7 @@ export default function Calendar() {
                 </div>
 
                  {/* Right: Filters + Controls (Desktop) */}
-                <div className="hidden lg:flex items-center gap-2">
+                <div className="hidden lg:flex items-center gap-2 justify-end">
                   {isAdminLike && (
                     <UserMultiSelect
                       users={users}
@@ -461,8 +461,8 @@ export default function Calendar() {
                     size="sm"
                     className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
                   >
-                    <Plus className="h-4 w-4 lg:mr-1" />
-                    <span className="hidden sm:inline">Termin</span>
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden md:inline">Termin</span>
                   </Button>
                 </div>
               </div>
