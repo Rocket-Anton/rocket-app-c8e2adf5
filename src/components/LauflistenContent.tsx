@@ -1992,7 +1992,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               />
             </div>
           ) : (
-            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'} transition-all duration-300 ease-in-out`}>
+            <div className="pb-20 px-4 transition-all duration-300 ease-in-out">
               <div className="space-y-4">
                 {displayedAddresses.map((address, index) => (
                   <div 

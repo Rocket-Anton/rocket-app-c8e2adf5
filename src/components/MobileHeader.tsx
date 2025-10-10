@@ -78,7 +78,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           <img 
             src={rocketLogo} 
             alt="Rocket Logo" 
-            className="h-8 w-auto"
+            className="h-10 w-auto"
           />
         </button>
 

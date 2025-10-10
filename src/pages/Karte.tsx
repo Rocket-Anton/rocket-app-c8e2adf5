@@ -8,8 +8,7 @@ import { ListsSidebar } from "@/components/ListsSidebar";
 import { AIAssistant } from "@/components/AIAssistant";
 import { MapFilterSidebar } from "@/components/MapFilterSidebar";
 import { ProjectSelector } from "@/components/ProjectSelector";
-import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
-import rocketLogoWhite from "@/assets/rocket-logo-white.png";
+import { MobileHeader } from "@/components/MobileHeader";
 import { useProjectContext } from "@/contexts/ProjectContext";
 
 import { AddressDetailModal } from "@/components/AddressDetailModal";
@@ -97,7 +96,20 @@ function KarteContent() {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   const hasAutoZoomedRef = useRef(false);
-  const savedMapViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
+  const savedMapViewRef = useRef<{ center: [number, number]; zoom: number } | null>(
+    (() => {
+      const saved = sessionStorage.getItem('mapView');
+      if (saved) {
+        try {
+          return JSON.parse(saved);
+        } catch (e) {
+          console.error('Error parsing saved map view:', e);
+          return null;
+        }
+      }
+      return null;
+    })()
+  );
   
   // Map filter states
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -112,17 +124,6 @@ function KarteContent() {
   const uniqueCities = Array.from(new Set(addresses.map(a => a.city)));
   const uniquePostalCodes = Array.from(new Set(addresses.map(a => a.postalCode)));
 
-  // Load saved map view on mount
-  useEffect(() => {
-    const savedView = sessionStorage.getItem('mapView');
-    if (savedView) {
-      try {
-        savedMapViewRef.current = JSON.parse(savedView);
-      } catch (e) {
-        console.error('Error parsing saved map view:', e);
-      }
-    }
-  }, []);
 
   // Save map view when unmounting
   useEffect(() => {
@@ -728,99 +729,12 @@ function KarteContent() {
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0">
+          <MobileHeader 
+            selectedProjectIds={selectedProjectIds}
+            onProjectsChange={setSelectedProjectIds}
+          />
           
           <div className="flex flex-col h-full w-full">
-            {/* Mobile Header - nur auf kleinen Bildschirmen */}
-            <div className="lg:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4 relative z-50">
-              <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16 mt-1 -ml-1" />
-              <Sheet>
-                <SheetTrigger asChild>
-                  <button className="text-white">
-                    <div className="space-y-1">
-                      <div className="w-6 h-0.5 bg-white"></div>
-                      <div className="w-6 h-0.5 bg-white"></div>
-                      <div className="w-6 h-0.5 bg-white"></div>
-                    </div>
-                  </button>
-                </SheetTrigger>
-                <SheetContent side="right" className="w-[280px] sm:w-[350px]">
-                  <SheetHeader>
-                    <SheetTitle>Menü</SheetTitle>
-                  </SheetHeader>
-                  <div className="py-4">
-                    {/* Projektauswahl */}
-                    <div className="px-4 pb-4 border-b">
-                      <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                        Projekte
-                      </div>
-                      <ProjectSelector
-                        selectedProjectIds={selectedProjectIds}
-                        onProjectsChange={setSelectedProjectIds}
-                        onShowProjects={() => setShouldZoomToProjects(true)}
-                      />
-                    </div>
-                    
-                    <nav className="space-y-1 pt-4">
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                        <Home className="w-5 h-5" />
-                        <span>Dashboard</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                        <Clock className="w-5 h-5" />
-                        <span>Aktivitäten</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                        <PersonStanding className="w-5 h-5" />
-                        <span>Lauflisten</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
-                        <CircleIcon className="w-4 h-4 fill-current" />
-                        <span>Liste</span>
-                      </a>
-                      <a href="/karte" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium ml-8">
-                        <CircleIcon className="w-4 h-4" />
-                        <span>Karte</span>
-                      </a>
-                      <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
-                        <div className="flex items-center gap-3">
-                          <CalendarIcon className="w-5 h-5" />
-                          <span>Termine</span>
-                        </div>
-                        <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                      </a>
-                      <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                        <UserIcon className="w-5 h-5" />
-                        <span>Leads</span>
-                      </a>
-                      
-                      <div className="pt-4 mt-4 border-t">
-                        <div className="px-4 pb-2">
-                          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
-                        </div>
-                        <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                          <Settings className="w-5 h-5" />
-                          <span>Settings</span>
-                        </a>
-                        <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
-                          <div className="flex items-center gap-3">
-                            <Moon className="w-5 h-5" />
-                            <span>Dark mode</span>
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="pt-4 mt-4 border-t">
-                        <div className="px-4">
-                          <div className="text-sm font-medium">Oleg Stemnev</div>
-                          <button className="text-xs text-muted-foreground hover:text-foreground">Abmelden</button>
-                        </div>
-                      </div>
-                    </nav>
-                  </div>
-                </SheetContent>
-              </Sheet>
-            </div>
-
             {/* Header */}
             <header className="hidden lg:flex items-center justify-between px-4 py-3 sm:py-4 border-b border-border bg-background">
               <div className="flex items-center gap-3">
