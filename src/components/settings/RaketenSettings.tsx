@@ -14,9 +14,9 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
-import { Plus, MoreVertical, Search, Filter, UserPlus } from "lucide-react";
+import { MoreVertical, Search, UserPlus } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
   Table,
@@ -39,10 +39,16 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { AvatarUploader } from "./AvatarUploader";
+import { raketenFormSchema } from "@/utils/validation";
 
 interface Rakete {
   id: string;
   name: string;
+  first_name?: string | null;
+  last_name?: string | null;
+  phone?: string | null;
+  avatar_url?: string | null;
   color: string;
   created_at: string;
   role?: string;
@@ -55,11 +61,13 @@ export const RaketenSettings = () => {
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingRakete, setEditingRakete] = useState<Rakete | null>(null);
   const [formData, setFormData] = useState({ 
-    name: "",
+    firstName: "",
+    lastName: "",
     email: "",
-    password: "",
-    role: "rocket" as "rocket" | "project_manager" | "admin",
-    color: "#3b82f6"
+    phone: "",
+    role: "rocket" as "rocket" | "project_manager",
+    avatarBlob: null as Blob | null,
+    avatarUrl: null as string | null
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRaketen, setSelectedRaketen] = useState<Set<string>>(new Set());
@@ -83,9 +91,16 @@ export const RaketenSettings = () => {
             .eq("user_id", profile.id)
             .maybeSingle();
 
+          // Get project count
+          const { count } = await supabase
+            .from("project_rockets")
+            .select("*", { count: 'exact', head: true })
+            .eq("user_id", profile.id);
+
           return {
             ...profile,
-            role: roleData?.role || "rocket"
+            role: roleData?.role || "rocket",
+            project_count: count || 0
           };
         })
       );
@@ -98,14 +113,50 @@ export const RaketenSettings = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    // Validate form data
+    const result = raketenFormSchema.safeParse({
+      firstName: formData.firstName,
+      lastName: formData.lastName,
+      email: formData.email,
+      phone: formData.phone,
+      role: formData.role
+    });
+
+    if (!result.success) {
+      toast.error(result.error.errors[0].message);
+      return;
+    }
+
     try {
       if (editingRakete) {
         // Update existing user
+        let avatarUrl = editingRakete.avatar_url;
+
+        // Upload new avatar if provided
+        if (formData.avatarBlob) {
+          const fileName = `${editingRakete.id}_${Date.now()}.png`;
+          const { error: uploadError } = await supabase.storage
+            .from('profile-avatars')
+            .upload(`avatars/${fileName}`, formData.avatarBlob);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage
+            .from('profile-avatars')
+            .getPublicUrl(`avatars/${fileName}`);
+          
+          avatarUrl = urlData.publicUrl;
+        }
+
+        const fullName = `${formData.firstName} ${formData.lastName}`;
         const { error: profileError } = await supabase
           .from("profiles")
           .update({
-            name: formData.name,
-            color: formData.color,
+            name: fullName,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            avatar_url: avatarUrl,
           })
           .eq("id", editingRakete.id);
 
@@ -123,27 +174,58 @@ export const RaketenSettings = () => {
 
         toast.success("Rakete aktualisiert");
       } else {
-        // Create new user
+        // Create new user with random password
+        const randomPassword = crypto.randomUUID();
         const { data: authData, error: authError } = await supabase.auth.signUp({
           email: formData.email,
-          password: formData.password,
+          password: randomPassword,
           options: {
             data: {
-              name: formData.name
-            }
+              first_name: formData.firstName,
+              last_name: formData.lastName
+            },
+            emailRedirectTo: `${window.location.origin}/reset-password`
           }
         });
 
         if (authError) throw authError;
         if (!authData.user) throw new Error("User creation failed");
 
-        // Update color in profile
-        const { error: colorError } = await supabase
+        // Upload avatar if provided
+        let avatarUrl = null;
+        if (formData.avatarBlob) {
+          const fileName = `${authData.user.id}_${Date.now()}.png`;
+          const { error: uploadError } = await supabase.storage
+            .from('profile-avatars')
+            .upload(`avatars/${fileName}`, formData.avatarBlob);
+          
+          if (uploadError) throw uploadError;
+          
+          const { data: urlData } = supabase.storage
+            .from('profile-avatars')
+            .getPublicUrl(`avatars/${fileName}`);
+          
+          avatarUrl = urlData.publicUrl;
+        }
+
+        // Update profile with additional info
+        const fullName = `${formData.firstName} ${formData.lastName}`;
+        const randomColors = ['#3b82f6', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6', '#ec4899'];
+        const randomColor = randomColors[Math.floor(Math.random() * randomColors.length)];
+        
+        const { error: profileError } = await supabase
           .from("profiles")
-          .update({ color: formData.color })
+          .update({
+            name: fullName,
+            first_name: formData.firstName,
+            last_name: formData.lastName,
+            phone: formData.phone,
+            avatar_url: avatarUrl,
+            color: randomColor
+          })
           .eq("id", authData.user.id);
 
-        if (colorError) throw colorError;
+        if (profileError) throw profileError;
 
         // Set role
         const { error: roleError } = await supabase
@@ -155,10 +237,23 @@ export const RaketenSettings = () => {
 
         if (roleError) throw roleError;
 
-        toast.success("Rakete erstellt");
+        toast.success("Rakete erstellt! Einladungsmail wird vorbereitet.");
+        
+        // TODO: Uncomment when SMTP is configured
+        // await supabase.functions.invoke('send-invitation-email', {
+        //   body: { userId: authData.user.id, email: formData.email }
+        // });
       }
 
-      setFormData({ name: "", email: "", password: "", role: "rocket", color: "#3b82f6" });
+      setFormData({ 
+        firstName: "", 
+        lastName: "", 
+        email: "", 
+        phone: "", 
+        role: "rocket", 
+        avatarBlob: null,
+        avatarUrl: null
+      });
       setIsCreateOpen(false);
       setEditingRakete(null);
       queryClient.invalidateQueries({ queryKey: ['raketen'] });
@@ -171,11 +266,13 @@ export const RaketenSettings = () => {
   const handleEdit = (rakete: Rakete) => {
     setEditingRakete(rakete);
     setFormData({
-      name: rakete.name,
+      firstName: rakete.first_name || "",
+      lastName: rakete.last_name || "",
       email: "",
-      password: "",
-      role: (rakete.role as any) || "rocket",
-      color: rakete.color || "#3b82f6",
+      phone: rakete.phone || "",
+      role: (rakete.role as "rocket" | "project_manager") || "rocket",
+      avatarBlob: null,
+      avatarUrl: rakete.avatar_url || null,
     });
     setIsCreateOpen(true);
   };
@@ -194,7 +291,7 @@ export const RaketenSettings = () => {
         .delete()
         .eq("user_id", id);
 
-      // Delete profile (auth user will be deleted via trigger if configured)
+      // Delete profile
       const { error } = await supabase
         .from("profiles")
         .delete()
@@ -210,7 +307,9 @@ export const RaketenSettings = () => {
   };
 
   const filteredRaketen = raketen.filter(rakete => 
-    rakete.name.toLowerCase().includes(searchQuery.toLowerCase())
+    rakete.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rakete.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    rakete.last_name?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   const handleSelectAll = (checked: boolean) => {
@@ -253,6 +352,13 @@ export const RaketenSettings = () => {
     );
   };
 
+  const getInitials = (rakete: Rakete) => {
+    if (rakete.first_name && rakete.last_name) {
+      return `${rakete.first_name[0]}${rakete.last_name[0]}`.toUpperCase();
+    }
+    return rakete.name.split(' ').map(n => n[0]).join('').toUpperCase();
+  };
+
   return (
     <div>
       <div className="flex justify-between items-center mb-6">
@@ -265,64 +371,79 @@ export const RaketenSettings = () => {
                 Neue Rakete
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl">
               <DialogHeader>
                 <DialogTitle>
                   {editingRakete ? "Rakete bearbeiten" : "Neue Rakete"}
                 </DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div>
-                  <Label htmlFor="name">Name *</Label>
-                  <Input
-                    id="name"
-                    value={formData.name}
-                    onChange={(e) =>
-                      setFormData({ ...formData, name: e.target.value })
-                    }
-                    required
-                  />
+                {/* Vorname & Nachname - Responsive Grid */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="firstName">Vorname *</Label>
+                    <Input
+                      id="firstName"
+                      value={formData.firstName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, firstName: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="lastName">Nachname *</Label>
+                    <Input
+                      id="lastName"
+                      value={formData.lastName}
+                      onChange={(e) =>
+                        setFormData({ ...formData, lastName: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
                 </div>
 
-                {!editingRakete && (
-                  <>
-                    <div>
-                      <Label htmlFor="email">E-Mail *</Label>
-                      <Input
-                        id="email"
-                        type="email"
-                        value={formData.email}
-                        onChange={(e) =>
-                          setFormData({ ...formData, email: e.target.value })
-                        }
-                        required
-                      />
-                    </div>
-
-                    <div>
-                      <Label htmlFor="password">Passwort *</Label>
-                      <Input
-                        id="password"
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) =>
-                          setFormData({ ...formData, password: e.target.value })
-                        }
-                        minLength={6}
-                        required
-                      />
+                {/* E-Mail & Handy */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <Label htmlFor="email">E-Mail *</Label>
+                    <Input
+                      id="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={(e) =>
+                        setFormData({ ...formData, email: e.target.value })
+                      }
+                      required
+                      disabled={!!editingRakete}
+                    />
+                    {editingRakete && (
                       <p className="text-xs text-muted-foreground mt-1">
-                        Mindestens 6 Zeichen
+                        E-Mail kann nicht geändert werden
                       </p>
-                    </div>
-                  </>
-                )}
+                    )}
+                  </div>
+                  <div>
+                    <Label htmlFor="phone">Handy *</Label>
+                    <Input
+                      id="phone"
+                      type="tel"
+                      value={formData.phone}
+                      onChange={(e) =>
+                        setFormData({ ...formData, phone: e.target.value })
+                      }
+                      required
+                    />
+                  </div>
+                </div>
 
+                {/* Rolle */}
                 <div>
                   <Label htmlFor="role">Rolle *</Label>
                   <Select
                     value={formData.role}
-                    onValueChange={(value: any) =>
+                    onValueChange={(value: "rocket" | "project_manager") =>
                       setFormData({ ...formData, role: value })
                     }
                   >
@@ -332,25 +453,26 @@ export const RaketenSettings = () => {
                     <SelectContent>
                       <SelectItem value="rocket">Rakete</SelectItem>
                       <SelectItem value="project_manager">Projektleiter</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
 
+                {/* Profilbild (optional) */}
                 <div>
-                  <Label htmlFor="color">Farbe</Label>
-                  <Input
-                    id="color"
-                    type="color"
-                    value={formData.color}
-                    onChange={(e) =>
-                      setFormData({ ...formData, color: e.target.value })
+                  <Label>Profilbild (optional)</Label>
+                  <AvatarUploader 
+                    onAvatarProcessed={(blob) => 
+                      setFormData({...formData, avatarBlob: blob, avatarUrl: URL.createObjectURL(blob)})
                     }
+                    currentAvatarUrl={formData.avatarUrl}
                   />
                 </div>
 
                 <div className="flex gap-2 justify-end">
-                  <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
+                  <Button type="button" variant="outline" onClick={() => {
+                    setIsCreateOpen(false);
+                    setEditingRakete(null);
+                  }}>
                     Abbrechen
                   </Button>
                   <Button type="submit">Speichern</Button>
@@ -429,8 +551,9 @@ export const RaketenSettings = () => {
                   <TableCell>
                     <div className="flex items-center gap-3">
                       <Avatar style={{ backgroundColor: rakete.color }}>
+                        {rakete.avatar_url && <AvatarImage src={rakete.avatar_url} />}
                         <AvatarFallback className="text-white">
-                          {rakete.name.split(' ').map(n => n[0]).join('').toUpperCase()}
+                          {getInitials(rakete)}
                         </AvatarFallback>
                       </Avatar>
                       <div>
@@ -443,7 +566,7 @@ export const RaketenSettings = () => {
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary">
-                      0
+                      {rakete.project_count || 0}
                     </Badge>
                   </TableCell>
                   <TableCell onClick={(e) => e.stopPropagation()}>

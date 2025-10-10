@@ -38,3 +38,33 @@ export const customerNameSchema = z.object({
     .regex(/^[a-zA-ZäöüÄÖÜßéèêëáàâãíìîïóòôõúùûçñ\s\-',.]+$/u, 
       'Name enthält ungültige Zeichen')
 });
+
+// Raketen Form Validation Schema
+export const raketenFormSchema = z.object({
+  firstName: z.string()
+    .trim()
+    .min(1, 'Vorname ist erforderlich')
+    .max(50, 'Vorname darf maximal 50 Zeichen haben')
+    .regex(/^[a-zA-ZäöüÄÖÜßéèêëáàâãíìîïóòôõúùûçñ\s\-']+$/u, 
+      'Vorname enthält ungültige Zeichen'),
+  lastName: z.string()
+    .trim()
+    .min(1, 'Nachname ist erforderlich')
+    .max(50, 'Nachname darf maximal 50 Zeichen haben')
+    .regex(/^[a-zA-ZäöüÄÖÜßéèêëáàâãíìîïóòôõúùûçñ\s\-']+$/u, 
+      'Nachname enthält ungültige Zeichen'),
+  email: z.string()
+    .trim()
+    .email('Ungültige E-Mail-Adresse')
+    .max(255, 'E-Mail darf maximal 255 Zeichen haben'),
+  phone: z.string()
+    .trim()
+    .min(1, 'Handynummer ist erforderlich')
+    .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]*$/,
+      'Ungültige Telefonnummer'),
+  role: z.enum(['rocket', 'project_manager'], {
+    errorMap: () => ({ message: 'Bitte wählen Sie eine Rolle' })
+  })
+});
+
+export type RaketenFormData = z.infer<typeof raketenFormSchema>;

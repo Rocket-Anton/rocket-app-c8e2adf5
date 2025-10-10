@@ -443,22 +443,34 @@ export type Database = {
       }
       profiles: {
         Row: {
+          avatar_url: string | null
           color: string
           created_at: string
+          first_name: string | null
           id: string
+          last_name: string | null
           name: string
+          phone: string | null
         }
         Insert: {
+          avatar_url?: string | null
           color?: string
           created_at?: string
+          first_name?: string | null
           id: string
+          last_name?: string | null
           name: string
+          phone?: string | null
         }
         Update: {
+          avatar_url?: string | null
           color?: string
           created_at?: string
+          first_name?: string | null
           id?: string
+          last_name?: string | null
           name?: string
+          phone?: string | null
         }
         Relationships: []
       }
