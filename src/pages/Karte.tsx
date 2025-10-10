@@ -125,20 +125,6 @@ function KarteContent() {
   const uniquePostalCodes = Array.from(new Set(addresses.map(a => a.postalCode)));
 
 
-  // Save map view when unmounting
-  useEffect(() => {
-    return () => {
-      const map = mapInstance.current;
-      if (map) {
-        const center = map.getCenter();
-        const zoom = map.getZoom();
-        sessionStorage.setItem('mapView', JSON.stringify({
-          center: [center.lng, center.lat],
-          zoom: zoom
-        }));
-      }
-    };
-  }, []);
 
   // Auth check
   useEffect(() => {
@@ -410,6 +396,28 @@ function KarteContent() {
       mapInstance.current = null;
     };
   }, [addresses, isLoadingAddresses]);
+
+  // Save map view continuously on every movement
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+    
+    const saveView = () => {
+      const center = map.getCenter();
+      const zoom = map.getZoom();
+      sessionStorage.setItem('mapView', JSON.stringify({
+        center: [center.lng, center.lat],
+        zoom: zoom
+      }));
+    };
+    
+    // Save on every map movement
+    map.on('moveend', saveView);
+    
+    return () => {
+      map.off('moveend', saveView);
+    };
+  }, []);
 
   // Toggle drawing mode (Mapbox Draw)
   const toggleDrawingMode = () => {

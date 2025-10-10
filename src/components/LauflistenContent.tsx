@@ -582,7 +582,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
 
   // Single filter bar that scrolls with content and overlays the addresses
-  const scrollRef = useRef<HTMLDivElement>(null);
   const filterRef = useRef<HTMLDivElement>(null);
   const mobileSheetRef = useRef<HTMLDivElement>(null);
   const [filterH, setFilterH] = useState(0);
@@ -602,7 +601,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   }, []);
 
   useEffect(() => {
-    const root = scrollRef.current;
+    const root = scrollContainerRef.current;
     if (!root) return;
     const onScroll = () => {
       const st = root.scrollTop;
