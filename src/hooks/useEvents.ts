@@ -11,7 +11,7 @@ export const useEvents = (
   options?: {
     categoryFilter?: string;
     projectIds?: string[];
-    userId?: string;
+    userIds?: string[];
     showTeamEvents?: boolean;
   }
 ) => {
@@ -37,9 +37,9 @@ export const useEvents = (
         query = query.in('project_id', options.projectIds);
       }
 
-      // User filter (for admin viewing specific user's events)
-      if (options?.userId) {
-        query = query.eq('user_id', options.userId);
+      // User filter (for admin viewing multiple users' events)
+      if (options?.userIds && options.userIds.length > 0) {
+        query = query.in('user_id', options.userIds);
       }
 
       const { data, error } = await query;

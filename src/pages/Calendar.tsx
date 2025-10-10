@@ -14,6 +14,8 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { ChevronLeft, ChevronRight, Plus, Search, Calendar as CalendarIcon } from "lucide-react";
+import { UserMultiSelect } from "@/components/calendar/UserMultiSelect";
+import { ProjectMultiSelect } from "@/components/calendar/ProjectMultiSelect";
 import { format, addMonths, subMonths, startOfMonth, endOfMonth, startOfWeek, endOfWeek, addWeeks, subWeeks, addDays, subDays } from "date-fns";
 import { de } from "date-fns/locale";
 import { useQuery } from "@tanstack/react-query";
@@ -29,7 +31,7 @@ export default function Calendar() {
   const [searchQuery, setSearchQuery] = useState('');
   const [showEventDialog, setShowEventDialog] = useState(false);
   const [selectedEvent, setSelectedEvent] = useState<CalendarEvent | null>(null);
-  const [selectedUserId, setSelectedUserId] = useState<string | undefined>();
+  const [selectedUserIds, setSelectedUserIds] = useState<Set<string>>(new Set());
   const [showTeamEvents, setShowTeamEvents] = useState(true);
 
   const { data: userRole } = useUserRole();
@@ -58,7 +60,7 @@ export default function Calendar() {
   // Fetch events with role-based filtering
   const { data: events = [], isLoading } = useEvents(rangeStart, rangeEnd, {
     projectIds: selectedProjectIds && selectedProjectIds.size > 0 ? Array.from(selectedProjectIds) : undefined,
-    userId: userRole === 'admin' ? selectedUserId : undefined,
+    userIds: userRole === 'admin' && selectedUserIds.size > 0 ? Array.from(selectedUserIds) : undefined,
     showTeamEvents: userRole === 'project_manager' ? showTeamEvents : undefined
   });
 
@@ -74,7 +76,7 @@ export default function Calendar() {
 
       const { data } = await supabase
         .from('profiles')
-        .select('id, name')
+        .select('id, name, color')
         .order('name');
 
       return data || [];
@@ -92,7 +94,7 @@ export default function Calendar() {
       if (userRole === 'admin') {
         const { data } = await supabase
           .from('projects')
-          .select('id, name')
+          .select('id, name, provider_id, providers(color)')
           .order('name');
         return data || [];
       }
@@ -100,7 +102,7 @@ export default function Calendar() {
       if (userRole === 'project_manager') {
         const { data } = await supabase
           .from('projects')
-          .select('id, name')
+          .select('id, name, provider_id, providers(color)')
           .eq('project_manager_id', user.id)
           .order('name');
         return data || [];
@@ -109,7 +111,7 @@ export default function Calendar() {
       if (userRole === 'rocket') {
         const { data: projectRockets } = await supabase
           .from('project_rockets')
-          .select('project_id, projects(id, name)')
+          .select('project_id, projects(id, name, provider_id, providers(color))')
           .eq('user_id', user.id);
 
         return projectRockets?.map(pr => pr.projects).filter(Boolean).flat() || [];
@@ -270,47 +272,22 @@ export default function Calendar() {
 
                   {/* Right: Filters + View Mode + Create */}
                   <div className="flex items-center gap-2 w-full lg:w-auto">
-                    {/* Admin: User Filter */}
+                    {/* Admin: User Multi-Filter */}
                     {userRole === 'admin' && (
-                      <Select value={selectedUserId || 'all'} onValueChange={(v) => setSelectedUserId(v === 'all' ? undefined : v)}>
-                        <SelectTrigger className="h-8 rounded-xl w-full lg:w-[140px] text-sm">
-                          <SelectValue placeholder="Alle Raketen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Alle Raketen</SelectItem>
-                          {users.map(user => (
-                            <SelectItem key={user.id} value={user.id}>
-                              {user.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <UserMultiSelect
+                        users={users}
+                        selectedUserIds={selectedUserIds}
+                        onSelectionChange={setSelectedUserIds}
+                      />
                     )}
 
-                    {/* Project Filter */}
+                    {/* Project Multi-Filter */}
                     {projects.length > 0 && (
-                      <Select 
-                        value={selectedProjectIds.size === 1 ? Array.from(selectedProjectIds)[0] : 'all'} 
-                        onValueChange={(v) => {
-                          if (v === 'all') {
-                            setSelectedProjectIds(new Set());
-                          } else {
-                            setSelectedProjectIds(new Set([v]));
-                          }
-                        }}
-                      >
-                        <SelectTrigger className="h-8 rounded-xl w-full lg:w-[140px] text-sm">
-                          <SelectValue placeholder="Alle Projekte" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Alle Projekte</SelectItem>
-                          {projects.map((project: any) => (
-                            <SelectItem key={project.id} value={project.id}>
-                              {project.name}
-                            </SelectItem>
-                          ))}
-                        </SelectContent>
-                      </Select>
+                      <ProjectMultiSelect
+                        projects={projects}
+                        selectedProjectIds={selectedProjectIds}
+                        onSelectionChange={setSelectedProjectIds}
+                      />
                     )}
 
                     {/* Project Manager: Team Toggle */}
