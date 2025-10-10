@@ -14,8 +14,41 @@ export type Database = {
   }
   public: {
     Tables: {
+      addon_groups: {
+        Row: {
+          created_at: string
+          created_by: string
+          id: string
+          name: string
+          provider_id: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          id?: string
+          name: string
+          provider_id: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          id?: string
+          name?: string
+          provider_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "addon_groups_provider_id_fkey"
+            columns: ["provider_id"]
+            isOneToOne: false
+            referencedRelation: "providers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addons: {
         Row: {
+          addon_group_id: string | null
           bonus_project_manager: number | null
           bonus_quota_percentage: number | null
           bonus_revenue: number | null
@@ -37,6 +70,7 @@ export type Database = {
           single_option_group: string | null
         }
         Insert: {
+          addon_group_id?: string | null
           bonus_project_manager?: number | null
           bonus_quota_percentage?: number | null
           bonus_revenue?: number | null
@@ -58,6 +92,7 @@ export type Database = {
           single_option_group?: string | null
         }
         Update: {
+          addon_group_id?: string | null
           bonus_project_manager?: number | null
           bonus_quota_percentage?: number | null
           bonus_revenue?: number | null
@@ -79,6 +114,13 @@ export type Database = {
           single_option_group?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "addons_addon_group_id_fkey"
+            columns: ["addon_group_id"]
+            isOneToOne: false
+            referencedRelation: "addon_groups"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "addons_provider_id_fkey"
             columns: ["provider_id"]
