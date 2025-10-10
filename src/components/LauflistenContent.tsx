@@ -692,15 +692,19 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         {/* Metrics Dashboard */}
         <div className="pt-6">
           <div className={cn(
-            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap,grid-template-columns] duration-300 ease-in-out",
-            isDashboardExpanded && "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4"
+            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap,grid-template-columns] ease-in-out",
+            isDashboardExpanded 
+              ? "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4 duration-50"
+              : "duration-300"
           )} style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
             <Card key={index} className={cn(
-              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] transition-[width] duration-300 ease-in-out",
-              isDashboardExpanded ? "md:w-auto" : "lg:w-auto",
+              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] transition-[width] ease-in-out",
+              isDashboardExpanded 
+                ? "md:w-auto duration-50" 
+                : "lg:w-auto duration-300",
               isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
             )}>
                 {/* Shimmer Effect für Aufträge Card */}
