@@ -678,7 +678,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         <div className="pt-6">
           <div className={cn(
             "flex w-full gap-3 pb-3 pl-4 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain",
-            isSidebarCollapsed ? "md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none md:pl-4" : "lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none lg:pl-4"
+            isSidebarCollapsed ? "md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none md:px-4" : "lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none lg:px-4"
           )} style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
