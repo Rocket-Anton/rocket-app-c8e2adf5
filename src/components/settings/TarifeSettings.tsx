@@ -76,11 +76,17 @@ export const TarifeSettings = () => {
   const [formData, setFormData] = useState({ 
     name: "",
     provider_id: "",
-    is_active: true,
+    revenue: 0,
     commission_rocket: 0,
     commission_project_manager: 0,
     commission_sales_partner: 0,
-    commission_recruiter: 0,
+    has_bonus: false,
+    bonus_revenue: 0,
+    bonus_rocket: 0,
+    bonus_project_manager: 0,
+    bonus_sales_partner: 0,
+    has_bonus_quota: false,
+    bonus_quota_percentage: 0,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
@@ -153,11 +159,17 @@ export const TarifeSettings = () => {
             .update({
               name: formData.name,
               provider_id: formData.provider_id,
-              is_active: formData.is_active,
+              revenue: formData.revenue,
               commission_rocket: formData.commission_rocket,
               commission_project_manager: formData.commission_project_manager,
               commission_sales_partner: formData.commission_sales_partner,
-              commission_recruiter: formData.commission_recruiter,
+              has_bonus: formData.has_bonus,
+              bonus_revenue: formData.bonus_revenue,
+              bonus_rocket: formData.bonus_rocket,
+              bonus_project_manager: formData.bonus_project_manager,
+              bonus_sales_partner: formData.bonus_sales_partner,
+              has_bonus_quota: formData.has_bonus_quota,
+              bonus_quota_percentage: formData.bonus_quota_percentage,
             })
             .eq("id", editingItem.id);
 
@@ -169,11 +181,17 @@ export const TarifeSettings = () => {
             .insert({
               name: formData.name,
               provider_id: formData.provider_id,
-              is_active: formData.is_active,
+              revenue: formData.revenue,
               commission_rocket: formData.commission_rocket,
               commission_project_manager: formData.commission_project_manager,
               commission_sales_partner: formData.commission_sales_partner,
-              commission_recruiter: formData.commission_recruiter,
+              has_bonus: formData.has_bonus,
+              bonus_revenue: formData.bonus_revenue,
+              bonus_rocket: formData.bonus_rocket,
+              bonus_project_manager: formData.bonus_project_manager,
+              bonus_sales_partner: formData.bonus_sales_partner,
+              has_bonus_quota: formData.has_bonus_quota,
+              bonus_quota_percentage: formData.bonus_quota_percentage,
               created_by: user.id,
             });
 
@@ -188,7 +206,6 @@ export const TarifeSettings = () => {
             .update({
               name: formData.name,
               provider_id: formData.provider_id,
-              is_active: formData.is_active,
             })
             .eq("id", editingItem.id);
 
@@ -200,7 +217,6 @@ export const TarifeSettings = () => {
             .insert({
               name: formData.name,
               provider_id: formData.provider_id,
-              is_active: formData.is_active,
               created_by: user.id,
             });
 
@@ -213,11 +229,17 @@ export const TarifeSettings = () => {
       setFormData({ 
         name: "", 
         provider_id: "", 
-        is_active: true,
+        revenue: 0,
         commission_rocket: 0,
         commission_project_manager: 0,
         commission_sales_partner: 0,
-        commission_recruiter: 0,
+        has_bonus: false,
+        bonus_revenue: 0,
+        bonus_rocket: 0,
+        bonus_project_manager: 0,
+        bonus_sales_partner: 0,
+        has_bonus_quota: false,
+        bonus_quota_percentage: 0,
       });
       setIsCreateOpen(false);
       setEditingItem(null);
@@ -233,21 +255,33 @@ export const TarifeSettings = () => {
       setFormData({
         name: item.name,
         provider_id: item.provider_id,
-        is_active: item.is_active,
+        revenue: (item as any).revenue || 0,
         commission_rocket: item.commission_rocket || 0,
         commission_project_manager: item.commission_project_manager || 0,
         commission_sales_partner: item.commission_sales_partner || 0,
-        commission_recruiter: item.commission_recruiter || 0,
+        has_bonus: (item as any).has_bonus || false,
+        bonus_revenue: (item as any).bonus_revenue || 0,
+        bonus_rocket: (item as any).bonus_rocket || 0,
+        bonus_project_manager: (item as any).bonus_project_manager || 0,
+        bonus_sales_partner: (item as any).bonus_sales_partner || 0,
+        has_bonus_quota: (item as any).has_bonus_quota || false,
+        bonus_quota_percentage: (item as any).bonus_quota_percentage || 0,
       });
     } else {
       setFormData({
         name: item.name,
         provider_id: item.provider_id,
-        is_active: item.is_active,
+        revenue: 0,
         commission_rocket: 0,
         commission_project_manager: 0,
         commission_sales_partner: 0,
-        commission_recruiter: 0,
+        has_bonus: false,
+        bonus_revenue: 0,
+        bonus_rocket: 0,
+        bonus_project_manager: 0,
+        bonus_sales_partner: 0,
+        has_bonus_quota: false,
+        bonus_quota_percentage: 0,
       });
     }
     setIsCreateOpen(true);
@@ -355,6 +389,19 @@ export const TarifeSettings = () => {
                 {activeTab === "tarife" && (
                   <>
                     <div>
+                      <Label htmlFor="revenue">Umsatz (€)</Label>
+                      <Input
+                        id="revenue"
+                        type="number"
+                        step="0.01"
+                        value={formData.revenue}
+                        onChange={(e) =>
+                          setFormData({ ...formData, revenue: parseFloat(e.target.value) || 0 })
+                        }
+                      />
+                    </div>
+
+                    <div>
                       <Label htmlFor="commission_rocket">Provision Rakete (€)</Label>
                       <Input
                         id="commission_rocket"
@@ -381,7 +428,7 @@ export const TarifeSettings = () => {
                     </div>
 
                     <div>
-                      <Label htmlFor="commission_sales_partner">Provision Vertriebspartner (€)</Label>
+                      <Label htmlFor="commission_sales_partner">Provision Werber (€)</Label>
                       <Input
                         id="commission_sales_partner"
                         type="number"
@@ -393,31 +440,102 @@ export const TarifeSettings = () => {
                       />
                     </div>
 
-                    <div>
-                      <Label htmlFor="commission_recruiter">Provision Recruiter (€)</Label>
-                      <Input
-                        id="commission_recruiter"
-                        type="number"
-                        step="0.01"
-                        value={formData.commission_recruiter}
-                        onChange={(e) =>
-                          setFormData({ ...formData, commission_recruiter: parseFloat(e.target.value) || 0 })
+                    <div className="flex items-center gap-2 pt-2">
+                      <Checkbox
+                        id="has_bonus"
+                        checked={formData.has_bonus}
+                        onCheckedChange={(checked) => 
+                          setFormData({ ...formData, has_bonus: checked as boolean })
                         }
                       />
+                      <Label htmlFor="has_bonus">Bonus</Label>
                     </div>
+
+                    {formData.has_bonus && (
+                      <>
+                        <div>
+                          <Label htmlFor="bonus_revenue">Umsatz Bonus (€)</Label>
+                          <Input
+                            id="bonus_revenue"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_revenue}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_revenue: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="bonus_rocket">Bonus Rakete (€)</Label>
+                          <Input
+                            id="bonus_rocket"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_rocket}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_rocket: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="bonus_project_manager">Bonus Projektleiter (€)</Label>
+                          <Input
+                            id="bonus_project_manager"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_project_manager}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_project_manager: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div>
+                          <Label htmlFor="bonus_sales_partner">Bonus Werber (€)</Label>
+                          <Input
+                            id="bonus_sales_partner"
+                            type="number"
+                            step="0.01"
+                            value={formData.bonus_sales_partner}
+                            onChange={(e) =>
+                              setFormData({ ...formData, bonus_sales_partner: parseFloat(e.target.value) || 0 })
+                            }
+                          />
+                        </div>
+
+                        <div className="flex items-center gap-2 pt-2">
+                          <Checkbox
+                            id="has_bonus_quota"
+                            checked={formData.has_bonus_quota}
+                            onCheckedChange={(checked) => 
+                              setFormData({ ...formData, has_bonus_quota: checked as boolean })
+                            }
+                          />
+                          <Label htmlFor="has_bonus_quota">Bonus Quote</Label>
+                        </div>
+
+                        {formData.has_bonus_quota && (
+                          <div>
+                            <Label htmlFor="bonus_quota_percentage">Bonusquote (%)</Label>
+                            <Input
+                              id="bonus_quota_percentage"
+                              type="number"
+                              step="0.01"
+                              min="0"
+                              max="100"
+                              value={formData.bonus_quota_percentage}
+                              onChange={(e) =>
+                                setFormData({ ...formData, bonus_quota_percentage: parseFloat(e.target.value) || 0 })
+                              }
+                            />
+                          </div>
+                        )}
+                      </>
+                    )}
                   </>
                 )}
-
-                <div className="flex items-center gap-2">
-                  <Checkbox
-                    id="is_active"
-                    checked={formData.is_active}
-                    onCheckedChange={(checked) => 
-                      setFormData({ ...formData, is_active: checked as boolean })
-                    }
-                  />
-                  <Label htmlFor="is_active">Aktiv</Label>
-                </div>
 
                 <div className="flex gap-2 justify-end">
                   <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>

@@ -947,42 +947,66 @@ export type Database = {
       }
       tariffs: {
         Row: {
+          bonus_project_manager: number | null
+          bonus_quota_percentage: number | null
+          bonus_revenue: number | null
+          bonus_rocket: number | null
+          bonus_sales_partner: number | null
           commission_project_manager: number | null
           commission_recruiter: number | null
           commission_rocket: number | null
           commission_sales_partner: number | null
           created_at: string
           created_by: string
+          has_bonus: boolean | null
+          has_bonus_quota: boolean | null
           id: string
           is_active: boolean
           name: string
           provider_id: string
+          revenue: number | null
           updated_at: string
         }
         Insert: {
+          bonus_project_manager?: number | null
+          bonus_quota_percentage?: number | null
+          bonus_revenue?: number | null
+          bonus_rocket?: number | null
+          bonus_sales_partner?: number | null
           commission_project_manager?: number | null
           commission_recruiter?: number | null
           commission_rocket?: number | null
           commission_sales_partner?: number | null
           created_at?: string
           created_by: string
+          has_bonus?: boolean | null
+          has_bonus_quota?: boolean | null
           id?: string
           is_active?: boolean
           name: string
           provider_id: string
+          revenue?: number | null
           updated_at?: string
         }
         Update: {
+          bonus_project_manager?: number | null
+          bonus_quota_percentage?: number | null
+          bonus_revenue?: number | null
+          bonus_rocket?: number | null
+          bonus_sales_partner?: number | null
           commission_project_manager?: number | null
           commission_recruiter?: number | null
           commission_rocket?: number | null
           commission_sales_partner?: number | null
           created_at?: string
           created_by?: string
+          has_bonus?: boolean | null
+          has_bonus_quota?: boolean | null
           id?: string
           is_active?: boolean
           name?: string
           provider_id?: string
+          revenue?: number | null
           updated_at?: string
         }
         Relationships: [
