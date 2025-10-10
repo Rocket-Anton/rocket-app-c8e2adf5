@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,37 @@ import { cn } from '@/lib/utils';
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [leftOffset, setLeftOffset] = useState(16);
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
+
+  useEffect(() => {
+    function computeOffset() {
+      const isMobile = window.innerWidth < 1024;
+      if (isMobile) return; // hidden on mobile
+      const sidebarEl = document.querySelector('[data-side="left"][data-state]') as HTMLElement | null;
+      if (!sidebarEl) {
+        setLeftOffset(16);
+        return;
+      }
+      const width = sidebarEl.getBoundingClientRect().width || 0;
+      setLeftOffset(Math.round(width) + 16);
+    }
+
+    computeOffset();
+
+    const sidebarEl = document.querySelector('[data-side="left"][data-state]') as HTMLElement | null;
+    const ro = sidebarEl ? new ResizeObserver(computeOffset) : null;
+    if (sidebarEl && ro) ro.observe(sidebarEl);
+
+    window.addEventListener('resize', computeOffset);
+
+    return () => {
+      window.removeEventListener('resize', computeOffset);
+      if (ro && sidebarEl) ro.unobserve(sidebarEl);
+    };
+  }, []);
+
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -23,7 +52,7 @@ export const UserImpersonationButton = () => {
         .from('profiles')
         .select('id, name, color')
         .order('name');
-      
+        
       if (error) throw error;
       return data;
     },
@@ -49,7 +78,8 @@ export const UserImpersonationButton = () => {
   return (
     <>
       <div 
-        className="hidden lg:block fixed bottom-4 left-4 z-50 transition-all duration-200 ease-linear peer-data-[state=expanded]:left-[calc(14rem+1rem)] peer-data-[state=collapsed]:left-[calc(5.5rem+1rem)]"
+        className="hidden lg:block fixed bottom-4 z-50 transition-[left] duration-200 ease-linear"
+        style={{ left: `${leftOffset}px` }}
       >
         <Button
           onClick={() => setIsOpen(true)}
