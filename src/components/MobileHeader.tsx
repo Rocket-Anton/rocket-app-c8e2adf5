@@ -79,7 +79,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
           <img 
             src={rocketLogo} 
             alt="Rocket Logo" 
-            className="h-14 w-auto"
+            className="h-12 w-auto"
           />
         </button>
 
@@ -89,9 +89,9 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
             <Button 
               variant="ghost" 
               size="icon"
-              className="text-white hover:bg-white/10 h-14 w-14"
+              className="text-white hover:bg-white/10 h-12 w-12"
             >
-              {open ? <X className="!h-12 !w-12" /> : <Menu className="!h-12 !w-12" />}
+              {open ? <X className="!h-10 !w-10" /> : <Menu className="!h-10 !w-10" />}
             </Button>
           </SheetTrigger>
           <SheetContent 
