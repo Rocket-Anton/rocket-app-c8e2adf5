@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
@@ -14,8 +14,33 @@ import { cn } from '@/lib/utils';
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
+  const [leftOffset, setLeftOffset] = useState(16);
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
+
+  useEffect(() => {
+    function computeOffset() {
+      const isMobile = window.innerWidth < 1024;
+      if (isMobile) return; // Button is hidden on mobile anyway
+      
+      const sidebarEl = document.querySelector('[data-sidebar="sidebar"]') as HTMLElement | null;
+      const width = sidebarEl ? sidebarEl.getBoundingClientRect().width : 224;
+      setLeftOffset(Math.round(width) + 16); // Sidebar width + 1rem gap
+    }
+    
+    computeOffset();
+    
+    const sidebarEl = document.querySelector('[data-sidebar="sidebar"]') as HTMLElement | null;
+    const ro = sidebarEl ? new ResizeObserver(computeOffset) : null;
+    if (sidebarEl && ro) ro.observe(sidebarEl);
+    
+    window.addEventListener('resize', computeOffset);
+    
+    return () => {
+      window.removeEventListener('resize', computeOffset);
+      if (ro && sidebarEl) ro.unobserve(sidebarEl);
+    };
+  }, []);
 
   // Early return MUST be after all hooks
   const { data: users = [] } = useQuery({
@@ -50,20 +75,26 @@ export const UserImpersonationButton = () => {
 
   return (
     <>
-      <div className="fixed bottom-4 left-[calc(var(--sidebar-width)+1rem)] z-50 transition-all duration-300">
+      <div 
+        className="hidden lg:block fixed bottom-4 z-50 transition-all duration-300"
+        style={{ left: `${leftOffset}px` }}
+      >
         <Button
           onClick={() => setIsOpen(true)}
           className={cn(
-            "h-12 w-12 rounded-full shadow-lg hover:shadow-xl hover:-translate-y-0.5 transition-all duration-200 p-0 bg-white border-2",
+            "h-10 w-10 rounded-full bg-white p-0",
+            "border shadow-md shadow-black/10 ring-1 ring-black/5",
+            "hover:-translate-y-0.5 hover:shadow-lg hover:shadow-black/15",
+            "transition-all duration-200",
             isImpersonating ? "border-green-500" : "border-border"
           )}
           variant="outline"
         >
-          <Users2 className="h-4 w-4" />
+          <Users2 className="h-4 w-4 text-foreground" />
         </Button>
         
         {isImpersonating && (
-          <div className="absolute -top-2 -right-2 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
+          <div className="absolute -top-1.5 -right-1.5 bg-green-500 text-white text-[10px] font-bold px-2 py-0.5 rounded-full whitespace-nowrap">
             {impersonatedUserName}
           </div>
         )}
