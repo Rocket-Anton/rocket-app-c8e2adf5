@@ -786,7 +786,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         </div>
 
       {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+      <div className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
         <div>
           <div
             ref={filterRef}
@@ -2033,7 +2033,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
               />
             </div>
           ) : (
-            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'}`}>
+            <div className={`pb-20 ${isMobile ? 'px-4' : 'px-6'} transition-all duration-300 ease-in-out`}>
               <div className="space-y-4">
                 {displayedAddresses.map((address, index) => (
                   <div 
