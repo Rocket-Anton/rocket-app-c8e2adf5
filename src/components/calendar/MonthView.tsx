@@ -1,4 +1,5 @@
 import { memo } from "react";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
 import { getDaysInMonth, getWeekdayNames, filterEventsByDate, CalendarEvent } from "@/utils/calendar";
 import { format, isSameMonth, isToday } from "date-fns";
 import { cn } from "@/lib/utils";
@@ -12,10 +13,13 @@ interface MonthViewProps {
 
 export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }: MonthViewProps) => {
   const days = getDaysInMonth(currentDate.getFullYear(), currentDate.getMonth());
+  const weeks = days.length / 7; // 5 or 6
   const weekdays = getWeekdayNames();
+  const isSm = useMediaQuery("(min-width: 640px)");
+  const visibleEvents = isSm ? 3 : 2;
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden shadow-sm w-full pr-px sm:pr-0">
+    <div className="bg-background rounded-lg border shadow-sm w-full h-full min-h-0 grid grid-rows-[auto,1fr]">
       {/* Weekday headers - integrated with grid */}
       <div className="grid grid-cols-7 w-full min-w-0">
         {weekdays.map((day, index) => (
@@ -33,7 +37,10 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
       </div>
 
       {/* Calendar grid - vertical lines go through weekday headers */}
-      <div className="grid grid-cols-7 w-full min-w-0 overflow-x-hidden">
+      <div className={cn(
+        "grid grid-cols-7 w-full min-w-0 h-full auto-rows-fr overflow-x-hidden",
+        weeks === 6 ? "grid-rows-6" : "grid-rows-5"
+      )}>
         {days.map((day, index) => {
           const dayEvents = filterEventsByDate(events, day);
           const isCurrentMonth = isSameMonth(day, currentDate);
@@ -43,7 +50,7 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
             <div
               key={index}
               className={cn(
-                "relative min-h-[75px] sm:min-h-[100px] lg:min-h-[120px] border-t p-0.5 sm:p-2 cursor-pointer transition-colors hover:bg-accent/50",
+                "relative h-full min-h-0 border-t p-0.5 sm:p-2 cursor-pointer transition-colors hover:bg-accent/50",
                 index % 7 < 6 && 'after:content-[""] after:absolute after:top-0 after:bottom-0 after:right-0 after:w-px after:bg-border',
                 !isCurrentMonth && "bg-muted/20 text-muted-foreground",
                 isTodayDate && "bg-blue-50/50 dark:bg-blue-950/20"
@@ -63,7 +70,7 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
 
               {/* Events */}
               <div className="space-y-0.5 sm:space-y-1">
-                {dayEvents.slice(0, window.innerWidth < 640 ? 2 : 3).map((event) => (
+                {dayEvents.slice(0, visibleEvents).map((event) => (
                   <div
                     key={event.id}
                     onClick={(e) => {
@@ -81,9 +88,9 @@ export const MonthView = memo(({ currentDate, events, onDayClick, onEventClick }
                     <span className="truncate">{event.title}</span>
                   </div>
                 ))}
-                {dayEvents.length > (window.innerWidth < 640 ? 2 : 3) && (
+                {dayEvents.length > visibleEvents && (
                   <div className="text-[9px] sm:text-xs text-blue-600 dark:text-blue-400 px-0.5 sm:px-1.5 font-medium">
-                    +{dayEvents.length - (window.innerWidth < 640 ? 2 : 3)}
+                    +{dayEvents.length - visibleEvents}
                   </div>
                 )}
               </div>

@@ -9,6 +9,8 @@ import { DayView } from "@/components/calendar/DayView";
 import { EventDialog } from "@/components/calendar/EventDialog";
 import { useEvents, useCreateEvent, useUpdateEvent, useDeleteEvent } from "@/hooks/useEvents";
 import { useUserRole } from "@/hooks/useUserRole";
+import { useMediaQuery } from "@/hooks/useMediaQuery";
+import { useSwipe } from "@/hooks/useSwipe";
 import { CalendarEvent, getDaysInMonth } from "@/utils/calendar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -36,6 +38,7 @@ export default function Calendar() {
   const [eventType, setEventType] = useState<'all' | 'private' | 'business'>('all');
 
   const { data: userRole } = useUserRole();
+  const prefersReduced = useMediaQuery("(prefers-reduced-motion: reduce)");
   
   // Calculate visible date range for display
   const getVisibleDateRange = () => {
@@ -169,6 +172,8 @@ export default function Calendar() {
     setSelectedDate(new Date());
   };
 
+  const swipeHandlers = useSwipe(handleNext, handlePrevious);
+
   const handleDayClick = (date: Date) => {
     setSelectedDate(date);
     setViewMode('day');
@@ -210,12 +215,12 @@ export default function Calendar() {
     <SidebarProvider>
       <div className="flex h-dvh w-full bg-muted/30 gap-0 overflow-hidden" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
-        <SidebarInset className="p-0 m-0 border-0 transition-none lg:transition-all lg:duration-300 lg:ease-in-out">
+        <SidebarInset className="p-0 m-0 border-0 min-w-0 transition-none lg:transition-all lg:duration-300 lg:ease-in-out">
           <MobileHeader 
             selectedProjectIds={selectedProjectIds}
             onProjectsChange={setSelectedProjectIds}
           />
-          <div className="relative h-full flex flex-col overflow-hidden">
+          <div className="relative h-full flex flex-col overflow-hidden min-h-0">
             {/* Title and Search - Outside Calendar Card */}
             <div className="px-2 sm:px-4 py-3 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3">
               <h1 className="text-2xl font-bold">Kalender</h1>
@@ -287,9 +292,9 @@ export default function Calendar() {
             </div>
 
             {/* Calendar Card with integrated Header */}
-            <div className="mx-2 sm:mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1">
+            <div className="mx-2 sm:mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0)]">
               {/* Header Controls */}
-              <div className="border-b px-2 sm:px-4 py-2.5 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
+              <div className="border-b px-2 sm:px-4 py-2 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
                 {/* Left: Date Badge + Month Info */}
                 <div className="flex items-center gap-3 w-full lg:w-auto">
                   {/* Date Badge */}

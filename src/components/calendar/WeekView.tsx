@@ -16,7 +16,7 @@ export const WeekView = memo(({ currentDate, events, onEventClick, onTimeSlotCli
   const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden">
+    <div className="bg-background rounded-lg border overflow-hidden w-full min-w-0 h-full">
       {/* Week header */}
       <div className="grid grid-cols-[60px_repeat(7,1fr)] sm:grid-cols-[80px_repeat(7,1fr)] border-b sticky top-0 bg-background z-10 overflow-x-auto">
         <div className="border-r" />

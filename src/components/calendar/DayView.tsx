@@ -16,7 +16,7 @@ export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClic
   const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 - 23:00
 
   return (
-    <div className="bg-background rounded-lg border overflow-hidden">
+    <div className="bg-background rounded-lg border overflow-hidden w-full min-w-0 h-full">
       {/* Day header */}
       <div className="border-b p-3 sm:p-4 sticky top-0 bg-background z-10">
         <div className="text-center">
