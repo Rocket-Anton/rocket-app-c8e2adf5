@@ -745,13 +745,13 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           </div>
           
           {/* SCROLLABLE CONTENT - Only filters and addresses scroll */}
-          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
           <div>
             <div
               ref={filterRef}
               className="sticky top-0 z-10"
             >
-            <div className={`bg-background pt-2 pb-3 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
+            <div className={`bg-background pt-2 pb-3 px-4 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />

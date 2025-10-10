@@ -1,6 +1,7 @@
 import { SidebarProvider, SidebarInset } from "./ui/sidebar";
 import { DashboardSidebar } from "./DashboardSidebar";
 import { LauflistenContent } from "./LauflistenContent";
+import { MobileHeader } from "./MobileHeader";
 import { useProjectContext } from "@/contexts/ProjectContext";
 
 import { useState, useEffect } from "react";
@@ -47,7 +48,10 @@ export const Dashboard = () => {
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="p-0 m-0 border-0 overflow-hidden transition-all duration-300 ease-in-out">
-          
+          <MobileHeader 
+            selectedProjectIds={selectedProjectIds}
+            onProjectsChange={setSelectedProjectIds}
+          />
           <div className="relative h-full">
             <LauflistenContent 
               onOrderCreated={() => setTodayOrderCount(prev => prev + 1)} 
