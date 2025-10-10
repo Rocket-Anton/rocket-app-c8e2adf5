@@ -337,7 +337,7 @@ export const TarifeSettings = () => {
                 {activeTab === "tarife" ? "Neuer Tarif" : "Neuer Zusatz"}
               </Button>
             </DialogTrigger>
-            <DialogContent>
+            <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
               <DialogHeader>
                 <DialogTitle>
                   {editingItem 
@@ -346,7 +346,8 @@ export const TarifeSettings = () => {
                   }
                 </DialogTitle>
               </DialogHeader>
-              <form onSubmit={handleSubmit} className="space-y-4">
+              <form onSubmit={handleSubmit} className="flex flex-col h-full">
+                <div className="flex-1 overflow-y-auto space-y-4 px-1 max-h-[60vh]">
                 <div>
                   <Label htmlFor="provider">Provider *</Label>
                   <Select
@@ -440,15 +441,23 @@ export const TarifeSettings = () => {
                       />
                     </div>
 
-                    <div className="flex items-center gap-2 pt-2">
-                      <Checkbox
-                        id="has_bonus"
-                        checked={formData.has_bonus}
-                        onCheckedChange={(checked) => 
-                          setFormData({ ...formData, has_bonus: checked as boolean })
+                    <div>
+                      <Label htmlFor="has_bonus">Bonus *</Label>
+                      <Select
+                        value={formData.has_bonus.toString()}
+                        onValueChange={(value) =>
+                          setFormData({ ...formData, has_bonus: value === "true" })
                         }
-                      />
-                      <Label htmlFor="has_bonus">Bonus</Label>
+                        required
+                      >
+                        <SelectTrigger className="border">
+                          <SelectValue placeholder="Bonus wählen" />
+                        </SelectTrigger>
+                        <SelectContent>
+                          <SelectItem value="true">Ja</SelectItem>
+                          <SelectItem value="false">Nein</SelectItem>
+                        </SelectContent>
+                      </Select>
                     </div>
 
                     {formData.has_bonus && (
@@ -536,8 +545,9 @@ export const TarifeSettings = () => {
                     )}
                   </>
                 )}
+                </div>
 
-                <div className="flex gap-2 justify-end">
+                <div className="flex gap-2 justify-end pt-4 mt-2 border-t sticky bottom-0 bg-background">
                   <Button type="button" variant="outline" onClick={() => setIsCreateOpen(false)}>
                     Abbrechen
                   </Button>
