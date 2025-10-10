@@ -2286,7 +2286,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
             setPendingAppointmentUnitId(null);
           }
         }}>
-          <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[85vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
+          <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[85vw] overflow-hidden flex flex-col">
             <DialogHeader className="flex-shrink-0 px-2 pt-3 pb-2">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
@@ -2333,7 +2333,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       }
                     }}
                   >
-                    <SelectTrigger className="flex-1 h-10">
+                    <SelectTrigger className="flex-1 h-10 bg-background border-input">
                       <SelectValue placeholder="Std" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2357,7 +2357,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       }
                     }}
                   >
-                    <SelectTrigger className="flex-1 h-10">
+                    <SelectTrigger className="flex-1 h-10 bg-background border-input">
                       <SelectValue placeholder="Min" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2372,7 +2372,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     value={appointmentDuration} 
                     onValueChange={setAppointmentDuration}
                   >
-                    <SelectTrigger className="flex-1 h-10">
+                    <SelectTrigger className="flex-1 h-10 bg-background border-input">
                       <SelectValue placeholder="Dauer" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2388,8 +2388,8 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               {/* 3. MEHR INFOS COLLAPSIBLE (KUNDE & NOTIZEN) */}
               <div className="border rounded-md overflow-hidden mb-3">
                 <Collapsible open={appointmentMoreInfoOpen} onOpenChange={setAppointmentMoreInfoOpen}>
-                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-background hover:bg-muted/50 transition-colors">
-                    <span className="font-medium">Mehr Infos</span>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between px-3 py-2 bg-background hover:bg-muted/50 transition-colors">
+                    <span className="text-sm font-medium">Mehr Infos</span>
                     <ChevronDown className={`h-4 w-4 transition-transform ${appointmentMoreInfoOpen ? 'rotate-180' : ''}`} />
                   </CollapsibleTrigger>
                   
@@ -2419,46 +2419,47 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 </Collapsible>
               </div>
 
-              {/* 4. DATUM-NAVIGATION */}
-              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 mb-3">
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={prevMapDay}
-                  disabled={showAllAppointments}
-                  className="h-9 w-9"
-                >
-                  <ChevronLeft className="h-4 w-4" />
-                </Button>
+              {/* 4. NAVIGATION + ALLE BUTTON */}
+              <div className="flex items-center justify-between mb-2">
+                {/* Linke Seite: Pfeile + Datum */}
+                <div className="flex items-center gap-1.5">
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={prevMapDay}
+                    disabled={showAllAppointments}
+                    className="h-7 w-7 p-0 shrink-0"
+                  >
+                    <ChevronLeft className="h-3.5 w-3.5" />
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    disabled
+                    className="h-7 px-3 cursor-default hover:bg-background text-xs font-normal min-w-[100px]"
+                  >
+                    {showAllAppointments 
+                      ? 'Alle' 
+                      : mapDisplayDate?.toLocaleDateString('de-DE', { 
+                          weekday: 'short', 
+                          day: '2-digit', 
+                          month: '2-digit' 
+                        })
+                    }
+                  </Button>
+                  
+                  <Button
+                    variant="outline"
+                    size="icon"
+                    onClick={nextMapDay}
+                    disabled={showAllAppointments}
+                    className="h-7 w-7 p-0 shrink-0"
+                  >
+                    <ChevronRight className="h-3.5 w-3.5" />
+                  </Button>
+                </div>
                 
-                <Button
-                  variant="outline"
-                  disabled
-                  className="h-9 cursor-default hover:bg-background"
-                >
-                  {showAllAppointments 
-                    ? 'Alle' 
-                    : mapDisplayDate?.toLocaleDateString('de-DE', { 
-                        weekday: 'short', 
-                        day: '2-digit', 
-                        month: '2-digit' 
-                      })
-                  }
-                </Button>
-                
-                <Button
-                  variant="outline"
-                  size="icon"
-                  onClick={nextMapDay}
-                  disabled={showAllAppointments}
-                  className="h-9 w-9"
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-              </div>
-
-              {/* 5. KARTE */}
-              <div className="relative h-[300px] rounded-lg overflow-hidden border mb-3">
+                {/* Rechte Seite: Alle Button */}
                 <Button
                   variant="outline"
                   size="sm"
@@ -2466,10 +2467,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     setShowAllAppointments(true);
                     setMapDisplayDate(undefined);
                   }}
-                  className="absolute top-2 right-2 z-10 h-7 text-xs"
+                  className="h-7 text-xs px-3"
                 >
                   Alle
                 </Button>
+              </div>
+
+              {/* 5. KARTE */}
+              <div className="relative h-[150px] rounded-lg overflow-hidden border mb-3">
                 <AppointmentMap
                   appointments={displayedAppointments}
                   selectedDate={mapDisplayDate}
@@ -2481,7 +2486,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               {/* 6. TERMINLISTE */}
               <div className="space-y-2">
                 <h3 className="text-sm font-medium text-muted-foreground">
-                  Termine für {showAllAppointments ? 'Alle' : mapDisplayDate?.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' }) || 'gewähltes Datum'}
+                  Deine Termine
                 </h3>
                 
                 <div className="max-h-[200px] overflow-y-auto space-y-2">
