@@ -23,22 +23,32 @@ export const UserImpersonationButton = () => {
       const isMobile = window.innerWidth < 1024;
       if (isMobile) return; // Button is hidden on mobile anyway
       
-      const sidebarEl = document.querySelector('[data-sidebar="sidebar"]') as HTMLElement | null;
-      const width = sidebarEl ? sidebarEl.getBoundingClientRect().width : 224;
+      // Find the outer sidebar wrapper (the one that actually changes width)
+      const sidebarWrapper = document.querySelector('.group.peer[data-state]') as HTMLElement | null;
+      if (!sidebarWrapper) {
+        setLeftOffset(16);
+        return;
+      }
+      
+      // Get the first child (the transparent spacer div that transitions width)
+      const spacerEl = sidebarWrapper.firstElementChild as HTMLElement | null;
+      const width = spacerEl ? spacerEl.getBoundingClientRect().width : 224;
       setLeftOffset(Math.round(width) + 16); // Sidebar width + 1rem gap
     }
     
     computeOffset();
     
-    const sidebarEl = document.querySelector('[data-sidebar="sidebar"]') as HTMLElement | null;
-    const ro = sidebarEl ? new ResizeObserver(computeOffset) : null;
-    if (sidebarEl && ro) ro.observe(sidebarEl);
+    // Observe the spacer element
+    const sidebarWrapper = document.querySelector('.group.peer[data-state]') as HTMLElement | null;
+    const spacerEl = sidebarWrapper?.firstElementChild as HTMLElement | null;
+    const ro = spacerEl ? new ResizeObserver(computeOffset) : null;
+    if (spacerEl && ro) ro.observe(spacerEl);
     
     window.addEventListener('resize', computeOffset);
     
     return () => {
       window.removeEventListener('resize', computeOffset);
-      if (ro && sidebarEl) ro.unobserve(sidebarEl);
+      if (ro && spacerEl) ro.unobserve(spacerEl);
     };
   }, []);
 
