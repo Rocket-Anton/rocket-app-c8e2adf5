@@ -86,6 +86,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   
   // Refs for address cards to enable scrolling
   const addressCardRefs = useRef<(HTMLDivElement | null)[]>([]);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
   
   // Temporary input values (nur für Anzeige während der Eingabe)
   const [streetInput, setStreetInput] = useState("");
@@ -105,19 +106,41 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
-  // Verzögerter State-Wechsel für Dashboard-Layout
+  // Dashboard layout: Mobile always scrolls, Desktop always grid
   useEffect(() => {
-    if (isSidebarCollapsed) {
-      // Sidebar schließt: Dashboard fährt erst mit, dann umschalten
-      const timer = setTimeout(() => {
+    const handleResize = () => {
+      if (window.innerWidth < 768) {
+        // Mobile: Always scroll mode
+        setIsDashboardExpanded(false);
+      } else {
+        // Desktop: Always grid, responsive to sidebar state
         setIsDashboardExpanded(true);
-      }, 300); // 300ms = Dauer der Sidebar-Transition
-      return () => clearTimeout(timer);
-    } else {
-      // Sidebar öffnet: Dashboard sofort umschalten
-      setIsDashboardExpanded(false);
+      }
+    };
+
+    // Initial check
+    handleResize();
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Save scroll position when unmounting
+  useEffect(() => {
+    return () => {
+      if (scrollContainerRef.current) {
+        sessionStorage.setItem('listScrollPosition', scrollContainerRef.current.scrollTop.toString());
+      }
+    };
+  }, []);
+
+  // Restore scroll position on mount
+  useEffect(() => {
+    const savedPosition = sessionStorage.getItem('listScrollPosition');
+    if (savedPosition && scrollContainerRef.current) {
+      scrollContainerRef.current.scrollTop = parseInt(savedPosition, 10);
     }
-  }, [isSidebarCollapsed]);
+  }, []);
   
   const isMobile = useIsMobile();
 
@@ -677,7 +700,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             </SheetContent>
           </Sheet>
         </div>
-        <div className={`pt-4 pb-0 ${isMobile ? 'px-4' : 'px-4'} flex items-center justify-between gap-4`}>
+
+        {/* Main Content Area - with scroll ref */}
+        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto bg-background">
           <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
           {!isMobile && onProjectsChange && (
             <div className="flex-shrink-0">
@@ -691,20 +716,12 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
         {/* Metrics Dashboard */}
         <div className="pt-6">
-          <div className={cn(
-            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap,grid-template-columns] ease-in-out",
-            isDashboardExpanded 
-              ? "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4 duration-50"
-              : "duration-300"
-          )} style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+          <div className="grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4 transition-[padding,gap] duration-300 ease-in-out" style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
             <Card key={index} className={cn(
-              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] transition-[width] ease-in-out",
-              isDashboardExpanded 
-                ? "md:w-auto duration-50" 
-                : "lg:w-auto duration-300",
+              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] md:w-auto",
               isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
             )}>
                 {/* Shimmer Effect für Aufträge Card */}

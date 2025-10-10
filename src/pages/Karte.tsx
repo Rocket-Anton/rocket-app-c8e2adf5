@@ -97,6 +97,7 @@ function KarteContent() {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   const hasAutoZoomedRef = useRef(false);
+  const savedMapViewRef = useRef<{ center: [number, number]; zoom: number } | null>(null);
   
   // Map filter states
   const [statusFilter, setStatusFilter] = useState<string[]>([]);
@@ -110,6 +111,33 @@ function KarteContent() {
   const uniqueStreets = Array.from(new Set(addresses.map(a => a.street)));
   const uniqueCities = Array.from(new Set(addresses.map(a => a.city)));
   const uniquePostalCodes = Array.from(new Set(addresses.map(a => a.postalCode)));
+
+  // Load saved map view on mount
+  useEffect(() => {
+    const savedView = sessionStorage.getItem('mapView');
+    if (savedView) {
+      try {
+        savedMapViewRef.current = JSON.parse(savedView);
+      } catch (e) {
+        console.error('Error parsing saved map view:', e);
+      }
+    }
+  }, []);
+
+  // Save map view when unmounting
+  useEffect(() => {
+    return () => {
+      const map = mapInstance.current;
+      if (map) {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        sessionStorage.setItem('mapView', JSON.stringify({
+          center: [center.lng, center.lat],
+          zoom: zoom
+        }));
+      }
+    };
+  }, []);
 
   // Auth check
   useEffect(() => {
@@ -296,12 +324,15 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Default center on Hamburg when no project is selected
+    // Use saved view or default to Hamburg
+    const initialCenter = savedMapViewRef.current?.center || [9.9937, 53.5511];
+    const initialZoom = savedMapViewRef.current?.zoom || 12;
+
     const map = new mapboxgl.Map({
       container: mapContainer.current,
       style: 'mapbox://styles/mapbox/streets-v12',
-      center: [9.9937, 53.5511], // Hamburg coordinates
-      zoom: 12,
+      center: initialCenter as [number, number],
+      zoom: initialZoom,
       pitch: 45,
       bearing: -17.6,
       antialias: true,

@@ -588,7 +588,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
         <button
           onClick={() => onClose()}
           className={cn(
-            "fixed bottom-6 rounded-full shadow-2xl z-[9999] transition-all duration-300 hover:scale-110 group animate-in zoom-in overflow-hidden bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600",
+            "fixed bottom-6 rounded-full shadow-2xl z-10 transition-all duration-300 hover:scale-110 group animate-in zoom-in overflow-hidden bg-gradient-to-br from-blue-400 via-blue-500 to-blue-600",
             sidebarOffset,
             isMobile ? "h-12 w-12" : "h-16 w-16"
           )}
@@ -607,7 +607,7 @@ export function AIAssistant({ open, onClose, onShowAddresses, onSetFilter, onCle
       {/* Floating Chat Window */}
       {open && (
         <div className={cn(
-          "fixed bottom-6 flex flex-col bg-background rounded-2xl shadow-2xl border z-[9999] animate-in slide-in-from-bottom-4 fade-in duration-300",
+          "fixed bottom-6 flex flex-col bg-background rounded-2xl shadow-2xl border z-40 animate-in slide-in-from-bottom-4 fade-in duration-300",
           sidebarOffset,
           isMobile ? "w-[calc(100vw-2rem)] h-[70vh] max-w-sm" : "w-80 h-[420px]"
         )}>

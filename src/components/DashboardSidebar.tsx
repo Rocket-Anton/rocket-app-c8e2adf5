@@ -171,7 +171,15 @@ export const DashboardSidebar = () => {
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => state !== "collapsed" && setIsLauflistenExpanded(!isLauflistenExpanded)}
+                    onClick={() => {
+                      if (state !== "collapsed") {
+                        setIsLauflistenExpanded(!isLauflistenExpanded);
+                      }
+                      // Auto-navigate to first submenu item
+                      if (!isLauflistenExpanded) {
+                        navigate("/");
+                      }
+                    }}
                     className={`w-full text-sidebar-foreground font-medium rounded-xl py-1 ${
                       isInLauflistenSection
                         ? state === "collapsed" 
@@ -329,7 +337,15 @@ export const DashboardSidebar = () => {
                 {/* Projekte - mit Untermenüpunkten */}
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => state !== "collapsed" && setIsProjekteExpanded(!isProjekteExpanded)}
+                    onClick={() => {
+                      if (state !== "collapsed") {
+                        setIsProjekteExpanded(!isProjekteExpanded);
+                      }
+                      // Auto-navigate to first submenu item
+                      if (!isProjekteExpanded) {
+                        navigate("/settings/projects");
+                      }
+                    }}
                     className={`text-sidebar-foreground rounded-xl py-1 ${
                       state === "collapsed" 
                         ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
@@ -527,7 +543,15 @@ export const DashboardSidebar = () => {
                 {/* Provider - mit Untermenüpunkten */}
                 <SidebarMenuItem>
                   <SidebarMenuButton
-                    onClick={() => state !== "collapsed" && setIsProviderExpanded(!isProviderExpanded)}
+                    onClick={() => {
+                      if (state !== "collapsed") {
+                        setIsProviderExpanded(!isProviderExpanded);
+                      }
+                      // Auto-navigate to first submenu item
+                      if (!isProviderExpanded) {
+                        navigate("/settings/providers");
+                      }
+                    }}
                     className={`text-sidebar-foreground rounded-xl py-1 ${
                       state === "collapsed" 
                         ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
