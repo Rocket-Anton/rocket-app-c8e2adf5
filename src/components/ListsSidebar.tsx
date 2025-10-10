@@ -29,6 +29,7 @@ import { toast } from "sonner";
 import { EditListModal } from "./EditListModal";
 import { cn } from "@/lib/utils";
 import { useIsMobile } from "@/hooks/use-mobile";
+import { useIsDesktop } from "@/hooks/use-desktop";
 
 interface Laufliste {
   id: string;
@@ -74,6 +75,7 @@ type SortOption = 'newest' | 'oldest' | 'size-asc' | 'size-desc';
 
 export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProps) {
   const isMobile = useIsMobile();
+  const isDesktop = useIsDesktop();
   const [lists, setLists] = useState<Laufliste[]>([]);
   const [loading, setLoading] = useState(true);
   const [expandedLists, setExpandedLists] = useState<Set<string>>(new Set());
@@ -377,13 +379,15 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
 
   return (
     <>
-      <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={isMobile}>
+      <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={!isDesktop}>
         <SheetContent 
           side={isMobile ? "bottom" : "right"}
           className={cn(
             isMobile 
               ? "h-[60vh] w-full rounded-t-2xl" 
-              : "w-[320px] sm:w-[380px] md:fixed md:right-0 md:top-0 md:h-full md:z-50"
+              : isDesktop
+                ? "w-[320px] sm:w-[380px]"
+                : "w-[320px] sm:w-[380px] fixed right-0 top-0 h-full z-50"
           )}
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
