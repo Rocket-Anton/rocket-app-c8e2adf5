@@ -230,6 +230,51 @@ export type Database = {
         }
         Relationships: []
       }
+      events: {
+        Row: {
+          category: string
+          color: string | null
+          created_at: string | null
+          description: string | null
+          end_datetime: string
+          id: string
+          is_all_day: boolean | null
+          location: string | null
+          start_datetime: string
+          title: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_datetime: string
+          id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          start_datetime: string
+          title: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          category?: string
+          color?: string | null
+          created_at?: string | null
+          description?: string | null
+          end_datetime?: string
+          id?: string
+          is_all_day?: boolean | null
+          location?: string | null
+          start_datetime?: string
+          title?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       lauflisten: {
         Row: {
           address_count: number | null

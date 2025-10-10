@@ -259,24 +259,18 @@ export const DashboardSidebar = () => {
                 )}
 
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-1 ${
-                    state === "collapsed" 
-                      ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent relative" 
-                      : "justify-between hover:bg-sidebar-accent"
-                  }`}>
+                  <SidebarMenuButton 
+                    onClick={() => navigate("/kalender")}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${
+                      state === "collapsed" 
+                        ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
+                        : "hover:bg-sidebar-accent"
+                    } ${location.pathname === "/kalender" ? "bg-sidebar-accent" : ""}`}
+                  >
                     <div className="flex items-center gap-2.5">
                       <Calendar className="!w-4 !h-4 flex-shrink-0" />
-                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Termine</span>}
+                      {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Kalender</span>}
                     </div>
-                    {state !== "collapsed" ? (
-                      <Badge variant="destructive" className="w-5 h-5 p-0 text-xs flex items-center justify-center">
-                        1
-                      </Badge>
-                    ) : (
-                      <div className="absolute -top-1 -right-1 w-3 h-3 bg-red-500 rounded-full text-[8px] flex items-center justify-center text-white">
-                        1
-                      </div>
-                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 

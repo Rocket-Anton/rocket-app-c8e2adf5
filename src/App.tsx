@@ -6,6 +6,7 @@ import { ProjectProvider } from "@/contexts/ProjectContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Karte from "./pages/Karte";
+import Calendar from "./pages/Calendar";
 import Auth from "./pages/Auth";
 import Projects from "./pages/settings/Projects";
 import ProjectDetail from "./pages/settings/ProjectDetail";
@@ -36,6 +37,7 @@ const App = () => {
               <Route element={<ProtectedRoute />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/karte" element={<Karte />} />
+                <Route path="/kalender" element={<Calendar />} />
                 <Route path="/abrechnungen/abrechnen" element={<Abrechnen />} />
                 <Route path="/abrechnungen/gutschriften" element={<Gutschriften />} />
                 <Route path="/abrechnungen/kosten" element={<Kosten />} />
