@@ -743,8 +743,8 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     {
       title: "Conversion",
       value: orderCount > 0 
-        ? conversionRate.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%'
-        : "0,00%",
+        ? conversionRate.toLocaleString('de-DE', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) + '%'
+        : "0,0%",
       icon: TrendingUp,
       color: conversionStyle.textColor,
       bgColor: conversionStyle.bgColor,
