@@ -1966,7 +1966,18 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           onOpenChange={handleDialogChange}
           className="w-full h-full flex items-center justify-center"
         >
-          {renderCompleteCard(currentAddress, 0, 1)}
+          <div className="relative w-full h-full flex items-center justify-center">
+            {/* Click-catching layer for closing modal on outside click (desktop/tablet only) */}
+            <div
+              className="absolute inset-0 z-0"
+              onMouseDown={() => {
+                if (!isPhone) handleDialogChange(false);
+              }}
+            />
+            <div className="relative z-10">
+              {renderCompleteCard(currentAddress, 0, 1)}
+            </div>
+          </div>
         </MotionDialog>
 
         <AlertDialog open={confirmStatusUpdateOpen} onOpenChange={setConfirmStatusUpdateOpen}>
@@ -2178,6 +2189,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
         className="w-full h-full"
       >
         <div className="relative flex items-center justify-center w-full h-full">
+          {/* Click-catching layer for closing modal on outside click (desktop/tablet only) */}
+          <div
+            className="absolute inset-0 z-0"
+            onMouseDown={() => {
+              if (!isPhone && !isTablet) handleDialogChange(false);
+            }}
+          />
+
           {/* Navigation Arrow - Left */}
           {showArrows && !orderDialogOpen && !addUnitsDialogOpen && !deleteUnitDialogOpen && !keinInteresseDialogOpen && !potenzialDialogOpen && !addNoteDialogOpen && !addAppointmentDialogOpen && !confirmStatusUpdateOpen && (
             <NavigationArrow

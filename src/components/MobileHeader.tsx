@@ -101,11 +101,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
               {/* Header in menu */}
               <div className="p-4 border-b bg-[#0066FF] flex-shrink-0">
                 <div className="flex items-center gap-2">
-                  <img 
-                    src={rocketLogo} 
-                    alt="Rocket Logo" 
-                    className="h-8 w-auto"
-                  />
+                  <Menu className="h-5 w-5 text-white" />
                   <span className="font-semibold text-white">Menü</span>
                 </div>
               </div>
