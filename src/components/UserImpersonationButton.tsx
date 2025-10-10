@@ -19,29 +19,64 @@ export const UserImpersonationButton = () => {
   const { data: actualRole } = useActualUserRole();
 
   useEffect(() => {
+    let ro: ResizeObserver | null = null;
+    let mo: MutationObserver | null = null;
+
+    function findMeasureEl(): HTMLElement | null {
+      const container = document.querySelector('[data-side="left"][data-state]') as HTMLElement | null;
+      if (!container) return null;
+      // The width that visually pushes content is typically the first child (rail/gap)
+      const firstChild = container.firstElementChild as HTMLElement | null;
+      return firstChild || container;
+    }
+
     function computeOffset() {
       const isMobile = window.innerWidth < 1024;
       if (isMobile) return; // hidden on mobile
-      const sidebarEl = document.querySelector('[data-side="left"][data-state]') as HTMLElement | null;
-      if (!sidebarEl) {
+      const el = findMeasureEl();
+      if (!el) {
         setLeftOffset(16);
         return;
       }
-      const width = sidebarEl.getBoundingClientRect().width || 0;
+      const width = el.getBoundingClientRect().width || 0;
       setLeftOffset(Math.round(width) + 16);
     }
 
-    computeOffset();
+    function connectObservers() {
+      // Clean previous observer
+      if (ro) {
+        ro.disconnect();
+        ro = null;
+      }
+      const el = findMeasureEl();
+      if (el) {
+        ro = new ResizeObserver(() => computeOffset());
+        ro.observe(el);
+      }
+      computeOffset();
+    }
 
-    const sidebarEl = document.querySelector('[data-side="left"][data-state]') as HTMLElement | null;
-    const ro = sidebarEl ? new ResizeObserver(computeOffset) : null;
-    if (sidebarEl && ro) ro.observe(sidebarEl);
+    // Initial wiring
+    connectObservers();
+
+    // Reconnect observers whenever the sidebar DOM/attributes change (route or state changes)
+    mo = new MutationObserver(() => {
+      connectObservers();
+    });
+
+    mo.observe(document.body, {
+      attributes: true,
+      childList: true,
+      subtree: true,
+      attributeFilter: ['data-state', 'data-collapsible'],
+    });
 
     window.addEventListener('resize', computeOffset);
 
     return () => {
       window.removeEventListener('resize', computeOffset);
-      if (ro && sidebarEl) ro.unobserve(sidebarEl);
+      if (ro) ro.disconnect();
+      if (mo) mo.disconnect();
     };
   }, []);
 
