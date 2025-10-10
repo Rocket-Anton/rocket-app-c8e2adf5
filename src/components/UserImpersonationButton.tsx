@@ -86,7 +86,7 @@ export const UserImpersonationButton = () => {
   return (
     <>
       <div 
-        className="hidden lg:block fixed bottom-4 z-50 transition-[left] duration-150 ease-linear"
+        className="hidden lg:block fixed bottom-4 z-50 transition-[left] duration-200 ease-linear"
         style={{ left: `${leftOffset}px` }}
       >
         <Button
