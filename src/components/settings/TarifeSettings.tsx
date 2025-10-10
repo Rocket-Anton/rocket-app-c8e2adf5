@@ -85,7 +85,7 @@ interface Addon {
 export const TarifeSettings = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<"tarife" | "addons">("tarife");
+  const [activeTab, setActiveTab] = useState<"tarife" | "addons" | "gruppen">("tarife");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingItem, setEditingItem] = useState<Tariff | Addon | null>(null);
   const [formData, setFormData] = useState({ 
@@ -134,6 +134,32 @@ export const TarifeSettings = () => {
       }));
     },
     enabled: !!formData.provider_id && activeTab === "addons",
+    staleTime: 30 * 1000,
+  });
+
+  // Query für alle Gruppen (für Gruppen-Tab)
+  const { data: allGroups = [], isLoading: loadingGroups } = useQuery({
+    queryKey: ['all-addon-groups'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from("addon_groups")
+        .select(`
+          *,
+          provider:providers(name),
+          addons(id, name, is_active)
+        `)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      
+      return (data || []).map(group => ({
+        ...group,
+        provider_name: group.provider?.name,
+        addon_count: group.addons?.length || 0,
+        active_addons: group.addons?.filter(a => a.is_active).length || 0
+      }));
+    },
+    enabled: activeTab === "gruppen",
     staleTime: 30 * 1000,
   });
 
@@ -371,6 +397,34 @@ export const TarifeSettings = () => {
     }
   };
 
+  const handleDeleteGroup = async (groupId: string) => {
+    if (!confirm("Gruppe wirklich löschen? Alle Zusätze werden aus der Gruppe entfernt.")) return;
+
+    try {
+      // First, remove the group reference from all addons
+      await supabase
+        .from("addons")
+        .update({ addon_group_id: null, is_single_option: false })
+        .eq("addon_group_id", groupId);
+
+      // Then delete the group
+      const { error } = await supabase
+        .from("addon_groups")
+        .delete()
+        .eq("id", groupId);
+
+      if (error) throw error;
+
+      toast.success("Gruppe gelöscht");
+      queryClient.invalidateQueries({ queryKey: ['all-addon-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['addon-groups'] });
+      queryClient.invalidateQueries({ queryKey: ['addons'] });
+    } catch (error) {
+      console.error("Error deleting group:", error);
+      toast.error("Fehler beim Löschen der Gruppe");
+    }
+  };
+
   const handleDelete = async (id: string) => {
     const table = activeTab === "tarife" ? "tariffs" : "addons";
     if (!confirm(`${activeTab === "tarife" ? "Tarif" : "Zusatz"} wirklich löschen?`)) return;
@@ -401,7 +455,13 @@ export const TarifeSettings = () => {
   );
 
   const currentItems = activeTab === "tarife" ? filteredTariffs : filteredAddons;
-  const loading = activeTab === "tarife" ? loadingTariffs : loadingAddons;
+  const filteredGroups = allGroups.filter((group: any) => 
+    group.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+    group.provider_name?.toLowerCase().includes(searchQuery.toLowerCase())
+  );
+
+  const loading = activeTab === "tarife" ? loadingTariffs : activeTab === "addons" ? loadingAddons : loadingGroups;
+  const items = activeTab === "tarife" ? filteredTariffs : activeTab === "addons" ? filteredAddons : filteredGroups;
 
   return (
     <div>
@@ -410,9 +470,12 @@ export const TarifeSettings = () => {
         <div className="flex gap-2">
           <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingItem(null)}>
+              <Button 
+                onClick={() => setEditingItem(null)}
+                disabled={activeTab === "gruppen"}
+              >
                 <Plus className="w-4 h-4 mr-2" />
-                {activeTab === "tarife" ? "Neuer Tarif" : "Neuer Zusatz"}
+                {activeTab === "tarife" ? "Neuer Tarif" : activeTab === "addons" ? "Neuer Zusatz" : "Neue Gruppe"}
               </Button>
             </DialogTrigger>
             <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
@@ -870,6 +933,7 @@ export const TarifeSettings = () => {
         <TabsList>
           <TabsTrigger value="tarife">Tarife</TabsTrigger>
           <TabsTrigger value="addons">Zusätze</TabsTrigger>
+          <TabsTrigger value="gruppen">Gruppen</TabsTrigger>
         </TabsList>
       </Tabs>
 
@@ -877,7 +941,11 @@ export const TarifeSettings = () => {
         <div className="relative flex-1">
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input
-            placeholder={`${activeTab === "tarife" ? "Tarife" : "Zusätze"} suchen...`}
+            placeholder={`${
+              activeTab === "tarife" ? "Tarife" : 
+              activeTab === "addons" ? "Zusätze" : 
+              "Gruppen"
+            } suchen...`}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-9"
@@ -894,9 +962,15 @@ export const TarifeSettings = () => {
               </TableHead>
               <TableHead className="w-[300px]">Name</TableHead>
               <TableHead>Provider</TableHead>
-              <TableHead>Status</TableHead>
+              {activeTab !== "gruppen" && <TableHead>Status</TableHead>}
               {activeTab === "tarife" && (
                 <TableHead className="text-right">Provision Rakete</TableHead>
+              )}
+              {activeTab === "gruppen" && (
+                <>
+                  <TableHead className="text-right">Zusätze</TableHead>
+                  <TableHead className="text-right">Aktiv</TableHead>
+                </>
               )}
               <TableHead className="w-[80px] text-right">Action</TableHead>
             </TableRow>
@@ -931,8 +1005,8 @@ export const TarifeSettings = () => {
               currentItems.map((item) => (
                 <TableRow 
                   key={item.id}
-                  className="cursor-pointer hover:bg-muted/50"
-                  onClick={() => handleRowClick(item)}
+                  className={activeTab === "gruppen" ? "hover:bg-muted/50" : "cursor-pointer hover:bg-muted/50"}
+                  onClick={activeTab !== "gruppen" ? () => handleRowClick(item) : undefined}
                 >
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <Checkbox />
@@ -943,17 +1017,29 @@ export const TarifeSettings = () => {
                   <TableCell>
                     <p className="text-sm">{item.provider_name}</p>
                   </TableCell>
-                  <TableCell>
-                    <Badge variant={item.is_active ? "default" : "secondary"}>
-                      {item.is_active ? "Aktiv" : "Inaktiv"}
-                    </Badge>
-                  </TableCell>
+                  {activeTab !== "gruppen" && (
+                    <TableCell>
+                      <Badge variant={item.is_active ? "default" : "secondary"}>
+                        {item.is_active ? "Aktiv" : "Inaktiv"}
+                      </Badge>
+                    </TableCell>
+                  )}
                   {activeTab === "tarife" && 'commission_rocket' in item && (
                     <TableCell className="text-right">
                       <span className="font-medium">
                         {typeof item.commission_rocket === 'number' ? item.commission_rocket.toFixed(2) : '0.00'} €
                       </span>
                     </TableCell>
+                  )}
+                  {activeTab === "gruppen" && (
+                    <>
+                      <TableCell className="text-right">
+                        <Badge variant="outline">{(item as any).addon_count || 0}</Badge>
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <Badge variant="secondary">{(item as any).active_addons || 0}</Badge>
+                      </TableCell>
+                    </>
                   )}
                   <TableCell onClick={(e) => e.stopPropagation()}>
                     <DropdownMenu>
@@ -963,11 +1049,13 @@ export const TarifeSettings = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(item)}>
-                          Bearbeiten
-                        </DropdownMenuItem>
+                        {activeTab !== "gruppen" && (
+                          <DropdownMenuItem onClick={() => handleEdit(item)}>
+                            Bearbeiten
+                          </DropdownMenuItem>
+                        )}
                         <DropdownMenuItem 
-                          onClick={() => handleDelete(item.id)}
+                          onClick={() => activeTab === "gruppen" ? handleDeleteGroup(item.id) : handleDelete(item.id)}
                           className="text-destructive"
                         >
                           Löschen
