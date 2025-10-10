@@ -21,7 +21,7 @@ export const MonthView = ({ currentDate, events, onDayClick, onEventClick }: Mon
           <div
             key={day}
             className={cn(
-              "p-3 text-center text-sm font-semibold text-muted-foreground bg-muted/50",
+              "py-2 px-3 text-center text-xs font-semibold text-muted-foreground bg-muted/50",
               index < 6 && "border-r"
             )}
           >
