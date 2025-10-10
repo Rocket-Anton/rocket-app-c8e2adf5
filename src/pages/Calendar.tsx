@@ -295,10 +295,10 @@ export default function Calendar() {
             <div className="mx-2 sm:mx-4 rounded-xl border bg-card overflow-hidden flex flex-col flex-1 min-h-0 pb-[env(safe-area-inset-bottom,0)]">
               {/* Header Controls */}
               <div className="border-b px-2 sm:px-4 py-2 flex flex-col lg:flex-row items-start lg:items-center justify-between gap-3 lg:gap-4">
-                {/* Left: Date Badge + Month Info */}
-                <div className="flex items-center gap-3 w-full lg:w-auto">
+                 {/* Left: Date Badge + Month Info */}
+                <div className="flex items-center gap-3 w-full lg:w-auto flex-shrink-0">
                   {/* Date Badge */}
-                  <div className="flex flex-col items-center justify-center bg-muted/40 border rounded-md p-2 min-w-[48px] lg:min-w-[56px]">
+                  <div className="flex flex-col items-center justify-center bg-muted/40 border rounded-md p-2 min-w-[48px] lg:min-w-[56px] flex-shrink-0">
                     <div className="text-[9px] font-semibold tracking-wide text-muted-foreground uppercase">
                       {format(selectedDate, 'MMM', { locale: de }).toUpperCase()}
                     </div>
@@ -308,11 +308,11 @@ export default function Calendar() {
                   </div>
 
                   {/* Month & Period */}
-                  <div className="flex flex-col flex-1">
-                    <div className="text-sm lg:text-base font-semibold leading-tight">
+                  <div className="flex flex-col flex-1 min-w-[120px]">
+                    <div className="text-sm lg:text-base font-semibold leading-tight whitespace-nowrap">
                       {format(selectedDate, 'MMMM yyyy', { locale: de })}
                     </div>
-                    <div className="text-xs text-muted-foreground mt-0.5 hidden sm:block">
+                    <div className="text-xs text-muted-foreground mt-0.5 hidden sm:block whitespace-nowrap">
                       {getVisibleDateRange()}
                     </div>
                   </div>
@@ -392,7 +392,7 @@ export default function Calendar() {
 
                   {/* View Mode Select */}
                   <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
-                    <SelectTrigger className="h-8 w-[130px] rounded-md bg-muted/40 border border-input text-sm px-3">
+                    <SelectTrigger className="h-8 w-[100px] xl:w-[130px] rounded-md bg-muted/40 border border-input text-sm px-3">
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
@@ -406,10 +406,10 @@ export default function Calendar() {
                   <Button 
                     onClick={handleCreateEvent} 
                     size="sm"
-                    className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white"
+                    className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
                   >
-                    <Plus className="h-4 w-4 mr-1" />
-                    <span>Neuer Termin</span>
+                    <Plus className="h-4 w-4" />
+                    <span className="hidden xl:inline ml-1">Neuer Termin</span>
                   </Button>
                 </div>
 
