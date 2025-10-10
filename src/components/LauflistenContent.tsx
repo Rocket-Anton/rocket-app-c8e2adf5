@@ -51,6 +51,7 @@ import { format } from "date-fns";
 import { de } from "date-fns/locale";
 import { PieChart, Pie, Cell, ResponsiveContainer } from 'recharts';
 import rocketLogoWhite from "@/assets/rocket-logo-white.png";
+import { useSidebar } from "./ui/sidebar";
 
 // Removed mock addresses - now loading from database
 
@@ -62,6 +63,9 @@ interface LauflistenContentProps {
 }
 
 export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProjectIds = new Set(), onProjectsChange }: LauflistenContentProps) => {
+  const { state: sidebarState } = useSidebar();
+  const isSidebarCollapsed = sidebarState === "collapsed";
+  
   // State für Adressen
   const [addresses, setAddresses] = useState<any[]>([]);
   const [isLoadingAddresses, setIsLoadingAddresses] = useState(false);
@@ -672,11 +676,18 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
 
         {/* Metrics Dashboard */}
         <div className="pt-6">
-          <div className="flex w-full gap-3 pb-3 pl-4 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none" style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+          <div className={cn(
+            "flex w-full gap-3 pb-3 pl-4 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain",
+            isSidebarCollapsed ? "md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none md:pl-4" : "lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none lg:pl-4"
+          )} style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (
-              <Card key={index} className={`relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px] lg:w-auto ${isOrderCard ? `border-2 ${metric.borderColor} ${metric.bgColor}` : ''}`}>
+              <Card key={index} className={cn(
+                "relative p-4 hover:shadow-md transition-shadow flex-shrink-0 snap-start w-[160px]",
+                isSidebarCollapsed ? "md:w-auto" : "lg:w-auto",
+                isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
+              )}>
                 {/* Shimmer Effect für Aufträge Card */}
                 {isOrderCard && metric.shimmer && (
                   <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
@@ -730,7 +741,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             })}
             
             {/* Gauge Chart Card */}
-            <Card className={`relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px] lg:w-auto`}>
+            <Card className={cn(
+              "relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px]",
+              isSidebarCollapsed ? "md:w-auto" : "lg:w-auto"
+            )}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
                   <PopoverTrigger asChild>
