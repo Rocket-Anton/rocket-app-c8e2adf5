@@ -64,10 +64,12 @@ export default function Calendar() {
 
   const { start: rangeStart, end: rangeEnd } = getDateRange();
   
+  const isAdminLike = userRole === 'admin' || userRole === 'super_admin';
+
   // Fetch events with role-based filtering
   const { data: allEvents = [], isLoading } = useEvents(rangeStart, rangeEnd, {
     projectIds: selectedProjectIds && selectedProjectIds.size > 0 ? Array.from(selectedProjectIds) : undefined,
-    userIds: userRole === 'admin' && selectedUserIds.size > 0 ? Array.from(selectedUserIds) : undefined,
+    userIds: isAdminLike && selectedUserIds.size > 0 ? Array.from(selectedUserIds) : undefined,
     showTeamEvents: userRole === 'project_manager' ? showTeamEvents : undefined
   });
 
@@ -81,11 +83,11 @@ export default function Calendar() {
   const updateEvent = useUpdateEvent();
   const deleteEvent = useDeleteEvent();
 
-  // Fetch users (for admin)
+  // Fetch users (for admin and super_admin)
   const { data: users = [] } = useQuery({
     queryKey: ['users-list'],
     queryFn: async () => {
-      if (userRole !== 'admin') return [];
+      if (!isAdminLike) return [];
 
       const { data } = await supabase
         .from('profiles')
@@ -94,7 +96,7 @@ export default function Calendar() {
 
       return data || [];
     },
-    enabled: userRole === 'admin',
+    enabled: isAdminLike,
   });
 
   // Fetch projects (role-based)
@@ -104,7 +106,7 @@ export default function Calendar() {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return [];
 
-      if (userRole === 'admin') {
+      if (isAdminLike) {
         const { data } = await supabase
           .from('projects')
           .select('id, name, provider_id, providers(color)')
@@ -281,9 +283,9 @@ export default function Calendar() {
                   </div>
                 </div>
 
-                {/* Right: Filters + Controls */}
+                 {/* Right: Filters + Controls */}
                 <div className="flex items-center gap-2">
-                  {userRole === 'admin' && (
+                  {isAdminLike && (
                     <UserMultiSelect
                       users={users}
                       selectedUserIds={selectedUserIds}

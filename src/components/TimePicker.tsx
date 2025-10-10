@@ -1,161 +1,136 @@
-import { useEffect, useRef, useState } from "react";
+import { cn } from "@/lib/utils";
+import { useEffect, useRef } from "react";
 
 interface TimePickerProps {
-  hour: string;
-  minute: string;
-  onHourChange: (hour: string) => void;
-  onMinuteChange: (minute: string) => void;
+  hour: number;
+  minute: number;
+  onHourChange: (hour: number) => void;
+  onMinuteChange: (minute: number) => void;
 }
 
 export const TimePicker = ({ hour, minute, onHourChange, onMinuteChange }: TimePickerProps) => {
-  const hourRef = useRef<HTMLDivElement>(null);
-  const minuteRef = useRef<HTMLDivElement>(null);
-  const [isDraggingHour, setIsDraggingHour] = useState(false);
-  const [isDraggingMinute, setIsDraggingMinute] = useState(false);
+  const hourScrollRef = useRef<HTMLDivElement>(null);
+  const minuteScrollRef = useRef<HTMLDivElement>(null);
 
-  const hours = Array.from({ length: 14 }, (_, i) => (i + 8).toString().padStart(2, '0'));
-  const minutes = Array.from({ length: 60 }, (_, i) => i.toString().padStart(2, '0'));
+  const hours = Array.from({ length: 24 }, (_, i) => i); // 0-23
+  const minutes = Array.from({ length: 60 }, (_, i) => i); // 0-59
 
-  const ITEM_HEIGHT = 48;
-
-  const scrollToValue = (container: HTMLDivElement | null, value: string, items: string[]) => {
+  const scrollToValue = (container: HTMLDivElement | null, value: number, items: number[]) => {
     if (!container) return;
-    const index = items.findIndex(item => item === value);
+    const index = items.indexOf(value);
     if (index !== -1) {
-      container.scrollTop = index * ITEM_HEIGHT;
+      const scrollTop = index * 40 - 100; // 40px item height, center it
+      container.scrollTo({ top: scrollTop, behavior: 'smooth' });
     }
   };
 
   useEffect(() => {
-    scrollToValue(hourRef.current, hour, hours);
+    if (hourScrollRef.current) {
+      scrollToValue(hourScrollRef.current, hour, hours);
+    }
   }, []);
 
   useEffect(() => {
-    scrollToValue(minuteRef.current, minute, minutes);
+    if (minuteScrollRef.current) {
+      scrollToValue(minuteScrollRef.current, minute, minutes);
+    }
   }, []);
 
-  const handleScroll = (
-    e: React.UIEvent<HTMLDivElement>,
-    items: string[],
-    onChange: (value: string) => void,
-    setDragging: (dragging: boolean) => void
-  ) => {
+  const handleScroll = (e: React.UIEvent<HTMLDivElement>, type: 'hour' | 'minute') => {
     const container = e.currentTarget;
-    const scrollTop = container.scrollTop;
-    const index = Math.round(scrollTop / ITEM_HEIGHT);
+    const scrollTop = container.scrollTop + 100; // offset for padding
+    const index = Math.round(scrollTop / 40);
+    const items = type === 'hour' ? hours : minutes;
     const clampedIndex = Math.max(0, Math.min(items.length - 1, index));
     
-    if (!isDraggingHour && !isDraggingMinute) {
-      onChange(items[clampedIndex]);
-      // Snap to position
-      container.scrollTop = clampedIndex * ITEM_HEIGHT;
+    if (type === 'hour') {
+      onHourChange(items[clampedIndex]);
+    } else {
+      onMinuteChange(items[clampedIndex]);
     }
   };
 
-  const handleScrollEnd = (
-    container: HTMLDivElement | null,
-    items: string[],
-    onChange: (value: string) => void
-  ) => {
+  const handleScrollEnd = (container: HTMLDivElement | null, value: number, items: number[]) => {
     if (!container) return;
-    const scrollTop = container.scrollTop;
-    const index = Math.round(scrollTop / ITEM_HEIGHT);
-    const clampedIndex = Math.max(0, Math.min(items.length - 1, index));
-    onChange(items[clampedIndex]);
-    container.scrollTop = clampedIndex * ITEM_HEIGHT;
+    scrollToValue(container, value, items);
   };
 
   return (
-    <div className="flex items-center justify-center gap-2 bg-muted/50 rounded-lg p-6 h-[200px]">
+    <div className="relative flex gap-2 p-6 bg-popover">
       {/* Hours */}
-      <div className="relative h-full flex-1">
+      <div className="flex flex-col items-center gap-3">
+        <div className="text-sm font-semibold text-foreground">Stunde</div>
         <div 
-          ref={hourRef}
-          className="h-full overflow-y-scroll scrollbar-hide snap-y snap-mandatory"
-          onScroll={(e) => handleScroll(e, hours, onHourChange, setIsDraggingHour)}
-          onMouseDown={() => setIsDraggingHour(true)}
-          onMouseUp={() => {
-            setIsDraggingHour(false);
-            handleScrollEnd(hourRef.current, hours, onHourChange);
-          }}
-          onTouchStart={() => setIsDraggingHour(true)}
-          onTouchEnd={() => {
-            setIsDraggingHour(false);
-            handleScrollEnd(hourRef.current, hours, onHourChange);
-          }}
-          style={{ 
-            paddingTop: `${ITEM_HEIGHT * 2}px`, 
-            paddingBottom: `${ITEM_HEIGHT * 2}px`,
-          }}
+          ref={hourScrollRef}
+          className="relative h-[240px] w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+          onScroll={(e) => handleScroll(e, 'hour')}
         >
+          {/* Top padding */}
+          <div className="h-[100px]" />
+          
           {hours.map((h) => (
             <div
               key={h}
-              className="snap-center flex items-center justify-center transition-all duration-200"
-              style={{ 
-                height: `${ITEM_HEIGHT}px`,
-                fontSize: h === hour ? '2.5rem' : '1.5rem',
-                color: h === hour ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                opacity: h === hour ? 1 : 0.3,
-                fontWeight: h === hour ? 600 : 400,
+              className={cn(
+                "h-10 flex items-center justify-center snap-center cursor-pointer transition-all rounded-md mx-1",
+                h === hour 
+                  ? "text-xl font-bold text-primary bg-primary/10 scale-110" 
+                  : "text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+              onClick={() => {
+                onHourChange(h);
+                scrollToValue(hourScrollRef.current!, h, hours);
               }}
             >
-              {h}
+              {String(h).padStart(2, '0')}
             </div>
           ))}
-        </div>
-        {/* Center highlight line */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[48px] pointer-events-none">
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-border"></div>
-          <div className="absolute inset-x-0 bottom-0 h-[1px] bg-border"></div>
+          
+          {/* Bottom padding */}
+          <div className="h-[100px]" />
         </div>
       </div>
 
       {/* Separator */}
-      <div className="text-3xl font-semibold text-muted-foreground">:</div>
+      <div className="flex items-center justify-center text-2xl font-bold pt-9 text-primary">:</div>
 
       {/* Minutes */}
-      <div className="relative h-full flex-1">
+      <div className="flex flex-col items-center gap-3">
+        <div className="text-sm font-semibold text-foreground">Minute</div>
         <div 
-          ref={minuteRef}
-          className="h-full overflow-y-scroll scrollbar-hide snap-y snap-mandatory"
-          onScroll={(e) => handleScroll(e, minutes, onMinuteChange, setIsDraggingMinute)}
-          onMouseDown={() => setIsDraggingMinute(true)}
-          onMouseUp={() => {
-            setIsDraggingMinute(false);
-            handleScrollEnd(minuteRef.current, minutes, onMinuteChange);
-          }}
-          onTouchStart={() => setIsDraggingMinute(true)}
-          onTouchEnd={() => {
-            setIsDraggingMinute(false);
-            handleScrollEnd(minuteRef.current, minutes, onMinuteChange);
-          }}
-          style={{ 
-            paddingTop: `${ITEM_HEIGHT * 2}px`, 
-            paddingBottom: `${ITEM_HEIGHT * 2}px`,
-          }}
+          ref={minuteScrollRef}
+          className="relative h-[240px] w-[70px] overflow-y-auto snap-y snap-mandatory scroll-smooth scrollbar-thin scrollbar-thumb-primary/20 scrollbar-track-transparent"
+          onScroll={(e) => handleScroll(e, 'minute')}
         >
+          {/* Top padding */}
+          <div className="h-[100px]" />
+          
           {minutes.map((m) => (
             <div
               key={m}
-              className="snap-center flex items-center justify-center transition-all duration-200"
-              style={{ 
-                height: `${ITEM_HEIGHT}px`,
-                fontSize: m === minute ? '2.5rem' : '1.5rem',
-                color: m === minute ? 'hsl(var(--foreground))' : 'hsl(var(--muted-foreground))',
-                opacity: m === minute ? 1 : 0.3,
-                fontWeight: m === minute ? 600 : 400,
+              className={cn(
+                "h-10 flex items-center justify-center snap-center cursor-pointer transition-all rounded-md mx-1",
+                m === minute 
+                  ? "text-xl font-bold text-primary bg-primary/10 scale-110" 
+                  : "text-sm text-muted-foreground hover:text-foreground hover:bg-muted"
+              )}
+              onClick={() => {
+                onMinuteChange(m);
+                scrollToValue(minuteScrollRef.current!, m, minutes);
               }}
             >
-              {m}
+              {String(m).padStart(2, '0')}
             </div>
           ))}
+          
+          {/* Bottom padding */}
+          <div className="h-[100px]" />
         </div>
-        {/* Center highlight line */}
-        <div className="absolute inset-x-0 top-1/2 -translate-y-1/2 h-[48px] pointer-events-none">
-          <div className="absolute inset-x-0 top-0 h-[1px] bg-border"></div>
-          <div className="absolute inset-x-0 bottom-0 h-[1px] bg-border"></div>
-        </div>
+      </div>
+
+      {/* Selection indicator line */}
+      <div className="absolute left-0 right-0 top-[calc(50%+1.125rem)] h-10 pointer-events-none">
+        <div className="h-full border-y-2 border-primary/30 bg-primary/5 rounded" />
       </div>
     </div>
   );

@@ -9,6 +9,7 @@ import { Switch } from "@/components/ui/switch";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { CalendarEvent } from "@/utils/calendar";
 import { AddressAutocomplete } from "./AddressAutocomplete";
+import { TimePicker } from "@/components/TimePicker";
 import { useState, useEffect } from "react";
 import { format } from "date-fns";
 import { de } from "date-fns/locale";
@@ -130,12 +131,14 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-md max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
-        </DialogHeader>
+      <DialogContent className="max-w-md p-0 max-h-[90vh]">
+        <div className="flex h-full flex-col">
+          <DialogHeader className="px-6 pt-6">
+            <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
+          </DialogHeader>
 
-        <div className="space-y-4 py-4">
+        <div className="flex-1 overflow-y-auto px-6 py-4">
+        <div className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
             <Label htmlFor="title">Titel*</Label>
@@ -163,13 +166,13 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                   {date ? format(date, 'PPP', { locale: de }) : <span>Datum wählen</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0">
+              <PopoverContent className="w-auto p-0 z-[10020]" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
                   onSelect={setDate}
                   initialFocus
-                  className="pointer-events-auto"
+                  className="p-3 pointer-events-auto"
                 />
               </PopoverContent>
             </Popover>
@@ -179,7 +182,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
           <div className="space-y-2">
             <Label htmlFor="event-type">Terminart</Label>
             <Select value={eventType} onValueChange={(value: 'business' | 'personal') => setEventType(value)}>
-              <SelectTrigger id="event-type">
+              <SelectTrigger id="event-type" className="border border-input bg-background">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -204,29 +207,47 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
                 <Label htmlFor="start-time">Von</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="start-time"
-                    type="time"
-                    value={startTime}
-                    onChange={(e) => setStartTime(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <Clock className="mr-2 h-4 w-4" />
+                      {startTime || "00:00"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[10020]" align="start">
+                    <TimePicker
+                      hour={parseInt(startTime.split(':')[0]) || 0}
+                      minute={parseInt(startTime.split(':')[1]) || 0}
+                      onHourChange={(h) => setStartTime(`${String(h).padStart(2, '0')}:${startTime.split(':')[1] || '00'}`)}
+                      onMinuteChange={(m) => setStartTime(`${startTime.split(':')[0] || '00'}:${String(m).padStart(2, '0')}`)}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="end-time">Bis</Label>
-                <div className="relative">
-                  <Clock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="end-time"
-                    type="time"
-                    value={endTime}
-                    onChange={(e) => setEndTime(e.target.value)}
-                    className="pl-10"
-                  />
-                </div>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className="w-full justify-start text-left font-normal"
+                    >
+                      <Clock className="mr-2 h-4 w-4" />
+                      {endTime || "00:00"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[10020]" align="start">
+                    <TimePicker
+                      hour={parseInt(endTime.split(':')[0]) || 0}
+                      minute={parseInt(endTime.split(':')[1]) || 0}
+                      onHourChange={(h) => setEndTime(`${String(h).padStart(2, '0')}:${endTime.split(':')[1] || '00'}`)}
+                      onMinuteChange={(m) => setEndTime(`${endTime.split(':')[0] || '00'}:${String(m).padStart(2, '0')}`)}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
             </div>
           )}
@@ -250,14 +271,14 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
             />
           </div>
         </div>
+        </div>
 
-        <DialogFooter className="flex justify-between">
+        <DialogFooter className="sticky bottom-0 bg-background border-t px-6 py-4 gap-2 flex-row justify-between">
           {event && onDelete ? (
             <Button
               variant="destructive"
               size="sm"
               onClick={handleDelete}
-              className="mr-auto"
             >
               <Trash2 className="w-4 h-4 mr-2" />
               Löschen
@@ -272,6 +293,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
             </Button>
           </div>
         </DialogFooter>
+        </div>
       </DialogContent>
     </Dialog>
   );

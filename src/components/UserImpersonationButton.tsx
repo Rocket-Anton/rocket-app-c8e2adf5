@@ -9,7 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useActualUserRole } from '@/hooks/useUserRole';
-import impersonationIcon from '@/assets/user-impersonation-icon.png';
+import impersonationIcon from '@/assets/users-icon.png';
 
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -49,7 +49,7 @@ export const UserImpersonationButton = () => {
 
   return (
     <>
-      <div className="hidden lg:block fixed bottom-6 left-[calc(var(--sidebar-width)+1.5rem)] z-50 transition-all">
+      <div className="fixed bottom-4 left-4 lg:left-[calc(var(--sidebar-width)+1.5rem)] z-50 transition-all">
         <Button
           onClick={() => setIsOpen(true)}
           className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all p-0"

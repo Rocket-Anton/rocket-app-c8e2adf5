@@ -326,13 +326,17 @@ function KarteContent() {
     let initialBearing: number = -17.6;
     let initialPitch: number = 45;
 
-    if (savedMapViewRef.current) {
-      // Use saved view if available
+    // Always use Hamburg when no projects are selected
+    if (selectedProjectIds.size === 0) {
+      initialCenter = [9.9937, 53.5511];
+      initialZoom = 12;
+    } else if (savedMapViewRef.current) {
+      // Use saved view if available AND projects are selected
       initialCenter = savedMapViewRef.current.center;
       initialZoom = savedMapViewRef.current.zoom;
       initialBearing = savedMapViewRef.current.bearing ?? -17.6;
       initialPitch = savedMapViewRef.current.pitch ?? 45;
-    } else if (selectedProjectIds.size > 0 && addresses.length > 0) {
+    } else if (addresses.length > 0) {
       // Zoom to project coordinates if projects are selected
       const projectAddresses = addresses.filter(addr => 
         addr.projectId && selectedProjectIds.has(addr.projectId)
@@ -453,16 +457,19 @@ function KarteContent() {
     if (!map) return;
     
     const saveView = () => {
-      const center = map.getCenter();
-      const zoom = map.getZoom();
-      const bearing = map.getBearing();
-      const pitch = map.getPitch();
-      sessionStorage.setItem('mapView', JSON.stringify({
-        center: [center.lng, center.lat],
-        zoom: zoom,
-        bearing: bearing,
-        pitch: pitch
-      }));
+      // Only save view if projects are selected
+      if (selectedProjectIds.size > 0) {
+        const center = map.getCenter();
+        const zoom = map.getZoom();
+        const bearing = map.getBearing();
+        const pitch = map.getPitch();
+        sessionStorage.setItem('mapView', JSON.stringify({
+          center: [center.lng, center.lat],
+          zoom: zoom,
+          bearing: bearing,
+          pitch: pitch
+        }));
+      }
     };
     
     // Save on every map movement, rotation, or pitch change
@@ -475,7 +482,23 @@ function KarteContent() {
       map.off('rotateend', saveView);
       map.off('pitchend', saveView);
     };
-  }, []);
+  }, [selectedProjectIds]);
+
+  // Fly to Hamburg when all projects are deselected
+  useEffect(() => {
+    const map = mapInstance.current;
+    if (!map) return;
+    
+    if (selectedProjectIds.size === 0) {
+      map.flyTo({
+        center: [9.9937, 53.5511],
+        zoom: 12,
+        bearing: -17.6,
+        pitch: 45
+      });
+      sessionStorage.removeItem('mapView');
+    }
+  }, [selectedProjectIds]);
 
   // Toggle drawing mode (Mapbox Draw)
   const toggleDrawingMode = () => {
