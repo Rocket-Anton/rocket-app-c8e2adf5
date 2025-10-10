@@ -3,7 +3,9 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { ProjectProvider } from "@/contexts/ProjectContext";
+import { ImpersonationProvider } from "@/contexts/ImpersonationContext";
 import { ProtectedRoute } from "@/components/ProtectedRoute";
+import { UserImpersonationButton } from "@/components/UserImpersonationButton";
 import Index from "./pages/Index";
 import Karte from "./pages/Karte";
 import Calendar from "./pages/Calendar";
@@ -30,8 +32,9 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <ProjectProvider>
-          <BrowserRouter>
+        <ImpersonationProvider>
+          <ProjectProvider>
+            <BrowserRouter>
             <Routes>
               <Route path="/auth" element={<Auth />} />
               <Route element={<ProtectedRoute />}>
@@ -56,9 +59,11 @@ const App = () => {
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>
+            <UserImpersonationButton />
           </BrowserRouter>
           <Toaster />
         </ProjectProvider>
+        </ImpersonationProvider>
       </TooltipProvider>
     </QueryClientProvider>
   );
