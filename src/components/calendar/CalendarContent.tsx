@@ -200,9 +200,12 @@ export const CalendarContent = ({
           </div>
 
           {/* Right: Filters + Controls (Desktop) */}
-          <div className="hidden lg:flex items-center gap-2 justify-end flex-wrap">
+          <div className="hidden lg:flex items-center gap-2 justify-end flex-nowrap transition-all duration-300">
             {isAdminLike && (
-              <div className={showFullText ? "" : "lg:[&_span]:hidden xl:[&_span]:inline"}>
+              <div className={cn(
+                "transition-all duration-300",
+                showFullText ? "" : "lg:[&_span]:hidden xl:[&_span]:inline"
+              )}>
                 <UserMultiSelect
                   users={users}
                   selectedUserIds={selectedUserIds}
@@ -212,7 +215,10 @@ export const CalendarContent = ({
             )}
 
             {projects.length > 0 && (
-              <div className={showFullText ? "" : "lg:[&_span]:hidden xl:[&_span]:inline"}>
+              <div className={cn(
+                "transition-all duration-300",
+                showFullText ? "" : "lg:[&_span]:hidden xl:[&_span]:inline"
+              )}>
                 <ProjectMultiSelect
                   projects={projects}
                   selectedProjectIds={selectedProjectIds}
@@ -223,7 +229,7 @@ export const CalendarContent = ({
 
             {userRole === 'project_manager' && (
               <Select value={showTeamEvents ? 'team' : 'own'} onValueChange={(v) => setShowTeamEvents(v === 'team')}>
-                <SelectTrigger className="h-8 rounded-md bg-muted/40 border border-input text-sm px-3">
+                <SelectTrigger className="h-8 rounded-md bg-muted/40 border border-input text-sm px-3 transition-all duration-300">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
@@ -233,31 +239,33 @@ export const CalendarContent = ({
               </Select>
             )}
 
-            {/* Navigation Arrows */}
-            <div className="flex items-center gap-1">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handlePrevious}
-                className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={handleNext}
-                className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
+            {/* Navigation Arrows - Show after filters when sidebar is open */}
+            {!showFullText && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevious}
+                  className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNext}
+                  className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
 
             {/* View Mode Select */}
             <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
               <SelectTrigger className={cn(
-                "h-8 rounded-md bg-muted/40 border border-input text-sm px-3",
+                "h-8 rounded-md bg-muted/40 border border-input text-sm px-3 transition-all duration-300",
                 showFullText ? "w-[130px]" : "w-[100px] xl:w-[130px]"
               )}>
                 <SelectValue />
@@ -269,11 +277,34 @@ export const CalendarContent = ({
               </SelectContent>
             </Select>
 
+            {/* Navigation Arrows - Show before "Neuer Termin" when sidebar is closed */}
+            {showFullText && (
+              <div className="flex items-center gap-1">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handlePrevious}
+                  className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
+                >
+                  <ChevronLeft className="h-4 w-4" />
+                </Button>
+                
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleNext}
+                  className="h-8 w-8 p-0 rounded-md border-muted-foreground/20 shadow-sm hover:shadow"
+                >
+                  <ChevronRight className="h-4 w-4" />
+                </Button>
+              </div>
+            )}
+
             {/* Create Event Button */}
             <Button 
               onClick={handleCreateEvent} 
               size="sm"
-              className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+              className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap transition-all duration-300"
             >
               <Plus className="h-4 w-4" />
               {showFullText && <span className="ml-1">Neuer Termin</span>}
