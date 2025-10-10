@@ -91,7 +91,7 @@ export function ProjectSelector({ selectedProjectIds, onProjectsChange, onShowPr
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
 
       console.log('ProjectSelector: User role:', userRole, 'Error:', rolesError);
 

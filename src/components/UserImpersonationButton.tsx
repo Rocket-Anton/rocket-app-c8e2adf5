@@ -14,9 +14,10 @@ import impersonationIcon from '@/assets/users-icon.png';
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
-  const { data: actualRole } = useActualUserRole();
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
+  const { data: actualRole } = useActualUserRole();
 
+  // Early return MUST be after all hooks
   const { data: users = [] } = useQuery({
     queryKey: ['all-users'],
     queryFn: async () => {
@@ -28,7 +29,7 @@ export const UserImpersonationButton = () => {
       if (error) throw error;
       return data;
     },
-    enabled: isOpen,
+    enabled: isOpen && actualRole === 'super_admin',
   });
 
   if (actualRole !== 'super_admin') return null;

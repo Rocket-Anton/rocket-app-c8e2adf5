@@ -551,7 +551,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
-        .single();
+        .maybeSingle();
       
       const isAdminLike = roleData?.role === 'admin' || roleData?.role === 'super_admin';
       const addressIds = filteredAddresses.map(a => a.id);
