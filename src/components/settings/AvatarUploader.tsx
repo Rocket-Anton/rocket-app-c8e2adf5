@@ -213,7 +213,7 @@ export const AvatarUploader = ({ onAvatarProcessed, currentAvatarUrl }: AvatarUp
           </DialogHeader>
           
           <div className="space-y-4">
-            <div className="relative h-80 w-full bg-muted">
+            <div className="relative h-72 w-full bg-muted">
               {imageSrc && (
                 <Cropper
                   image={imageSrc}
