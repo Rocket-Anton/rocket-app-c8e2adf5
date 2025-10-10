@@ -9,14 +9,12 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useActualUserRole } from '@/hooks/useUserRole';
-import { useSidebar } from '@/components/ui/sidebar';
 
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
-  const { state } = useSidebar();
 
   // Early return MUST be after all hooks
   const { data: users = [] } = useQuery({
@@ -49,13 +47,9 @@ export const UserImpersonationButton = () => {
     setImpersonatedUser(null, null);
   };
 
-  const leftPosition = state === "collapsed" 
-    ? "left-[calc(3.5rem+1rem)]"
-    : "left-[calc(var(--sidebar-width)+1rem)]";
-
   return (
     <>
-      <div className={`fixed bottom-4 ${leftPosition} z-50 transition-all duration-300`}>
+      <div className="fixed bottom-4 left-4 lg:left-[calc(var(--sidebar-width)+1rem)] z-50 transition-all duration-300">
         <Button
           onClick={() => setIsOpen(true)}
           className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all p-0"
