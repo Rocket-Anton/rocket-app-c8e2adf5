@@ -78,7 +78,7 @@ export const AddressAutocomplete = ({ value, onChange, projectFilter, className 
     <div ref={containerRef} className={cn("relative space-y-2", className)}>
       <Label>Adresse</Label>
       <div className="relative">
-        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground z-10" />
+        <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
         <Input
           value={query}
           onChange={handleInputChange}

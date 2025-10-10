@@ -137,7 +137,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
             <DialogTitle>{event ? 'Termin bearbeiten' : 'Neuer Termin'}</DialogTitle>
           </DialogHeader>
 
-        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0">
+        <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-4 min-h-0 touch-pan-y [-webkit-overflow-scrolling:touch]" style={{ overscrollBehavior: 'contain' }}>
         <div className="space-y-4">
           {/* Title */}
           <div className="space-y-2">
@@ -166,7 +166,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                   {date ? format(date, 'PPP', { locale: de }) : <span>Datum wählen</span>}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 z-[10020]" align="start">
+              <PopoverContent className="w-auto p-0 z-[10320]" align="start">
                 <Calendar
                   mode="single"
                   selected={date}
@@ -217,7 +217,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                       {startTime || "00:00"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[10020]" align="start">
+                  <PopoverContent className="w-auto p-0 z-[10320]" align="start">
                     <TimePicker
                       hour={parseInt(startTime.split(':')[0]) || 0}
                       minute={parseInt(startTime.split(':')[1]) || 0}
@@ -239,7 +239,7 @@ export const EventDialog = ({ open, onOpenChange, event, defaultDate, onSave, on
                       {endTime || "00:00"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 z-[10020]" align="start">
+                  <PopoverContent className="w-auto p-0 z-[10320]" align="start">
                     <TimePicker
                       hour={parseInt(endTime.split(':')[0]) || 0}
                       minute={parseInt(endTime.split(':')[1]) || 0}
