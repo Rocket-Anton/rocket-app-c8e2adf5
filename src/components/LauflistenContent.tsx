@@ -677,9 +677,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
         {/* Metrics Dashboard */}
         <div className="pt-6">
           <div className={cn(
-            "flex w-full gap-3 pb-3 pl-4 overflow-x-auto snap-x snap-proximity scrollbar-hide touch-pan-x overscroll-x-contain",
-            isSidebarCollapsed ? "md:grid md:grid-cols-4 md:gap-4 md:overflow-visible md:snap-none md:px-4" : "lg:grid lg:grid-cols-4 lg:gap-4 lg:overflow-visible lg:snap-none lg:px-4"
-          )} style={{ WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+            "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[gap,padding,grid-template-columns] duration-300 ease-in-out",
+            isSidebarCollapsed && "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4"
+          )} style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
             {metricsData.map((metric, index) => {
               const isOrderCard = metric.isOrderCard;
               return (

@@ -363,13 +363,14 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
   const [appointmentMoreInfoOpen, setAppointmentMoreInfoOpen] = useState(false);
   const [pendingAppointmentUnitId, setPendingAppointmentUnitId] = useState<number | null>(null);
   const [selectedAppointmentId, setSelectedAppointmentId] = useState<number | null>(null);
-  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number, date: string, time: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
+  const [appointments, setAppointments] = useState<Array<{id: number, unitId: number | null, date: string, time: string, duration: string, customer: string, notes: string, address: string, coordinates: [number, number]}>>([
     // Dummy-Termine in Köln-Heumar, Am Alten Turm
     {
       id: 1,
       unitId: 1,
       date: new Date().toLocaleDateString('de-DE'),
       time: "10:00",
+      duration: "30",
       customer: "Max Mustermann",
       notes: "Erstbesichtigung",
       address: "Am Alten Turm 1, 51107 Köln",
@@ -380,6 +381,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       unitId: 2,
       date: new Date().toLocaleDateString('de-DE'),
       time: "14:30",
+      duration: "45",
       customer: "Anna Schmidt",
       notes: "Nachbesprechung",
       address: "Am Alten Turm 2, 51107 Köln",
@@ -390,6 +392,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       unitId: 3,
       date: new Date(Date.now() + 86400000).toLocaleDateString('de-DE'), // Tomorrow
       time: "09:00",
+      duration: "30",
       customer: "Peter Müller",
       notes: "",
       address: "Am Alten Turm 4, 51107 Köln",
@@ -400,6 +403,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
       unitId: 4,
       date: new Date(Date.now() + 86400000).toLocaleDateString('de-DE'), // Tomorrow
       time: "16:00",
+      duration: "60",
       customer: "Lisa Weber",
       notes: "Vertragsübergabe",
       address: "Am Alten Turm 5, 51107 Köln",
@@ -1388,8 +1392,49 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
     }));
   };
 
+  // Create dummy appointments near current address
+  const createDummyAppointments = (currentAddress: Address) => {
+    const baseCoords: [number, number] = [
+      currentAddress.coordinates?.[0] || 10.0310,
+      currentAddress.coordinates?.[1] || 47.5580
+    ];
+    
+    const dummyAppointments = [
+      {
+        id: Date.now() + 1000,
+        unitId: null,
+        date: new Date().toLocaleDateString('de-DE'),
+        time: "10:00",
+        duration: "30",
+        customer: "Max Mustermann",
+        notes: "Beratungsgespräch",
+        address: `${currentAddress.street} 4, ${currentAddress.postalCode} ${currentAddress.city}`,
+        coordinates: [baseCoords[0] + 0.0002, baseCoords[1] + 0.0001] as [number, number]
+      },
+      {
+        id: Date.now() + 2000,
+        unitId: null,
+        date: new Date().toLocaleDateString('de-DE'),
+        time: "14:30",
+        duration: "45",
+        customer: "Anna Schmidt",
+        notes: "Installation",
+        address: `Am Burrenkeller 20, ${currentAddress.postalCode} ${currentAddress.city}`,
+        coordinates: [baseCoords[0] - 0.0003, baseCoords[1] + 0.0002] as [number, number]
+      }
+    ];
+    
+    setAppointments(prev => [...prev, ...dummyAppointments]);
+  };
+
   const handleAddAppointment = (unitId: number) => {
     setPendingAppointmentUnitId(unitId);
+    
+    // Create dummy appointments only once when dialog opens first time
+    if (appointments.length === 0 && currentAddress) {
+      createDummyAppointments(currentAddress);
+    }
+    
     // Set map to show appointments for selected date when dialog opens
     if (appointmentDate) {
       setMapDisplayDate(appointmentDate);
@@ -2242,13 +2287,13 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
           }
         }}>
           <DialogContent className="z-[10300] max-h-[75vh] max-w-md w-[85vw] overflow-hidden flex flex-col" onClick={(e) => e.stopPropagation()}>
-            <DialogHeader className="flex-shrink-0 px-2 pt-6 pb-2">
+            <DialogHeader className="flex-shrink-0 px-2 pt-3 pb-2">
               <DialogTitle>Termin hinzufügen</DialogTitle>
             </DialogHeader>
             
-            <div className="overflow-y-auto flex-1 px-2 pt-4 pb-4 bg-muted rounded-lg mt-2 mx-0 mb-0">
+            <div className="overflow-y-auto flex-1 px-3 pt-3 pb-4 bg-muted rounded-lg mt-2 mx-0 mb-0">
               {/* 1. DATUM WÄHLEN */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <label className="text-sm font-medium mb-1.5 block">Datum *</label>
                 <Popover open={datePopoverOpen} onOpenChange={setDatePopoverOpen}>
                   <PopoverTrigger asChild>
@@ -2275,7 +2320,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* 2. UHRZEIT - ALLE 3 IN EINER REIHE */}
-              <div className="mb-4">
+              <div className="mb-3">
                 <label className="text-sm font-medium mb-1.5 block">Uhrzeit *</label>
                 <div className="flex gap-2 items-center">
                   {/* Stunden */}
@@ -2288,7 +2333,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       }
                     }}
                   >
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="flex-1 h-10">
                       <SelectValue placeholder="Std" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2300,7 +2345,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     </SelectContent>
                   </Select>
                   
-                  <span className="text-xl">:</span>
+                  <span className="text-muted-foreground">:</span>
                   
                   {/* Minuten */}
                   <Select 
@@ -2312,7 +2357,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                       }
                     }}
                   >
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="flex-1 h-10">
                       <SelectValue placeholder="Min" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2327,7 +2372,7 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                     value={appointmentDuration} 
                     onValueChange={setAppointmentDuration}
                   >
-                    <SelectTrigger className="flex-1">
+                    <SelectTrigger className="flex-1 h-10">
                       <SelectValue placeholder="Dauer" />
                     </SelectTrigger>
                     <SelectContent className="z-[10400]">
@@ -2341,55 +2386,58 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
               </div>
 
               {/* 3. MEHR INFOS COLLAPSIBLE (KUNDE & NOTIZEN) */}
-              <Collapsible open={appointmentMoreInfoOpen} onOpenChange={setAppointmentMoreInfoOpen} className="mb-4">
-                <CollapsibleTrigger className="w-full flex items-center justify-between p-3 hover:bg-muted/50 transition-colors border border-border rounded-md bg-background">
-                  <span className="text-sm font-medium">Mehr Infos</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform ${appointmentMoreInfoOpen ? 'rotate-180' : ''}`} />
-                </CollapsibleTrigger>
-                <CollapsibleContent className="mt-2 space-y-3 data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
-                  {/* Kunde */}
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Kunde</label>
-                    <Input
-                      value={appointmentCustomer}
-                      onChange={(e) => setAppointmentCustomer(e.target.value)}
-                      placeholder="Name eingeben"
-                    />
-                  </div>
+              <div className="border rounded-md overflow-hidden mb-3">
+                <Collapsible open={appointmentMoreInfoOpen} onOpenChange={setAppointmentMoreInfoOpen}>
+                  <CollapsibleTrigger className="w-full flex items-center justify-between p-3 bg-background hover:bg-muted/50 transition-colors">
+                    <span className="font-medium">Mehr Infos</span>
+                    <ChevronDown className={`h-4 w-4 transition-transform ${appointmentMoreInfoOpen ? 'rotate-180' : ''}`} />
+                  </CollapsibleTrigger>
                   
-                  {/* Notizen */}
-                  <div>
-                    <label className="text-sm font-medium mb-1.5 block">Notizen</label>
-                    <Textarea
-                      value={appointmentNotes}
-                      onChange={(e) => setAppointmentNotes(e.target.value)}
-                      placeholder="Notizen zum Termin..."
-                      className="min-h-[80px] resize-none"
-                    />
-                  </div>
-                </CollapsibleContent>
-              </Collapsible>
+                  <CollapsibleContent className="border-t">
+                    <div className="p-3 space-y-3 bg-background">
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Kunde</label>
+                        <Input
+                          value={appointmentCustomer}
+                          onChange={(e) => setAppointmentCustomer(e.target.value)}
+                          placeholder="Name des Kunden"
+                          className="h-10"
+                        />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <label className="text-sm font-medium">Notizen</label>
+                        <Textarea
+                          value={appointmentNotes}
+                          onChange={(e) => setAppointmentNotes(e.target.value)}
+                          placeholder="Zusätzliche Informationen"
+                          className="min-h-[80px]"
+                        />
+                      </div>
+                    </div>
+                  </CollapsibleContent>
+                </Collapsible>
+              </div>
 
               {/* 4. DATUM-NAVIGATION */}
-              <div className="flex items-center justify-center gap-2 mb-2">
-                <Button 
-                  variant="outline" 
+              <div className="grid grid-cols-[auto_1fr_auto] items-center gap-2 mb-3">
+                <Button
+                  variant="outline"
                   size="icon"
-                  className="h-8 w-8"
                   onClick={prevMapDay}
                   disabled={showAllAppointments}
+                  className="h-9 w-9"
                 >
                   <ChevronLeft className="h-4 w-4" />
                 </Button>
                 
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="h-8"
                   disabled
+                  className="h-9 cursor-default hover:bg-background"
                 >
                   {showAllAppointments 
-                    ? 'Alle Termine' 
+                    ? 'Alle' 
                     : mapDisplayDate?.toLocaleDateString('de-DE', { 
                         weekday: 'short', 
                         day: '2-digit', 
@@ -2398,31 +2446,30 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                   }
                 </Button>
                 
-                <Button 
-                  variant="outline" 
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={nextMapDay}
-                  disabled={showAllAppointments}
-                >
-                  <ChevronRight className="h-4 w-4" />
-                </Button>
-                
                 <Button
                   variant="outline"
-                  size="sm"
-                  className="h-8"
-                  onClick={() => {
-                    setShowAllAppointments(true);
-                    setMapDisplayDate(undefined);
-                  }}
+                  size="icon"
+                  onClick={nextMapDay}
+                  disabled={showAllAppointments}
+                  className="h-9 w-9"
                 >
-                  Alle
+                  <ChevronRight className="h-4 w-4" />
                 </Button>
               </div>
 
               {/* 5. KARTE */}
-              <div className="h-[180px] rounded-lg overflow-hidden mb-4 border">
+              <div className="relative h-[300px] rounded-lg overflow-hidden border mb-3">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => {
+                    setShowAllAppointments(true);
+                    setMapDisplayDate(undefined);
+                  }}
+                  className="absolute top-2 right-2 z-10 h-7 text-xs"
+                >
+                  Alle
+                </Button>
                 <AppointmentMap
                   appointments={displayedAppointments}
                   selectedDate={mapDisplayDate}
@@ -2431,63 +2478,58 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                 />
               </div>
 
-              {/* 6. ALLE OFFENEN TERMINE AUFGELISTET */}
-              <div className="border rounded-lg p-4 bg-muted/30">
-                <h4 className="text-sm font-semibold mb-3 flex items-center gap-2">
-                  <Clock className="w-4 h-4" />
-                  {showAllAppointments ? 'Alle Termine' : 'Termine für gewähltes Datum'}
-                </h4>
-                {displayedAppointments.length > 0 ? (
-                  <div className="space-y-2 max-h-[200px] overflow-y-auto">
-                    {displayedAppointments.map((apt) => (
+              {/* 6. TERMINLISTE */}
+              <div className="space-y-2">
+                <h3 className="text-sm font-medium text-muted-foreground">
+                  Termine für {showAllAppointments ? 'Alle' : mapDisplayDate?.toLocaleDateString('de-DE', { weekday: 'short', day: '2-digit', month: '2-digit' }) || 'gewähltes Datum'}
+                </h3>
+                
+                <div className="max-h-[200px] overflow-y-auto space-y-2">
+                  {displayedAppointments.length > 0 ? (
+                    displayedAppointments.map(apt => (
                       <div 
-                        key={apt.id}
+                        key={apt.id} 
                         className={cn(
-                          "flex items-start gap-3 p-3 bg-background rounded-md border hover:border-primary/50 transition-colors cursor-pointer",
+                          "p-3 border rounded-md bg-background hover:bg-muted/30 transition-colors cursor-pointer",
                           selectedAppointmentId === apt.id && "border-primary bg-primary/5"
                         )}
                         onClick={() => setSelectedAppointmentId(apt.id === selectedAppointmentId ? null : apt.id)}
                       >
-                        <div className="flex-shrink-0 w-16 text-center">
-                          <div className="text-xs text-muted-foreground">
-                            {apt.date ? new Date(apt.date).toLocaleDateString('de-DE', { day: '2-digit', month: 'short' }) : '-'}
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <div className="font-medium">{apt.time} Uhr ({apt.duration} Min)</div>
+                            <div className="text-sm text-muted-foreground">{apt.address}</div>
+                            {apt.customer && (
+                              <div className="text-sm">{apt.customer}</div>
+                            )}
                           </div>
-                          <div className="text-sm font-semibold">{apt.time || '-'}</div>
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="text-sm font-medium truncate">{apt.customer || 'Kein Kunde'}</div>
-                          <div className="text-xs text-muted-foreground truncate">{apt.address}</div>
-                          {apt.notes && (
-                            <div className="text-xs text-muted-foreground mt-1 line-clamp-2">{apt.notes}</div>
-                          )}
                         </div>
                       </div>
-                    ))}
-                  </div>
-                ) : (
-                  <div className="text-sm text-muted-foreground text-center py-4">
-                    Keine Termine vorhanden
-                  </div>
-                )}
+                    ))
+                  ) : (
+                    <div className="text-sm text-muted-foreground text-center py-4">
+                      Keine Termine
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
             
-            <DialogFooter className="flex-shrink-0 px-2 pb-3 pt-4 border-t flex-row gap-2">
+            <div className="flex gap-2 pt-2 px-3 pb-3">
               <Button
                 variant="outline"
-                className="flex-1"
                 onClick={() => setAddAppointmentDialogOpen(false)}
               >
                 Abbrechen
               </Button>
               <Button
-                className="flex-1"
                 onClick={saveAppointment}
                 disabled={!appointmentDate || !appointmentTime}
+                className="flex-1 bg-gradient-to-b from-[#60C0E8] to-[#0EA5E9] hover:from-[#4FB0D8] hover:to-[#0284C7] text-white shadow-[0_2px_8px_rgba(14,165,233,0.3)] rounded-lg font-medium"
               >
-                Speichern
+                Termin speichern
               </Button>
-            </DialogFooter>
+            </div>
           </DialogContent>
         </Dialog>
 
