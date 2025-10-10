@@ -377,13 +377,13 @@ export function ListsSidebar({ open, onClose, onListExpanded }: ListsSidebarProp
 
   return (
     <>
-      <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={false}>
+      <Sheet open={open} onOpenChange={(openState) => { if (!openState) onClose(); }} modal={isMobile}>
         <SheetContent 
           side={isMobile ? "bottom" : "right"}
           className={cn(
             isMobile 
               ? "h-[60vh] w-full rounded-t-2xl" 
-              : "w-[320px] sm:w-[380px]"
+              : "w-[320px] sm:w-[380px] md:fixed md:right-0 md:top-0 md:h-full md:z-50"
           )}
           onInteractOutside={(e) => e.preventDefault()}
           onEscapeKeyDown={(e) => e.preventDefault()}
