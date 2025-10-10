@@ -123,18 +123,18 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
               {/* Navigation items */}
               <nav className="flex-1 overflow-y-auto px-3 min-h-0">
                 {/* Main Section */}
-                <div className="space-y-0">
+                <div className="space-y-1">
                   {/* Dashboard */}
                   <button 
                     onClick={() => handleNavigation("/")}
-                    className="text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3"
+                    className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3"
                   >
                     <Home className="!w-4 !h-4 flex-shrink-0" />
                     <span className="text-sm whitespace-nowrap">Dashboard</span>
                   </button>
 
                   {/* Aktivitäten */}
-                  <button className="text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3">
+                  <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3">
                     <Clock className="!w-4 !h-4 flex-shrink-0" />
                     <span className="text-sm whitespace-nowrap">Aktivitäten</span>
                   </button>
@@ -148,7 +148,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                         }
                         setIsLauflistenExpanded(!isLauflistenExpanded);
                       }}
-                      className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent px-3 ${isInLauflistenSection ? "bg-sidebar-accent" : ""}`}
+                      className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent px-3 ${isInLauflistenSection ? "bg-sidebar-accent" : ""}`}
                     >
                       <div className="flex items-center gap-2.5">
                         <ClipboardList className="!w-4 !h-4 flex-shrink-0" />
@@ -162,11 +162,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </button>
                     
                     {isLauflistenExpanded && (
-                      <div className="ml-5 mt-0 space-y-0">
+                      <div className="ml-5 mt-0 space-y-0.5">
                         <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                           <button 
                             onClick={() => handleNavigation("/")}
-                            className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/" ? "bg-sidebar-accent" : ""}`}
+                            className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/" ? "bg-sidebar-accent" : ""}`}
                           >
                             <span className="text-sm">Liste</span>
                           </button>
@@ -175,7 +175,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                         <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                           <button 
                             onClick={() => handleNavigation("/karte")}
-                            className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/karte" ? "bg-sidebar-accent" : ""}`}
+                            className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/karte" ? "bg-sidebar-accent" : ""}`}
                           >
                             <span className="text-sm">Karte</span>
                           </button>
@@ -185,7 +185,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                   </div>
 
                   {/* Termine */}
-                  <button className="text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center justify-between px-3">
+                  <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center justify-between px-3">
                     <div className="flex items-center gap-2.5">
                       <Calendar className="!w-4 !h-4 flex-shrink-0" />
                       <span className="text-sm whitespace-nowrap">Termine</span>
@@ -194,7 +194,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                   </button>
 
                   {/* Leads */}
-                  <button className="text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center justify-between px-3">
+                  <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center justify-between px-3">
                     <div className="flex items-center gap-2.5">
                       <User className="!w-4 !h-4 flex-shrink-0" />
                       <span className="text-sm whitespace-nowrap">Leads</span>
@@ -211,11 +211,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </span>
                   </div>
                   
-                  <div className="space-y-0">
+                  <div className="space-y-1">
                     {/* Raketen */}
                     <button 
                       onClick={() => handleNavigation("/settings/raketen")}
-                      className={`text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3 ${currentPath === "/settings/raketen" ? "bg-sidebar-accent" : ""}`}
+                      className={`text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3 ${currentPath === "/settings/raketen" ? "bg-sidebar-accent" : ""}`}
                     >
                       <Rocket className="!w-4 !h-4 flex-shrink-0" />
                       <span className="text-sm whitespace-nowrap">Raketen</span>
@@ -230,7 +230,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           }
                           setIsProjekteExpanded(!isProjekteExpanded);
                         }}
-                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent px-3 ${isInProjekteSection ? "bg-sidebar-accent" : ""}`}
+                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent px-3 ${isInProjekteSection ? "bg-sidebar-accent" : ""}`}
                       >
                         <div className="flex items-center gap-2.5">
                           <FolderOpen className="!w-4 !h-4 flex-shrink-0" />
@@ -244,11 +244,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isProjekteExpanded && (
-                        <div className="ml-5 mt-0 space-y-0">
+                        <div className="ml-5 mt-0 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/projects")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/settings/projects" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Projekte</span>
                             </button>
@@ -257,7 +257,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/addresses")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/settings/addresses" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/settings/addresses" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Adressen</span>
                             </button>
@@ -266,7 +266,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/projects/karte")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/projects/karte" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/projects/karte" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Projektkarte</span>
                             </button>
@@ -284,7 +284,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           }
                           setIsAbrechnungenExpanded(!isAbrechnungenExpanded);
                         }}
-                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent px-3 ${isInAbrechnungenSection ? "bg-sidebar-accent" : ""}`}
+                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent px-3 ${isInAbrechnungenSection ? "bg-sidebar-accent" : ""}`}
                       >
                         <div className="flex items-center gap-2.5">
                           <Receipt className="!w-4 !h-4 flex-shrink-0" />
@@ -298,11 +298,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isAbrechnungenExpanded && (
-                        <div className="ml-5 mt-0 space-y-0">
+                        <div className="ml-5 mt-0 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/abrechnungen/abrechnen")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/abrechnungen/abrechnen" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/abrechnungen/abrechnen" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Abrechnen</span>
                             </button>
@@ -311,7 +311,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/abrechnungen/gutschriften")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/abrechnungen/gutschriften" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/abrechnungen/gutschriften" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Gutschriften</span>
                             </button>
@@ -320,7 +320,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/abrechnungen/kosten")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/abrechnungen/kosten" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/abrechnungen/kosten" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Kosten</span>
                             </button>
@@ -338,7 +338,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           }
                           setIsProviderExpanded(!isProviderExpanded);
                         }}
-                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent px-3 ${isInProviderSection ? "bg-sidebar-accent" : ""}`}
+                        className={`w-full flex items-center justify-between text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent px-3 ${isInProviderSection ? "bg-sidebar-accent" : ""}`}
                       >
                         <div className="flex items-center gap-2.5">
                           <Package className="!w-4 !h-4 flex-shrink-0" />
@@ -352,11 +352,11 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                       </button>
                       
                       {isProviderExpanded && (
-                        <div className="ml-5 mt-0 space-y-0">
+                        <div className="ml-5 mt-0 space-y-0.5">
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/providers")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/settings/providers" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/settings/providers" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Provider</span>
                             </button>
@@ -365,7 +365,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                           <div className="relative pl-6 before:content-[''] before:absolute before:left-1 before:top-1/2 before:-translate-y-1/2 before:w-3 before:h-3 before:border-l before:border-b before:rounded-bl-md before:border-sidebar-foreground/30 after:content-[''] after:absolute after:left-1 after:top-[-4px] after:bottom-[-4px] after:w-px after:bg-sidebar-foreground/30 first:after:top-1/2 last:after:bottom-1/2">
                             <button 
                               onClick={() => handleNavigation("/settings/tarife")}
-                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-0.5 px-3 w-full text-left ${currentPath === "/settings/tarife" ? "bg-sidebar-accent" : ""}`}
+                              className={`text-sidebar-foreground hover:bg-sidebar-accent rounded-xl py-1.5 px-3 w-full text-left ${currentPath === "/settings/tarife" ? "bg-sidebar-accent" : ""}`}
                             >
                               <span className="text-sm">Tarife</span>
                             </button>
@@ -384,8 +384,8 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     </span>
                   </div>
                   
-                  <div className="space-y-0">
-                    <button className="text-sidebar-foreground rounded-xl py-1 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3">
+                  <div className="space-y-1">
+                    <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center gap-2.5 px-3">
                       <Settings className="!w-4 !h-4 flex-shrink-0" />
                       <span className="text-sm whitespace-nowrap">Einstellungen</span>
                     </button>
