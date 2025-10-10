@@ -8,6 +8,7 @@ import { ProjectSelector } from "./ProjectSelector";
 import { supabase } from "@/integrations/supabase/client";
 import rocketLogo from "@/assets/rocket-logo-white.png";
 import { Badge } from "./ui/badge";
+import { useUpcomingEventsCount } from "@/hooks/useUpcomingEventsCount";
 
 interface MobileHeaderProps {
   selectedProjectIds?: Set<string>;
@@ -19,6 +20,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
   const [userProfile, setUserProfile] = useState<{ name?: string; color?: string } | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: upcomingCount = 0 } = useUpcomingEventsCount();
 
   const currentPath = location.pathname;
   const showProjectSelector = (currentPath === '/karte' || currentPath === '/') && selectedProjectIds && onProjectsChange;
@@ -185,13 +187,20 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
                     )}
                   </div>
 
-                  {/* Termine */}
-                  <button className="text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center justify-between px-3">
+                  {/* Kalender */}
+                  <button 
+                    onClick={() => handleNavigation("/kalender")}
+                    className={`text-sidebar-foreground rounded-xl py-2 hover:bg-sidebar-accent w-full flex items-center justify-between px-3 ${currentPath === "/kalender" ? "bg-sidebar-accent" : ""}`}
+                  >
                     <div className="flex items-center gap-2.5">
                       <Calendar className="!w-4 !h-4 flex-shrink-0" />
-                      <span className="text-sm whitespace-nowrap">Termine</span>
+                      <span className="text-sm whitespace-nowrap">Kalender</span>
                     </div>
-                    <Badge variant="destructive" className="w-5 h-5 p-0 text-xs flex items-center justify-center">1</Badge>
+                    {upcomingCount > 0 && (
+                      <Badge variant="destructive" className="w-5 h-5 p-0 text-xs flex items-center justify-center">
+                        {upcomingCount}
+                      </Badge>
+                    )}
                   </button>
 
                   {/* Leads */}

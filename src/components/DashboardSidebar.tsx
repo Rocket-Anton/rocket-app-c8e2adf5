@@ -21,10 +21,12 @@ import { Button } from "./ui/button";
 import { Switch } from "./ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
+import { useUpcomingEventsCount } from "@/hooks/useUpcomingEventsCount";
 
 export const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { data: upcomingCount = 0 } = useUpcomingEventsCount();
   
   // Get authenticated user
   const [currentUser, setCurrentUser] = useState<{id: string, name: string, initials: string} | null>(null);
@@ -264,13 +266,18 @@ export const DashboardSidebar = () => {
                     className={`text-sidebar-foreground rounded-xl py-1 ${
                       state === "collapsed" 
                         ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" 
-                        : "hover:bg-sidebar-accent"
+                        : upcomingCount > 0 ? "justify-between hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"
                     } ${location.pathname === "/kalender" ? "bg-sidebar-accent" : ""}`}
                   >
                     <div className="flex items-center gap-2.5">
                       <Calendar className="!w-4 !h-4 flex-shrink-0" />
                       {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Kalender</span>}
                     </div>
+                    {upcomingCount > 0 && state !== "collapsed" && (
+                      <Badge variant="destructive" className="w-5 h-5 p-0 text-xs flex items-center justify-center">
+                        {upcomingCount}
+                      </Badge>
+                    )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
