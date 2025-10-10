@@ -69,7 +69,7 @@ export function MobileHeader({ selectedProjectIds, onProjectsChange }: MobileHea
   };
 
   return (
-    <header className="md:hidden sticky top-0 z-50 w-full bg-[#0066FF] border-b border-white/10">
+    <header className="lg:hidden sticky top-0 z-50 w-full bg-[#0066FF] border-b border-white/10">
       <div className="flex items-center justify-between px-4 h-14">
         {/* Logo */}
         <button 
