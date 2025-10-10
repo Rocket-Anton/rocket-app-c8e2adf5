@@ -106,24 +106,40 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   const [showCitySuggestions, setShowCitySuggestions] = useState(false);
   const [showPostalCodeSuggestions, setShowPostalCodeSuggestions] = useState(false);
   
-  // Dashboard layout: Mobile always scrolls, Desktop always grid
+  // Dashboard layout: Delayed expand based on sidebar state (Desktop/Tablet)
+  useEffect(() => {
+    // Mobile: Always scroll mode
+    if (window.innerWidth < 768) {
+      setIsDashboardExpanded(false);
+      return;
+    }
+    
+    // Desktop/Tablet: Delayed expand after sidebar animation
+    if (isSidebarCollapsed) {
+      const timer = setTimeout(() => {
+        setIsDashboardExpanded(true);
+      }, 300);
+      return () => clearTimeout(timer);
+    } else {
+      setIsDashboardExpanded(false);
+    }
+  }, [isSidebarCollapsed]);
+
+  // Handle viewport resize (Mobile <-> Desktop switch)
   useEffect(() => {
     const handleResize = () => {
       if (window.innerWidth < 768) {
-        // Mobile: Always scroll mode
+        // Mobile: Force scroll mode
         setIsDashboardExpanded(false);
       } else {
-        // Desktop: Always grid, responsive to sidebar state
-        setIsDashboardExpanded(true);
+        // Desktop: Sync with sidebar status
+        setIsDashboardExpanded(isSidebarCollapsed);
       }
     };
-
-    // Initial check
-    handleResize();
-
+    
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
-  }, []);
+  }, [isSidebarCollapsed]);
 
   // Save scroll position when unmounting
   useEffect(() => {
@@ -611,119 +627,39 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
   return (
     <TooltipProvider>
       <div className="flex flex-col h-dvh max-w-[100vw] overflow-x-hidden">
-        {/* Mobile Header - nur auf kleinen Bildschirmen */}
-        <div className="md:hidden bg-blue-700 h-12 flex items-center justify-between pl-0 pr-4 relative z-50">
-          <img src={rocketLogoWhite} alt="Rocket Logo" className="h-16 mt-1 -ml-1" />
-          <Sheet>
-            <SheetTrigger asChild>
-              <button className="text-white">
-                <div className="space-y-1">
-                  <div className="w-6 h-0.5 bg-white"></div>
-                  <div className="w-6 h-0.5 bg-white"></div>
-                  <div className="w-6 h-0.5 bg-white"></div>
-                </div>
-              </button>
-            </SheetTrigger>
-            <SheetContent side="right" className="w-[280px] sm:w-[350px]">
-              <SheetHeader>
-                <SheetTitle>Menü</SheetTitle>
-              </SheetHeader>
-              <div className="py-4">
-                {/* Projektauswahl */}
-                <div className="px-4 pb-4 border-b">
-                  <div className="text-xs font-medium text-muted-foreground mb-2 uppercase tracking-wider">
-                    Projekte
-                  </div>
-                  <ProjectSelector
-                    selectedProjectIds={selectedProjectIds}
-                    onProjectsChange={onProjectsChange || (() => {})}
-                  />
-                </div>
-                
-                <nav className="space-y-1 pt-4">
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                    <Home className="w-5 h-5" />
-                    <span>Dashboard</span>
-                  </a>
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                    <Clock className="w-5 h-5" />
-                    <span>Aktivitäten</span>
-                  </a>
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 bg-muted rounded-md font-medium">
-                    <PersonStanding className="w-5 h-5" />
-                    <span>Lauflisten</span>
-                  </a>
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
-                    <Circle className="w-4 h-4 fill-current" />
-                    <span>Liste</span>
-                  </a>
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md ml-8">
-                    <Circle className="w-4 h-4" />
-                    <span>Karte</span>
-                  </a>
-                  <a href="/" className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
-                    <div className="flex items-center gap-3">
-                      <CalendarIcon className="w-5 h-5" />
-                      <span>Termine</span>
-                    </div>
-                    <span className="bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">1</span>
-                  </a>
-                  <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                    <User className="w-5 h-5" />
-                    <span>Leads</span>
-                  </a>
-                  
-                  <div className="pt-4 mt-4 border-t">
-                    <div className="px-4 pb-2">
-                      <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">System</span>
-                    </div>
-                    <a href="/" className="flex items-center gap-3 px-4 py-2.5 hover:bg-muted rounded-md">
-                      <Settings className="w-5 h-5" />
-                      <span>Settings</span>
-                    </a>
-                    <div className="flex items-center justify-between px-4 py-2.5 hover:bg-muted rounded-md">
-                      <div className="flex items-center gap-3">
-                        <Moon className="w-5 h-5" />
-                        <span>Dark mode</span>
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <div className="pt-4 mt-4 border-t">
-                    <div className="px-4">
-                      <div className="text-sm font-medium">Oleg Stemnev</div>
-                      <button className="text-xs text-muted-foreground hover:text-foreground">Abmelden</button>
-                    </div>
-                  </div>
-                </nav>
-              </div>
-            </SheetContent>
-          </Sheet>
-        </div>
-
-        {/* Main Content Area - with scroll ref */}
-        <div ref={scrollContainerRef} className="flex-1 overflow-y-auto bg-background">
-          <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
-          {!isMobile && onProjectsChange && (
-            <div className="flex-shrink-0">
-              <ProjectSelector
-                selectedProjectIds={selectedProjectIds}
-                onProjectsChange={onProjectsChange}
-              />
+        {/* Main Content Area - Fixed Header + Scrollable Content */}
+        <div className="flex-1 overflow-hidden bg-background flex flex-col">
+          {/* FIXED HEADER - Does not scroll */}
+          <div className="flex-shrink-0 px-4 pt-4 pb-2">
+            {/* Title + Project Selector in one row */}
+            <div className="flex items-center justify-between mb-4">
+              <h1 className="text-xl font-semibold text-foreground">Laufliste</h1>
+              
+              {!isMobile && onProjectsChange && (
+                <ProjectSelector
+                  selectedProjectIds={selectedProjectIds}
+                  onProjectsChange={onProjectsChange}
+                />
+              )}
             </div>
-          )}
-        </div>
-
-        {/* Metrics Dashboard */}
-        <div className="pt-6">
-          <div className="grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 pl-4 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible md:px-4 transition-[padding,gap] duration-300 ease-in-out" style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '1rem', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
-            {metricsData.map((metric, index) => {
-              const isOrderCard = metric.isOrderCard;
-              return (
-            <Card key={index} className={cn(
-              "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] md:w-auto",
-              isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
-            )}>
+            
+            {/* DASHBOARD HERE - Part of the fixed header */}
+            <div className={cn(
+              "grid auto-cols-[minmax(160px,1fr)] grid-flow-col w-full gap-3 pb-3 overflow-x-auto scrollbar-hide touch-pan-x overscroll-x-contain transition-[padding,gap,grid-template-columns] ease-in-out",
+              isDashboardExpanded 
+                ? "md:grid-flow-row md:auto-cols-auto md:grid-cols-4 md:gap-4 md:overflow-visible duration-50"
+                : "duration-300"
+            )} style={{ scrollbarGutter: 'stable both-edges', overflowAnchor: 'none', WebkitOverflowScrolling: 'touch', scrollPaddingLeft: '0', scrollPaddingRight: '1rem', scrollBehavior: 'smooth' }}>
+              {metricsData.map((metric, index) => {
+                const isOrderCard = metric.isOrderCard;
+                return (
+              <Card key={index} className={cn(
+                "relative p-4 hover:shadow-md flex-shrink-0 snap-start w-[160px] transition-[width] ease-in-out",
+                isDashboardExpanded 
+                  ? "md:w-auto duration-50" 
+                  : "lg:w-auto duration-300",
+                isOrderCard && `border-2 ${metric.borderColor} ${metric.bgColor}`
+              )}>
                 {/* Shimmer Effect für Aufträge Card */}
                 {isOrderCard && metric.shimmer && (
                   <div className="absolute inset-0 rounded-[inherit] overflow-hidden pointer-events-none">
@@ -778,8 +714,10 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             
             {/* Gauge Chart Card */}
             <Card className={cn(
-              "relative p-4 hover:shadow-md transition-shadow border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px]",
-              isSidebarCollapsed ? "md:w-auto" : "lg:w-auto"
+              "relative p-4 hover:shadow-md transition-[width,shadow] border-2 border-red-500 bg-red-50/50 flex-shrink-0 snap-start w-[160px]",
+              isDashboardExpanded 
+                ? "md:w-auto duration-50" 
+                : "lg:w-auto duration-300"
             )}>
               <div className="absolute -top-0.5 right-0.5">
                 <Popover>
@@ -803,32 +741,17 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                 <div className="text-sm text-muted-foreground">Conversion</div>
               </div>
             </Card>
-          </div>
-        </div>
-
-        {/* Divider between Dashboard and Filter */}
-        <div className={`py-2 ${isMobile ? 'px-4' : 'px-6'}`}>
-          <div className="h-px bg-border"></div>
-        </div>
-
-        {/* Header */}
-        <div className={`app-header pb-2 relative z-20 bg-background ${isMobile ? 'px-4' : 'px-6'}`}>
-        <div className="flex items-center justify-between">
-          <div className="flex items-center gap-4">
-            <div>
             </div>
           </div>
-        </div>
-        </div>
-
-      {/* Address List - Scrollable */}
-      <div className="flex-1 overflow-y-auto overflow-x-hidden transition-all duration-300 ease-in-out" ref={scrollRef} style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
-        <div>
-          <div
-            ref={filterRef}
-            className="sticky top-0 z-10"
-          >
-            <div className={`bg-background pt-2 pb-3 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'} ${isMobile ? 'px-4' : 'px-6'}`}>
+          
+          {/* SCROLLABLE CONTENT - Only filters and addresses scroll */}
+          <div ref={scrollContainerRef} className="flex-1 overflow-y-auto overflow-x-hidden px-4" style={{ overscrollBehavior: 'none', touchAction: 'pan-y' }}>
+          <div>
+            <div
+              ref={filterRef}
+              className="sticky top-0 z-10"
+            >
+            <div className={`bg-background pt-2 pb-3 transition-transform duration-300 ${showFilter ? 'translate-y-0' : '-translate-y-full'}`}>
               <div className="flex items-center justify-between gap-2">
                 <div className="relative flex-1">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-muted-foreground z-10" />
@@ -2103,7 +2026,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
             </div>
           )}
         </div>
+        </div>
       </div>
+    </div>
       
       {/* AI Assistant */}
       <AIAssistant
@@ -2130,7 +2055,6 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
           setHouseNumberFilter("");
         }}
       />
-    </div>
     </TooltipProvider>
   );
 };
