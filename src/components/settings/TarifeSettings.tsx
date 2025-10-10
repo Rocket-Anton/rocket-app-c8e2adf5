@@ -15,6 +15,7 @@ import {
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { Plus, MoreVertical, Search, Package } from "lucide-react";
+import { CreateAddonGroupDialog } from "./CreateAddonGroupDialog";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import {
@@ -75,9 +76,10 @@ interface Addon {
   has_bonus_quota?: boolean;
   bonus_quota_percentage?: number;
   is_single_option?: boolean;
-  single_option_group?: string;
+  addon_group_id?: string;
   created_at: string;
   provider_name?: string;
+  group_name?: string;
 }
 
 export const TarifeSettings = () => {
@@ -101,39 +103,38 @@ export const TarifeSettings = () => {
     has_bonus_quota: false,
     bonus_quota_percentage: 0,
     is_single_option: false,
-    single_option_group: "",
-    single_option_group_mode: "existing" as "existing" | "new",
+    addon_group_id: "",
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedItems, setSelectedItems] = useState<Set<string>>(new Set());
+  const [showCreateGroupDialog, setShowCreateGroupDialog] = useState(false);
 
-  // Query für existierende Einzeloption-Gruppen
-  const { data: existingGroups = [] } = useQuery({
-    queryKey: ['addon-single-option-groups'],
+  // Query für Addon-Gruppen des ausgewählten Providers
+  const { data: addonGroups = [] } = useQuery({
+    queryKey: ['addon-groups', formData.provider_id],
     queryFn: async () => {
+      if (!formData.provider_id) return [];
+      
       const { data, error } = await supabase
-        .from("addons")
-        .select("single_option_group")
-        .not("single_option_group", "is", null)
-        .order("single_option_group");
+        .from("addon_groups")
+        .select(`
+          id,
+          name,
+          addons:addons(count)
+        `)
+        .eq("provider_id", formData.provider_id)
+        .order("name");
 
       if (error) throw error;
       
-      // Gruppieren und zählen
-      const groupMap = new Map<string, number>();
-      data.forEach(addon => {
-        const group = addon.single_option_group;
-        if (group) {
-          groupMap.set(group, (groupMap.get(group) || 0) + 1);
-        }
-      });
-
-      return Array.from(groupMap.entries()).map(([name, count]) => ({
-        name,
-        count
+      return (data || []).map(group => ({
+        id: group.id,
+        name: group.name,
+        count: group.addons?.[0]?.count || 0
       }));
     },
-    staleTime: 30 * 1000, // 30 Sekunden cache
+    enabled: !!formData.provider_id && activeTab === "addons",
+    staleTime: 30 * 1000,
   });
 
   const { data: providers = [] } = useQuery({
@@ -194,17 +195,9 @@ export const TarifeSettings = () => {
     e.preventDefault();
     
     // Validierung für Einzeloption
-    if (activeTab === "addons" && formData.is_single_option) {
-      if (!formData.single_option_group || formData.single_option_group.trim() === "") {
-        toast.error("Bitte wähle eine Gruppe oder erstelle eine neue");
-        return;
-      }
-      
-      // Bereinige Gruppennamen
-      formData.single_option_group = formData.single_option_group
-        .toLowerCase()
-        .trim()
-        .replace(/\s+/g, '-');
+    if (activeTab === "addons" && formData.is_single_option && !formData.addon_group_id) {
+      toast.error("Bitte wähle eine Gruppe aus");
+      return;
     }
     
     try {
@@ -275,7 +268,7 @@ export const TarifeSettings = () => {
           has_bonus_quota: formData.has_bonus_quota,
           bonus_quota_percentage: formData.bonus_quota_percentage,
           is_single_option: formData.is_single_option,
-          single_option_group: formData.is_single_option ? formData.single_option_group : null,
+          addon_group_id: formData.is_single_option ? formData.addon_group_id || null : null,
         };
 
         if (editingItem) {
@@ -299,7 +292,7 @@ export const TarifeSettings = () => {
         }
         
         queryClient.invalidateQueries({ queryKey: ['addons'] });
-        queryClient.invalidateQueries({ queryKey: ['addon-single-option-groups'] });
+        queryClient.invalidateQueries({ queryKey: ['addon-groups'] });
       }
 
       setFormData({ 
@@ -317,8 +310,7 @@ export const TarifeSettings = () => {
         has_bonus_quota: false,
         bonus_quota_percentage: 0,
         is_single_option: false,
-        single_option_group: "",
-        single_option_group_mode: "existing" as "existing" | "new",
+        addon_group_id: "",
       });
       setIsCreateOpen(false);
       setEditingItem(null);
@@ -347,8 +339,7 @@ export const TarifeSettings = () => {
         has_bonus_quota: (item as any).has_bonus_quota || false,
         bonus_quota_percentage: (item as any).bonus_quota_percentage || 0,
         is_single_option: false,
-        single_option_group: "",
-        single_option_group_mode: "existing" as "existing" | "new",
+        addon_group_id: "",
       });
     } else {
       // Addon bearbeiten
@@ -368,11 +359,7 @@ export const TarifeSettings = () => {
         has_bonus_quota: addon.has_bonus_quota || false,
         bonus_quota_percentage: addon.bonus_quota_percentage || 0,
         is_single_option: addon.is_single_option || false,
-        single_option_group: addon.single_option_group || "",
-        single_option_group_mode: (addon.single_option_group && 
-          existingGroups.some(g => g.name === addon.single_option_group)
-            ? "existing" 
-            : "new") as "existing" | "new",
+        addon_group_id: addon.addon_group_id || "",
       });
     }
     setIsCreateOpen(true);
@@ -803,8 +790,7 @@ export const TarifeSettings = () => {
                             setFormData({ 
                               ...formData, 
                               is_single_option: checked as boolean,
-                              single_option_group: checked ? formData.single_option_group : "",
-                              single_option_group_mode: checked ? "existing" : "existing"
+                              addon_group_id: checked ? formData.addon_group_id : ""
                             })
                           }
                         />
@@ -816,87 +802,42 @@ export const TarifeSettings = () => {
                         </Label>
                       </div>
                       
-                      {formData.is_single_option && (
-                        <div className="space-y-4 pl-6 border-l-2 border-muted">
-                          <div>
-                            <Label>Gruppenverwaltung</Label>
-                            <Select
-                              value={formData.single_option_group_mode}
-                              onValueChange={(value: "existing" | "new") =>
-                                setFormData({ 
-                                  ...formData, 
-                                  single_option_group_mode: value,
-                                  single_option_group: value === "new" ? "" : formData.single_option_group
-                                })
+                      {formData.is_single_option && formData.provider_id && (
+                        <div className="pl-6 border-l-2 border-muted">
+                          <Label htmlFor="addon_group">Einzeloption-Gruppe *</Label>
+                          <Select
+                            value={formData.addon_group_id}
+                            onValueChange={(value) => {
+                              if (value === "__create_new__") {
+                                setShowCreateGroupDialog(true);
+                              } else {
+                                setFormData({ ...formData, addon_group_id: value });
                               }
-                            >
-                              <SelectTrigger className="border">
-                                <SelectValue />
-                              </SelectTrigger>
-                              <SelectContent>
-                                <SelectItem value="existing">Bestehende Gruppe wählen</SelectItem>
-                                <SelectItem value="new">Neue Gruppe anlegen</SelectItem>
-                              </SelectContent>
-                            </Select>
-                          </div>
-
-                          {formData.single_option_group_mode === "existing" ? (
-                            <div>
-                              <Label htmlFor="single_option_group_select">
-                                Einzeloption-Gruppe auswählen *
-                              </Label>
-                              <Select
-                                value={formData.single_option_group}
-                                onValueChange={(value) =>
-                                  setFormData({ ...formData, single_option_group: value })
-                                }
-                                required={formData.is_single_option}
-                              >
-                                <SelectTrigger className="border">
-                                  <SelectValue placeholder="Gruppe wählen..." />
-                                </SelectTrigger>
-                                <SelectContent>
-                                  {existingGroups.length === 0 ? (
-                                    <div className="px-2 py-1.5 text-sm text-muted-foreground">
-                                      Keine Gruppen vorhanden
-                                    </div>
-                                  ) : (
-                                    existingGroups.map((group) => (
-                                      <SelectItem key={group.name} value={group.name}>
-                                        <div className="flex items-center justify-between w-full gap-2">
-                                          <span>{group.name}</span>
-                                          <Badge variant="secondary" className="ml-2">
-                                            {group.count}
-                                          </Badge>
-                                        </div>
-                                      </SelectItem>
-                                    ))
-                                  )}
-                                </SelectContent>
-                              </Select>
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Zusätze in der gleichen Gruppe schließen sich gegenseitig aus
-                              </p>
-                            </div>
-                          ) : (
-                            <div>
-                              <Label htmlFor="single_option_group_input">
-                                Neue Einzeloption-Gruppe *
-                              </Label>
-                              <Input
-                                id="single_option_group_input"
-                                value={formData.single_option_group}
-                                onChange={(e) =>
-                                  setFormData({ ...formData, single_option_group: e.target.value })
-                                }
-                                placeholder="z.B. router, modem, tv-paket"
-                                required={formData.is_single_option}
-                              />
-                              <p className="text-xs text-muted-foreground mt-1">
-                                Gib einen eindeutigen Namen für die neue Gruppe ein (nur Kleinbuchstaben, Bindestriche)
-                              </p>
-                            </div>
-                          )}
+                            }}
+                            required={formData.is_single_option}
+                          >
+                            <SelectTrigger className="border">
+                              <SelectValue placeholder="Gruppe wählen oder erstellen..." />
+                            </SelectTrigger>
+                            <SelectContent>
+                              {addonGroups.map((group) => (
+                                <SelectItem key={group.id} value={group.id}>
+                                  <div className="flex items-center justify-between w-full gap-2">
+                                    <span>{group.name}</span>
+                                    <Badge variant="secondary" className="ml-2 text-xs">
+                                      {group.count}
+                                    </Badge>
+                                  </div>
+                                </SelectItem>
+                              ))}
+                              <SelectItem value="__create_new__" className="text-primary font-medium">
+                                + Neue Gruppe erstellen...
+                              </SelectItem>
+                            </SelectContent>
+                          </Select>
+                          <p className="text-xs text-muted-foreground mt-1">
+                            Zusätze in der gleichen Gruppe schließen sich gegenseitig aus
+                          </p>
                         </div>
                       )}
                     </div>
@@ -913,6 +854,15 @@ export const TarifeSettings = () => {
               </form>
             </DialogContent>
           </Dialog>
+
+          <CreateAddonGroupDialog
+            open={showCreateGroupDialog}
+            onOpenChange={setShowCreateGroupDialog}
+            providerId={formData.provider_id}
+            onGroupCreated={(groupId) => {
+              setFormData({ ...formData, addon_group_id: groupId });
+            }}
+          />
         </div>
       </div>
 
