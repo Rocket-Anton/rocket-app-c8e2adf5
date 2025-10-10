@@ -449,7 +449,7 @@ export default function Calendar() {
                     )}
 
                     <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
-                      <SelectTrigger className="h-8 w-[110px] rounded-md bg-muted/40 border border-input text-sm px-3">
+                      <SelectTrigger className="h-8 w-[100px] rounded-md bg-muted/40 border border-input text-sm px-3">
                         <SelectValue />
                       </SelectTrigger>
                       <SelectContent>
