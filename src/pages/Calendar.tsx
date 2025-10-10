@@ -415,33 +415,10 @@ export default function Calendar() {
 
                 {/* Mobile: Filters Row */}
                 <div className="flex lg:hidden items-center gap-2 w-full overflow-x-auto pb-1">
-                  {/* Links: ViewMode + Create Button */}
-                  <div className="flex items-center gap-2">
-                    <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
-                      <SelectTrigger className="h-8 w-[90px] rounded-md bg-muted/40 border border-input text-sm px-3">
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="month">Monat</SelectItem>
-                        <SelectItem value="week">Woche</SelectItem>
-                        <SelectItem value="day">Tag</SelectItem>
-                      </SelectContent>
-                    </Select>
-                    
-                    <Button 
-                      onClick={handleCreateEvent} 
-                      size="sm"
-                      className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
-                    >
-                      <Plus className="h-4 w-4" />
-                      <span className="hidden md:inline">Termin</span>
-                    </Button>
-                  </div>
-                  
                   {/* Spacer für Rechts-Ausrichtung */}
                   <div className="flex-1" />
                   
-                  {/* Rechts: Filter-Buttons */}
+                  {/* Alles nach rechts: Raketen, Projekte, Woche, neuer Termin */}
                   <div className="flex items-center gap-2">
                     {isAdminLike && (
                       <UserMultiSelect
@@ -470,6 +447,26 @@ export default function Calendar() {
                         </SelectContent>
                       </Select>
                     )}
+
+                    <Select value={viewMode} onValueChange={(value: ViewMode) => setViewMode(value)}>
+                      <SelectTrigger className="h-8 w-[130px] rounded-md bg-muted/40 border border-input text-sm px-3">
+                        <SelectValue />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="month">Monat</SelectItem>
+                        <SelectItem value="week">Woche</SelectItem>
+                        <SelectItem value="day">Tag</SelectItem>
+                      </SelectContent>
+                    </Select>
+                    
+                    <Button 
+                      onClick={handleCreateEvent} 
+                      size="sm"
+                      className="h-8 px-3 rounded-md bg-blue-600 hover:bg-blue-700 text-white whitespace-nowrap"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span className="hidden md:inline">Termin</span>
+                    </Button>
                   </div>
                 </div>
               </div>
