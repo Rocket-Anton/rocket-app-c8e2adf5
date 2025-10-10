@@ -234,7 +234,7 @@ export default function Calendar() {
             {/* Event Type Filter - Outside Calendar Card */}
             <div className="mx-4 px-4 py-1.5 flex">
               <div
-                className="inline-flex p-1 rounded-full border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)]"
+                className="inline-flex p-0.5 rounded-md border bg-[#F5F5F5] border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.04)]"
                 role="tablist"
                 aria-label="Event-Filter"
               >
@@ -244,7 +244,7 @@ export default function Calendar() {
                   aria-selected={eventType === 'all'}
                   onClick={() => setEventType('all')}
                   className={cn(
-                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
                     "outline-none focus:outline-none select-none",
                     eventType === 'all'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
@@ -259,7 +259,7 @@ export default function Calendar() {
                   aria-selected={eventType === 'private'}
                   onClick={() => setEventType('private')}
                   className={cn(
-                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
                     "outline-none focus:outline-none select-none",
                     eventType === 'private'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"
@@ -274,7 +274,7 @@ export default function Calendar() {
                   aria-selected={eventType === 'business'}
                   onClick={() => setEventType('business')}
                   className={cn(
-                    "px-3 py-2 rounded-full text-[13px] leading-5 font-medium transition-all duration-150",
+                    "px-3 h-8 rounded-md text-[13px] leading-5 font-medium transition-all duration-150",
                     "outline-none focus:outline-none select-none",
                     eventType === 'business'
                       ? "text-[#111827] bg-white border border-[#E5E7EB] shadow-[0_1px_1px_rgba(0,0,0,0.06)]"

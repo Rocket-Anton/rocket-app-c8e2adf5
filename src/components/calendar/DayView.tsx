@@ -13,7 +13,7 @@ interface DayViewProps {
 
 export const DayView = memo(({ currentDate, events, onEventClick, onTimeSlotClick }: DayViewProps) => {
   const dayEvents = filterEventsByDate(events, currentDate);
-  const hours = Array.from({ length: 14 }, (_, i) => i + 8); // 8:00 - 21:00
+  const hours = Array.from({ length: 16 }, (_, i) => i + 8); // 8:00 - 23:00
 
   return (
     <div className="bg-background rounded-lg border overflow-hidden">
