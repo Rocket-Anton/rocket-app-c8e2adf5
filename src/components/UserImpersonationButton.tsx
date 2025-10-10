@@ -4,18 +4,19 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Input } from '@/components/ui/input';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Search, X } from 'lucide-react';
+import { Search, X, Users2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useImpersonation } from '@/contexts/ImpersonationContext';
 import { useActualUserRole } from '@/hooks/useUserRole';
-import impersonationIcon from '@/assets/users-icon.png';
+import { useSidebar } from '@/components/ui/sidebar';
 
 export const UserImpersonationButton = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const { impersonatedUserId, impersonatedUserName, setImpersonatedUser, isImpersonating } = useImpersonation();
   const { data: actualRole } = useActualUserRole();
+  const { state } = useSidebar();
 
   // Early return MUST be after all hooks
   const { data: users = [] } = useQuery({
@@ -48,15 +49,19 @@ export const UserImpersonationButton = () => {
     setImpersonatedUser(null, null);
   };
 
+  const leftPosition = state === "collapsed" 
+    ? "left-[calc(3.5rem+1rem)]"
+    : "left-[calc(var(--sidebar-width)+1rem)]";
+
   return (
     <>
-      <div className="fixed bottom-4 left-4 lg:left-[calc(var(--sidebar-width)+1.5rem)] z-50 transition-all">
+      <div className={`fixed bottom-4 ${leftPosition} z-50 transition-all duration-300`}>
         <Button
           onClick={() => setIsOpen(true)}
-          className="h-12 w-12 rounded-full shadow-lg hover:shadow-xl transition-all p-0"
+          className="h-14 w-14 rounded-full shadow-lg hover:shadow-xl transition-all p-0"
           variant={isImpersonating ? "destructive" : "default"}
         >
-          <img src={impersonationIcon} alt="User Impersonation" className="h-6 w-6" />
+          <Users2 className="h-5 w-5" />
         </Button>
         
         {isImpersonating && (
