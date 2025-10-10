@@ -156,22 +156,58 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     return () => window.removeEventListener('resize', handleResize);
   }, [isSidebarCollapsed]);
 
-  // Save scroll position when unmounting
+  // Save scroll position and top visible address ID when unmounting
   useEffect(() => {
     return () => {
       if (scrollContainerRef.current) {
-        sessionStorage.setItem('listScrollPosition', scrollContainerRef.current.scrollTop.toString());
+        const scrollTop = scrollContainerRef.current.scrollTop;
+        sessionStorage.setItem('listScrollPosition', scrollTop.toString());
+        
+        // Find the top-most visible address card
+        const cards = addressCardRefs.current.filter(Boolean);
+        for (const card of cards) {
+          if (card) {
+            const rect = card.getBoundingClientRect();
+            if (rect.top >= 0 && rect.top < window.innerHeight) {
+              const addrId = card.getAttribute('data-address-id');
+              if (addrId) {
+                sessionStorage.setItem('listTopAddressId', addrId);
+                break;
+              }
+            }
+          }
+        }
       }
     };
   }, []);
 
-  // Restore scroll position on mount
+  // Restore scroll position on mount (improved with address ID targeting)
   useEffect(() => {
+    if (!scrollContainerRef.current || addresses.length === 0) return;
+    
+    const savedTopId = sessionStorage.getItem('listTopAddressId');
     const savedPosition = sessionStorage.getItem('listScrollPosition');
-    if (savedPosition && scrollContainerRef.current) {
+    
+    if (savedTopId) {
+      // Try to scroll to the saved address
+      const targetIndex = addresses.findIndex(addr => addr.id.toString() === savedTopId);
+      if (targetIndex !== -1 && addressCardRefs.current[targetIndex]) {
+        addressCardRefs.current[targetIndex]?.scrollIntoView({ block: 'start' });
+        
+        // Fine-tune with saved scroll position after a brief delay
+        if (savedPosition) {
+          setTimeout(() => {
+            if (scrollContainerRef.current) {
+              scrollContainerRef.current.scrollTop = parseInt(savedPosition, 10);
+            }
+          }, 50);
+        }
+      }
+    } else if (savedPosition) {
+      // Fallback: just use scroll position
       scrollContainerRef.current.scrollTop = parseInt(savedPosition, 10);
     }
-  }, []);
+  }, [addresses]);
   
   const isMobile = useIsMobile();
 
@@ -706,7 +742,9 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
     },
     {
       title: "Conversion",
-      value: orderCount > 0 ? conversionRate.toFixed(1) + '%' : "0.0%",
+      value: orderCount > 0 
+        ? conversionRate.toLocaleString('de-DE', { minimumFractionDigits: 2, maximumFractionDigits: 2 }) + '%'
+        : "0,00%",
       icon: TrendingUp,
       color: conversionStyle.textColor,
       bgColor: conversionStyle.bgColor,
@@ -2153,6 +2191,7 @@ export const LauflistenContent = ({ onOrderCreated, orderCount = 0, selectedProj
                   <div 
                     key={address.id} 
                     ref={(el) => addressCardRefs.current[index] = el}
+                    data-address-id={address.id}
                   >
                     <AddressCard 
                       address={address}

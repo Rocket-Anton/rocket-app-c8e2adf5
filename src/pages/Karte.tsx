@@ -96,7 +96,7 @@ function KarteContent() {
   const [showAddressModal, setShowAddressModal] = useState(false);
   const previousViewRef = useRef<{ center: mapboxgl.LngLatLike; zoom: number } | null>(null);
   const hasAutoZoomedRef = useRef(false);
-  const savedMapViewRef = useRef<{ center: [number, number]; zoom: number } | null>(
+  const savedMapViewRef = useRef<{ center: [number, number]; zoom: number; bearing?: number; pitch?: number } | null>(
     (() => {
       const saved = sessionStorage.getItem('mapView');
       if (saved) {
@@ -320,14 +320,18 @@ function KarteContent() {
 
     mapboxgl.accessToken = MAPBOX_ACCESS_TOKEN;
 
-    // Determine initial center and zoom
+    // Determine initial center, zoom, bearing and pitch
     let initialCenter: [number, number];
     let initialZoom: number;
+    let initialBearing: number = -17.6;
+    let initialPitch: number = 45;
 
     if (savedMapViewRef.current) {
       // Use saved view if available
       initialCenter = savedMapViewRef.current.center;
       initialZoom = savedMapViewRef.current.zoom;
+      initialBearing = savedMapViewRef.current.bearing ?? -17.6;
+      initialPitch = savedMapViewRef.current.pitch ?? 45;
     } else if (selectedProjectIds.size > 0 && addresses.length > 0) {
       // Zoom to project coordinates if projects are selected
       const projectAddresses = addresses.filter(addr => 
@@ -366,10 +370,23 @@ function KarteContent() {
       style: 'mapbox://styles/mapbox/streets-v12',
       center: initialCenter,
       zoom: initialZoom,
-      pitch: 45,
-      bearing: -17.6,
+      pitch: initialPitch,
+      bearing: initialBearing,
       antialias: true,
     });
+    
+    // If we have a saved view, ease to it for a smooth transition
+    if (savedMapViewRef.current) {
+      setTimeout(() => {
+        map.easeTo({ 
+          center: initialCenter, 
+          zoom: initialZoom,
+          bearing: initialBearing,
+          pitch: initialPitch,
+          duration: 400 
+        });
+      }, 100);
+    }
 
     map.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), 'top-left');
 
@@ -443,7 +460,7 @@ function KarteContent() {
     };
   }, [addresses, isLoadingAddresses]);
 
-  // Save map view continuously on every movement
+  // Save map view continuously on every movement (including rotation and pitch)
   useEffect(() => {
     const map = mapInstance.current;
     if (!map) return;
@@ -451,17 +468,25 @@ function KarteContent() {
     const saveView = () => {
       const center = map.getCenter();
       const zoom = map.getZoom();
+      const bearing = map.getBearing();
+      const pitch = map.getPitch();
       sessionStorage.setItem('mapView', JSON.stringify({
         center: [center.lng, center.lat],
-        zoom: zoom
+        zoom: zoom,
+        bearing: bearing,
+        pitch: pitch
       }));
     };
     
-    // Save on every map movement
+    // Save on every map movement, rotation, or pitch change
     map.on('moveend', saveView);
+    map.on('rotateend', saveView);
+    map.on('pitchend', saveView);
     
     return () => {
       map.off('moveend', saveView);
+      map.off('rotateend', saveView);
+      map.off('pitchend', saveView);
     };
   }, []);
 
@@ -521,6 +546,7 @@ function KarteContent() {
 
     if (!map) return;
 
+    // Only fit bounds when the list selection actually changes
     if (listIds.length > 0 && hasChanged) {
       // Save current view once when entering focus mode
       if (!previousViewRef.current) {
@@ -552,21 +578,7 @@ function KarteContent() {
   };
 
 
-  // Recenter when sidebar visibility changes while lists are selected
-  useEffect(() => {
-    const map = mapInstance.current;
-    if (!map) return;
-    if (selectedListIds.size === 0 || listAddressIds.size === 0) return;
-
-    const bounds = new mapboxgl.LngLatBounds();
-    addresses.forEach((a) => {
-      if (listAddressIds.has(a.id)) bounds.extend([a.coordinates[0], a.coordinates[1]]);
-    });
-    if (!bounds.isEmpty()) {
-      const offsetX = showListsSidebar ? (window.innerWidth >= 640 ? 190 : 160) : 0; // half of sidebar width
-      map.fitBounds(bounds, { padding: 50, offset: [-offsetX, 0] });
-    }
-  }, [showListsSidebar]);
+  // Don't re-center when sidebar visibility changes - preserve user's position
 
   // Re-render markers when filter changes or list is expanded (Mapbox GL)
   useEffect(() => {
@@ -625,28 +637,22 @@ function KarteContent() {
       const fontSize = 11;
       const el = document.createElement('div');
       el.style.cssText = `width:${size}px;height:${size}px;background:${color};color:#fff;border-radius:50%;box-shadow:0 2px 6px rgba(0,0,0,0.3);display:flex;align-items:center;justify-content:center;font-size:${fontSize}px;font-weight:700;cursor:pointer;`;
+      el.style.pointerEvents = 'auto';
       el.textContent = String(address.units.length);
 
-      // Add click handler to open address modal
-      el.addEventListener('click', () => {
+      // Add reliable touch and click handlers for iOS compatibility
+      const openModal = (e: Event) => {
+        e.stopPropagation();
         setSelectedAddress(address);
         setShowAddressModal(true);
-      });
+      };
+      
+      el.addEventListener('click', openModal);
+      el.addEventListener('touchend', openModal);
+      el.addEventListener('pointerup', openModal);
 
       const marker = new mapboxgl.Marker({ element: el })
         .setLngLat([address.coordinates[0], address.coordinates[1]])
-        .setPopup(
-          new mapboxgl.Popup({ offset: 12 }).setHTML(`
-            <div style="padding: 8px; font-size: 12px; min-width: 150px;">
-              <div style="font-weight: 600; margin-bottom: 6px; color: ${color};">${address.street} ${address.houseNumber}</div>
-              <div style="color: #666; margin-bottom: 6px;">${address.postalCode} ${address.city}</div>
-              <div style="border-top: 1px solid #e5e7eb; margin-top: 6px; padding-top: 6px;">
-                <div style="font-weight: 500; font-size: 11px; margin-bottom: 4px; color: #374151;">Wohneinheiten (${address.units.length}):</div>
-                ${address.units.map(unit => `<div style=\"font-size: 11px; color: #666; padding: 2px 0;\">${unit.floor} ${unit.position}</div>`).join('')}
-              </div>
-            </div>
-          `)
-        )
         .addTo(map);
 
       markersRef.current.push(marker);
@@ -695,6 +701,9 @@ function KarteContent() {
   // Zoom to project addresses when "Anzeigen" is clicked OR when projects are selected
   useEffect(() => {
     if (!mapInstance.current || selectedProjectIds.size === 0 || !shouldZoomToProjects) return;
+    
+    // Don't auto-zoom if we have a saved view
+    if (savedMapViewRef.current && !shouldZoomToProjects) return;
 
     const zoomToProjectAddresses = async () => {
       try {
@@ -747,10 +756,11 @@ function KarteContent() {
     zoomToProjectAddresses();
   }, [shouldZoomToProjects, selectedProjectIds, addresses]);
 
-  // Auto-zoom to selected projects when entering map page
+  // Auto-zoom to selected projects when entering map page (only if no saved view)
   useEffect(() => {
     if (!mapInstance.current || selectedProjectIds.size === 0 || addresses.length === 0) return;
     if (hasAutoZoomedRef.current) return; // Only auto-zoom once
+    if (savedMapViewRef.current) return; // Don't auto-zoom if we have a saved view
     
     // Only auto-zoom if we have project addresses
     const projectAddresses = addresses.filter(addr => 
@@ -824,10 +834,12 @@ function KarteContent() {
               {/* Map Controls - Right Side */}
               {!isLoadingAddresses && (
                 <div 
-                  className={cn(
-                    "absolute top-4 z-[1000] flex flex-col gap-0.5 transition-all duration-300",
-                    showListsSidebar ? "right-[400px]" : "right-4"
-                  )}
+                  className="absolute top-4 z-[1000] flex flex-col gap-0.5 transition-all duration-300"
+                  style={{
+                    right: showListsSidebar 
+                      ? `${isMobile ? 320 + 16 : 380 + 16}px` 
+                      : '16px'
+                  }}
                 >
                 <Button
                   onClick={() => setShowListsSidebar(!showListsSidebar)}
