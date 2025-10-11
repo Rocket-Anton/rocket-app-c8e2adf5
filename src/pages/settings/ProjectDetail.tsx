@@ -19,6 +19,8 @@ import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FailedAddressesDialog } from "@/components/settings/FailedAddressesDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Project {
   id: string;
@@ -78,6 +80,8 @@ const ProjectDetail = () => {
   const [listToDelete, setListToDelete] = useState<string | null>(null);
   const [failedDialogOpen, setFailedDialogOpen] = useState(false);
   const [failedListId, setFailedListId] = useState<string | null>(null);
+  const [addressPage, setAddressPage] = useState(1);
+  const ADDRESSES_PER_PAGE = 50;
   
   // Status settings states
   const [customStatuses, setCustomStatuses] = useState<any[]>([]);
@@ -948,45 +952,109 @@ const ProjectDetail = () => {
                               <p className="text-sm mt-2">Importieren Sie eine Adressliste, um zu beginnen</p>
                             </div>
                           ) : (
-                            <div className="border rounded-lg overflow-hidden">
-                              <Table>
-                                <TableHeader>
-                                  <TableRow>
-                                    <TableHead>Straße</TableHead>
-                                    <TableHead>Nr.</TableHead>
-                                    <TableHead>PLZ</TableHead>
-                                    <TableHead>Ort</TableHead>
-                                    <TableHead>Ortschaft</TableHead>
-                                    <TableHead className="text-right">Anzahl WE</TableHead>
-                                    <TableHead>Liste</TableHead>
-                                  </TableRow>
-                                </TableHeader>
-                                <TableBody>
-                                  {addresses.map((address) => (
-                                    <TableRow key={address.id}>
-                                      <TableCell className="font-medium">{address.street}</TableCell>
-                                      <TableCell>{address.house_number}</TableCell>
-                                      <TableCell>{address.postal_code}</TableCell>
-                                      <TableCell>{address.city}</TableCell>
-                                      <TableCell className="text-muted-foreground">
-                                        {address.locality || '-'}
-                                      </TableCell>
-                                      <TableCell className="text-right font-medium">
-                                        {address.units?.length || 0}
-                                      </TableCell>
-                                      <TableCell>
-                                        <Badge variant="secondary" className="text-xs">
-                                          {address.project_address_lists?.name || 'Unbekannt'}
-                                        </Badge>
-                                      </TableCell>
-                                    </TableRow>
-                                  ))}
-                                </TableBody>
-                              </Table>
-                              <div className="px-4 py-3 border-t bg-muted/50 text-sm text-muted-foreground">
-                                Gesamt: {addresses.length} Adressen, {addresses.reduce((sum, addr) => sum + (addr.units?.length || 0), 0)} WE
+                            <>
+                              <ScrollArea className="h-[600px]">
+                                <div className="border rounded-lg overflow-hidden">
+                                  <Table>
+                                    <TableHeader>
+                                      <TableRow>
+                                        <TableHead>Straße</TableHead>
+                                        <TableHead>Nr.</TableHead>
+                                        <TableHead>PLZ</TableHead>
+                                        <TableHead>Ort</TableHead>
+                                        <TableHead>Ortschaft</TableHead>
+                                        <TableHead className="text-right">WE</TableHead>
+                                        <TableHead>Liste</TableHead>
+                                      </TableRow>
+                                    </TableHeader>
+                                    <TableBody>
+                                      {addresses
+                                        .slice((addressPage - 1) * ADDRESSES_PER_PAGE, addressPage * ADDRESSES_PER_PAGE)
+                                        .map((address) => (
+                                        <TableRow 
+                                          key={address.id}
+                                          className="cursor-pointer hover:bg-muted/50"
+                                          onClick={() => navigate(`/settings/addresses/${address.id}`)}
+                                        >
+                                          <TableCell className="font-medium">{address.street}</TableCell>
+                                          <TableCell>{address.house_number}</TableCell>
+                                          <TableCell>{address.postal_code}</TableCell>
+                                          <TableCell>{address.city}</TableCell>
+                                          <TableCell className="text-muted-foreground">
+                                            {address.locality || '-'}
+                                          </TableCell>
+                                          <TableCell className="text-right font-medium">
+                                            {address.units?.length || 0}
+                                          </TableCell>
+                                          <TableCell>
+                                            <Badge variant="secondary" className="text-xs">
+                                              {address.project_address_lists?.name || 'Unbekannt'}
+                                            </Badge>
+                                          </TableCell>
+                                        </TableRow>
+                                      ))}
+                                    </TableBody>
+                                  </Table>
+                                </div>
+                              </ScrollArea>
+                              <div className="flex items-center justify-between mt-4">
+                                <div className="text-sm text-muted-foreground">
+                                  Gesamt: {addresses.length} Adressen, {addresses.reduce((sum, addr) => sum + (addr.units?.length || 0), 0)} WE
+                                </div>
+                                {addresses.length > ADDRESSES_PER_PAGE && (
+                                  <Pagination>
+                                    <PaginationContent>
+                                      <PaginationItem>
+                                        <PaginationPrevious 
+                                          onClick={() => setAddressPage(p => Math.max(1, p - 1))}
+                                          className={addressPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                        />
+                                      </PaginationItem>
+                                      {Array.from({ length: Math.ceil(addresses.length / ADDRESSES_PER_PAGE) }, (_, i) => i + 1)
+                                        .filter(page => {
+                                          const diff = Math.abs(page - addressPage);
+                                          return diff === 0 || diff === 1 || page === 1 || page === Math.ceil(addresses.length / ADDRESSES_PER_PAGE);
+                                        })
+                                        .map((page, index, array) => {
+                                          if (index > 0 && array[index - 1] !== page - 1) {
+                                            return [
+                                              <PaginationItem key={`ellipsis-${page}`}>
+                                                <span className="px-4">...</span>
+                                              </PaginationItem>,
+                                              <PaginationItem key={page}>
+                                                <PaginationLink
+                                                  onClick={() => setAddressPage(page)}
+                                                  isActive={addressPage === page}
+                                                  className="cursor-pointer"
+                                                >
+                                                  {page}
+                                                </PaginationLink>
+                                              </PaginationItem>
+                                            ];
+                                          }
+                                          return (
+                                            <PaginationItem key={page}>
+                                              <PaginationLink
+                                                onClick={() => setAddressPage(page)}
+                                                isActive={addressPage === page}
+                                                className="cursor-pointer"
+                                              >
+                                                {page}
+                                              </PaginationLink>
+                                            </PaginationItem>
+                                          );
+                                        })}
+                                      <PaginationItem>
+                                        <PaginationNext 
+                                          onClick={() => setAddressPage(p => Math.min(Math.ceil(addresses.length / ADDRESSES_PER_PAGE), p + 1))}
+                                          className={addressPage >= Math.ceil(addresses.length / ADDRESSES_PER_PAGE) ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                                        />
+                                      </PaginationItem>
+                                    </PaginationContent>
+                                  </Pagination>
+                                )}
                               </div>
-                            </div>
+                            </>
                           )}
                         </CardContent>
                       </Card>

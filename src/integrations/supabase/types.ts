@@ -130,8 +130,79 @@ export type Database = {
           },
         ]
       }
+      address_assignments: {
+        Row: {
+          address_id: number
+          assigned_at: string
+          assigned_by: string
+          assigned_to: string
+          id: string
+        }
+        Insert: {
+          address_id: number
+          assigned_at?: string
+          assigned_by: string
+          assigned_to: string
+          id?: string
+        }
+        Update: {
+          address_id?: number
+          assigned_at?: string
+          assigned_by?: string
+          assigned_to?: string
+          id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "address_assignments_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      address_status_history: {
+        Row: {
+          address_id: number
+          changed_at: string
+          changed_by: string
+          id: string
+          new_status: string
+          notes: string | null
+          old_status: string | null
+        }
+        Insert: {
+          address_id: number
+          changed_at?: string
+          changed_by: string
+          id?: string
+          new_status: string
+          notes?: string | null
+          old_status?: string | null
+        }
+        Update: {
+          address_id?: number
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          new_status?: string
+          notes?: string | null
+          old_status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "address_status_history_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       addresses: {
         Row: {
+          assigned_to: string | null
           city: string
           coordinates: Json
           created_at: string
@@ -143,10 +214,12 @@ export type Database = {
           notiz: string | null
           postal_code: string
           project_id: string | null
+          status: string | null
           street: string
           units: Json
         }
         Insert: {
+          assigned_to?: string | null
           city: string
           coordinates: Json
           created_at?: string
@@ -158,10 +231,12 @@ export type Database = {
           notiz?: string | null
           postal_code: string
           project_id?: string | null
+          status?: string | null
           street: string
           units?: Json
         }
         Update: {
+          assigned_to?: string | null
           city?: string
           coordinates?: Json
           created_at?: string
@@ -173,6 +248,7 @@ export type Database = {
           notiz?: string | null
           postal_code?: string
           project_id?: string | null
+          status?: string | null
           street?: string
           units?: Json
         }
@@ -376,6 +452,47 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      customers: {
+        Row: {
+          address_id: number
+          created_at: string
+          created_by: string
+          email: string | null
+          id: string
+          name: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          address_id: number
+          created_at?: string
+          created_by: string
+          email?: string | null
+          id?: string
+          name: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          address_id?: number
+          created_at?: string
+          created_by?: string
+          email?: string | null
+          id?: string
+          name?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "customers_address_id_fkey"
+            columns: ["address_id"]
+            isOneToOne: false
+            referencedRelation: "addresses"
             referencedColumns: ["id"]
           },
         ]
@@ -614,6 +731,60 @@ export type Database = {
             columns: ["laufliste_id"]
             isOneToOne: false
             referencedRelation: "lauflisten"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          created_by: string
+          customer_id: string
+          id: string
+          notes: string | null
+          order_number: string | null
+          status: string
+          total_amount: number | null
+          unit_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          created_by: string
+          customer_id: string
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          status?: string
+          total_amount?: number | null
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          created_by?: string
+          customer_id?: string
+          id?: string
+          notes?: string | null
+          order_number?: string | null
+          status?: string
+          total_amount?: number | null
+          unit_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "orders_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
             referencedColumns: ["id"]
           },
         ]
@@ -1246,9 +1417,80 @@ export type Database = {
           },
         ]
       }
+      unit_assignments: {
+        Row: {
+          assigned_at: string
+          assigned_by: string
+          assigned_to: string
+          id: string
+          unit_id: string
+        }
+        Insert: {
+          assigned_at?: string
+          assigned_by: string
+          assigned_to: string
+          id?: string
+          unit_id: string
+        }
+        Update: {
+          assigned_at?: string
+          assigned_by?: string
+          assigned_to?: string
+          id?: string
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_assignments_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      unit_status_history: {
+        Row: {
+          changed_at: string
+          changed_by: string
+          id: string
+          new_status: string
+          notes: string | null
+          old_status: string | null
+          unit_id: string
+        }
+        Insert: {
+          changed_at?: string
+          changed_by: string
+          id?: string
+          new_status: string
+          notes?: string | null
+          old_status?: string | null
+          unit_id: string
+        }
+        Update: {
+          changed_at?: string
+          changed_by?: string
+          id?: string
+          new_status?: string
+          notes?: string | null
+          old_status?: string | null
+          unit_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "unit_status_history_unit_id_fkey"
+            columns: ["unit_id"]
+            isOneToOne: false
+            referencedRelation: "units"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       units: {
         Row: {
           address_id: number
+          assigned_to: string | null
           created_at: string
           etage: string | null
           id: string
@@ -1262,6 +1504,7 @@ export type Database = {
         }
         Insert: {
           address_id: number
+          assigned_to?: string | null
           created_at?: string
           etage?: string | null
           id?: string
@@ -1275,6 +1518,7 @@ export type Database = {
         }
         Update: {
           address_id?: number
+          assigned_to?: string | null
           created_at?: string
           etage?: string | null
           id?: string

@@ -16,6 +16,7 @@ import ProjectStatusSettings from "./pages/settings/ProjectStatusSettings";
 import Providers from "./pages/settings/Providers";
 import ProviderDetail from "./pages/settings/ProviderDetail";
 import Addresses from "./pages/settings/Addresses";
+import AddressDetail from "./pages/settings/AddressDetail";
 import Tarife from "./pages/settings/Tarife";
 import TarifeDetail from "./pages/settings/TarifeDetail";
 import Raketen from "./pages/settings/Raketen";
@@ -51,6 +52,7 @@ const App = () => {
                 <Route path="/settings/projects/:id/status" element={<ProjectStatusSettings />} />
                 <Route path="/projects/karte" element={<ProjectsMap />} />
                 <Route path="/settings/addresses" element={<Addresses />} />
+                <Route path="/settings/addresses/:id" element={<AddressDetail />} />
                 <Route path="/settings/tarife" element={<Tarife />} />
                 <Route path="/settings/tarife/:id" element={<TarifeDetail />} />
                 <Route path="/settings/raketen" element={<Raketen />} />
