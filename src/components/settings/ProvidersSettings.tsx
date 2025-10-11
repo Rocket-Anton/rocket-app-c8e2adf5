@@ -61,7 +61,7 @@ export const ProvidersSettings = () => {
     color: "#3b82f6", 
     abbreviation: "",
     is_active: true,
-    projects_with_bonus: true
+    projects_with_bonus: false
   });
   const [logoBlob, setLogoBlob] = useState<Blob | null>(null);
   const [suggestedColors, setSuggestedColors] = useState<string[]>([]);
