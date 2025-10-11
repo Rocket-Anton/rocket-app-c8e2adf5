@@ -208,6 +208,13 @@ export const ProjectAddListDialog = ({
 
       if (listError) throw listError;
 
+      // Get project details to determine marketing type
+      const { data: projectData } = await supabase
+        .from('projects')
+        .select('marketing_type')
+        .eq('id', projectId)
+        .single();
+
       // Start upload in background (do not await)
       void supabase.functions.invoke('upload-street-list', {
         body: {
@@ -216,6 +223,7 @@ export const ProjectAddListDialog = ({
           csvData: csvData,
           columnMapping: finalMapping,
           questionAnswers: questionAnswers,
+          marketingType: projectData?.marketing_type,
         },
       }).catch((err) => {
         console.error('Upload invoke error (non-blocking):', err);

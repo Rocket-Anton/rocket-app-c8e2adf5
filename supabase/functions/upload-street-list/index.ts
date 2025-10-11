@@ -68,7 +68,7 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
       const body = await req.json() as any
-      const { projectId, listId, csvData, columnMapping, questionAnswers } = body || {}
+      const { projectId, listId, csvData, columnMapping, questionAnswers, marketingType } = body || {}
 
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
@@ -76,6 +76,9 @@ serve(async (req) => {
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         )
       }
+      
+      const isFlyerProject = marketingType === 'FLYER'
+      console.log(`Processing ${isFlyerProject ? 'FLYER' : 'regular'} project upload`)
 
       // Helpers
       const getCol = (key: string) => Object.keys(columnMapping).find(k => columnMapping[k] === key)
@@ -203,44 +206,60 @@ serve(async (req) => {
         }
       }
 
-      // Geocode with Mapbox - much faster, can use larger batches
-      const BATCH_SIZE = 250 // Mapbox can handle this easily
-      const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
+      // Geocode with Mapbox - skip for FLYER projects to avoid timeouts
+      let geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
       
-      for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
-        const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
+      if (isFlyerProject) {
+        // For FLYER projects: skip geocoding, use null coordinates
+        console.log('Skipping geocoding for FLYER project')
+        geocodedAddresses = uniqueAddresses.map(addr => ({
+          ...addr,
+          coordinates: { lat: null, lng: null }
+        }))
+      } else {
+        // For regular projects: geocode with batching
+        const BATCH_SIZE = 50 // Reduced to avoid rate limits
         
-        // Update progress
-        await supabaseClient
-          .from('project_address_lists')
-          .update({
-            upload_stats: {
-              progress: `Geocodiere ${Math.min(i + BATCH_SIZE, uniqueAddresses.length)}/${uniqueAddresses.length} Adressen...`,
-            },
-          })
-          .eq('id', listId);
-        
-        const geocodePromises = batch.map(async (addr) => {
-          if ((addr as any).coordinates?.lat && (addr as any).coordinates?.lng) return addr as any
-          try {
-            const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
-              body: {
-                street: addr.street,
-                houseNumber: addr.houseNumber,
-                postalCode: addr.postalCode,
-                city: addr.city,
+        for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
+          const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
+          
+          // Update progress
+          await supabaseClient
+            .from('project_address_lists')
+            .update({
+              upload_stats: {
+                progress: `Geocodiere ${Math.min(i + BATCH_SIZE, uniqueAddresses.length)}/${uniqueAddresses.length} Adressen...`,
               },
             })
-            if (error) throw error
-            return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
-          } catch (err) {
-            console.error('Geocoding error:', err)
-            const errorMsg = err instanceof Error ? err.message : String(err)
-            return { ...addr, coordinates: { lat: null, lng: null, error: `Geocoding fehlgeschlagen: ${errorMsg}` } }
+            .eq('id', listId);
+          
+          const geocodePromises = batch.map(async (addr) => {
+            if ((addr as any).coordinates?.lat && (addr as any).coordinates?.lng) return addr as any
+            try {
+              const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
+                body: {
+                  street: addr.street,
+                  houseNumber: addr.houseNumber,
+                  postalCode: addr.postalCode,
+                  city: addr.city,
+                },
+              })
+              if (error) throw error
+              return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
+            } catch (err) {
+              console.error('Geocoding error:', err)
+              const errorMsg = err instanceof Error ? err.message : String(err)
+              return { ...addr, coordinates: { lat: null, lng: null, error: `Geocoding fehlgeschlagen: ${errorMsg}` } }
+            }
+          })
+          const geocodedBatch = await Promise.all(geocodePromises)
+          geocodedAddresses.push(...(geocodedBatch as any))
+          
+          // Add delay between batches to avoid rate limiting
+          if (i + BATCH_SIZE < uniqueAddresses.length) {
+            await new Promise(resolve => setTimeout(resolve, 1000))
           }
-        })
-        const geocodedBatch = await Promise.all(geocodePromises)
-        geocodedAddresses.push(...(geocodedBatch as any))
+        }
       }
 
       // Insert addresses and units
