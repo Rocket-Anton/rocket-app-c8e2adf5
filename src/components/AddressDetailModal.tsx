@@ -71,6 +71,7 @@ interface Address {
     deleted?: boolean;
     deletedBy?: string;
     deletedAt?: string;
+    system_notes?: string;
   }[];
   filteredUnits?: { 
     id: number; 
@@ -83,6 +84,7 @@ interface Address {
     deleted?: boolean;
     deletedBy?: string;
     deletedAt?: string;
+    system_notes?: string;
   }[];
 }
 
@@ -1807,6 +1809,22 @@ export const AddressDetailModal = ({ address, allAddresses = [], initialIndex = 
                             </div>
                           </CollapsibleTrigger>
                           <CollapsibleContent className="mt-2 data-[state=open]:animate-collapsible-down data-[state=closed]:animate-collapsible-up">
+                            {/* System-Notizen */}
+                            {unit.system_notes && (
+                              <div className="mb-3 p-2 rounded-lg bg-green-50 dark:bg-green-950/20 text-xs border border-green-200 dark:border-green-800">
+                                <div className="flex items-start gap-2 mb-1">
+                                  <Info className="w-3 h-3 text-green-600 dark:text-green-400 mt-0.5 shrink-0" />
+                                  <span className="font-medium text-xs text-green-700 dark:text-green-300">
+                                    Systemnotiz (Import)
+                                  </span>
+                                </div>
+                                <div className="whitespace-pre-wrap text-xs text-green-800 dark:text-green-200 pl-5">
+                                  {unit.system_notes}
+                                </div>
+                              </div>
+                            )}
+                            
+                            {/* User-Notizen */}
                             {notes.length > 0 ? (
                               <div className="space-y-2 max-h-[150px] overflow-y-auto">
                                 {notes.map((note) => (

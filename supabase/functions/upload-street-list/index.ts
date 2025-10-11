@@ -30,6 +30,7 @@ interface ParsedAddress {
   lage?: string
   notizAdresse?: string
   notizWE?: string
+  unitNote?: string
 }
 
 interface GeocodeResult {
@@ -151,6 +152,7 @@ serve(async (req) => {
 
         const etage = val(row, 'floor').trim() || undefined
         const lage = val(row, 'position').trim() || undefined
+        const unitNote = val(row, 'unit_note').trim() || undefined
         const status = 'Offen'
 
         // Coordinates from CSV if present
@@ -173,7 +175,7 @@ serve(async (req) => {
         }
 
         const addressKey = `${street}|${houseNumber}|${postalCode}|${city}`
-        const parsed: ParsedAddress = { postalCode, city, street, houseNumber, weCount, status, etage, lage }
+        const parsed: ParsedAddress = { postalCode, city, street, houseNumber, weCount, status, etage, lage, unitNote }
         const list = addressMap.get(addressKey) || []
         list.push({ ...parsed, coordinates: { lat, lng } })
         addressMap.set(addressKey, list)
@@ -308,6 +310,18 @@ serve(async (req) => {
                 const units = []
                 for (let j = 0; j < addr.weCount; j++) {
                   const isVerbot = addr.status.toLowerCase() === 'verbot'
+                  
+                  // System-Notiz zusammenstellen
+                  let systemNote = undefined
+                  if (isVerbot) {
+                    systemNote = 'Status "Verbot" aus Import - nicht vermarktbar'
+                  }
+                  if (addr.unitNote) {
+                    systemNote = systemNote 
+                      ? `${systemNote}\n\n${addr.unitNote}` 
+                      : addr.unitNote
+                  }
+                  
                   units.push({
                     address_id: addressId,
                     status: isVerbot ? 'Nicht vermarktbar' : addr.status,
@@ -315,7 +329,7 @@ serve(async (req) => {
                     etage: addr.etage,
                     lage: addr.lage,
                     notiz: addr.notizWE,
-                    system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
+                    system_notes: systemNote,
                   })
                 }
 

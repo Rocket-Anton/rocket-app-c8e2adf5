@@ -87,9 +87,12 @@ const SelectContent = React.forwardRef<
       className={cn(
         "p-1 overflow-y-auto touch-pan-y",
         position === "popper" &&
-          "w-full min-w-[var(--radix-select-trigger-width)]",
+          "h-[var(--radix-select-content-available-height)] w-full min-w-[var(--radix-select-trigger-width)]",
       )}
-      style={{ overscrollBehavior: 'contain' }}
+      style={{ 
+        overscrollBehavior: 'contain',
+        maxHeight: 'var(--radix-select-content-available-height)'
+      }}
     >
         {children}
       </SelectPrimitive.Viewport>

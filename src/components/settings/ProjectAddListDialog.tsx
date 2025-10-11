@@ -35,6 +35,7 @@ const AVAILABLE_MAPPINGS = [
   { value: 'position', label: 'Lage' },
   { value: 'customer_number', label: 'Kundennummer (→ Notiz)' },
   { value: 'customer_name', label: 'Kundenname (→ Notiz)' },
+  { value: 'unit_note', label: 'WE-Notiz (→ Systemnotiz)' },
   { value: 'ignore', label: '🚫 Ignorieren' },
 ];
 

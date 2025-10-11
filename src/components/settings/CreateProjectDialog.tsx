@@ -146,6 +146,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     { value: 'position', label: 'Lage' },
     { value: 'customer_number', label: 'Kundennummer (→ Notiz)' },
     { value: 'customer_name', label: 'Kundenname (→ Notiz)' },
+    { value: 'unit_note', label: 'WE-Notiz (→ Systemnotiz)' },
     { value: 'ignore', label: '🚫 Ignorieren' },
   ];
 
@@ -639,12 +640,31 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           // CSV-Import im Hintergrund starten
           if (csvFile && mappingStep === 'confirmed') {
             toast.info("Import wird im Hintergrund gestartet");
+            
+            // Create list entry first
+            const { data: listData, error: listError } = await supabase
+              .from('project_address_lists')
+              .insert({
+                project_id: project.id,
+                name: csvFile.name || 'Import',
+                file_name: csvFile.name,
+                status: 'importing',
+                created_by: user.id,
+                column_mapping: finalMapping,
+              })
+              .select()
+              .single();
+            
+            if (listError) throw listError;
+            
             const { error: uploadError } = await supabase.functions.invoke('upload-street-list', {
               body: {
                 projectId: project.id,
+                listId: listData.id,
                 csvData: csvData,
                 columnMapping: finalMapping,
                 questionAnswers: questionAnswers,
+                marketingType: marketingType,
               },
             });
             if (uploadError) throw uploadError;
