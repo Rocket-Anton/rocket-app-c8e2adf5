@@ -237,12 +237,28 @@ export const RaketenSettings = () => {
 
         if (roleError) throw roleError;
 
-        toast.success("Rakete erstellt! Einladungsmail wird vorbereitet.");
+        toast.success("Rakete erstellt!");
         
-        // TODO: Uncomment when SMTP is configured
-        // await supabase.functions.invoke('send-invitation-email', {
-        //   body: { userId: authData.user.id, email: formData.email }
-        // });
+        // Send invitation email
+        try {
+          const fullName = `${formData.firstName} ${formData.lastName}`;
+          const { error: emailError } = await supabase.functions.invoke('send-invitation-email', {
+            body: { 
+              email: formData.email,
+              name: fullName
+            }
+          });
+
+          if (emailError) {
+            console.error('Error sending invitation email:', emailError);
+            toast.warning("Rakete erstellt, aber E-Mail konnte nicht gesendet werden.");
+          } else {
+            toast.success("Einladungs-E-Mail wurde versendet!");
+          }
+        } catch (emailError) {
+          console.error('Error sending invitation email:', emailError);
+          toast.warning("Rakete erstellt, aber E-Mail konnte nicht gesendet werden.");
+        }
       }
 
       setFormData({ 
