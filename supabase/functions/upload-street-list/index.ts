@@ -206,55 +206,12 @@ serve(async (req) => {
         }
       }
 
-      // Geocode with Mapbox - use smaller batches with delays to avoid rate limits and timeouts
-      const BATCH_SIZE = 50 // Reduced to avoid rate limits and CPU timeouts
-      const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
-      
-      for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
-        const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
-        
-        // Update progress
-        await supabaseClient
-          .from('project_address_lists')
-          .update({
-            upload_stats: {
-              progress: `Geocodiere ${Math.min(i + BATCH_SIZE, uniqueAddresses.length)}/${uniqueAddresses.length} Adressen...`,
-            },
-          })
-          .eq('id', listId);
-        
-        const geocodePromises = batch.map(async (addr) => {
-          if ((addr as any).coordinates?.lat && (addr as any).coordinates?.lng) return addr as any
-          try {
-            const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
-              body: {
-                street: addr.street,
-                houseNumber: addr.houseNumber,
-                postalCode: addr.postalCode,
-                city: addr.city,
-              },
-            })
-            if (error) throw error
-            return { ...addr, coordinates: { lat: data.lat, lng: data.lng, error: data.error } }
-          } catch (err) {
-            console.error('Geocoding error:', err)
-            const errorMsg = err instanceof Error ? err.message : String(err)
-            return { ...addr, coordinates: { lat: null, lng: null, error: `Geocoding fehlgeschlagen: ${errorMsg}` } }
-          }
-        })
-        const geocodedBatch = await Promise.all(geocodePromises)
-        geocodedAddresses.push(...(geocodedBatch as any))
-        
-        // Add delay between batches to avoid rate limiting
-        if (i + BATCH_SIZE < uniqueAddresses.length) {
-          await new Promise(resolve => setTimeout(resolve, 1000))
-        }
-      }
+      // PHASE 1: Save addresses immediately WITHOUT geocoding
+      console.log(`Saving ${uniqueAddresses.length} addresses immediately without geocoding...`)
 
       // Insert addresses and units
-      const successfulAddresses: number[] = []
+      const successfulAddresses: Array<{ id: number; street: string; houseNumber: string; postalCode: string; city: string }> = []
       const failedAddresses: Array<{ address: string; reason: string }> = []
-      const geocodingWarnings: Array<{ address: string; reason: string }> = []
       let totalUnits = 0
       
       // Update to saving phase
@@ -267,7 +224,7 @@ serve(async (req) => {
         })
         .eq('id', listId);
 
-      for (const addr of geocodedAddresses) {
+      for (const addr of uniqueAddresses) {
         try {
           let suggestedPlz = addr.postalCode
           let suggestedCity = addr.city
@@ -275,7 +232,7 @@ serve(async (req) => {
           if (!addr.postalCode || !addr.city) {
             const plzCounts = new Map<string, number>()
             const cityCounts = new Map<string, number>()
-            for (const a of geocodedAddresses) {
+            for (const a of uniqueAddresses) {
               if (a.postalCode) plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
               if (a.city) cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
             }
@@ -313,11 +270,10 @@ serve(async (req) => {
             addressId = existingAddress.id
             console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
           } else {
-            // Insert new address
-            // Always provide coordinates object (NOT NULL constraint)
+            // Insert new address with NULL coordinates (will be filled in background)
             const coordinates = {
-              lat: (addr as any).coordinates?.lat ?? null,
-              lng: (addr as any).coordinates?.lng ?? null,
+              lat: addr.coordinates?.lat ?? null,
+              lng: addr.coordinates?.lng ?? null,
             }
 
             const { data: addressData, error: addressError } = await supabaseClient
@@ -362,16 +318,14 @@ serve(async (req) => {
             .insert(units)
           if (unitsError) throw unitsError
 
-          successfulAddresses.push(addressId)
+          successfulAddresses.push({
+            id: addressId,
+            street: addr.street,
+            houseNumber: addr.houseNumber,
+            postalCode: suggestedPlz || addr.postalCode,
+            city: suggestedCity || addr.city,
+          })
           totalUnits += unitCount
-
-          // Geocoding warnings are not failures - address was saved successfully
-          if (!addr.coordinates.lat || !addr.coordinates.lng) {
-            geocodingWarnings.push({
-              address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-              reason: addr.coordinates.error || 'Nur ungefähre Koordinaten verfügbar',
-            })
-          }
         } catch (err) {
           console.error('Insert error:', err)
           failedAddresses.push({
@@ -381,36 +335,148 @@ serve(async (req) => {
         }
       }
 
-      // Update list status to completed with stats and error details
+      const totalAddresses = successfulAddresses.length
+
+      // Mark upload as completed immediately (Phase 1 done)
       await supabaseClient
         .from('project_address_lists')
         .update({
           status: 'completed',
           upload_stats: {
-            total: csvData.length,
-            successful: successfulAddresses.length,
+            totalAddresses,
+            geocodedAddresses: 0,
+            geocodingInProgress: true,
             failed: failedAddresses.length,
             units: totalUnits,
-            geocodingWarnings: geocodingWarnings.length,
+            progress: 'Geocoding läuft im Hintergrund...',
           },
           error_details: {
             failedAddresses,
-            geocodingWarnings,
             errors: errors || [],
           },
         })
-        .eq('id', listId);
+        .eq('id', listId)
 
+      // PHASE 2: Start background geocoding with waitUntil
+      const backgroundGeocode = async () => {
+        console.log(`Starting background geocoding for ${totalAddresses} addresses...`)
+        const BATCH_SIZE = 10 // Small batches to avoid rate limits
+        let geocodedCount = 0
+
+        try {
+          for (let i = 0; i < successfulAddresses.length; i += BATCH_SIZE) {
+            const batch = successfulAddresses.slice(i, i + BATCH_SIZE)
+            
+            const geocodePromises = batch.map(async (addr) => {
+              try {
+                const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
+                  body: {
+                    street: addr.street,
+                    houseNumber: addr.houseNumber,
+                    postalCode: addr.postalCode,
+                    city: addr.city,
+                  },
+                })
+                
+                if (error) throw error
+                
+                // Update address with coordinates
+                if (data.lat && data.lng) {
+                  await supabaseClient
+                    .from('addresses')
+                    .update({
+                      coordinates: { lat: data.lat, lng: data.lng }
+                    })
+                    .eq('id', addr.id)
+                  
+                  geocodedCount++
+                }
+              } catch (err) {
+                console.error(`Geocoding error for address ${addr.id}:`, err)
+              }
+            })
+
+            await Promise.all(geocodePromises)
+
+            // Update progress
+            await supabaseClient
+              .from('project_address_lists')
+              .update({
+                upload_stats: {
+                  totalAddresses,
+                  geocodedAddresses: geocodedCount,
+                  geocodingInProgress: geocodedCount < totalAddresses,
+                  failed: failedAddresses.length,
+                  units: totalUnits,
+                  progress: `${geocodedCount}/${totalAddresses} Adressen geocodiert`,
+                },
+              })
+              .eq('id', listId)
+
+            // Delay between batches (500ms for 10 addresses = well below 600/min limit)
+            if (i + BATCH_SIZE < successfulAddresses.length) {
+              await new Promise(resolve => setTimeout(resolve, 500))
+            }
+          }
+
+          // Final update when done
+          await supabaseClient
+            .from('project_address_lists')
+            .update({
+              upload_stats: {
+                totalAddresses,
+                geocodedAddresses: geocodedCount,
+                geocodingInProgress: false,
+                failed: failedAddresses.length,
+                units: totalUnits,
+                progress: `Fertig: ${geocodedCount}/${totalAddresses} Adressen geocodiert`,
+              },
+            })
+            .eq('id', listId)
+
+          console.log(`Background geocoding completed: ${geocodedCount}/${totalAddresses} addresses`)
+        } catch (err) {
+          console.error('Background geocoding error:', err)
+          await supabaseClient
+            .from('project_address_lists')
+            .update({
+              upload_stats: {
+                totalAddresses,
+                geocodedAddresses: geocodedCount,
+                geocodingInProgress: false,
+                failed: failedAddresses.length,
+                units: totalUnits,
+                progress: `Fehler beim Geocoding nach ${geocodedCount} Adressen`,
+                error: err instanceof Error ? err.message : String(err),
+              },
+            })
+            .eq('id', listId)
+        }
+      }
+
+      // Start background task
+      // @ts-ignore - EdgeRuntime is available in Deno Deploy
+      if (typeof EdgeRuntime !== 'undefined') {
+        // @ts-ignore
+        EdgeRuntime.waitUntil(backgroundGeocode())
+      } else {
+        // Fallback for local development
+        backgroundGeocode().catch(console.error)
+      }
+
+      // Return immediately (Phase 1 complete)
       return new Response(
         JSON.stringify({
           success: true,
           totalRows: csvData.length,
-          uniqueAddresses: uniqueAddresses.length,
-          successfulAddresses: successfulAddresses.length,
-          failedAddresses,
-          errors,
+          addressCount: totalAddresses,
+          listId,
+          message: 'Adressen gespeichert. Geocoding läuft im Hintergrund.',
         }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        {
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+          status: 200,
+        }
       )
     }
 
