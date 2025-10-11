@@ -585,6 +585,10 @@ async function processChunk(
     let batchesProcessed = 0;
     let successCount = upload_stats?.successful || 0;
     let failCount = upload_stats?.failed || 0;
+    
+    // Fine-grained progress updates
+    const PROGRESS_STEPS = 20; // ~20 updates per chunk
+    const PROGRESS_EVERY = Math.max(1, Math.floor(chunk_size / PROGRESS_STEPS));
 
     // Process MAX_BATCHES_PER_CALL batches
     while (currentIndex < addresses.length && batchesProcessed < MAX_BATCHES_PER_CALL) {
@@ -593,6 +597,8 @@ async function processChunk(
       
       console.log(`Processing batch ${batchesProcessed + 1}/${MAX_BATCHES_PER_CALL}: ${currentIndex}-${endIndex}/${addresses.length}`);
 
+      let processedInBatch = 0;
+      
       for (const addr of batch) {
         try {
           // Insert address
@@ -616,6 +622,7 @@ async function processChunk(
           if (insertError) {
             console.error('Failed to insert address:', insertError);
             failCount++;
+            processedInBatch++;
             continue;
           }
 
@@ -647,9 +654,33 @@ async function processChunk(
           // No synchronous geocoding here to avoid timeouts
 
           successCount++;
+          processedInBatch++;
+          
+          // Fine-grained progress update within batch
+          if (processedInBatch % PROGRESS_EVERY === 0 || (currentIndex + processedInBatch) === endIndex) {
+            try {
+              await supabaseClient
+                .from('project_address_lists')
+                .update({
+                  last_processed_index: currentIndex + processedInBatch,
+                  last_progress_at: new Date().toISOString(),
+                  upload_stats: {
+                    total: addresses.length,
+                    successful: successCount,
+                    failed: failCount,
+                    units: successCount // rough estimate
+                  }
+                })
+                .eq('id', listId);
+            } catch (updateError) {
+              console.error('Error updating progress:', updateError);
+              // Don't fail the import, just log it
+            }
+          }
         } catch (error: any) {
           console.error('Error processing address:', error);
           failCount++;
+          processedInBatch++;
           
           // Track failed addresses
           const failedAddress = {
@@ -690,7 +721,8 @@ async function processChunk(
           upload_stats: {
             total: addresses.length,
             successful: successCount,
-            failed: failCount
+            failed: failCount,
+            units: successCount // rough estimate
           },
           updated_at: new Date().toISOString()
         })
@@ -711,7 +743,8 @@ async function processChunk(
           upload_stats: {
             total: addresses.length,
             successful: successCount,
-            failed: failCount
+            failed: failCount,
+            units: successCount // rough estimate
           },
           updated_at: new Date().toISOString()
         })

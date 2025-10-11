@@ -128,6 +128,9 @@ serve(async (req) => {
 
     console.log(`[Geocode Batch] Geocoded ${successCount}/${results.length} addresses`);
 
+    // Update progress counter after processing this batch
+    const currentProcessed = (list.last_processed_index || 0) + results.length;
+    
     // Update error_details with failed geocoding attempts
     if (failedResults.length > 0) {
       const existingErrors = (list.error_details as any)?.failedAddresses || [];
@@ -139,6 +142,7 @@ serve(async (req) => {
           error_details: {
             failedAddresses: [...existingErrors, ...newErrors]
           },
+          last_processed_index: currentProcessed,
           last_progress_at: new Date().toISOString(),
         })
         .eq('id', listId);
@@ -146,6 +150,7 @@ serve(async (req) => {
       await supabase
         .from('project_address_lists')
         .update({
+          last_processed_index: currentProcessed,
           last_progress_at: new Date().toISOString(),
         })
         .eq('id', listId);

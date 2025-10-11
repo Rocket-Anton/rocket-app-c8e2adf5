@@ -111,12 +111,12 @@ const ProjectDetail = () => {
 
   // Separate effect for polling importing lists
   useEffect(() => {
-    const hasImporting = lists.some(l => l.status === 'importing' || l.status === 'analyzing');
+    const hasActive = lists.some(l => l.status === 'importing' || l.status === 'analyzing' || l.status === 'geocoding');
     
-    if (hasImporting) {
+    if (hasActive) {
       const interval = setInterval(() => {
         loadLists();
-      }, 1500); // Poll every 1.5 seconds for faster updates
+      }, 500); // Poll every 500ms for smoother progress updates
       
       return () => clearInterval(interval);
     }
@@ -426,10 +426,11 @@ const ProjectDetail = () => {
 
   const getStatusBadge = (status: string) => {
     const statusConfig = {
-      pending: { variant: "secondary" as const, label: "Ausstehend", icon: FileText },
+      pending: { variant: "secondary" as const, label: "Hochgeladen", icon: FileText },
       analyzing: { variant: "default" as const, label: "Analysiere...", icon: Loader2 },
       mapped: { variant: "default" as const, label: "Gemappt", icon: CheckCircle },
-      importing: { variant: "default" as const, label: "Importiert...", icon: Loader2 },
+      importing: { variant: "default" as const, label: "Importiere Adressen...", icon: Loader2 },
+      geocoding: { variant: "default" as const, label: "Geokodierung läuft...", icon: Loader2 },
       completed: { variant: "default" as const, label: "Abgeschlossen", icon: CheckCircle },
       failed: { variant: "destructive" as const, label: "Fehler", icon: AlertCircle },
     };
@@ -439,7 +440,7 @@ const ProjectDetail = () => {
 
     return (
       <Badge variant={config.variant} className="flex items-center gap-1">
-        <Icon className={`w-3 h-3 ${status === 'analyzing' || status === 'importing' ? 'animate-spin' : ''}`} />
+        <Icon className={`w-3 h-3 ${status === 'analyzing' || status === 'importing' || status === 'geocoding' ? 'animate-spin' : ''}`} />
         {config.label}
       </Badge>
     );
@@ -714,13 +715,10 @@ const ProjectDetail = () => {
                                           Datei: {list.file_name}
                                         </p>
                                       )}
-                                      {list.upload_stats && list.status === 'completed' && (
+                                      {list.upload_stats && (list.status === 'completed' || list.status === 'importing' || list.status === 'geocoding' || list.status === 'failed') && (
                                         <div className="flex items-center gap-4 mt-2 text-sm flex-wrap">
                                           <span className="text-muted-foreground">
-                                            Gesamt: <span className="font-medium text-foreground">{(list.upload_stats as any).total || 0}</span>
-                                          </span>
-                                          <span className="text-green-600 dark:text-green-500">
-                                            Erfolgreich: <span className="font-medium">{(list.upload_stats as any).successful || 0}</span>
+                                            Adressen angelegt: <span className="font-medium text-foreground">{(list.upload_stats as any).successful || 0} / {(list.upload_stats as any).total || 0}</span>
                                           </span>
                                           <span className="text-muted-foreground">
                                             WE: <span className="font-medium text-foreground">{(list.upload_stats as any).units || 0}</span>
@@ -740,71 +738,43 @@ const ProjectDetail = () => {
                                           )}
                                         </div>
                                       )}
-                                       {list.status === 'importing' && (
-                                        <div className="mt-2 space-y-1">
-                                          <div className="flex items-center gap-2 text-xs">
-                                            <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
-                                            <span className="text-muted-foreground">
-                                              {(list as any).last_processed_index 
-                                                ? `${(list as any).last_processed_index} / ${(list.upload_stats as any)?.total || '?'} Adressen verarbeitet`
-                                                : (list.upload_stats as any)?.progress || 'Import läuft...'}
-                                            </span>
-                                          </div>
-                                          {(list.upload_stats as any)?.total && (list as any).last_processed_index && (
-                                            <Progress 
-                                              value={((list as any).last_processed_index / (list.upload_stats as any).total) * 100} 
-                                              className="w-full h-1.5" 
-                                            />
-                                          )}
-                                        </div>
-                                       )}
-                                       <p className="text-xs text-muted-foreground mt-2">
-                                         Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
-                                           day: '2-digit', 
-                                           month: '2-digit', 
-                                           year: 'numeric',
-                                           hour: '2-digit',
-                                           minute: '2-digit'
-                                         })}
-                                       </p>
-                                        {(list.status === 'analyzing' || list.status === 'importing') && (
-                                           <div className="mt-3">
-                                            <div className="flex items-center justify-between text-xs mb-1">
-                                              <span className="text-muted-foreground flex items-center gap-1.5">
-                                                {list.status === 'analyzing' ? (
-                                                  <>
-                                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                                    Analysiere...
-                                                  </>
-                                                ) : (
-                                                  <>
-                                                    {(list as any).last_processed_index > 0 && (
-                                                      <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                                                    )}
-                                                    <Loader2 className="h-3 w-3 animate-spin" />
-                                                    {(list as any).last_processed_index > 0 ? 'Import läuft weiter...' : 'Importiere...'}
-                                                  </>
-                                                )}
-                                              </span>
-                                              {list.upload_stats?.total && (
-                                                <span className="text-muted-foreground font-medium">
-                                                  {(list as any).last_processed_index || 0} / {list.upload_stats.total}
-                                                </span>
-                                              )}
-                                            </div>
-                                            <Progress 
-                                              value={list.upload_stats?.total 
-                                                ? (((list as any).last_processed_index || 0) / list.upload_stats.total) * 100 
-                                                : 0} 
-                                              className="h-2"
-                                            />
-                                            {(list as any).last_progress_at && (
-                                              <p className="text-xs text-muted-foreground mt-1">
-                                                Zuletzt aktualisiert: {new Date((list as any).last_progress_at).toLocaleTimeString('de-DE')}
-                                              </p>
-                                            )}
-                                          </div>
-                                        )}
+                                        <p className="text-xs text-muted-foreground mt-2">
+                                          Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
+                                            day: '2-digit', 
+                                            month: '2-digit', 
+                                            year: 'numeric',
+                                            hour: '2-digit',
+                                            minute: '2-digit'
+                                          })}
+                                        </p>
+                                         {(list.status === 'analyzing' || list.status === 'importing' || list.status === 'geocoding') && (
+                                            <div className="mt-3">
+                                             <div className="flex items-center justify-between text-xs mb-1">
+                                               <span className="text-muted-foreground flex items-center gap-1.5">
+                                                 <Loader2 className="h-3 w-3 animate-spin" />
+                                                 {list.status === 'analyzing' && 'Analysiere...'}
+                                                 {list.status === 'importing' && 'Importiere Adressen...'}
+                                                 {list.status === 'geocoding' && 'Geokodierung läuft...'}
+                                               </span>
+                                               {list.upload_stats?.total && (
+                                                 <span className="text-muted-foreground font-medium">
+                                                   {(list as any).last_processed_index || 0} / {list.upload_stats.total}
+                                                 </span>
+                                               )}
+                                             </div>
+                                             <Progress 
+                                               value={list.upload_stats?.total 
+                                                 ? (((list as any).last_processed_index || 0) / list.upload_stats.total) * 100 
+                                                 : 0} 
+                                               className="h-2"
+                                             />
+                                             {(list as any).last_progress_at && (
+                                               <p className="text-xs text-muted-foreground mt-1">
+                                                 Zuletzt aktualisiert: {new Date((list as any).last_progress_at).toLocaleTimeString('de-DE')}
+                                               </p>
+                                             )}
+                                           </div>
+                                         )}
                                      </div>
                                      <div className="flex gap-2 ml-4">
                                        {(list.status === 'importing' || list.status === 'failed') && (
