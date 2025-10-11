@@ -518,7 +518,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     e.preventDefault();
     
     // Validation
-    if (!selectedProvider || !areaName || !status || !city || !postalCode || !federalState || !marketingType || !unitCount || !telegramGroupCreate || !postJobBooster || !tenderInfo || !dateRange?.from || !dateRange?.to) {
+    // Info Text is only required for non-FLYER projects
+    const isTenderInfoRequired = marketingType !== 'FLYER';
+    
+    if (!selectedProvider || !areaName || !status || !city || !postalCode || !federalState || !marketingType || !unitCount || !telegramGroupCreate || !postJobBooster || (isTenderInfoRequired && !tenderInfo) || !dateRange?.from || !dateRange?.to) {
       toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
       return;
     }
@@ -1311,7 +1314,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         
         <div className="space-y-2">
           <Label className="text-sm font-medium">
-            Info Text<span className="text-red-500 ml-1">*</span>
+            Info Text{marketingType !== 'FLYER' && <span className="text-red-500 ml-1">*</span>}
           </Label>
           <TenderInfoGenerator
             value={tenderInfo}
