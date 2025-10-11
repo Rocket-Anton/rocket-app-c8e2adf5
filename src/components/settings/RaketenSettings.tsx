@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/select";
 import { AvatarUploader } from "./AvatarUploader";
 import { raketenFormSchema } from "@/utils/validation";
+import { useActualUserRole } from "@/hooks/useUserRole";
 
 interface Rakete {
   id: string;
@@ -58,6 +59,7 @@ interface Rakete {
 export const RaketenSettings = () => {
   const navigate = useNavigate();
   const queryClient = useQueryClient();
+  const { data: actualUserRole } = useActualUserRole();
   const [isCreateOpen, setIsCreateOpen] = useState(false);
   const [editingRakete, setEditingRakete] = useState<Rakete | null>(null);
   const [formData, setFormData] = useState({ 
@@ -65,12 +67,14 @@ export const RaketenSettings = () => {
     lastName: "",
     email: "",
     phone: "",
-    role: "rocket" as "rocket" | "project_manager",
+    role: "rocket" as "rocket" | "project_manager" | "admin" | "super_admin",
     avatarBlob: null as Blob | null,
     avatarUrl: null as string | null
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRaketen, setSelectedRaketen] = useState<Set<string>>(new Set());
+
+  const isSuperAdmin = actualUserRole === 'super_admin';
 
   const { data: raketen = [], isLoading: loading } = useQuery({
     queryKey: ['raketen'],
@@ -286,7 +290,7 @@ export const RaketenSettings = () => {
       lastName: rakete.last_name || "",
       email: "",
       phone: rakete.phone || "",
-      role: (rakete.role as "rocket" | "project_manager") || "rocket",
+      role: (rakete.role as "rocket" | "project_manager" | "admin" | "super_admin") || "rocket",
       avatarBlob: null,
       avatarUrl: rakete.avatar_url || null,
     });
@@ -460,7 +464,7 @@ export const RaketenSettings = () => {
                     <Label htmlFor="role">Rolle *</Label>
                     <Select
                       value={formData.role}
-                      onValueChange={(value: "rocket" | "project_manager") =>
+                      onValueChange={(value: "rocket" | "project_manager" | "admin" | "super_admin") =>
                         setFormData({ ...formData, role: value })
                       }
                     >
@@ -470,6 +474,12 @@ export const RaketenSettings = () => {
                       <SelectContent>
                         <SelectItem value="rocket">Rakete</SelectItem>
                         <SelectItem value="project_manager">Projektleiter</SelectItem>
+                        {isSuperAdmin && (
+                          <>
+                            <SelectItem value="admin">Admin</SelectItem>
+                            <SelectItem value="super_admin">Super Admin</SelectItem>
+                          </>
+                        )}
                       </SelectContent>
                     </Select>
                   </div>
