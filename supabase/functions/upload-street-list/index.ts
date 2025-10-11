@@ -206,166 +206,186 @@ serve(async (req) => {
         }
       }
 
-      // PHASE 1: Save addresses immediately WITHOUT geocoding
-      console.log(`Saving ${uniqueAddresses.length} addresses immediately without geocoding...`)
-
-      // Insert addresses and units
-      const successfulAddresses: Array<{ id: number; street: string; houseNumber: string; postalCode: string; city: string }> = []
-      const failedAddresses: Array<{ address: string; reason: string }> = []
-      let totalUnits = 0
-      
-      // Update to saving phase
+      // Set initial status - return response IMMEDIATELY
       await supabaseClient
         .from('project_address_lists')
         .update({
+          status: 'importing',
           upload_stats: {
-            progress: `Speichere Adressen in Datenbank...`,
-          },
-        })
-        .eq('id', listId);
-
-      for (const addr of uniqueAddresses) {
-        try {
-          let suggestedPlz = addr.postalCode
-          let suggestedCity = addr.city
-
-          if (!addr.postalCode || !addr.city) {
-            const plzCounts = new Map<string, number>()
-            const cityCounts = new Map<string, number>()
-            for (const a of uniqueAddresses) {
-              if (a.postalCode) plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
-              if (a.city) cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
-            }
-            if (!addr.postalCode && plzCounts.size > 0) suggestedPlz = Array.from(plzCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-            if (!addr.city && cityCounts.size > 0) suggestedCity = Array.from(cityCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-          }
-
-          if (!addr.street || !addr.houseNumber) {
-            failedAddresses.push({
-              address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
-              reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
-            })
-            continue
-          }
-
-          // Check if address already exists with normalized street name
-          const normalizedStreet = normalizeStreetName(addr.street)
-          const { data: existingAddresses } = await supabaseClient
-            .from('addresses')
-            .select('*')
-            .eq('project_id', projectId)
-            .eq('house_number', addr.houseNumber)
-            .eq('postal_code', suggestedPlz || addr.postalCode)
-            .eq('city', suggestedCity || addr.city)
-
-          // Find matching address by normalized street name
-          const existingAddress = existingAddresses?.find(existing => 
-            normalizeStreetName(existing.street) === normalizedStreet
-          )
-
-          let addressId: number
-
-          if (existingAddress) {
-            // Use existing address ID and keep original street spelling
-            addressId = existingAddress.id
-            console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
-          } else {
-            // Insert new address with NULL coordinates (will be filled in background)
-            const coordinates = {
-              lat: addr.coordinates?.lat ?? null,
-              lng: addr.coordinates?.lng ?? null,
-            }
-
-            const { data: addressData, error: addressError } = await supabaseClient
-              .from('addresses')
-              .insert({
-                street: addr.street,
-                house_number: addr.houseNumber,
-                postal_code: suggestedPlz || addr.postalCode,
-                city: suggestedCity || addr.city,
-                coordinates,
-                project_id: projectId,
-                list_id: listId || null,
-                created_by: user.id,
-                notiz: addr.notizAdresse,
-              })
-              .select()
-              .single()
-
-            if (addressError) throw addressError
-            addressId = addressData.id
-          }
-
-          // Insert units for this address (new or existing)
-          const units = []
-          let unitCount = 0
-          for (let i = 0; i < addr.weCount; i++) {
-            const isVerbot = addr.status.toLowerCase() === 'verbot'
-            units.push({
-              address_id: addressId,
-              status: isVerbot ? 'Nicht vermarktbar' : addr.status,
-              marketable: !isVerbot,
-              etage: addr.etage,
-              lage: addr.lage,
-              notiz: addr.notizWE,
-              system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
-            })
-            unitCount++
-          }
-
-          const { error: unitsError } = await supabaseClient
-            .from('units')
-            .insert(units)
-          if (unitsError) throw unitsError
-
-          successfulAddresses.push({
-            id: addressId,
-            street: addr.street,
-            houseNumber: addr.houseNumber,
-            postalCode: suggestedPlz || addr.postalCode,
-            city: suggestedCity || addr.city,
-          })
-          totalUnits += unitCount
-        } catch (err) {
-          console.error('Insert error:', err)
-          failedAddresses.push({
-            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-            reason: String(err),
-          })
-        }
-      }
-
-      const totalAddresses = successfulAddresses.length
-
-      // Mark upload as completed immediately (Phase 1 done)
-      await supabaseClient
-        .from('project_address_lists')
-        .update({
-          status: 'completed',
-          upload_stats: {
-            totalAddresses,
-            geocodedAddresses: 0,
-            geocodingInProgress: true,
-            failed: failedAddresses.length,
-            units: totalUnits,
-            progress: 'Geocoding läuft im Hintergrund...',
-          },
-          error_details: {
-            failedAddresses,
-            errors: errors || [],
+            total: uniqueAddresses.length,
+            successful: 0,
+            failed: 0,
+            units: 0,
+            progress: 'Import wird vorbereitet...',
           },
         })
         .eq('id', listId)
 
-      // PHASE 2: Start background geocoding with waitUntil
-      const backgroundGeocode = async () => {
-        console.log(`Starting background geocoding for ${totalAddresses} addresses...`)
-        const BATCH_SIZE = 10 // Small batches to avoid rate limits
-        let geocodedCount = 0
+      // BACKGROUND TASK: All heavy operations
+      const backgroundImport = async () => {
+        const successfulAddresses: Array<{ id: number; street: string; houseNumber: string; postalCode: string; city: string }> = []
+        const failedAddresses: Array<{ address: string; reason: string }> = []
+        let totalUnits = 0
 
         try {
-          for (let i = 0; i < successfulAddresses.length; i += BATCH_SIZE) {
-            const batch = successfulAddresses.slice(i, i + BATCH_SIZE)
+          console.log(`Background: Processing ${uniqueAddresses.length} addresses...`)
+
+          // Batch size for addresses
+          const ADDRESS_BATCH_SIZE = 50
+          
+          for (let i = 0; i < uniqueAddresses.length; i += ADDRESS_BATCH_SIZE) {
+            const batch = uniqueAddresses.slice(i, i + ADDRESS_BATCH_SIZE)
+            
+            for (const addr of batch) {
+              try {
+                let suggestedPlz = addr.postalCode
+                let suggestedCity = addr.city
+
+                if (!addr.postalCode || !addr.city) {
+                  const plzCounts = new Map<string, number>()
+                  const cityCounts = new Map<string, number>()
+                  for (const a of uniqueAddresses) {
+                    if (a.postalCode) plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
+                    if (a.city) cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
+                  }
+                  if (!addr.postalCode && plzCounts.size > 0) suggestedPlz = Array.from(plzCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
+                  if (!addr.city && cityCounts.size > 0) suggestedCity = Array.from(cityCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
+                }
+
+                if (!addr.street || !addr.houseNumber) {
+                  failedAddresses.push({
+                    address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
+                    reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
+                  })
+                  continue
+                }
+
+                // Check for existing address
+                const normalizedStreet = normalizeStreetName(addr.street)
+                const { data: existingAddresses } = await supabaseClient
+                  .from('addresses')
+                  .select('id, street')
+                  .eq('project_id', projectId)
+                  .eq('house_number', addr.houseNumber)
+                  .eq('postal_code', suggestedPlz || addr.postalCode)
+                  .eq('city', suggestedCity || addr.city)
+
+                const existingAddress = existingAddresses?.find(existing => 
+                  normalizeStreetName(existing.street) === normalizedStreet
+                )
+
+                let addressId: number
+
+                if (existingAddress) {
+                  addressId = existingAddress.id
+                } else {
+                  const coordinates = {
+                    lat: addr.coordinates?.lat ?? null,
+                    lng: addr.coordinates?.lng ?? null,
+                  }
+
+                  const { data: addressData, error: addressError } = await supabaseClient
+                    .from('addresses')
+                    .insert({
+                      street: addr.street,
+                      house_number: addr.houseNumber,
+                      postal_code: suggestedPlz || addr.postalCode,
+                      city: suggestedCity || addr.city,
+                      coordinates,
+                      project_id: projectId,
+                      list_id: listId || null,
+                      created_by: user.id,
+                      notiz: addr.notizAdresse,
+                    })
+                    .select('id')
+                    .single()
+
+                  if (addressError) throw addressError
+                  addressId = addressData.id
+                }
+
+                // Insert units in batch
+                const units = []
+                for (let j = 0; j < addr.weCount; j++) {
+                  const isVerbot = addr.status.toLowerCase() === 'verbot'
+                  units.push({
+                    address_id: addressId,
+                    status: isVerbot ? 'Nicht vermarktbar' : addr.status,
+                    marketable: !isVerbot,
+                    etage: addr.etage,
+                    lage: addr.lage,
+                    notiz: addr.notizWE,
+                    system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
+                  })
+                }
+
+                if (units.length > 0) {
+                  const { error: unitsError } = await supabaseClient
+                    .from('units')
+                    .insert(units)
+                  if (unitsError) throw unitsError
+                  totalUnits += units.length
+                }
+
+                successfulAddresses.push({
+                  id: addressId,
+                  street: addr.street,
+                  houseNumber: addr.houseNumber,
+                  postalCode: suggestedPlz || addr.postalCode,
+                  city: suggestedCity || addr.city,
+                })
+              } catch (err) {
+                console.error('Insert error:', err)
+                failedAddresses.push({
+                  address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+                  reason: String(err),
+                })
+              }
+            }
+
+            // Update progress after each batch
+            await supabaseClient
+              .from('project_address_lists')
+              .update({
+                upload_stats: {
+                  total: uniqueAddresses.length,
+                  successful: successfulAddresses.length,
+                  failed: failedAddresses.length,
+                  units: totalUnits,
+                  progress: `${successfulAddresses.length}/${uniqueAddresses.length} Adressen gespeichert...`,
+                },
+              })
+              .eq('id', listId)
+          }
+
+          // Mark as completed, start geocoding
+          await supabaseClient
+            .from('project_address_lists')
+            .update({
+              status: 'completed',
+              upload_stats: {
+                total: uniqueAddresses.length,
+                successful: successfulAddresses.length,
+                failed: failedAddresses.length,
+                units: totalUnits,
+                geocoded: 0,
+                geocodingInProgress: true,
+                progress: 'Geocoding läuft im Hintergrund...',
+              },
+              error_details: failedAddresses.length > 0 ? {
+                failedAddresses,
+                errors: errors || [],
+              } : null,
+            })
+            .eq('id', listId)
+
+          // GEOCODING PHASE
+          console.log(`Starting geocoding for ${successfulAddresses.length} addresses...`)
+          const GEOCODE_BATCH_SIZE = 10
+          let geocodedCount = 0
+
+          for (let i = 0; i < successfulAddresses.length; i += GEOCODE_BATCH_SIZE) {
+            const batch = successfulAddresses.slice(i, i + GEOCODE_BATCH_SIZE)
             
             const geocodePromises = batch.map(async (addr) => {
               try {
@@ -380,74 +400,79 @@ serve(async (req) => {
                 
                 if (error) throw error
                 
-                // Update address with coordinates
-                if (data.lat && data.lng) {
+                if (data?.lat && data?.lng) {
                   await supabaseClient
                     .from('addresses')
-                    .update({
-                      coordinates: { lat: data.lat, lng: data.lng }
-                    })
+                    .update({ coordinates: { lat: data.lat, lng: data.lng } })
                     .eq('id', addr.id)
                   
-                  geocodedCount++
+                  return true
                 }
+                return false
               } catch (err) {
-                console.error(`Geocoding error for address ${addr.id}:`, err)
+                console.error(`Geocoding error for ${addr.id}:`, err)
+                return false
               }
             })
 
-            await Promise.all(geocodePromises)
+            const results = await Promise.all(geocodePromises)
+            geocodedCount += results.filter(r => r).length
 
             // Update progress
             await supabaseClient
               .from('project_address_lists')
               .update({
                 upload_stats: {
-                  totalAddresses,
-                  geocodedAddresses: geocodedCount,
-                  geocodingInProgress: geocodedCount < totalAddresses,
+                  total: uniqueAddresses.length,
+                  successful: successfulAddresses.length,
                   failed: failedAddresses.length,
                   units: totalUnits,
-                  progress: `${geocodedCount}/${totalAddresses} Adressen geocodiert`,
+                  geocoded: geocodedCount,
+                  geocodingInProgress: geocodedCount < successfulAddresses.length,
+                  progress: `${geocodedCount}/${successfulAddresses.length} Adressen geocodiert`,
                 },
               })
               .eq('id', listId)
 
-            // Delay between batches (500ms for 10 addresses = well below 600/min limit)
-            if (i + BATCH_SIZE < successfulAddresses.length) {
+            // Delay between batches
+            if (i + GEOCODE_BATCH_SIZE < successfulAddresses.length) {
               await new Promise(resolve => setTimeout(resolve, 500))
             }
           }
 
-          // Final update when done
+          // Final update
           await supabaseClient
             .from('project_address_lists')
             .update({
               upload_stats: {
-                totalAddresses,
-                geocodedAddresses: geocodedCount,
-                geocodingInProgress: false,
+                total: uniqueAddresses.length,
+                successful: successfulAddresses.length,
                 failed: failedAddresses.length,
                 units: totalUnits,
-                progress: `Fertig: ${geocodedCount}/${totalAddresses} Adressen geocodiert`,
+                geocoded: geocodedCount,
+                geocodingInProgress: false,
+                progress: `Fertig: ${successfulAddresses.length} Adressen, ${totalUnits} WE, ${geocodedCount} geocodiert`,
               },
             })
             .eq('id', listId)
 
-          console.log(`Background geocoding completed: ${geocodedCount}/${totalAddresses} addresses`)
+          console.log(`Background import completed: ${successfulAddresses.length} addresses, ${totalUnits} units, ${geocodedCount} geocoded`)
         } catch (err) {
-          console.error('Background geocoding error:', err)
+          console.error('Background import error:', err)
           await supabaseClient
             .from('project_address_lists')
             .update({
+              status: 'failed',
               upload_stats: {
-                totalAddresses,
-                geocodedAddresses: geocodedCount,
-                geocodingInProgress: false,
+                total: uniqueAddresses.length,
+                successful: successfulAddresses.length,
                 failed: failedAddresses.length,
                 units: totalUnits,
-                progress: `Fehler beim Geocoding nach ${geocodedCount} Adressen`,
+                progress: `Fehler: ${err instanceof Error ? err.message : String(err)}`,
+              },
+              error_details: {
                 error: err instanceof Error ? err.message : String(err),
+                failedAddresses,
               },
             })
             .eq('id', listId)
@@ -455,23 +480,20 @@ serve(async (req) => {
       }
 
       // Start background task
-      // @ts-ignore - EdgeRuntime is available in Deno Deploy
+      // @ts-ignore
       if (typeof EdgeRuntime !== 'undefined') {
         // @ts-ignore
-        EdgeRuntime.waitUntil(backgroundGeocode())
+        EdgeRuntime.waitUntil(backgroundImport())
       } else {
-        // Fallback for local development
-        backgroundGeocode().catch(console.error)
+        backgroundImport().catch(console.error)
       }
 
-      // Return immediately (Phase 1 complete)
+      // IMMEDIATE RESPONSE - no waiting!
       return new Response(
         JSON.stringify({
           success: true,
-          totalRows: csvData.length,
-          addressCount: totalAddresses,
+          message: 'Import gestartet - läuft im Hintergrund',
           listId,
-          message: 'Adressen gespeichert. Geocoding läuft im Hintergrund.',
         }),
         {
           headers: { ...corsHeaders, 'Content-Type': 'application/json' },
