@@ -77,6 +77,7 @@ const ProjectDetail = () => {
   const [currentTab, setCurrentTab] = useState("details");
   const [deleteDialogOpen, setDeleteDialogOpen] = useState(false);
   const [listToDelete, setListToDelete] = useState<string | null>(null);
+  const [deleteAllDialogOpen, setDeleteAllDialogOpen] = useState(false);
   const [failedDialogOpen, setFailedDialogOpen] = useState(false);
   const [failedListId, setFailedListId] = useState<string | null>(null);
   const [addressPage, setAddressPage] = useState(1);
@@ -430,10 +431,12 @@ const ProjectDetail = () => {
     }
   };
 
-  const handleCleanupProject = async () => {
-    if (!confirm('Wirklich ALLE Adressen und WE aus diesem Projekt löschen?')) return;
-
+  const handleDeleteAllAddresses = async () => {
+    if (!id) return;
+    
     try {
+      setLoadingAddresses(true);
+      
       const { data, error } = await supabase.functions.invoke('delete-project-addresses', {
         body: { projectId: id },
       });
@@ -442,12 +445,17 @@ const ProjectDetail = () => {
 
       const { deleted } = data;
       toast.success(
-        `Projekt bereinigt: ${deleted.lists} Listen, ${deleted.addresses} Adressen, ${deleted.units} WE gelöscht`
+        `Alle Adressen gelöscht: ${deleted.addresses} Adressen, ${deleted.units} WE entfernt`
       );
-      loadLists();
+      
+      setDeleteAllDialogOpen(false);
+      await loadAddresses();
+      await loadLists();
     } catch (error: any) {
-      console.error('Cleanup error:', error);
-      toast.error(`Bereinigung fehlgeschlagen: ${error.message}`);
+      console.error('Delete all error:', error);
+      toast.error(`Löschen fehlgeschlagen: ${error.message}`);
+    } finally {
+      setLoadingAddresses(false);
     }
   };
 
@@ -951,14 +959,25 @@ const ProjectDetail = () => {
                                 Übersicht aller Adressen in diesem Projekt
                               </CardDescription>
                             </div>
-                            <Button variant="outline" size="sm" onClick={loadAddresses} disabled={loadingAddresses}>
-                              {loadingAddresses ? (
-                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                              ) : (
-                                <Download className="w-4 h-4 mr-2" />
-                              )}
-                              Aktualisieren
-                            </Button>
+                            <div className="flex gap-2">
+                              <Button 
+                                variant="destructive" 
+                                size="sm" 
+                                onClick={() => setDeleteAllDialogOpen(true)}
+                                disabled={loadingAddresses || addresses.length === 0}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Alle löschen
+                              </Button>
+                              <Button variant="outline" size="sm" onClick={loadAddresses} disabled={loadingAddresses}>
+                                {loadingAddresses ? (
+                                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                                ) : (
+                                  <Download className="w-4 h-4 mr-2" />
+                                )}
+                                Aktualisieren
+                              </Button>
+                            </div>
                           </div>
                         </CardHeader>
                         <CardContent>
@@ -1336,6 +1355,39 @@ const ProjectDetail = () => {
               className="bg-destructive hover:bg-destructive/90"
             >
               Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={deleteAllDialogOpen} onOpenChange={setDeleteAllDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-destructive" />
+              Alle Adressen löschen?
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              <div className="space-y-3">
+                <p className="font-semibold">Diese Aktion löscht unwiderruflich:</p>
+                <ul className="list-disc list-inside space-y-1 text-sm">
+                  <li>{addresses.length} Adressen</li>
+                  <li>{addresses.reduce((sum, addr) => sum + (addr.units?.length || 0), 0)} Wohneinheiten</li>
+                  <li>Alle zugehörigen Kunden, Bestellungen und Verläufe</li>
+                </ul>
+                <p className="text-destructive font-medium mt-4">
+                  ⚠️ Diese Aktion kann nicht rückgängig gemacht werden!
+                </p>
+              </div>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteAllAddresses}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              Ja, alles löschen
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
