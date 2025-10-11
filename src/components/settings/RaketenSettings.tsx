@@ -102,14 +102,25 @@ export const RaketenSettings = () => {
             .select("*", { count: 'exact', head: true })
             .eq("user_id", profile.id);
 
-          // Get email from auth.users via admin API
-          const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
+          // Get email using the Edge Function
+          let email = null;
+          try {
+            const { data: emailData, error: emailError } = await supabase.functions.invoke('get-user-email', {
+              body: { userId: profile.id }
+            });
+            
+            if (!emailError && emailData) {
+              email = emailData.email;
+            }
+          } catch (error) {
+            console.error('Error fetching user email:', error);
+          }
 
           return {
             ...profile,
             role: roleData?.role || "rocket",
             project_count: count || 0,
-            email: user?.email || null
+            email: email
           };
         })
       );
