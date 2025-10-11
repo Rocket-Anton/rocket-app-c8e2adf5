@@ -851,7 +851,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               <PopoverTrigger asChild>
                 <Button 
                   variant="outline" 
-                  className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11"
+                  className="w-full justify-start text-left font-normal bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto"
                 >
                   <CalendarIcon className="mr-2 h-4 w-4 text-muted-foreground" />
                   {dateRange?.from ? (
