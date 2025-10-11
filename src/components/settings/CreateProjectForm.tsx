@@ -312,6 +312,7 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
       <div className="space-y-2">
         <Label>Postleitzahl</Label>
         <Input 
+          type="number"
           value={formData.postalCode}
           onChange={(e) => setFormData({...formData, postalCode: e.target.value})}
           placeholder="PLZ eingeben"

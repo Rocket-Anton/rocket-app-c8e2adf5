@@ -764,6 +764,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               PLZ<span className="text-red-500 ml-1">*</span>
             </Label>
             <Input
+              type="number"
               value={postalCode}
               onChange={(e) => setPostalCode(e.target.value)}
               placeholder="PLZ eingeben"
