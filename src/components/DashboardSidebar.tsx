@@ -1,4 +1,4 @@
-import { ChevronDown, ChevronRight, ChevronLeft, Home, Clock, ClipboardList, Circle, Calendar, User, Moon, LogOut, Receipt, Rocket, FolderOpen, Package, Settings } from "lucide-react";
+import { ChevronDown, ChevronRight, ChevronLeft, Home, ClipboardList, Calendar, User, LogOut, Receipt, Rocket, FolderOpen, Package, Settings } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import rocketLogo from "@/assets/rocket-logo-transparent.png";
@@ -18,18 +18,22 @@ import {
 } from "./ui/sidebar";
 import { Badge } from "./ui/badge";
 import { Button } from "./ui/button";
-import { Switch } from "./ui/switch";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { useUpcomingEventsCount } from "@/hooks/useUpcomingEventsCount";
+import { useUserRole } from "@/hooks/useUserRole";
 
 export const DashboardSidebar = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { data: upcomingCount = 0 } = useUpcomingEventsCount();
+  const { data: userRole, isLoading: isRoleLoading } = useUserRole();
   
   // Get authenticated user
   const [currentUser, setCurrentUser] = useState<{id: string, name: string, initials: string} | null>(null);
+  
+  // Check if user has access to management features
+  const hasManagementAccess = userRole === 'rocket' || userRole === 'project_manager' || userRole === 'admin' || userRole === 'super_admin';
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -158,19 +162,17 @@ export const DashboardSidebar = () => {
             <SidebarGroupContent>
               <SidebarMenu className="space-y-0">
                 <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-1 ${state === "collapsed" ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
+                  <SidebarMenuButton 
+                    onClick={() => navigate("/")}
+                    className={`text-sidebar-foreground rounded-xl py-1 ${state === "collapsed" ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"} ${location.pathname === "/" ? "bg-sidebar-accent" : ""}`}
+                  >
                     <Home className="!w-4 !h-4 flex-shrink-0" />
                     {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Dashboard</span>}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-                <SidebarMenuItem>
-                  <SidebarMenuButton className={`text-sidebar-foreground rounded-xl py-1 ${state === "collapsed" ? "h-7 w-full mx-auto flex items-center justify-center hover:bg-sidebar-accent" : "hover:bg-sidebar-accent"}`}>
-                    <Clock className="!w-4 !h-4 flex-shrink-0" />
-                    {state !== "collapsed" && <span className="text-sm whitespace-nowrap">Aktivitäten</span>}
-                  </SidebarMenuButton>
-                </SidebarMenuItem>
-
+{hasManagementAccess && (
+                <>
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => {
@@ -259,7 +261,10 @@ export const DashboardSidebar = () => {
                     </div>
                   </div>
                 )}
+                </>
+                )}
 
+{hasManagementAccess && (
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     onClick={() => navigate("/kalender")}
@@ -280,6 +285,7 @@ export const DashboardSidebar = () => {
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                )}
 
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -308,6 +314,7 @@ export const DashboardSidebar = () => {
           </SidebarGroup>
 
           {/* MANAGEMENT Section */}
+          {hasManagementAccess && (
           <SidebarGroup className="mt-0.5 pt-0.5 border-t border-sidebar-border">
             {state !== "collapsed" && (
               <div className="px-3 pb-0 -mt-0">
@@ -627,6 +634,7 @@ export const DashboardSidebar = () => {
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
+          )}
 
           {/* SYSTEM Section */}
           <SidebarGroup className="mt-0.5 pt-0.5 border-t border-sidebar-border">
