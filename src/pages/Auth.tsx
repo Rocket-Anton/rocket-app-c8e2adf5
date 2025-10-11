@@ -13,10 +13,9 @@ const authSchema = z.object({
   email: z.string()
     .trim()
     .email('Ungültige E-Mail-Adresse')
-    .max(255, 'E-Mail darf maximal 255 Zeichen haben'),
+    .toLowerCase(),
   password: z.string()
-    .min(8, 'Passwort muss mindestens 8 Zeichen haben')
-    .max(128, 'Passwort darf maximal 128 Zeichen haben')
+    .min(8, 'Passwort muss mindestens 8 Zeichen lang sein')
     .regex(/[A-Z]/, 'Mindestens ein Großbuchstabe erforderlich')
     .regex(/[a-z]/, 'Mindestens ein Kleinbuchstabe erforderlich')
     .regex(/[0-9]/, 'Mindestens eine Zahl erforderlich'),
@@ -31,6 +30,11 @@ const authSchema = z.object({
     .min(1, 'Nachname ist erforderlich')
     .max(50, 'Nachname darf maximal 50 Zeichen haben')
     .regex(/^[a-zA-ZäöüÄÖÜß\s\-']+$/, 'Nachname enthält ungültige Zeichen')
+    .optional(),
+  phone: z.string()
+    .trim()
+    .min(1, 'Handynummer ist erforderlich')
+    .regex(/^[\d\s\+\-\(\)]+$/, 'Handynummer enthält ungültige Zeichen')
     .optional()
 });
 
@@ -41,6 +45,7 @@ const Auth = () => {
   const [password, setPassword] = useState("");
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [phone, setPhone] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -70,7 +75,8 @@ const Auth = () => {
         email,
         password,
         firstName,
-        lastName
+        lastName,
+        phone
       });
 
       if (!validationResult.success) {
@@ -87,6 +93,7 @@ const Auth = () => {
           data: {
             first_name: validationResult.data.firstName,
             last_name: validationResult.data.lastName,
+            phone: validationResult.data.phone,
           },
           emailRedirectTo: `${window.location.origin}/karte`,
         },
@@ -108,7 +115,7 @@ const Auth = () => {
 
     try {
       // Validate inputs
-      const validationResult = authSchema.omit({ firstName: true, lastName: true }).safeParse({
+      const validationResult = authSchema.omit({ firstName: true, lastName: true, phone: true }).safeParse({
         email,
         password
       });
@@ -202,6 +209,17 @@ const Auth = () => {
                     placeholder="Dein Nachname"
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-phone">Handynummer</Label>
+                  <Input
+                    id="signup-phone"
+                    type="tel"
+                    placeholder="Deine Handynummer"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
                     required
                   />
                 </div>

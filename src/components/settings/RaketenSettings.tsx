@@ -54,6 +54,7 @@ interface Rakete {
   created_at: string;
   role?: string;
   project_count?: number;
+  email?: string | null;
 }
 
 export const RaketenSettings = () => {
@@ -86,7 +87,7 @@ export const RaketenSettings = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get roles for each user
+      // Get roles and email for each user
       const profilesWithRoles = await Promise.all(
         (profiles || []).map(async (profile) => {
           const { data: roleData } = await supabase
@@ -101,10 +102,14 @@ export const RaketenSettings = () => {
             .select("*", { count: 'exact', head: true })
             .eq("user_id", profile.id);
 
+          // Get email from auth.users via admin API
+          const { data: { user } } = await supabase.auth.admin.getUserById(profile.id);
+
           return {
             ...profile,
             role: roleData?.role || "rocket",
-            project_count: count || 0
+            project_count: count || 0,
+            email: user?.email || null
           };
         })
       );
@@ -288,7 +293,7 @@ export const RaketenSettings = () => {
     setFormData({
       firstName: rakete.first_name || "",
       lastName: rakete.last_name || "",
-      email: "",
+      email: rakete.email || "",
       phone: rakete.phone || "",
       role: (rakete.role as "rocket" | "project_manager" | "admin" | "super_admin") || "rocket",
       avatarBlob: null,
