@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings, AlertTriangle } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings, AlertTriangle, PlayCircle } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -780,7 +780,7 @@ const ProjectDetail = () => {
                                          })}
                                        </p>
                                         {(list.status === 'analyzing' || list.status === 'importing') && (
-                                          <div className="mt-3">
+                                           <div className="mt-3">
                                             <div className="flex items-center justify-between text-xs mb-1">
                                               <span className="text-muted-foreground flex items-center gap-1.5">
                                                 {list.status === 'analyzing' ? (
@@ -790,6 +790,9 @@ const ProjectDetail = () => {
                                                   </>
                                                 ) : (
                                                   <>
+                                                    {(list as any).last_processed_index > 0 && (
+                                                      <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                                                    )}
                                                     <Loader2 className="h-3 w-3 animate-spin" />
                                                     {(list as any).last_processed_index > 0 ? 'Import läuft weiter...' : 'Importiere...'}
                                                   </>
@@ -797,26 +800,49 @@ const ProjectDetail = () => {
                                               </span>
                                               {list.upload_stats?.total && (
                                                 <span className="text-muted-foreground font-medium">
-                                                  {(list as any).last_processed_index || list.upload_stats.successful || 0} / {list.upload_stats.total}
+                                                  {(list as any).last_processed_index || 0} / {list.upload_stats.total}
                                                 </span>
                                               )}
                                             </div>
                                             <Progress 
                                               value={list.upload_stats?.total 
-                                                ? (((list as any).last_processed_index || list.upload_stats.successful || 0) / list.upload_stats.total) * 100 
+                                                ? (((list as any).last_processed_index || 0) / list.upload_stats.total) * 100 
                                                 : 0} 
                                               className="h-2"
                                             />
-                                            {(list as any).last_processed_index > 0 && list.upload_stats?.total && (
-                                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
-                                                <AlertTriangle className="h-3 w-3 text-yellow-500" />
-                                                Import wird automatisch fortgesetzt
+                                            {(list as any).last_progress_at && (
+                                              <p className="text-xs text-muted-foreground mt-1">
+                                                Zuletzt aktualisiert: {new Date((list as any).last_progress_at).toLocaleTimeString('de-DE')}
                                               </p>
                                             )}
                                           </div>
                                         )}
                                      </div>
                                      <div className="flex gap-2 ml-4">
+                                       {(list.status === 'importing' || list.status === 'failed') && (
+                                         <Button
+                                           variant="outline"
+                                           size="sm"
+                                           onClick={async () => {
+                                             try {
+                                               const { error } = await supabase.functions.invoke('upload-street-list', {
+                                                 body: { resumeListId: list.id }
+                                               });
+                                               
+                                               if (error) throw error;
+                                               
+                                               toast.success('Import wird fortgesetzt...');
+                                               loadLists();
+                                             } catch (error) {
+                                               console.error('Resume error:', error);
+                                               toast.error('Import konnte nicht fortgesetzt werden');
+                                             }
+                                           }}
+                                         >
+                                           <PlayCircle className="h-4 w-4 mr-2" />
+                                           Fortsetzen
+                                         </Button>
+                                       )}
                                        <DropdownMenu>
                                          <DropdownMenuTrigger asChild>
                                            <Button variant="outline" size="sm">

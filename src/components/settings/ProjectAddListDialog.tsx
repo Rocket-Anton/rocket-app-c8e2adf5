@@ -265,17 +265,37 @@ export const ProjectAddListDialog = ({
 
     let lastUpdateTime = Date.now();
     let lastProcessedCount = 0;
+    let hasTriggeredResume = false;
 
     const interval = setInterval(async () => {
       const { data, error } = await supabase
         .from('project_address_lists')
-        .select('status, upload_stats, error_details, name, last_processed_index')
+        .select('status, upload_stats, error_details, name, last_processed_index, last_progress_at')
         .eq('id', currentListId)
         .single();
 
       if (error) {
         console.error('Polling error:', error);
         return;
+      }
+
+      // Check if stuck (no progress in last_progress_at for 10+ seconds)
+      const lastProgressTime = data.last_progress_at ? new Date(data.last_progress_at).getTime() : 0;
+      const isStuck = data.status === 'importing' && Date.now() - lastProgressTime > 10000;
+
+      if (isStuck && !hasTriggeredResume) {
+        console.log('Import appears stuck, triggering resume...');
+        hasTriggeredResume = true;
+        
+        supabase.functions.invoke('upload-street-list', {
+          body: { resumeListId: currentListId }
+        }).catch(err => console.error('Resume error:', err));
+      }
+
+      // Reset flag if progress is made
+      if (data.last_processed_index !== lastProcessedCount) {
+        lastProcessedCount = data.last_processed_index;
+        hasTriggeredResume = false;
       }
 
       const currentProcessed = data?.last_processed_index || 0;

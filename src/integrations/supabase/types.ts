@@ -600,7 +600,9 @@ export type Database = {
           error_details: Json | null
           file_name: string | null
           id: string
+          import_payload: Json | null
           last_processed_index: number | null
+          last_progress_at: string | null
           name: string
           project_id: string
           status: string
@@ -615,7 +617,9 @@ export type Database = {
           error_details?: Json | null
           file_name?: string | null
           id?: string
+          import_payload?: Json | null
           last_processed_index?: number | null
+          last_progress_at?: string | null
           name: string
           project_id: string
           status?: string
@@ -630,7 +634,9 @@ export type Database = {
           error_details?: Json | null
           file_name?: string | null
           id?: string
+          import_payload?: Json | null
           last_processed_index?: number | null
+          last_progress_at?: string | null
           name?: string
           project_id?: string
           status?: string

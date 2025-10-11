@@ -6,6 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+const MAX_BATCHES_PER_CALL = 3; // Process max 3 batches per function call
+
 interface CSVRow {
   PLZ: string
   ORT: string
@@ -26,11 +28,16 @@ interface ParsedAddress {
   houseNumber: string
   weCount: number
   status: string
+  locality?: string
   etage?: string
   lage?: string
   notizAdresse?: string
   notizWE?: string
   unitNote?: string
+  coordinates?: {
+    lat: number | null
+    lng: number | null
+  }
 }
 
 interface GeocodeResult {
@@ -65,813 +72,674 @@ serve(async (req) => {
       })
     }
 
-    // Support JSON body uploads with mapping (preferred path)
+    const userId = user.id
+
+    // Handle JSON body uploads
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
-      const body = await req.json() as any
-      const { projectId, listId, csvData, columnMapping, questionAnswers, marketingType, resumeListId } = body || {}
+      console.log('Processing JSON upload request');
+      
+      const requestData = await req.json();
+      const { 
+        projectId, 
+        listName, 
+        csvData, 
+        columnMapping, 
+        questionAnswers,
+        marketingType,
+        resumeListId 
+      } = requestData;
 
-      // Check if this is a resume request
+      // ===== RESUME LOGIC =====
       if (resumeListId) {
-        console.log(`Resume request for list ${resumeListId}`)
-        const { data: existingList } = await supabaseClient
-          .from('project_address_lists')
-          .select('*')
-          .eq('id', resumeListId)
-          .single()
+        console.log(`Resuming import for list ${resumeListId}`);
         
-        if (existingList && existingList.status === 'importing') {
-          console.log(`Resuming import from index ${existingList.last_processed_index}`)
-          // Re-trigger the import with the existing list data
-          // The background task will pick up from last_processed_index
+        const { data: existingList, error: listCheckError } = await supabaseClient
+          .from('project_address_lists')
+          .select('id, status, last_processed_index, import_payload, project_id')
+          .eq('id', resumeListId)
+          .single();
+
+        if (listCheckError || !existingList) {
+          console.error('List not found for resume:', listCheckError);
           return new Response(
-            JSON.stringify({ success: true, message: 'Import resumed' }),
-            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          )
+            JSON.stringify({ error: 'List not found' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          );
         }
+
+        if (existingList.status === 'completed') {
+          return new Response(
+            JSON.stringify({ error: 'Import already completed' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          );
+        }
+
+        if (!existingList.import_payload) {
+          console.error('Import payload missing - cannot resume');
+          await supabaseClient
+            .from('project_address_lists')
+            .update({ 
+              status: 'failed',
+              error_details: { error: 'Import payload missing - cannot resume. Please restart the import.' },
+              updated_at: new Date().toISOString()
+            })
+            .eq('id', resumeListId);
+          
+          return new Response(
+            JSON.stringify({ error: 'Import payload missing - cannot resume' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
+          );
+        }
+
+        console.log(`Resuming from index ${existingList.last_processed_index}`);
+        
+        await supabaseClient
+          .from('project_address_lists')
+          .update({ 
+            status: 'importing',
+            last_progress_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', resumeListId);
+
+        EdgeRuntime.waitUntil(
+          processChunk(
+            resumeListId, 
+            existingList.project_id,
+            existingList.import_payload,
+            supabaseClient, 
+            authHeader
+          )
+        );
+        
+        return new Response(
+          JSON.stringify({ 
+            message: 'Import resumed',
+            listId: resumeListId,
+            resumedFrom: existingList.last_processed_index
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
       }
 
+      // ===== NEW IMPORT LOGIC =====
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
           JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        )
+        );
       }
       
-      const isFlyerProject = marketingType === 'FLYER'
-      console.log(`Processing ${isFlyerProject ? 'FLYER' : 'regular'} project upload`)
+      console.log(`Processing new import for project ${projectId}`);
 
-      // Helpers
-      const getCol = (key: string) => Object.keys(columnMapping).find(k => columnMapping[k] === key)
-      const val = (row: any, key: string): string => {
-        const col = getCol(key)
-        const v = col ? row[col] : undefined
-        return (v === null || v === undefined) ? '' : String(v)
+      // Parse and normalize addresses
+      const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
+      
+      if (addresses.length === 0) {
+        return new Response(
+          JSON.stringify({ error: 'No valid addresses found in CSV' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      // Normalize house number: convert letters to lowercase
-      const normalizeHouseNumber = (houseNumber: string): string => {
-        if (!houseNumber) return ''
-        // Replace any uppercase letters with lowercase
-        return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase())
-      }
+      // Prepare import payload for resume capability
+      const importPayload = {
+        csvData,
+        columnMapping,
+        questionAnswers,
+        marketingType,
+        totalAddresses: addresses.length,
+        userId
+      };
 
-      // Normalize street name for comparison (handles Straße/Str./str. variations)
-      const normalizeStreetName = (street: string): string => {
-        if (!street) return ''
-        return street
-          .toLowerCase()
-          .replace(/straße/g, 'str')
-          .replace(/str\./g, 'str')
-          .replace(/\s+/g, ' ')
-          .trim()
-      }
-
-      // Build map of addresses
-      const addressMap = new Map<string, (ParsedAddress & { coordinates?: { lat: number | null; lng: number | null } })[]>()
-      const errors: string[] = []
-
-      for (const row of csvData) {
-        const street = val(row, 'street').trim()
-        let houseNumber = val(row, 'house_number').trim()
-        const hCombined = val(row, 'house_number_combined').trim()
-        const hAddon = val(row, 'house_number_addon').trim()
-        
-        if (!houseNumber && hCombined) houseNumber = hCombined
-        if (houseNumber && hAddon) houseNumber = `${houseNumber}${hAddon}`
-        
-        // Normalize house number (lowercase letters)
-        houseNumber = normalizeHouseNumber(houseNumber)
-        
-        const postalCode = val(row, 'postal_code').trim()
-        const city = val(row, 'city').trim()
-
-        const unitCountStr = val(row, 'unit_count')
-        const weStr = val(row, 'units_residential')
-        const geStr = val(row, 'units_commercial')
-        
-        let weCount = parseInt(unitCountStr) || 0
-        
-        // Check if GE should be added or not based on question answer
-        const geCalculationAnswer = questionAnswers?.ge_calculation
-        const shouldAddGE = geCalculationAnswer?.includes('addieren') || !geCalculationAnswer
-        
-        if (!weCount) {
-          const weNum = parseInt(weStr) || 0
-          const geNum = parseInt(geStr) || 0
-          
-          if (shouldAddGE) {
-            // Add GE to WE (WE + GE = Total)
-            weCount = weNum + geNum
-          } else {
-            // GE is part of WE (no addition)
-            weCount = Math.max(weNum, geNum, 1)
-          }
-        }
-        if (!weCount) weCount = 1
-
-        const etage = val(row, 'floor').trim() || undefined
-        const lage = val(row, 'position').trim() || undefined
-        const unitNote = val(row, 'unit_note').trim() || undefined
-        const status = 'Offen'
-
-        // Coordinates from CSV if present
-        let lat: number | null = null
-        let lng: number | null = null
-        const latRaw = val(row, 'latitude')
-        const lngRaw = val(row, 'longitude')
-        if (latRaw) {
-          const parsed = parseFloat(latRaw.replace(',', '.'))
-          if (!Number.isNaN(parsed)) lat = parsed
-        }
-        if (lngRaw) {
-          const parsed = parseFloat(lngRaw.replace(',', '.'))
-          if (!Number.isNaN(parsed)) lng = parsed
-        }
-
-        if (!street && !houseNumber && !postalCode && !city) {
-          errors.push(`Row ${errors.length + 2}: All mandatory fields are missing`)
-          continue
-        }
-
-        const addressKey = `${street}|${houseNumber}|${postalCode}|${city}`
-        const parsed: ParsedAddress = { postalCode, city, street, houseNumber, weCount, status, etage, lage, unitNote }
-        const list = addressMap.get(addressKey) || []
-        list.push({ ...parsed, coordinates: { lat, lng } })
-        addressMap.set(addressKey, list)
-      }
-
-      // Deduplicate like the legacy path
-      const uniqueAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
-      for (const [, duplicates] of addressMap.entries()) {
-        if (duplicates.length > 1 && duplicates.every(d => d.weCount === 1)) {
-          const first = duplicates[0]
-          const withCoords = duplicates.find(d => d.coordinates && d.coordinates.lat && d.coordinates.lng)
-          uniqueAddresses.push({
-            ...first,
-            weCount: duplicates.length,
-            coordinates: {
-              lat: withCoords?.coordinates?.lat ?? null,
-              lng: withCoords?.coordinates?.lng ?? null,
-            },
-          })
-        } else {
-          duplicates.forEach(d => {
-            uniqueAddresses.push({
-              ...d,
-              coordinates: {
-                lat: d.coordinates?.lat ?? null,
-                lng: d.coordinates?.lng ?? null,
-              },
-            })
-          })
-        }
-      }
-
-      // Set initial status - return response IMMEDIATELY
-      await supabaseClient
+      // Create the address list record with import_payload
+      const { data: newList, error: listError } = await supabaseClient
         .from('project_address_lists')
-        .update({
+        .insert({
+          project_id: projectId,
+          name: listName,
+          file_name: `${listName}.csv`,
           status: 'importing',
+          column_mapping: columnMapping,
+          chunk_size: 100,
+          last_processed_index: 0,
+          import_payload: importPayload,
+          last_progress_at: new Date().toISOString(),
           upload_stats: {
-            total: uniqueAddresses.length,
+            total: addresses.length,
             successful: 0,
-            failed: 0,
-            units: 0,
-            progress: 'Import wird vorbereitet...',
+            failed: 0
           },
+          created_by: userId
         })
-        .eq('id', listId)
+        .select()
+        .single();
 
-      // BACKGROUND TASK: All heavy operations
-      const backgroundImport = async () => {
-        const successfulAddresses: Array<{ id: number; street: string; houseNumber: string; postalCode: string; city: string }> = []
-        const failedAddresses: Array<{ address: string; reason: string }> = []
-        let totalUnits = 0
-
-        try {
-          // Check if we need to resume from a previous run
-          const { data: currentList } = await supabaseClient
-            .from('project_address_lists')
-            .select('last_processed_index, chunk_size')
-            .eq('id', listId)
-            .single()
-          
-          const startIndex = currentList?.last_processed_index || 0
-          const ADDRESS_BATCH_SIZE = currentList?.chunk_size || 100
-          
-          console.log(`Background: Processing ${uniqueAddresses.length} addresses (starting from ${startIndex})...`)
-          
-          for (let i = startIndex; i < uniqueAddresses.length; i += ADDRESS_BATCH_SIZE) {
-            const batch = uniqueAddresses.slice(i, i + ADDRESS_BATCH_SIZE)
-            
-            // Process all addresses in the batch in parallel for maximum speed
-            const batchPromises = batch.map(async (addr) => {
-              try {
-                let suggestedPlz = addr.postalCode
-                let suggestedCity = addr.city
-
-                if (!addr.postalCode || !addr.city) {
-                  const plzCounts = new Map<string, number>()
-                  const cityCounts = new Map<string, number>()
-                  for (const a of uniqueAddresses) {
-                    if (a.postalCode) plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
-                    if (a.city) cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
-                  }
-                  if (!addr.postalCode && plzCounts.size > 0) suggestedPlz = Array.from(plzCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-                  if (!addr.city && cityCounts.size > 0) suggestedCity = Array.from(cityCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-                }
-
-                if (!addr.street || !addr.houseNumber) {
-                  return {
-                    success: false,
-                    failed: {
-                      address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
-                      reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
-                    }
-                  }
-                }
-
-                // Check for existing address
-                const normalizedStreet = normalizeStreetName(addr.street)
-                const { data: existingAddresses } = await supabaseClient
-                  .from('addresses')
-                  .select('id, street')
-                  .eq('project_id', projectId)
-                  .eq('house_number', addr.houseNumber)
-                  .eq('postal_code', suggestedPlz || addr.postalCode)
-                  .eq('city', suggestedCity || addr.city)
-
-                const existingAddress = existingAddresses?.find(existing => 
-                  normalizeStreetName(existing.street) === normalizedStreet
-                )
-
-                let addressId: number
-
-                if (existingAddress) {
-                  addressId = existingAddress.id
-                } else {
-                  const coordinates = {
-                    lat: addr.coordinates?.lat ?? null,
-                    lng: addr.coordinates?.lng ?? null,
-                  }
-
-                  const { data: addressData, error: addressError } = await supabaseClient
-                    .from('addresses')
-                    .insert({
-                      street: addr.street,
-                      house_number: addr.houseNumber,
-                      postal_code: suggestedPlz || addr.postalCode,
-                      city: suggestedCity || addr.city,
-                      coordinates,
-                      project_id: projectId,
-                      list_id: listId || null,
-                      created_by: user.id,
-                      notiz: addr.notizAdresse,
-                    })
-                    .select('id')
-                    .single()
-
-                  if (addressError) throw addressError
-                  addressId = addressData.id
-                }
-
-                // Insert units in batch
-                const units = []
-                for (let j = 0; j < addr.weCount; j++) {
-                  const isVerbot = addr.status.toLowerCase() === 'verbot'
-                  
-                  // System-Notiz zusammenstellen
-                  let systemNote = undefined
-                  if (isVerbot) {
-                    systemNote = 'Status "Verbot" aus Import - nicht vermarktbar'
-                  }
-                  if (addr.unitNote) {
-                    systemNote = systemNote 
-                      ? `${systemNote}\n\n${addr.unitNote}` 
-                      : addr.unitNote
-                  }
-                  
-                  units.push({
-                    address_id: addressId,
-                    status: isVerbot ? 'Nicht vermarktbar' : addr.status,
-                    marketable: !isVerbot,
-                    etage: addr.etage,
-                    lage: addr.lage,
-                    notiz: addr.notizWE,
-                    system_notes: systemNote,
-                  })
-                }
-
-                if (units.length > 0) {
-                  const { error: unitsError } = await supabaseClient
-                    .from('units')
-                    .insert(units)
-                  if (unitsError) throw unitsError
-                }
-
-                return {
-                  success: true,
-                  successful: {
-                    id: addressId,
-                    street: addr.street,
-                    houseNumber: addr.houseNumber,
-                    postalCode: suggestedPlz || addr.postalCode,
-                    city: suggestedCity || addr.city,
-                  },
-                  unitCount: units.length
-                }
-              } catch (err) {
-                console.error('Insert error:', err)
-                return {
-                  success: false,
-                  failed: {
-                    address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-                    reason: String(err),
-                  }
-                }
-              }
-            })
-
-            // Wait for all addresses in the batch to complete in parallel
-            const batchResults = await Promise.all(batchPromises)
-
-            // Collect results
-            for (const result of batchResults) {
-              if (result.success) {
-                successfulAddresses.push(result.successful!)
-                totalUnits += result.unitCount || 0
-              } else {
-                failedAddresses.push(result.failed!)
-              }
-            }
-
-            // Update progress AND last_processed_index after each batch
-            const nextIndex = Math.min(i + ADDRESS_BATCH_SIZE, uniqueAddresses.length)
-            await supabaseClient
-              .from('project_address_lists')
-              .update({
-                last_processed_index: nextIndex,
-                upload_stats: {
-                  total: uniqueAddresses.length,
-                  successful: successfulAddresses.length,
-                  failed: failedAddresses.length,
-                  units: totalUnits,
-                  progress: `${nextIndex}/${uniqueAddresses.length} Adressen verarbeitet`,
-                },
-              })
-              .eq('id', listId)
-            
-            console.log(`Batch complete: ${nextIndex}/${uniqueAddresses.length} addresses processed`)
-          }
-
-          // Mark as completed and reset last_processed_index
-          await supabaseClient
-            .from('project_address_lists')
-            .update({
-              last_processed_index: 0,
-              status: 'completed',
-              upload_stats: {
-                total: uniqueAddresses.length,
-                successful: successfulAddresses.length,
-                failed: failedAddresses.length,
-                units: totalUnits,
-                geocoded: 0,
-                geocodingInProgress: true,
-                progress: 'Geocoding läuft im Hintergrund...',
-              },
-              error_details: failedAddresses.length > 0 ? {
-                failedAddresses,
-                errors: errors || [],
-              } : null,
-            })
-            .eq('id', listId)
-
-          // GEOCODING PHASE
-          console.log(`Starting geocoding for ${successfulAddresses.length} addresses...`)
-          const GEOCODE_BATCH_SIZE = 10
-          let geocodedCount = 0
-
-          for (let i = 0; i < successfulAddresses.length; i += GEOCODE_BATCH_SIZE) {
-            const batch = successfulAddresses.slice(i, i + GEOCODE_BATCH_SIZE)
-            
-            const geocodePromises = batch.map(async (addr) => {
-              try {
-                const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
-                  body: {
-                    street: addr.street,
-                    houseNumber: addr.houseNumber,
-                    postalCode: addr.postalCode,
-                    city: addr.city,
-                  },
-                })
-                
-                if (error) throw error
-                
-                if (data?.lat && data?.lng) {
-                  await supabaseClient
-                    .from('addresses')
-                    .update({ coordinates: { lat: data.lat, lng: data.lng } })
-                    .eq('id', addr.id)
-                  
-                  return true
-                }
-                return false
-              } catch (err) {
-                console.error(`Geocoding error for ${addr.id}:`, err)
-                return false
-              }
-            })
-
-            const results = await Promise.all(geocodePromises)
-            geocodedCount += results.filter(r => r).length
-
-            // Update progress
-            await supabaseClient
-              .from('project_address_lists')
-              .update({
-                upload_stats: {
-                  total: uniqueAddresses.length,
-                  successful: successfulAddresses.length,
-                  failed: failedAddresses.length,
-                  units: totalUnits,
-                  geocoded: geocodedCount,
-                  geocodingInProgress: geocodedCount < successfulAddresses.length,
-                  progress: `${geocodedCount}/${successfulAddresses.length} Adressen geocodiert`,
-                },
-              })
-              .eq('id', listId)
-
-            // Delay between batches
-            if (i + GEOCODE_BATCH_SIZE < successfulAddresses.length) {
-              await new Promise(resolve => setTimeout(resolve, 500))
-            }
-          }
-
-          // Final update
-          await supabaseClient
-            .from('project_address_lists')
-            .update({
-              upload_stats: {
-                total: uniqueAddresses.length,
-                successful: successfulAddresses.length,
-                failed: failedAddresses.length,
-                units: totalUnits,
-                geocoded: geocodedCount,
-                geocodingInProgress: false,
-                progress: `Fertig: ${successfulAddresses.length} Adressen, ${totalUnits} WE, ${geocodedCount} geocodiert`,
-              },
-            })
-            .eq('id', listId)
-
-          console.log(`Background import completed: ${successfulAddresses.length} addresses, ${totalUnits} units, ${geocodedCount} geocoded`)
-        } catch (err) {
-          console.error('Background import error:', err)
-          await supabaseClient
-            .from('project_address_lists')
-            .update({
-              status: 'failed',
-              upload_stats: {
-                total: uniqueAddresses.length,
-                successful: successfulAddresses.length,
-                failed: failedAddresses.length,
-                units: totalUnits,
-                progress: `Fehler: ${err instanceof Error ? err.message : String(err)}`,
-              },
-              error_details: {
-                error: err instanceof Error ? err.message : String(err),
-                failedAddresses,
-              },
-            })
-            .eq('id', listId)
-        }
+      if (listError) {
+        console.error('Failed to create list:', listError);
+        return new Response(
+          JSON.stringify({ error: 'Failed to create address list' }),
+          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
       }
 
-      // Start background task
-      // @ts-ignore
-      if (typeof EdgeRuntime !== 'undefined') {
-        // @ts-ignore
-        EdgeRuntime.waitUntil(backgroundImport())
-      } else {
-        backgroundImport().catch(console.error)
-      }
+      console.log(`Created list ${newList.id}, starting background import`);
 
-      // IMMEDIATE RESPONSE - no waiting!
+      // Start background processing
+      EdgeRuntime.waitUntil(
+        processChunk(newList.id, projectId, importPayload, supabaseClient, authHeader)
+      );
+      
       return new Response(
-        JSON.stringify({
-          success: true,
-          message: 'Import gestartet - läuft im Hintergrund',
-          listId,
+        JSON.stringify({ 
+          message: 'Import started', 
+          listId: newList.id,
+          totalAddresses: addresses.length
         }),
-        {
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' },
-          status: 200,
-        }
-      )
+        { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+      );
     }
 
-    // Legacy path: FormData upload (still supported for backwards compatibility)
-    const formData = await req.formData()
-    const file = formData.get('file') as File
-    const projectId = formData.get('projectId') as string
+    const body = await req.formData()
+    const fileName = body.get('file-name') as string | null
+    const file = body.get('file') as File | null
+    const projectId = body.get('project-id') as string | null
+    const listName = body.get('list-name') as string | null
+    const columnMappingString = body.get('column-mapping') as string | null
+    const marketingType = body.get('marketing-type') as string | null
+    const questionAnswersString = body.get('question-answers') as string | null
 
-    const csvText = await file.text()
-    const lines = csvText.split('\n').filter(line => line.trim())
-    
-    if (lines.length === 0) {
+    if (!file || !fileName || !projectId || !listName || !columnMappingString) {
       return new Response(
-        JSON.stringify({ error: 'CSV file is empty' }),
+        JSON.stringify({ error: 'Missing file, project-id, list-name or column mapping' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
 
-    // Parse CSV header
-    const header = lines[0].split(';').map(h => h.trim())
-    console.log('CSV Header:', header)
-
-    // Parse CSV rows
-    const rows: CSVRow[] = []
-    for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(';').map(v => v.trim())
-      const row: any = {}
-      header.forEach((h, idx) => {
-        row[h] = values[idx] || ''
-      })
-      rows.push(row)
+    let columnMapping
+    try {
+      columnMapping = JSON.parse(columnMappingString)
+    } catch (e) {
+      console.error('Failed to parse column mapping', e)
+      return new Response(
+        JSON.stringify({ error: 'Invalid column mapping' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
     }
 
-    console.log(`Parsed ${rows.length} rows from CSV`)
-
-    // Normalize street name for comparison (handles Straße/Str./str. variations)
-    const normalizeStreetName = (street: string): string => {
-      if (!street) return ''
-      return street
-        .toLowerCase()
-        .replace(/straße/g, 'str')
-        .replace(/str\./g, 'str')
-        .replace(/\s+/g, ' ')
-        .trim()
-    }
-
-    // Normalize house number: convert letters to lowercase
-    const normalizeHouseNumber = (houseNumber: string): string => {
-      if (!houseNumber) return ''
-      return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase())
-    }
-
-    // Group addresses by street+houseNumber to detect duplicates
-    const addressMap = new Map<string, ParsedAddress[]>()
-    const errors: string[] = []
-
-    for (const row of rows) {
-      const plz = row.PLZ?.trim() || ''
-      const ort = row.ORT?.trim() || ''
-      const strasse = row.STRASSE?.trim() || ''
-      let hausnr = row.HAUSNR?.trim() || ''
-      hausnr = normalizeHouseNumber(hausnr)
-      const weanz = row.WEANZ?.trim() || '1'
-      const status = row.STATUS?.trim() || 'Offen'
-
-      // Check for missing mandatory fields
-      if (!plz && !ort && !strasse && !hausnr) {
-        errors.push(`Row ${rows.indexOf(row) + 2}: All mandatory fields are missing`)
-        continue
-      }
-
-      const addressKey = `${strasse}|${hausnr}|${plz}|${ort}`
-      
-      const parsed: ParsedAddress = {
-        postalCode: plz,
-        city: ort,
-        street: strasse,
-        houseNumber: hausnr,
-        weCount: parseInt(weanz) || 1,
-        status: status,
-        etage: row.ETAGE?.trim() || undefined,
-        lage: row.LAGE?.trim() || undefined,
-        notizAdresse: row.NOTIZ_ADRESSE?.trim() || undefined,
-        notizWE: row.NOTIZ_WE?.trim() || undefined,
-      }
-
-      if (!addressMap.has(addressKey)) {
-        addressMap.set(addressKey, [])
-      }
-      addressMap.get(addressKey)!.push(parsed)
-    }
-
-    // Apply WE-count logic: duplicates vs WEANZ column
-    const uniqueAddresses: ParsedAddress[] = []
-    
-    for (const [key, duplicates] of addressMap.entries()) {
-      if (duplicates.length > 1 && duplicates.every(d => d.weCount === 1)) {
-        // Case: Duplicates with WEANZ=1 → use duplicate count
-        const first = duplicates[0]
-        uniqueAddresses.push({
-          ...first,
-          weCount: duplicates.length,
-          // Merge notes from all duplicates
-          notizAdresse: duplicates.map(d => d.notizAdresse).filter(Boolean).join('; ') || undefined,
-          notizWE: duplicates.map(d => d.notizWE).filter(Boolean).join('; ') || undefined,
-        })
-      } else {
-        // Case: No duplicates or WEANZ > 1 → use WEANZ from each row
-        uniqueAddresses.push(...duplicates)
-      }
-    }
-
-    console.log(`Processed ${uniqueAddresses.length} unique addresses`)
-
-    // Geocode addresses in parallel batches of 250
-    const BATCH_SIZE = 250
-    const geocodedAddresses: Array<ParsedAddress & { coordinates: GeocodeResult }> = []
-    
-    for (let i = 0; i < uniqueAddresses.length; i += BATCH_SIZE) {
-      const batch = uniqueAddresses.slice(i, i + BATCH_SIZE)
-      
-      const geocodePromises = batch.map(async (addr) => {
-        try {
-          const { data, error } = await supabaseClient.functions.invoke('geocode-address', {
-            body: {
-              street: addr.street,
-              houseNumber: addr.houseNumber,
-              postalCode: addr.postalCode,
-              city: addr.city,
-            },
-          })
-
-          if (error) throw error
-
-          return {
-            ...addr,
-            coordinates: {
-              lat: data.lat,
-              lng: data.lng,
-              error: data.error,
-            },
-          }
-        } catch (err) {
-          console.error('Geocoding error:', err)
-          return {
-            ...addr,
-            coordinates: {
-              lat: null,
-              lng: null,
-              error: String(err),
-            },
-          }
-        }
-      })
-
-      const geocodedBatch = await Promise.all(geocodePromises)
-      geocodedAddresses.push(...geocodedBatch)
-      
-      console.log(`Geocoded batch ${Math.floor(i / BATCH_SIZE) + 1}/${Math.ceil(uniqueAddresses.length / BATCH_SIZE)}`)
-    }
-
-    // Insert addresses and units into database
-    const successfulAddresses: number[] = []
-    const failedAddresses: Array<{ address: string; reason: string }> = []
-
-    for (const addr of geocodedAddresses) {
+    let questionAnswers = null
+    if (questionAnswersString) {
       try {
-        // Check for missing mandatory fields and suggest fixes
-        let suggestedPlz = addr.postalCode
-        let suggestedCity = addr.city
+        questionAnswers = JSON.parse(questionAnswersString)
+      } catch (e) {
+        console.warn('Failed to parse question answers, ignoring', e)
+      }
+    }
 
-        if (!addr.postalCode || !addr.city) {
-          // Find most common PLZ and city from the batch
-          const plzCounts = new Map<string, number>()
-          const cityCounts = new Map<string, number>()
+    const fileBuffer = await file.arrayBuffer()
+    const fileContent = new TextDecoder().decode(fileBuffer)
 
-          for (const a of geocodedAddresses) {
-            if (a.postalCode) {
-              plzCounts.set(a.postalCode, (plzCounts.get(a.postalCode) || 0) + 1)
-            }
-            if (a.city) {
-              cityCounts.set(a.city, (cityCounts.get(a.city) || 0) + 1)
-            }
-          }
+    const csvData = fileContent
+      .split('\n')
+      .map((line) => line.split(';').map((entry) => entry.trim()))
 
-          if (!addr.postalCode && plzCounts.size > 0) {
-            suggestedPlz = Array.from(plzCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-          }
-          if (!addr.city && cityCounts.size > 0) {
-            suggestedCity = Array.from(cityCounts.entries()).sort((a, b) => b[1] - a[1])[0][0]
-          }
-        }
+    const header = csvData.shift()
 
-        // If still missing mandatory fields, add to failed list
-        if (!addr.street || !addr.houseNumber) {
-          failedAddresses.push({
-            address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
-            reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
+    if (!header) {
+      return new Response(
+        JSON.stringify({ error: 'CSV file is empty or has no header' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const jsonData = csvData.map((row) => {
+      const rowData: { [key: string]: string } = {}
+      header.forEach((headerCell, index) => {
+        rowData[headerCell] = row[index] || ''
+      })
+      return rowData
+    })
+
+    const addresses = parseAddressesFromCSV(jsonData, columnMapping, questionAnswers)
+
+    if (addresses.length === 0) {
+      return new Response(
+        JSON.stringify({ error: 'No valid addresses found in CSV' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    const { data: newList, error: listError } = await supabaseClient
+      .from('project_address_lists')
+      .insert({
+        project_id: projectId,
+        name: listName,
+        file_name: fileName,
+        status: 'importing',
+        column_mapping: columnMapping,
+        chunk_size: 100,
+        upload_stats: {
+          total: addresses.length,
+          successful: 0,
+          failed: 0,
+        },
+        created_by: userId,
+      })
+      .select()
+      .single()
+
+    if (listError) {
+      console.error('Failed to create list:', listError)
+      return new Response(
+        JSON.stringify({ error: 'Failed to create address list' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
+    let successCount = 0
+    let failCount = 0
+
+    for (const addr of addresses) {
+      try {
+        const { data: insertedAddress, error: insertError } = await supabaseClient
+          .from('addresses')
+          .insert({
+            street: addr.street,
+            house_number: addr.houseNumber,
+            postal_code: addr.postalCode,
+            city: addr.city,
+            locality: addr.locality || '',
+            coordinates: addr.coordinates || { lat: null, lng: null },
+            project_id: projectId,
+            list_id: newList.id,
+            notiz: addr.notizAdresse || '',
+            created_by: userId,
           })
+          .select()
+          .single()
+
+        if (insertError) {
+          console.error('Failed to insert address:', insertError)
+          failCount++
           continue
         }
 
-        // Check if address already exists with normalized street name
-        const normalizedStreet = normalizeStreetName(addr.street)
-        const { data: existingAddresses } = await supabaseClient
-          .from('addresses')
-          .select('*')
-          .eq('project_id', projectId)
-          .eq('house_number', addr.houseNumber)
-          .eq('postal_code', suggestedPlz || addr.postalCode)
-          .eq('city', suggestedCity || addr.city)
+        if (addr.weCount > 0) {
+          const unitsToInsert = []
+          for (let i = 0; i < addr.weCount; i++) {
+            unitsToInsert.push({
+              address_id: insertedAddress.id,
+              etage: addr.etage || '',
+              lage: addr.lage || '',
+              notiz: addr.notizWE || '',
+              system_notes: addr.unitNote || '',
+              marketable: addr.status !== 'Verbot',
+              status: addr.status === 'Verbot' ? 'Nicht vermarktbar' : 'Offen',
+            })
+          }
 
-        // Find matching address by normalized street name
-        const existingAddress = existingAddresses?.find(existing => 
-          normalizeStreetName(existing.street) === normalizedStreet
-        )
+          const { error: unitsError } = await supabaseClient
+            .from('units')
+            .insert(unitsToInsert)
 
-        let addressId: number
+          if (unitsError) {
+            console.error('Failed to insert units:', unitsError)
+          }
+        }
 
-        if (existingAddress) {
-          // Use existing address ID and keep original street spelling
-          addressId = existingAddress.id
-          console.log(`Found existing address with different spelling: "${existingAddress.street}" matches "${addr.street}"`)
-        } else {
-          // Insert new address
-          const coordinates = addr.coordinates.lat && addr.coordinates.lng
-            ? { lat: addr.coordinates.lat, lng: addr.coordinates.lng }
-            : null
+        if (!addr.coordinates?.lat || !addr.coordinates?.lng) {
+          try {
+            await supabaseClient.functions.invoke('geocode-address', {
+              body: {
+                addressId: insertedAddress.id,
+                street: addr.street,
+                houseNumber: addr.houseNumber,
+                postalCode: addr.postalCode,
+                city: addr.city,
+              },
+            })
+          } catch (geocodeError) {
+            console.error('Geocoding error:', geocodeError)
+          }
+        }
 
-          const { data: addressData, error: addressError } = await supabaseClient
+        successCount++
+      } catch (error) {
+        console.error('Error processing address:', error)
+        failCount++
+      }
+    }
+
+    await supabaseClient
+      .from('project_address_lists')
+      .update({
+        status: 'completed',
+        upload_stats: {
+          total: addresses.length,
+          successful: successCount,
+          failed: failCount,
+        },
+      })
+      .eq('id', newList.id)
+
+    return new Response(
+      JSON.stringify({ message: 'File uploaded and processed successfully' }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+    )
+    return new Response(
+      JSON.stringify({ error: 'Unsupported content type' }),
+      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Request error:', error);
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  }
+});
+
+// Process a chunk of addresses and self-invoke if more work remains
+async function processChunk(
+  listId: string,
+  projectId: string,
+  importPayload: any,
+  supabaseClient: any,
+  authHeader: string
+) {
+  try {
+    console.log(`processChunk: Starting for list ${listId}`);
+    
+    const { data: list, error: listError } = await supabaseClient
+      .from('project_address_lists')
+      .select('*')
+      .eq('id', listId)
+      .single();
+
+    if (listError || !list) {
+      console.error('Failed to load list:', listError);
+      return;
+    }
+
+    const { chunk_size = 100, last_processed_index = 0, upload_stats } = list;
+    const { csvData, columnMapping, questionAnswers, userId } = importPayload;
+
+    const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
+    
+    if (addresses.length === 0) {
+      console.log('No addresses to process, marking as completed');
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          status: 'completed',
+          last_progress_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', listId);
+      return;
+    }
+
+    console.log(`Processing ${addresses.length} addresses from index ${last_processed_index}`);
+
+    let currentIndex = last_processed_index;
+    let batchesProcessed = 0;
+    let successCount = upload_stats?.successful || 0;
+    let failCount = upload_stats?.failed || 0;
+
+    // Process MAX_BATCHES_PER_CALL batches
+    while (currentIndex < addresses.length && batchesProcessed < MAX_BATCHES_PER_CALL) {
+      const endIndex = Math.min(currentIndex + chunk_size, addresses.length);
+      const batch = addresses.slice(currentIndex, endIndex);
+      
+      console.log(`Processing batch ${batchesProcessed + 1}/${MAX_BATCHES_PER_CALL}: ${currentIndex}-${endIndex}/${addresses.length}`);
+
+      for (const addr of batch) {
+        try {
+          // Insert address
+          const { data: insertedAddress, error: insertError } = await supabaseClient
             .from('addresses')
             .insert({
               street: addr.street,
               house_number: addr.houseNumber,
-              postal_code: suggestedPlz || addr.postalCode,
-              city: suggestedCity || addr.city,
-              coordinates: coordinates,
+              postal_code: addr.postalCode,
+              city: addr.city,
+              locality: addr.locality || '',
+              coordinates: addr.coordinates || { lat: null, lng: null },
               project_id: projectId,
-              created_by: user.id,
-              notiz: addr.notizAdresse,
+              list_id: listId,
+              notiz: addr.notizAdresse || '',
+              created_by: userId
             })
             .select()
-            .single()
+            .single();
 
-          if (addressError) throw addressError
-          addressId = addressData.id
+          if (insertError) {
+            console.error('Failed to insert address:', insertError);
+            failCount++;
+            continue;
+          }
+
+          // Insert units
+          if (addr.weCount > 0) {
+            const unitsToInsert = [];
+            for (let i = 0; i < addr.weCount; i++) {
+              unitsToInsert.push({
+                address_id: insertedAddress.id,
+                etage: addr.etage || '',
+                lage: addr.lage || '',
+                notiz: addr.notizWE || '',
+                system_notes: addr.unitNote || '',
+                marketable: addr.status !== 'Verbot',
+                status: addr.status === 'Verbot' ? 'Nicht vermarktbar' : 'Offen'
+              });
+            }
+
+            const { error: unitsError } = await supabaseClient
+              .from('units')
+              .insert(unitsToInsert);
+
+            if (unitsError) {
+              console.error('Failed to insert units:', unitsError);
+            }
+          }
+
+          // Geocode if needed
+          if (!addr.coordinates?.lat || !addr.coordinates?.lng) {
+            try {
+              await supabaseClient.functions.invoke('geocode-address', {
+                body: {
+                  addressId: insertedAddress.id,
+                  street: addr.street,
+                  houseNumber: addr.houseNumber,
+                  postalCode: addr.postalCode,
+                  city: addr.city
+                }
+              });
+            } catch (geocodeError) {
+              console.error('Geocoding error:', geocodeError);
+            }
+          }
+
+          successCount++;
+        } catch (error) {
+          console.error('Error processing address:', error);
+          failCount++;
         }
+      }
 
-        // Insert units for this address (new or existing)
-        const units = []
-        for (let i = 0; i < addr.weCount; i++) {
-          const isVerbot = addr.status.toLowerCase() === 'verbot'
-          units.push({
-            address_id: addressId,
-            status: isVerbot ? 'Nicht vermarktbar' : addr.status,
-            marketable: !isVerbot,
-            etage: addr.etage,
-            lage: addr.lage,
-            notiz: addr.notizWE,
-            system_notes: isVerbot ? 'Status "Verbot" aus Import - nicht vermarktbar' : undefined,
-          })
-        }
+      currentIndex = endIndex;
+      batchesProcessed++;
 
-        const { error: unitsError } = await supabaseClient
-          .from('units')
-          .insert(units)
-
-        if (unitsError) throw unitsError
-
-        successfulAddresses.push(addressId)
-
-        // If geocoding failed, add to failed list
-        if (!addr.coordinates.lat || !addr.coordinates.lng) {
-          failedAddresses.push({
-            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-            reason: addr.coordinates.error || 'Geocoding failed',
-          })
-        }
-
-      } catch (err) {
-        console.error('Insert error:', err)
-        failedAddresses.push({
-          address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-          reason: String(err),
+      // Update progress after each batch
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          last_processed_index: currentIndex,
+          last_progress_at: new Date().toISOString(),
+          upload_stats: {
+            total: addresses.length,
+            successful: successCount,
+            failed: failCount
+          },
+          updated_at: new Date().toISOString()
         })
+        .eq('id', listId);
+
+      console.log(`Batch complete: ${currentIndex}/${addresses.length} addresses processed`);
+    }
+
+    // Check if we're done or need to continue
+    if (currentIndex >= addresses.length) {
+      console.log('Import completed successfully');
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          status: 'completed',
+          last_processed_index: 0,
+          last_progress_at: new Date().toISOString(),
+          upload_stats: {
+            total: addresses.length,
+            successful: successCount,
+            failed: failCount
+          },
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', listId);
+    } else {
+      // More work to do - self-invoke to continue
+      console.log(`Scheduling continuation: ${currentIndex}/${addresses.length} processed`);
+      
+      try {
+        const continueResponse = await fetch(
+          `${Deno.env.get('SUPABASE_URL')}/functions/v1/upload-street-list`,
+          {
+            method: 'POST',
+            headers: {
+              'Authorization': authHeader,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              resumeListId: listId
+            })
+          }
+        );
+
+        if (!continueResponse.ok) {
+          console.error('Failed to schedule continuation:', await continueResponse.text());
+        } else {
+          console.log('Successfully scheduled continuation');
+        }
+      } catch (error) {
+        console.error('Error scheduling continuation:', error);
       }
     }
 
-    return new Response(
-      JSON.stringify({
-        success: true,
-        totalRows: rows.length,
-        uniqueAddresses: uniqueAddresses.length,
-        successfulAddresses: successfulAddresses.length,
-        failedAddresses: failedAddresses,
-        errors,
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
-
   } catch (error) {
-    console.error('Error:', error)
-    return new Response(
-      JSON.stringify({ error: String(error) }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.error('Chunk processing failed:', error);
+    await supabaseClient
+      .from('project_address_lists')
+      .update({
+        status: 'failed',
+        error_details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        last_progress_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      })
+      .eq('id', listId);
   }
-})
+}
+
+// Helper: Parse addresses from CSV data
+function parseAddressesFromCSV(csvData: any[], columnMapping: any, questionAnswers: any): ParsedAddress[] {
+  const addresses: ParsedAddress[] = [];
+  
+  const getCol = (key: string) => Object.keys(columnMapping).find(k => columnMapping[k] === key);
+  const val = (row: any, key: string): string => {
+    const col = getCol(key);
+    const v = col ? row[col] : undefined;
+    return (v === null || v === undefined) ? '' : String(v);
+  };
+
+  const normalizeHouseNumber = (houseNumber: string): string => {
+    if (!houseNumber) return '';
+    return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase());
+  };
+
+  for (const row of csvData) {
+    const street = val(row, 'street').trim();
+    let houseNumber = val(row, 'house_number').trim();
+    const hCombined = val(row, 'house_number_combined').trim();
+    const hAddon = val(row, 'house_number_addon').trim();
+    
+    if (!houseNumber && hCombined) houseNumber = hCombined;
+    if (houseNumber && hAddon) houseNumber = `${houseNumber}${hAddon}`;
+    houseNumber = normalizeHouseNumber(houseNumber);
+    
+    const postalCode = val(row, 'postal_code').trim();
+    const city = val(row, 'city').trim();
+    const locality = val(row, 'locality').trim();
+
+    if (!street || !postalCode || !city) {
+      continue;
+    }
+
+    const unitCountStr = val(row, 'unit_count');
+    const weStr = val(row, 'units_residential');
+    const geStr = val(row, 'units_commercial');
+    
+    let weCount = parseInt(unitCountStr) || 0;
+    
+    if (!weCount) {
+      const weNum = parseInt(weStr) || 0;
+      const geNum = parseInt(geStr) || 0;
+      const geCalculationAnswer = questionAnswers?.ge_calculation;
+      const shouldAddGE = geCalculationAnswer?.includes('addieren') || !geCalculationAnswer;
+      
+      if (shouldAddGE) {
+        weCount = weNum + geNum;
+      } else {
+        weCount = Math.max(weNum, geNum, 1);
+      }
+    }
+    if (!weCount) weCount = 1;
+
+    const etage = val(row, 'floor').trim() || undefined;
+    const lage = val(row, 'position').trim() || undefined;
+    const unitNote = val(row, 'unit_note').trim() || undefined;
+    const status = val(row, 'status').trim() || 'Offen';
+    const notizAdresse = val(row, 'address_notes').trim() || undefined;
+    const notizWE = val(row, 'unit_notes').trim() || undefined;
+
+    // Parse coordinates if present
+    let lat: number | null = null;
+    let lng: number | null = null;
+    const latRaw = val(row, 'latitude');
+    const lngRaw = val(row, 'longitude');
+    if (latRaw) {
+      const parsed = parseFloat(latRaw.replace(',', '.'));
+      if (!Number.isNaN(parsed)) lat = parsed;
+    }
+    if (lngRaw) {
+      const parsed = parseFloat(lngRaw.replace(',', '.'));
+      if (!Number.isNaN(parsed)) lng = parsed;
+    }
+
+    addresses.push({
+      street,
+      houseNumber,
+      postalCode,
+      city,
+      locality,
+      weCount,
+      status,
+      etage,
+      lage,
+      unitNote,
+      notizAdresse,
+      notizWE,
+      coordinates: { lat, lng }
+    });
+  }
+
+  return addresses;
+}
