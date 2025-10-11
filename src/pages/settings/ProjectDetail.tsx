@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings, AlertTriangle, PlayCircle } from "lucide-react";
+import { ArrowLeft, Plus, FileText, CheckCircle, AlertCircle, Loader2, Download, Send, Info, BarChart3, DollarSign, Rocket, MessageCircle, List, Trash2, ChevronDown, Settings, AlertTriangle, PlayCircle, MapPin } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -18,6 +18,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Progress } from "@/components/ui/progress";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { FailedAddressesDialog } from "@/components/settings/FailedAddressesDialog";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 
 interface Project {
   id: string;
@@ -48,11 +49,27 @@ interface AddressList {
   created_at: string;
 }
 
+interface Address {
+  id: number;
+  street: string;
+  house_number: string;
+  postal_code: string;
+  city: string;
+  locality: string | null;
+  list_id: string | null;
+  units: any[];
+  project_address_lists?: {
+    name: string;
+  };
+}
+
 const ProjectDetail = () => {
   const { id } = useParams();
   const navigate = useNavigate();
   const [project, setProject] = useState<Project | null>(null);
   const [lists, setLists] = useState<AddressList[]>([]);
+  const [addresses, setAddresses] = useState<Address[]>([]);
+  const [loadingAddresses, setLoadingAddresses] = useState(false);
   const [loading, setLoading] = useState(true);
   const [addListDialogOpen, setAddListDialogOpen] = useState(false);
   const [exporting, setExporting] = useState(false);
@@ -109,6 +126,12 @@ const ProjectDetail = () => {
     loadRejectionReasons();
   }, [id]);
 
+  useEffect(() => {
+    if (currentTab === 'addresses') {
+      loadAddresses();
+    }
+  }, [currentTab, id]);
+
   // Separate effect for polling importing lists
   useEffect(() => {
     const hasActive = lists.some(l => l.status === 'importing' || l.status === 'analyzing' || l.status === 'geocoding');
@@ -158,6 +181,46 @@ const ProjectDetail = () => {
       setLists(data || []);
     } catch (error) {
       console.error("Error loading lists:", error);
+    }
+  };
+
+  const loadAddresses = async () => {
+    if (!id) return;
+    setLoadingAddresses(true);
+    try {
+      const { data, error } = await supabase
+        .from("addresses")
+        .select(`
+          *,
+          project_address_lists (
+            name
+          )
+        `)
+        .eq("project_id", id)
+        .order("created_at", { ascending: false });
+
+      if (error) throw error;
+      
+      // Count units for each address
+      const addressesWithUnits = await Promise.all(
+        (data || []).map(async (addr) => {
+          const { count } = await supabase
+            .from("units")
+            .select("*", { count: 'exact', head: true })
+            .eq("address_id", addr.id);
+          
+          return {
+            ...addr,
+            units: Array(count || 0).fill({}),
+          };
+        })
+      );
+      
+      setAddresses(addressesWithUnits);
+    } catch (error) {
+      console.error("Error loading addresses:", error);
+    } finally {
+      setLoadingAddresses(false);
     }
   };
 
@@ -578,6 +641,10 @@ const ProjectDetail = () => {
                         <List className="w-4 h-4" />
                         Adresslisten
                       </TabsTrigger>
+                      <TabsTrigger value="addresses" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
+                        <MapPin className="w-4 h-4" />
+                        Adressen
+                      </TabsTrigger>
                       <TabsTrigger value="settings" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Settings className="w-4 h-4" />
                         Einstellungen
@@ -841,6 +908,84 @@ const ProjectDetail = () => {
                                    </div>
                                 </div>
                               ))}
+                            </div>
+                          )}
+                        </CardContent>
+                      </Card>
+                    </TabsContent>
+
+                    <TabsContent value="addresses" className="mt-6">
+                      <Card>
+                        <CardHeader>
+                          <div className="flex items-center justify-between">
+                            <div>
+                              <CardTitle className="text-lg">Alle Adressen</CardTitle>
+                              <CardDescription className="text-sm">
+                                Übersicht aller Adressen in diesem Projekt
+                              </CardDescription>
+                            </div>
+                            <Button variant="outline" size="sm" onClick={loadAddresses} disabled={loadingAddresses}>
+                              {loadingAddresses ? (
+                                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                              ) : (
+                                <Download className="w-4 h-4 mr-2" />
+                              )}
+                              Aktualisieren
+                            </Button>
+                          </div>
+                        </CardHeader>
+                        <CardContent>
+                          {loadingAddresses ? (
+                            <div className="space-y-2">
+                              <Skeleton className="h-12 w-full" />
+                              <Skeleton className="h-12 w-full" />
+                              <Skeleton className="h-12 w-full" />
+                            </div>
+                          ) : addresses.length === 0 ? (
+                            <div className="text-center py-12 text-muted-foreground">
+                              <MapPin className="w-12 h-12 mx-auto mb-4 opacity-50" />
+                              <p>Noch keine Adressen vorhanden</p>
+                              <p className="text-sm mt-2">Importieren Sie eine Adressliste, um zu beginnen</p>
+                            </div>
+                          ) : (
+                            <div className="border rounded-lg overflow-hidden">
+                              <Table>
+                                <TableHeader>
+                                  <TableRow>
+                                    <TableHead>Straße</TableHead>
+                                    <TableHead>Nr.</TableHead>
+                                    <TableHead>PLZ</TableHead>
+                                    <TableHead>Ort</TableHead>
+                                    <TableHead>Ortschaft</TableHead>
+                                    <TableHead className="text-right">Anzahl WE</TableHead>
+                                    <TableHead>Liste</TableHead>
+                                  </TableRow>
+                                </TableHeader>
+                                <TableBody>
+                                  {addresses.map((address) => (
+                                    <TableRow key={address.id}>
+                                      <TableCell className="font-medium">{address.street}</TableCell>
+                                      <TableCell>{address.house_number}</TableCell>
+                                      <TableCell>{address.postal_code}</TableCell>
+                                      <TableCell>{address.city}</TableCell>
+                                      <TableCell className="text-muted-foreground">
+                                        {address.locality || '-'}
+                                      </TableCell>
+                                      <TableCell className="text-right font-medium">
+                                        {address.units?.length || 0}
+                                      </TableCell>
+                                      <TableCell>
+                                        <Badge variant="secondary" className="text-xs">
+                                          {address.project_address_lists?.name || 'Unbekannt'}
+                                        </Badge>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))}
+                                </TableBody>
+                              </Table>
+                              <div className="px-4 py-3 border-t bg-muted/50 text-sm text-muted-foreground">
+                                Gesamt: {addresses.length} Adressen, {addresses.reduce((sum, addr) => sum + (addr.units?.length || 0), 0)} WE
+                              </div>
                             </div>
                           )}
                         </CardContent>
