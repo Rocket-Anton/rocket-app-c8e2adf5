@@ -553,15 +553,11 @@ const ProjectDetail = () => {
                       </TabsTrigger>
                       <TabsTrigger value="rockets-active" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Rocket className="w-4 h-4" />
-                        Raketen aktiv
-                      </TabsTrigger>
-                      <TabsTrigger value="rockets-planned" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
-                        <Rocket className="w-4 h-4" />
-                        Raketen geplant
+                        Raketen
                       </TabsTrigger>
                       <TabsTrigger value="commissions" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <DollarSign className="w-4 h-4" />
-                        Provisionen
+                        Tarife
                       </TabsTrigger>
                       <TabsTrigger value="telegram" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <MessageCircle className="w-4 h-4" />
@@ -623,15 +619,7 @@ const ProjectDetail = () => {
                     <TabsContent value="rockets-active" className="mt-6">
                       <Card>
                         <CardContent className="pt-6">
-                          <p className="text-muted-foreground text-center py-12">Raketen aktiv wird noch implementiert</p>
-                        </CardContent>
-                      </Card>
-                    </TabsContent>
-
-                    <TabsContent value="rockets-planned" className="mt-6">
-                      <Card>
-                        <CardContent className="pt-6">
-                          <p className="text-muted-foreground text-center py-12">Raketen geplant wird noch implementiert</p>
+                          <p className="text-muted-foreground text-center py-12">Raketen wird noch implementiert</p>
                         </CardContent>
                       </Card>
                     </TabsContent>
@@ -639,7 +627,7 @@ const ProjectDetail = () => {
                     <TabsContent value="commissions" className="mt-6">
                       <Card>
                         <CardContent className="pt-6">
-                          <p className="text-muted-foreground text-center py-12">Provisionen wird noch implementiert</p>
+                          <p className="text-muted-foreground text-center py-12">Tarife wird noch implementiert</p>
                         </CardContent>
                       </Card>
                     </TabsContent>
