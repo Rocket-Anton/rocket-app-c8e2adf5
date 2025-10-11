@@ -342,6 +342,20 @@ export const RaketenSettings = () => {
     }
   };
 
+  const handleCreateNew = () => {
+    setEditingRakete(null);
+    setFormData({
+      firstName: "",
+      lastName: "",
+      email: "",
+      phone: "",
+      role: "rocket",
+      avatarBlob: null,
+      avatarUrl: null,
+    });
+    setIsCreateOpen(true);
+  };
+
   const filteredRaketen = raketen.filter(rakete => 
     rakete.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
     rakete.first_name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
@@ -400,9 +414,26 @@ export const RaketenSettings = () => {
       <div className="flex justify-between items-center mb-6">
         <h2 className="text-2xl font-semibold">Raketen</h2>
         <div className="flex gap-2">
-          <Dialog open={isCreateOpen} onOpenChange={setIsCreateOpen}>
+          <Dialog 
+            open={isCreateOpen} 
+            onOpenChange={(open) => {
+              setIsCreateOpen(open);
+              if (!open) {
+                setEditingRakete(null);
+                setFormData({
+                  firstName: "",
+                  lastName: "",
+                  email: "",
+                  phone: "",
+                  role: "rocket",
+                  avatarBlob: null,
+                  avatarUrl: null,
+                });
+              }
+            }}
+          >
             <DialogTrigger asChild>
-              <Button onClick={() => setEditingRakete(null)}>
+              <Button onClick={handleCreateNew}>
                 <UserPlus className="w-4 h-4 mr-2" />
                 Neue Rakete
               </Button>
@@ -453,7 +484,8 @@ export const RaketenSettings = () => {
                           setFormData({ ...formData, email: e.target.value })
                         }
                         required
-                        disabled={!!editingRakete}
+                        readOnly={!!editingRakete}
+                        className={editingRakete ? "read-only:bg-muted read-only:cursor-not-allowed" : ""}
                       />
                       {editingRakete && (
                         <p className="text-xs text-muted-foreground mt-1">
