@@ -82,10 +82,12 @@ Deno.serve(async (req) => {
       console.log(`Deleting all lists in project ${projectId}...`);
       
       // First get all lists in project
-      const { data: listsData } = await supabase
+      const { data: listsData, error: listsError } = await supabase
         .from('project_address_lists')
         .select('id')
         .eq('project_id', projectId);
+      
+      console.log(`Found ${listsData?.length || 0} lists, error:`, listsError);
       
       if (listsData && listsData.length > 0) {
         const listIds = listsData.map(l => l.id);
@@ -123,11 +125,15 @@ Deno.serve(async (req) => {
       }
       
       // Also delete any orphaned addresses without list_id in this project
-      const { data: orphanedAddresses } = await supabase
+      console.log(`Looking for orphaned addresses with project_id=${projectId} and list_id IS NULL...`);
+      
+      const { data: orphanedAddresses, error: orphanedError } = await supabase
         .from('addresses')
-        .select('id', { count: 'exact' })
+        .select('id')
         .eq('project_id', projectId)
         .is('list_id', null);
+      
+      console.log(`Found ${orphanedAddresses?.length || 0} orphaned addresses, error:`, orphanedError);
       
       if (orphanedAddresses && orphanedAddresses.length > 0) {
         const orphanedIds = orphanedAddresses.map(a => a.id);
