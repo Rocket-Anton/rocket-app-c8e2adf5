@@ -8,6 +8,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import {
   Dialog,
   DialogContent,
+  DialogDescription,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
@@ -444,6 +445,9 @@ export const RaketenSettings = () => {
                 <DialogTitle>
                   {editingRakete ? "Rakete bearbeiten" : "Neue Rakete"}
                 </DialogTitle>
+                <DialogDescription className="sr-only">
+                  Rakete erstellen oder bearbeiten
+                </DialogDescription>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="flex flex-col h-full">
                 <div className="flex-1 overflow-y-auto space-y-4 px-1">

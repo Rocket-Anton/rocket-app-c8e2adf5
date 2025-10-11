@@ -70,8 +70,8 @@ export const raketenFormSchema = z.object({
       .regex(/^[+]?[(]?[0-9]{1,4}[)]?[-\s\./0-9]*$/,
         'Ungültige Telefonnummer')
     ),
-  role: z.enum(['rocket', 'project_manager'], {
-    errorMap: () => ({ message: 'Bitte wählen Sie eine Rolle' })
+  role: z.enum(['rocket', 'project_manager', 'admin', 'super_admin'], {
+    errorMap: () => ({ message: 'Bitte wählen Sie eine gültige Rolle' })
   })
 });
 
