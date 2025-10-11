@@ -32,8 +32,11 @@ export const DashboardSidebar = () => {
   // Get authenticated user
   const [currentUser, setCurrentUser] = useState<{id: string, name: string, initials: string} | null>(null);
   
-  // Check if user has access to management features
-  const hasManagementAccess = userRole === 'rocket' || userRole === 'project_manager' || userRole === 'admin' || userRole === 'super_admin';
+  // Check if user has access to management features (only admins)
+  const hasManagementAccess = userRole === 'admin' || userRole === 'super_admin';
+  
+  // Check if user has access to basic features (rockets, project managers, admins)
+  const hasBasicAccess = userRole === 'rocket' || userRole === 'project_manager' || userRole === 'admin' || userRole === 'super_admin';
   
   useEffect(() => {
     const fetchUser = async () => {
@@ -171,7 +174,7 @@ export const DashboardSidebar = () => {
                   </SidebarMenuButton>
                 </SidebarMenuItem>
 
-{hasManagementAccess && (
+{hasBasicAccess && (
                 <>
                 <SidebarMenuItem>
                   <SidebarMenuButton
@@ -264,7 +267,7 @@ export const DashboardSidebar = () => {
                 </>
                 )}
 
-{hasManagementAccess && (
+{hasBasicAccess && (
                 <SidebarMenuItem>
                   <SidebarMenuButton 
                     onClick={() => navigate("/kalender")}
@@ -287,6 +290,7 @@ export const DashboardSidebar = () => {
                 </SidebarMenuItem>
                 )}
 
+{hasBasicAccess && (
                 <SidebarMenuItem>
                   <SidebarMenuButton
                     onClick={() => state !== "collapsed" && setIsLeadsExpanded(!isLeadsExpanded)}
@@ -309,6 +313,7 @@ export const DashboardSidebar = () => {
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>
+                )}
               </SidebarMenu>
             </SidebarGroupContent>
           </SidebarGroup>
