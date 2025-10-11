@@ -227,11 +227,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         if (!error && data?.matches?.length) {
           const match = data.matches[0];
           
-          // Update city name with correctly capitalized version from API
-          if (match?.city && match.city !== city) {
-            setCity(match.city);
-          }
-          
+          // Nur Bundesland, PLZ und Koordinaten setzen, aber Stadt NICHT überschreiben
           if (match?.state) setFederalState((prev) => prev || match.state);
           if (Array.isArray(match?.postalCodes)) {
             setPostalCodeSuggestions(match.postalCodes);
@@ -251,7 +247,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
       } finally {
         setCityLookupLoading(false);
       }
-    }, 350);
+    }, 500);
 
     return () => {
       if (cityDebounceRef.current) window.clearTimeout(cityDebounceRef.current);
