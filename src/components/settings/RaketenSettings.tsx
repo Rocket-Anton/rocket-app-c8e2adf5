@@ -43,6 +43,7 @@ import {
 import { AvatarUploader } from "./AvatarUploader";
 import { raketenFormSchema } from "@/utils/validation";
 import { useActualUserRole } from "@/hooks/useUserRole";
+import { Shield, Building2, UserCheck, Sparkles } from "lucide-react";
 
 interface Rakete {
   id: string;
@@ -56,6 +57,12 @@ interface Rakete {
   role?: string;
   project_count?: number;
   email?: string | null;
+  project_manager_enabled?: boolean;
+  affiliate_enabled?: boolean;
+  agency_enabled?: boolean;
+  whitelabel_enabled?: boolean;
+  managed_by_agency_id?: string | null;
+  agency_name?: string | null;
 }
 
 export const RaketenSettings = () => {
@@ -69,9 +76,14 @@ export const RaketenSettings = () => {
     lastName: "",
     email: "",
     phone: "",
-    role: "rocket" as "rocket" | "project_manager" | "admin" | "super_admin",
+    role: "rocket" as "rocket" | "admin" | "super_admin",
     avatarBlob: null as Blob | null,
-    avatarUrl: null as string | null
+    avatarUrl: null as string | null,
+    project_manager_enabled: false,
+    affiliate_enabled: false,
+    agency_enabled: false,
+    whitelabel_enabled: false,
+    managed_by_agency_id: null as string | null,
   });
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedRaketen, setSelectedRaketen] = useState<Set<string>>(new Set());
@@ -89,7 +101,7 @@ export const RaketenSettings = () => {
 
       if (profilesError) throw profilesError;
 
-      // Get roles and email for each user
+      // Get roles, extended roles, and email for each user
       const profilesWithRoles = await Promise.all(
         (profiles || []).map(async (profile) => {
           const { data: roleData } = await supabase
@@ -97,6 +109,24 @@ export const RaketenSettings = () => {
             .select("role")
             .eq("user_id", profile.id)
             .maybeSingle();
+
+          // Get extended roles
+          const { data: extendedRole } = await supabase
+            .from("user_extended_roles")
+            .select("*")
+            .eq("user_id", profile.id)
+            .maybeSingle();
+
+          // Get agency name if managed by agency
+          let agencyName = null;
+          if (extendedRole?.managed_by_agency_id) {
+            const { data: agencyProfile } = await supabase
+              .from("profiles")
+              .select("name")
+              .eq("id", extendedRole.managed_by_agency_id)
+              .maybeSingle();
+            agencyName = agencyProfile?.name;
+          }
 
           // Get project count
           const { count } = await supabase
@@ -122,7 +152,13 @@ export const RaketenSettings = () => {
             ...profile,
             role: roleData?.role || "rocket",
             project_count: count || 0,
-            email: email
+            email: email,
+            project_manager_enabled: extendedRole?.project_manager_enabled || false,
+            affiliate_enabled: extendedRole?.affiliate_enabled || false,
+            agency_enabled: extendedRole?.agency_enabled || false,
+            whitelabel_enabled: extendedRole?.whitelabel_enabled || false,
+            managed_by_agency_id: extendedRole?.managed_by_agency_id,
+            agency_name: agencyName,
           };
         })
       );
@@ -150,7 +186,11 @@ export const RaketenSettings = () => {
     }
 
     try {
+      let userId: string | undefined;
+
       if (editingRakete) {
+        userId = editingRakete.id;
+        
         // Update existing user
         let avatarUrl = editingRakete.avatar_url;
 
@@ -212,6 +252,8 @@ export const RaketenSettings = () => {
 
         if (authError) throw authError;
         if (!authData.user) throw new Error("User creation failed");
+        
+        userId = authData.user.id;
 
         // Upload avatar if provided
         let avatarUrl = null;
@@ -283,6 +325,22 @@ export const RaketenSettings = () => {
         }
       }
 
+      // Create/Update extended roles (only if we have a userId)
+      if (userId) {
+        await supabase
+          .from("user_extended_roles")
+          .upsert({
+            user_id: userId,
+            project_manager_enabled: formData.project_manager_enabled,
+            affiliate_enabled: formData.affiliate_enabled,
+            agency_enabled: formData.agency_enabled,
+            whitelabel_enabled: formData.whitelabel_enabled,
+            managed_by_agency_id: formData.managed_by_agency_id,
+          }, {
+            onConflict: 'user_id'
+          });
+      }
+
       setFormData({ 
         firstName: "", 
         lastName: "", 
@@ -290,7 +348,12 @@ export const RaketenSettings = () => {
         phone: "", 
         role: "rocket", 
         avatarBlob: null,
-        avatarUrl: null
+        avatarUrl: null,
+        project_manager_enabled: false,
+        affiliate_enabled: false,
+        agency_enabled: false,
+        whitelabel_enabled: false,
+        managed_by_agency_id: null,
       });
       setIsCreateOpen(false);
       setEditingRakete(null);
@@ -308,9 +371,14 @@ export const RaketenSettings = () => {
       lastName: rakete.last_name || "",
       email: rakete.email || "",
       phone: rakete.phone || "",
-      role: (rakete.role as "rocket" | "project_manager" | "admin" | "super_admin") || "rocket",
+      role: (rakete.role as "rocket" | "admin" | "super_admin") || "rocket",
       avatarBlob: null,
       avatarUrl: rakete.avatar_url || null,
+      project_manager_enabled: rakete.project_manager_enabled || false,
+      affiliate_enabled: rakete.affiliate_enabled || false,
+      agency_enabled: rakete.agency_enabled || false,
+      whitelabel_enabled: rakete.whitelabel_enabled || false,
+      managed_by_agency_id: rakete.managed_by_agency_id || null,
     });
     setIsCreateOpen(true);
   };
@@ -354,6 +422,11 @@ export const RaketenSettings = () => {
       role: "rocket",
       avatarBlob: null,
       avatarUrl: null,
+      project_manager_enabled: false,
+      affiliate_enabled: false,
+      agency_enabled: false,
+      whitelabel_enabled: false,
+      managed_by_agency_id: null,
     });
     setIsCreateOpen(true);
   };
@@ -386,14 +459,12 @@ export const RaketenSettings = () => {
     const roleColors = {
       super_admin: "bg-red-500",
       admin: "bg-orange-500",
-      project_manager: "bg-blue-500",
       rocket: "bg-green-500"
     };
 
     const roleLabels = {
       super_admin: "Super Admin",
       admin: "Admin",
-      project_manager: "Projektleiter",
       rocket: "Rakete"
     };
 
@@ -402,6 +473,43 @@ export const RaketenSettings = () => {
         {roleLabels[role as keyof typeof roleLabels] || role}
       </Badge>
     );
+  };
+
+  const getExtendedBadges = (rakete: Rakete) => {
+    const badges = [];
+    if (rakete.project_manager_enabled) {
+      badges.push(
+        <Badge key="pm" variant="secondary" className="gap-1">
+          <Shield className="h-3 w-3" />
+          Projektleiter
+        </Badge>
+      );
+    }
+    if (rakete.affiliate_enabled) {
+      badges.push(
+        <Badge key="aff" variant="secondary" className="gap-1 bg-purple-500/10 text-purple-500">
+          <UserCheck className="h-3 w-3" />
+          Affiliate
+        </Badge>
+      );
+    }
+    if (rakete.agency_enabled) {
+      badges.push(
+        <Badge key="ag" variant="secondary" className="gap-1 bg-yellow-500/10 text-yellow-500">
+          <Building2 className="h-3 w-3" />
+          Agentur
+        </Badge>
+      );
+    }
+    if (rakete.whitelabel_enabled) {
+      badges.push(
+        <Badge key="wl" variant="secondary" className="gap-1 bg-indigo-500/10 text-indigo-500">
+          <Sparkles className="h-3 w-3" />
+          White-Label
+        </Badge>
+      );
+    }
+    return badges;
   };
 
   const getInitials = (rakete: Rakete) => {
@@ -430,6 +538,11 @@ export const RaketenSettings = () => {
                   role: "rocket",
                   avatarBlob: null,
                   avatarUrl: null,
+                  project_manager_enabled: false,
+                  affiliate_enabled: false,
+                  agency_enabled: false,
+                  whitelabel_enabled: false,
+                  managed_by_agency_id: null,
                 });
               }
             }}
@@ -514,10 +627,10 @@ export const RaketenSettings = () => {
 
                   {/* Rolle */}
                   <div>
-                    <Label htmlFor="role">Rolle *</Label>
+                    <Label htmlFor="role">Basis-Rolle *</Label>
                     <Select
                       value={formData.role}
-                      onValueChange={(value: "rocket" | "project_manager" | "admin" | "super_admin") =>
+                      onValueChange={(value: "rocket" | "admin" | "super_admin") =>
                         setFormData({ ...formData, role: value })
                       }
                     >
@@ -526,7 +639,6 @@ export const RaketenSettings = () => {
                       </SelectTrigger>
                       <SelectContent>
                         <SelectItem value="rocket">Rakete</SelectItem>
-                        <SelectItem value="project_manager">Projektleiter</SelectItem>
                         {(isSuperAdmin || isAdmin) && (
                           <SelectItem value="admin">Admin</SelectItem>
                         )}
@@ -536,6 +648,65 @@ export const RaketenSettings = () => {
                       </SelectContent>
                     </Select>
                   </div>
+
+                  {/* Erweiterte Rollen (nur für Super Admin) */}
+                  {isSuperAdmin && formData.role === "rocket" && (
+                    <div className="space-y-3 border-t pt-4">
+                      <Label>Erweiterte Berechtigungen</Label>
+                      <div className="space-y-2">
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="project_manager"
+                            checked={formData.project_manager_enabled}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, project_manager_enabled: checked as boolean })
+                            }
+                          />
+                          <Label htmlFor="project_manager" className="font-normal cursor-pointer">
+                            Projektleiter-Rechte aktivieren
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="affiliate"
+                            checked={formData.affiliate_enabled}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, affiliate_enabled: checked as boolean })
+                            }
+                          />
+                          <Label htmlFor="affiliate" className="font-normal cursor-pointer">
+                            Affiliate-Programm aktivieren
+                          </Label>
+                        </div>
+                        <div className="flex items-center space-x-2">
+                          <Checkbox
+                            id="agency"
+                            checked={formData.agency_enabled}
+                            onCheckedChange={(checked) =>
+                              setFormData({ ...formData, agency_enabled: checked as boolean })
+                            }
+                          />
+                          <Label htmlFor="agency" className="font-normal cursor-pointer">
+                            Agentur-Rechte aktivieren
+                          </Label>
+                        </div>
+                        {formData.agency_enabled && (
+                          <div className="flex items-center space-x-2 ml-6">
+                            <Checkbox
+                              id="whitelabel"
+                              checked={formData.whitelabel_enabled}
+                              onCheckedChange={(checked) =>
+                                setFormData({ ...formData, whitelabel_enabled: checked as boolean })
+                              }
+                            />
+                            <Label htmlFor="whitelabel" className="font-normal cursor-pointer">
+                              White-Label aktivieren
+                            </Label>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
 
                   {/* Profilbild (optional) */}
                   <div>
@@ -586,8 +757,10 @@ export const RaketenSettings = () => {
                   onCheckedChange={handleSelectAll}
                 />
               </TableHead>
-              <TableHead className="w-[300px]">Rakete</TableHead>
-              <TableHead>Rolle</TableHead>
+              <TableHead className="w-[250px]">Rakete</TableHead>
+              <TableHead className="w-[120px]">Typ</TableHead>
+              <TableHead>Zusätze</TableHead>
+              <TableHead>Agentur</TableHead>
               <TableHead className="text-center">Projekte</TableHead>
               <TableHead className="w-[80px] text-right">Action</TableHead>
             </TableRow>
@@ -644,6 +817,19 @@ export const RaketenSettings = () => {
                   </TableCell>
                   <TableCell>
                     {getRoleBadge(rakete.role)}
+                  </TableCell>
+                  <TableCell>
+                    <div className="flex flex-wrap gap-1">
+                      {getExtendedBadges(rakete)}
+                    </div>
+                  </TableCell>
+                  <TableCell>
+                    {rakete.agency_name && (
+                      <Badge variant="outline" className="gap-1">
+                        <Building2 className="h-3 w-3" />
+                        {rakete.agency_name}
+                      </Badge>
+                    )}
                   </TableCell>
                   <TableCell className="text-center">
                     <Badge variant="secondary">

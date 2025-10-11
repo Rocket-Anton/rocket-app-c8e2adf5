@@ -193,6 +193,102 @@ export type Database = {
           },
         ]
       }
+      agency_settings: {
+        Row: {
+          agency_owner_id: string
+          created_at: string
+          custom_company_name: string | null
+          custom_logo_url: string | null
+          custom_primary_color: string | null
+          custom_user_label: string
+          custom_user_label_plural: string
+          id: string
+          show_commissions: boolean
+          show_financial_data: boolean
+          show_invoices: boolean
+          updated_at: string
+        }
+        Insert: {
+          agency_owner_id: string
+          created_at?: string
+          custom_company_name?: string | null
+          custom_logo_url?: string | null
+          custom_primary_color?: string | null
+          custom_user_label?: string
+          custom_user_label_plural?: string
+          id?: string
+          show_commissions?: boolean
+          show_financial_data?: boolean
+          show_invoices?: boolean
+          updated_at?: string
+        }
+        Update: {
+          agency_owner_id?: string
+          created_at?: string
+          custom_company_name?: string | null
+          custom_logo_url?: string | null
+          custom_primary_color?: string | null
+          custom_user_label?: string
+          custom_user_label_plural?: string
+          id?: string
+          show_commissions?: boolean
+          show_financial_data?: boolean
+          show_invoices?: boolean
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      agency_user_commissions: {
+        Row: {
+          addon_id: string | null
+          agency_owner_id: string
+          agency_user_id: string
+          created_at: string
+          custom_bonus_rocket: number | null
+          custom_commission_rocket: number | null
+          id: string
+          tariff_id: string | null
+          updated_at: string
+        }
+        Insert: {
+          addon_id?: string | null
+          agency_owner_id: string
+          agency_user_id: string
+          created_at?: string
+          custom_bonus_rocket?: number | null
+          custom_commission_rocket?: number | null
+          id?: string
+          tariff_id?: string | null
+          updated_at?: string
+        }
+        Update: {
+          addon_id?: string | null
+          agency_owner_id?: string
+          agency_user_id?: string
+          created_at?: string
+          custom_bonus_rocket?: number | null
+          custom_commission_rocket?: number | null
+          id?: string
+          tariff_id?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "agency_user_commissions_addon_id_fkey"
+            columns: ["addon_id"]
+            isOneToOne: false
+            referencedRelation: "addons"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "agency_user_commissions_tariff_id_fkey"
+            columns: ["tariff_id"]
+            isOneToOne: false
+            referencedRelation: "tariffs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       csv_column_mappings: {
         Row: {
           column_mapping: Json
@@ -1314,6 +1410,48 @@ export type Database = {
         }
         Relationships: []
       }
+      user_extended_roles: {
+        Row: {
+          affiliate_enabled: boolean
+          agency_enabled: boolean
+          created_at: string
+          id: string
+          managed_by_agency_id: string | null
+          project_manager_enabled: boolean
+          referral_code: string | null
+          referred_by: string | null
+          updated_at: string
+          user_id: string
+          whitelabel_enabled: boolean
+        }
+        Insert: {
+          affiliate_enabled?: boolean
+          agency_enabled?: boolean
+          created_at?: string
+          id?: string
+          managed_by_agency_id?: string | null
+          project_manager_enabled?: boolean
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id: string
+          whitelabel_enabled?: boolean
+        }
+        Update: {
+          affiliate_enabled?: boolean
+          agency_enabled?: boolean
+          created_at?: string
+          id?: string
+          managed_by_agency_id?: string | null
+          project_manager_enabled?: boolean
+          referral_code?: string | null
+          referred_by?: string | null
+          updated_at?: string
+          user_id?: string
+          whitelabel_enabled?: boolean
+        }
+        Relationships: []
+      }
       user_roles: {
         Row: {
           created_at: string
@@ -1340,6 +1478,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_agency_owner: {
+        Args: { _user_id: string }
+        Returns: string
+      }
       get_today_stats: {
         Args: { p_user_id: string }
         Returns: {
@@ -1366,6 +1508,18 @@ export type Database = {
       }
       is_admin_or_super: {
         Args: Record<PropertyKey, never>
+        Returns: boolean
+      }
+      is_affiliate: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_agency_partner: {
+        Args: { _user_id: string }
+        Returns: boolean
+      }
+      is_project_manager: {
+        Args: { _user_id: string }
         Returns: boolean
       }
       is_regular_admin: {
