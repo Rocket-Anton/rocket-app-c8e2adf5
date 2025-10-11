@@ -191,7 +191,7 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-firstname">Vorname</Label>
+                  <Label htmlFor="signup-firstname">Vorname *</Label>
                   <Input
                     id="signup-firstname"
                     type="text"
@@ -202,7 +202,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-lastname">Nachname</Label>
+                  <Label htmlFor="signup-lastname">Nachname *</Label>
                   <Input
                     id="signup-lastname"
                     type="text"
@@ -213,7 +213,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-phone">Handynummer</Label>
+                  <Label htmlFor="signup-phone">Handynummer *</Label>
                   <Input
                     id="signup-phone"
                     type="tel"
@@ -224,7 +224,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">E-Mail</Label>
+                  <Label htmlFor="signup-email">E-Mail *</Label>
                   <Input
                     id="signup-email"
                     type="email"
@@ -235,7 +235,7 @@ const Auth = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Passwort</Label>
+                  <Label htmlFor="signup-password">Passwort *</Label>
                   <Input
                     id="signup-password"
                     type="password"
