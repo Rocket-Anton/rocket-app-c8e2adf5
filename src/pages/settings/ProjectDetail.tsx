@@ -20,7 +20,6 @@ import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigge
 import { FailedAddressesDialog } from "@/components/settings/FailedAddressesDialog";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Pagination, PaginationContent, PaginationItem, PaginationLink, PaginationNext, PaginationPrevious } from "@/components/ui/pagination";
-import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Project {
   id: string;
@@ -537,18 +536,21 @@ const ProjectDetail = () => {
       <div className="flex h-dvh w-full bg-muted/30 overflow-hidden gap-0" style={{ ['--sidebar-width' as any]: '14rem', ['--sidebar-width-icon' as any]: '5.5rem' }}>
         <DashboardSidebar />
         <SidebarInset className="flex-1 p-0 m-0 border-0 overflow-hidden">
-          <div className="h-full overflow-auto" style={{ scrollbarGutter: 'stable' }}>
-            <div className="w-full max-w-7xl mx-auto p-6">
+          <div className="flex flex-col h-full">
+            {/* Fixed Header with Back Button */}
+            <div className="flex-none border-b bg-background px-6 py-2">
               <Button
                 variant="ghost"
                 onClick={() => navigate("/settings/projects")}
-                className="mb-4"
+                size="sm"
               >
                 <ArrowLeft className="w-4 h-4 mr-2" />
                 Zurück
               </Button>
+            </div>
 
-              {loading ? (
+            {loading ? (
+              <div className="flex-1 overflow-y-auto px-6 py-4">
                 <div className="space-y-4">
                   <div className="flex items-center gap-4">
                     <Skeleton className="w-16 h-16 rounded-full" />
@@ -556,9 +558,12 @@ const ProjectDetail = () => {
                   </div>
                   <Skeleton className="h-32 w-full" />
                 </div>
-              ) : project ? (
-                <div>
-                  <div className="flex items-center justify-between mb-4">
+              </div>
+            ) : project ? (
+              <>
+                {/* Fixed Project Header */}
+                <div className="flex-none border-b bg-background px-6 py-4">
+                  <div className="flex items-center justify-between">
                     <div className="flex items-center gap-3">
                       {project.providers && (
                         <Avatar className="w-10 h-10">
@@ -581,9 +586,11 @@ const ProjectDetail = () => {
                       </Button>
                     </div>
                   </div>
+                </div>
 
-                  {/* KPI Cards */}
-                  <div className="grid grid-cols-4 gap-4 mb-6">
+                {/* Fixed KPI Cards */}
+                <div className="flex-none border-b bg-background px-6 py-4">
+                  <div className="grid grid-cols-4 gap-4">
                     <Card>
                       <CardHeader className="pb-2">
                         <CardDescription className="text-xs">Status</CardDescription>
@@ -622,10 +629,12 @@ const ProjectDetail = () => {
                       </CardContent>
                     </Card>
                   </div>
+                </div>
 
-                  {/* Tabs */}
+                {/* Fixed Tabs Header */}
+                <div className="flex-none border-b bg-background">
                   <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
-                    <TabsList className="w-full justify-start border-b rounded-none h-12 p-0 bg-transparent overflow-x-auto flex-nowrap">
+                    <TabsList className="w-full justify-start border-b-0 rounded-none h-12 p-0 bg-transparent overflow-x-auto flex-nowrap px-6">
                       <TabsTrigger value="details" className="rounded-none border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent gap-2 whitespace-nowrap">
                         <Info className="w-4 h-4" />
                         Details
@@ -663,8 +672,13 @@ const ProjectDetail = () => {
                         Einstellungen
                       </TabsTrigger>
                     </TabsList>
+                  </Tabs>
+                </div>
 
-                    <TabsContent value="details" className="mt-6">
+                {/* Scrollable Content Area */}
+                <div className="flex-1 overflow-y-auto">
+                  <Tabs value={currentTab} onValueChange={setCurrentTab} className="w-full">
+                    <TabsContent value="details" className="mt-0 px-6 py-4">
                       <Card>
                         <CardHeader>
                           <div className="flex items-center justify-between">
@@ -691,7 +705,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="dashboard" className="mt-6">
+                    <TabsContent value="dashboard" className="mt-0 px-6 py-4">
                       <Card>
                         <CardContent className="pt-6">
                           <p className="text-muted-foreground text-center py-12">Dashboard wird noch implementiert</p>
@@ -699,7 +713,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="revenue" className="mt-6">
+                    <TabsContent value="revenue" className="mt-0 px-6 py-4">
                       <Card>
                         <CardContent className="pt-6">
                           <p className="text-muted-foreground text-center py-12">Umsatz-Übersicht wird noch implementiert</p>
@@ -707,7 +721,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="rockets-active" className="mt-6">
+                    <TabsContent value="rockets-active" className="mt-0 px-6 py-4">
                       <Card>
                         <CardContent className="pt-6">
                           <p className="text-muted-foreground text-center py-12">Raketen wird noch implementiert</p>
@@ -715,7 +729,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="commissions" className="mt-6">
+                    <TabsContent value="commissions" className="mt-0 px-6 py-4">
                       <Card>
                         <CardContent className="pt-6">
                           <p className="text-muted-foreground text-center py-12">Tarife wird noch implementiert</p>
@@ -723,7 +737,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="telegram" className="mt-6">
+                    <TabsContent value="telegram" className="mt-0 px-6 py-4">
                       <Card>
                         <CardContent className="pt-6">
                           <p className="text-muted-foreground text-center py-12">Telegram-Gruppe wird noch implementiert</p>
@@ -731,7 +745,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="address-lists" className="mt-6">
+                    <TabsContent value="address-lists" className="mt-0 px-6 py-4">
                       <Card>
                         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-4">
                           <div>
@@ -828,97 +842,97 @@ const ProjectDetail = () => {
                                           )}
                                         </div>
                                       )}
-                                        <p className="text-xs text-muted-foreground mt-2">
-                                          Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
-                                            day: '2-digit', 
-                                            month: '2-digit', 
-                                            year: 'numeric',
-                                            hour: '2-digit',
-                                            minute: '2-digit'
-                                          })}
-                                        </p>
-                                         {(list.status === 'analyzing' || list.status === 'importing' || list.status === 'geocoding') && (
-                                            <div className="mt-3">
-                                             <div className="flex items-center justify-between text-xs mb-1">
-                                               <span className="text-muted-foreground flex items-center gap-1.5">
-                                                 <Loader2 className="h-3 w-3 animate-spin" />
-                                                 {list.status === 'analyzing' && 'Analysiere...'}
-                                                 {list.status === 'importing' && 'Importiere Adressen...'}
-                                                 {list.status === 'geocoding' && 'Geokodierung läuft...'}
-                                               </span>
-                                               {list.upload_stats?.total && (
-                                                 <span className="text-muted-foreground font-medium">
-                                                   {(list as any).last_processed_index || 0} / {list.upload_stats.total}
-                                                 </span>
-                                               )}
-                                             </div>
-                                             <Progress 
-                                               value={list.upload_stats?.total 
-                                                 ? (((list as any).last_processed_index || 0) / list.upload_stats.total) * 100 
-                                                 : 0} 
-                                               className="h-2"
-                                             />
-                                             {(list as any).last_progress_at && (
-                                               <p className="text-xs text-muted-foreground mt-1">
-                                                 Zuletzt aktualisiert: {new Date((list as any).last_progress_at).toLocaleTimeString('de-DE')}
-                                               </p>
-                                             )}
-                                           </div>
-                                         )}
-                                     </div>
-                                     <div className="flex gap-2 ml-4">
-                                       {(list.status === 'importing' || list.status === 'failed') && (
-                                         <Button
-                                           variant="outline"
-                                           size="sm"
-                                           onClick={async () => {
-                                             try {
-                                               const { error } = await supabase.functions.invoke('upload-street-list', {
-                                                 body: { resumeListId: list.id }
-                                               });
-                                               
-                                               if (error) throw error;
-                                               
-                                               toast.success('Import wird fortgesetzt...');
-                                               loadLists();
-                                             } catch (error) {
-                                               console.error('Resume error:', error);
-                                               toast.error('Import konnte nicht fortgesetzt werden');
-                                             }
-                                           }}
-                                         >
-                                           <PlayCircle className="h-4 w-4 mr-2" />
-                                           Fortsetzen
-                                         </Button>
-                                       )}
-                                       <DropdownMenu>
-                                         <DropdownMenuTrigger asChild>
-                                           <Button variant="outline" size="sm">
-                                             <Download className="w-4 h-4 mr-2" />
-                                             Export
-                                             <ChevronDown className="w-4 h-4 ml-2" />
-                                           </Button>
-                                         </DropdownMenuTrigger>
-                                          <DropdownMenuContent className="bg-background z-50">
-                                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('raw', list.id); }}>
-                                              <Download className="w-4 h-4 mr-2" />
-                                              Rohdatei
-                                            </DropdownMenuItem>
-                                            <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('rocket', list.id); }}>
-                                              <Download className="w-4 h-4 mr-2" />
-                                              Rocket Export
-                                            </DropdownMenuItem>
-                                          </DropdownMenuContent>
-                                       </DropdownMenu>
-                                       <Button 
-                                         variant="outline" 
-                                         size="sm"
-                                         onClick={() => openDeleteDialog(list.id)}
-                                       >
-                                         <Trash2 className="w-4 h-4" />
-                                       </Button>
-                                     </div>
-                                   </div>
+                                      <p className="text-xs text-muted-foreground mt-2">
+                                        Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
+                                          day: '2-digit', 
+                                          month: '2-digit', 
+                                          year: 'numeric',
+                                          hour: '2-digit',
+                                          minute: '2-digit'
+                                        })}
+                                      </p>
+                                      {(list.status === 'analyzing' || list.status === 'importing' || list.status === 'geocoding') && (
+                                        <div className="mt-3">
+                                          <div className="flex items-center justify-between text-xs mb-1">
+                                            <span className="text-muted-foreground flex items-center gap-1.5">
+                                              <Loader2 className="h-3 w-3 animate-spin" />
+                                              {list.status === 'analyzing' && 'Analysiere...'}
+                                              {list.status === 'importing' && 'Importiere Adressen...'}
+                                              {list.status === 'geocoding' && 'Geokodierung läuft...'}
+                                            </span>
+                                            {list.upload_stats?.total && (
+                                              <span className="text-muted-foreground font-medium">
+                                                {(list as any).last_processed_index || 0} / {list.upload_stats.total}
+                                              </span>
+                                            )}
+                                          </div>
+                                          <Progress 
+                                            value={list.upload_stats?.total 
+                                              ? (((list as any).last_processed_index || 0) / list.upload_stats.total) * 100 
+                                              : 0} 
+                                            className="h-2"
+                                          />
+                                          {(list as any).last_progress_at && (
+                                            <p className="text-xs text-muted-foreground mt-1">
+                                              Zuletzt aktualisiert: {new Date((list as any).last_progress_at).toLocaleTimeString('de-DE')}
+                                            </p>
+                                          )}
+                                        </div>
+                                      )}
+                                    </div>
+                                    <div className="flex gap-2 ml-4">
+                                      {(list.status === 'importing' || list.status === 'failed') && (
+                                        <Button
+                                          variant="outline"
+                                          size="sm"
+                                          onClick={async () => {
+                                            try {
+                                              const { error } = await supabase.functions.invoke('upload-street-list', {
+                                                body: { resumeListId: list.id }
+                                              });
+                                              
+                                              if (error) throw error;
+                                              
+                                              toast.success('Import wird fortgesetzt...');
+                                              loadLists();
+                                            } catch (error) {
+                                              console.error('Resume error:', error);
+                                              toast.error('Import konnte nicht fortgesetzt werden');
+                                            }
+                                          }}
+                                        >
+                                          <PlayCircle className="h-4 w-4 mr-2" />
+                                          Fortsetzen
+                                        </Button>
+                                      )}
+                                      <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                          <Button variant="outline" size="sm">
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Export
+                                            <ChevronDown className="w-4 h-4 ml-2" />
+                                          </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent className="bg-background z-50">
+                                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('raw', list.id); }}>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Rohdatei
+                                          </DropdownMenuItem>
+                                          <DropdownMenuItem onSelect={(e) => { e.preventDefault(); handleExport('rocket', list.id); }}>
+                                            <Download className="w-4 h-4 mr-2" />
+                                            Rocket Export
+                                          </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                      </DropdownMenu>
+                                      <Button 
+                                        variant="outline" 
+                                        size="sm"
+                                        onClick={() => openDeleteDialog(list.id)}
+                                      >
+                                        <Trash2 className="w-4 h-4" />
+                                      </Button>
+                                    </div>
+                                  </div>
                                 </div>
                               ))}
                             </div>
@@ -927,7 +941,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="addresses" className="mt-6">
+                    <TabsContent value="addresses" className="mt-6 px-6 py-4">
                       <Card>
                         <CardHeader>
                           <div className="flex items-center justify-between">
@@ -1069,7 +1083,7 @@ const ProjectDetail = () => {
                       </Card>
                     </TabsContent>
 
-                    <TabsContent value="settings" className="mt-6">
+                    <TabsContent value="settings" className="mt-6 px-6 py-4">
                       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                         {/* Status Card */}
                         <Card>
@@ -1239,91 +1253,93 @@ const ProjectDetail = () => {
                       </div>
                     </TabsContent>
                   </Tabs>
+                </div>
+              </>
+            ) : (
+              <div className="flex-1 flex items-center justify-center">
+                <p className="text-muted-foreground">Projekt nicht gefunden</p>
+              </div>
+            )}
           </div>
-        ) : (
-          <p>Projekt nicht gefunden</p>
-        )}
-      </div>
-    </div>
-
-    <ProjectAddListDialog
-      projectId={id!}
-      open={addListDialogOpen}
-      onOpenChange={setAddListDialogOpen}
-      onSuccess={loadLists}
-    />
-
-    <FailedAddressesDialog
-      listId={failedListId}
-      open={failedDialogOpen}
-      onOpenChange={setFailedDialogOpen}
-    />
-
-    <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
-      <AlertDialogContent>
-        <AlertDialogHeader>
-                <AlertDialogTitle>Adressliste löschen?</AlertDialogTitle>
-                <AlertDialogDescription>
-                  Wirklich alle Adressen dieser Liste löschen? Diese Aktion kann nicht rückgängig gemacht werden.
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                <AlertDialogAction onClick={handleDeleteList} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
-                  Löschen
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-
-          <AlertDialog open={statusDeleteDialogOpen} onOpenChange={setStatusDeleteDialogOpen}>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-yellow-500" />
-                  Status löschen
-                </AlertDialogTitle>
-                <AlertDialogDescription>
-                  {affectedUnitsCount > 0 ? (
-                    <>
-                      <p className="mb-4">
-                        {affectedUnitsCount} Wohneinheit(en) verwenden diesen Status.
-                        Bitte wählen Sie einen Ersatz-Status:
-                      </p>
-                      <Select value={replacementStatus} onValueChange={setReplacementStatus}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Status auswählen" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          {allStatuses
-                            .filter(s => s.value !== statusToDelete?.name)
-                            .map((status) => (
-                              <SelectItem key={status.value} value={status.value}>
-                                {status.label}
-                              </SelectItem>
-                            ))}
-                        </SelectContent>
-                      </Select>
-                    </>
-                  ) : (
-                    "Möchten Sie diesen Status wirklich löschen?"
-                  )}
-                </AlertDialogDescription>
-              </AlertDialogHeader>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Abbrechen</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={confirmDeleteStatus}
-                  disabled={affectedUnitsCount > 0 && !replacementStatus}
-                  className="bg-destructive hover:bg-destructive/90"
-                >
-                  Löschen
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
         </SidebarInset>
       </div>
+
+      <ProjectAddListDialog
+        projectId={id!}
+        open={addListDialogOpen}
+        onOpenChange={setAddListDialogOpen}
+        onSuccess={loadLists}
+      />
+
+      <FailedAddressesDialog
+        listId={failedListId}
+        open={failedDialogOpen}
+        onOpenChange={setFailedDialogOpen}
+      />
+
+      <AlertDialog open={deleteDialogOpen} onOpenChange={setDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Adressliste löschen?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Wirklich alle Adressen dieser Liste löschen? Diese Aktion kann nicht rückgängig gemacht werden.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction onClick={handleDeleteList} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+
+      <AlertDialog open={statusDeleteDialogOpen} onOpenChange={setStatusDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle className="flex items-center gap-2">
+              <AlertTriangle className="w-5 h-5 text-yellow-500" />
+              Status löschen
+            </AlertDialogTitle>
+            <AlertDialogDescription>
+              {affectedUnitsCount > 0 ? (
+                <>
+                  <p className="mb-4">
+                    {affectedUnitsCount} Wohneinheit(en) verwenden diesen Status.
+                    Bitte wählen Sie einen Ersatz-Status:
+                  </p>
+                  <Select value={replacementStatus} onValueChange={setReplacementStatus}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Status auswählen" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {allStatuses
+                        .filter(s => s.value !== statusToDelete?.name)
+                        .map((status) => (
+                          <SelectItem key={status.value} value={status.value}>
+                            {status.label}
+                          </SelectItem>
+                        ))}
+                    </SelectContent>
+                  </Select>
+                </>
+              ) : (
+                "Möchten Sie diesen Status wirklich löschen?"
+              )}
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Abbrechen</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmDeleteStatus}
+              disabled={affectedUnitsCount > 0 && !replacementStatus}
+              className="bg-destructive hover:bg-destructive/90"
+            >
+              Löschen
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </SidebarProvider>
   );
 };
