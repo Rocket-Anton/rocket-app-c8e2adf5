@@ -232,13 +232,14 @@ serve(async (req) => {
         try {
           console.log(`Background: Processing ${uniqueAddresses.length} addresses...`)
 
-          // Batch size for addresses
-          const ADDRESS_BATCH_SIZE = 50
+          // Batch size for addresses - increased for faster processing
+          const ADDRESS_BATCH_SIZE = 100
           
           for (let i = 0; i < uniqueAddresses.length; i += ADDRESS_BATCH_SIZE) {
             const batch = uniqueAddresses.slice(i, i + ADDRESS_BATCH_SIZE)
             
-            for (const addr of batch) {
+            // Process all addresses in the batch in parallel for maximum speed
+            const batchPromises = batch.map(async (addr) => {
               try {
                 let suggestedPlz = addr.postalCode
                 let suggestedCity = addr.city
@@ -255,11 +256,13 @@ serve(async (req) => {
                 }
 
                 if (!addr.street || !addr.houseNumber) {
-                  failedAddresses.push({
-                    address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
-                    reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
-                  })
-                  continue
+                  return {
+                    success: false,
+                    failed: {
+                      address: `${addr.street || '?'} ${addr.houseNumber || '?'}, ${suggestedPlz || '?'} ${suggestedCity || '?'}`,
+                      reason: `Missing mandatory fields: ${!addr.street ? 'STRASSE ' : ''}${!addr.houseNumber ? 'HAUSNR' : ''}`,
+                    }
+                  }
                 }
 
                 // Check for existing address
@@ -338,22 +341,41 @@ serve(async (req) => {
                     .from('units')
                     .insert(units)
                   if (unitsError) throw unitsError
-                  totalUnits += units.length
                 }
 
-                successfulAddresses.push({
-                  id: addressId,
-                  street: addr.street,
-                  houseNumber: addr.houseNumber,
-                  postalCode: suggestedPlz || addr.postalCode,
-                  city: suggestedCity || addr.city,
-                })
+                return {
+                  success: true,
+                  successful: {
+                    id: addressId,
+                    street: addr.street,
+                    houseNumber: addr.houseNumber,
+                    postalCode: suggestedPlz || addr.postalCode,
+                    city: suggestedCity || addr.city,
+                  },
+                  unitCount: units.length
+                }
               } catch (err) {
                 console.error('Insert error:', err)
-                failedAddresses.push({
-                  address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-                  reason: String(err),
-                })
+                return {
+                  success: false,
+                  failed: {
+                    address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+                    reason: String(err),
+                  }
+                }
+              }
+            })
+
+            // Wait for all addresses in the batch to complete in parallel
+            const batchResults = await Promise.all(batchPromises)
+
+            // Collect results
+            for (const result of batchResults) {
+              if (result.success) {
+                successfulAddresses.push(result.successful!)
+                totalUnits += result.unitCount || 0
+              } else {
+                failedAddresses.push(result.failed!)
               }
             }
 
