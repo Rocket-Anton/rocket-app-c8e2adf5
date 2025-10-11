@@ -752,15 +752,24 @@ const ProjectDetail = () => {
                                           )}
                                         </div>
                                       )}
-                                      {list.status === 'importing' && (
+                                       {list.status === 'importing' && (
                                         <div className="mt-2 space-y-1">
-                                          <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                                            <Loader2 className="h-3 w-3 animate-spin" />
-                                            <span>{(list.upload_stats as any)?.progress || 'Import läuft...'}</span>
+                                          <div className="flex items-center gap-2 text-xs">
+                                            <Loader2 className="h-3 w-3 animate-spin text-blue-500" />
+                                            <span className="text-muted-foreground">
+                                              {(list as any).last_processed_index 
+                                                ? `${(list as any).last_processed_index} / ${(list.upload_stats as any)?.total || '?'} Adressen verarbeitet`
+                                                : (list.upload_stats as any)?.progress || 'Import läuft...'}
+                                            </span>
                                           </div>
-                                          <Progress value={75} className="w-full h-1.5" />
+                                          {(list.upload_stats as any)?.total && (list as any).last_processed_index && (
+                                            <Progress 
+                                              value={((list as any).last_processed_index / (list.upload_stats as any).total) * 100} 
+                                              className="w-full h-1.5" 
+                                            />
+                                          )}
                                         </div>
-                                      )}
+                                       )}
                                        <p className="text-xs text-muted-foreground mt-2">
                                          Erstellt: {new Date(list.created_at).toLocaleDateString('de-DE', { 
                                            day: '2-digit', 
@@ -770,24 +779,42 @@ const ProjectDetail = () => {
                                            minute: '2-digit'
                                          })}
                                        </p>
-                                       {(list.status === 'analyzing' || list.status === 'importing') && (
-                                         <div className="mt-3">
-                                           <div className="flex items-center justify-between text-xs mb-1">
-                                             <span className="text-muted-foreground">
-                                               {list.status === 'analyzing' ? 'Analysiere...' : 'Importiere...'}
-                                             </span>
-                                             {list.upload_stats?.total && (
-                                               <span className="text-muted-foreground">
-                                                 {list.upload_stats.successful || 0} / {list.upload_stats.total}
-                                               </span>
-                                             )}
-                                           </div>
-                                           <Progress 
-                                             value={list.upload_stats?.total ? ((list.upload_stats.successful || 0) / list.upload_stats.total) * 100 : 0} 
-                                             className="h-2"
-                                           />
-                                         </div>
-                                       )}
+                                        {(list.status === 'analyzing' || list.status === 'importing') && (
+                                          <div className="mt-3">
+                                            <div className="flex items-center justify-between text-xs mb-1">
+                                              <span className="text-muted-foreground flex items-center gap-1.5">
+                                                {list.status === 'analyzing' ? (
+                                                  <>
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                    Analysiere...
+                                                  </>
+                                                ) : (
+                                                  <>
+                                                    <Loader2 className="h-3 w-3 animate-spin" />
+                                                    {(list as any).last_processed_index > 0 ? 'Import läuft weiter...' : 'Importiere...'}
+                                                  </>
+                                                )}
+                                              </span>
+                                              {list.upload_stats?.total && (
+                                                <span className="text-muted-foreground font-medium">
+                                                  {(list as any).last_processed_index || list.upload_stats.successful || 0} / {list.upload_stats.total}
+                                                </span>
+                                              )}
+                                            </div>
+                                            <Progress 
+                                              value={list.upload_stats?.total 
+                                                ? (((list as any).last_processed_index || list.upload_stats.successful || 0) / list.upload_stats.total) * 100 
+                                                : 0} 
+                                              className="h-2"
+                                            />
+                                            {(list as any).last_processed_index > 0 && list.upload_stats?.total && (
+                                              <p className="text-xs text-muted-foreground mt-1 flex items-center gap-1">
+                                                <AlertTriangle className="h-3 w-3 text-yellow-500" />
+                                                Import wird automatisch fortgesetzt
+                                              </p>
+                                            )}
+                                          </div>
+                                        )}
                                      </div>
                                      <div className="flex gap-2 ml-4">
                                        <DropdownMenu>

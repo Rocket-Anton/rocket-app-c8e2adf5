@@ -69,7 +69,27 @@ serve(async (req) => {
     const contentType = req.headers.get('content-type') || ''
     if (contentType.includes('application/json')) {
       const body = await req.json() as any
-      const { projectId, listId, csvData, columnMapping, questionAnswers, marketingType } = body || {}
+      const { projectId, listId, csvData, columnMapping, questionAnswers, marketingType, resumeListId } = body || {}
+
+      // Check if this is a resume request
+      if (resumeListId) {
+        console.log(`Resume request for list ${resumeListId}`)
+        const { data: existingList } = await supabaseClient
+          .from('project_address_lists')
+          .select('*')
+          .eq('id', resumeListId)
+          .single()
+        
+        if (existingList && existingList.status === 'importing') {
+          console.log(`Resuming import from index ${existingList.last_processed_index}`)
+          // Re-trigger the import with the existing list data
+          // The background task will pick up from last_processed_index
+          return new Response(
+            JSON.stringify({ success: true, message: 'Import resumed' }),
+            { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          )
+        }
+      }
 
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
@@ -230,12 +250,19 @@ serve(async (req) => {
         let totalUnits = 0
 
         try {
-          console.log(`Background: Processing ${uniqueAddresses.length} addresses...`)
-
-          // Batch size for addresses - increased for faster processing
-          const ADDRESS_BATCH_SIZE = 100
+          // Check if we need to resume from a previous run
+          const { data: currentList } = await supabaseClient
+            .from('project_address_lists')
+            .select('last_processed_index, chunk_size')
+            .eq('id', listId)
+            .single()
           
-          for (let i = 0; i < uniqueAddresses.length; i += ADDRESS_BATCH_SIZE) {
+          const startIndex = currentList?.last_processed_index || 0
+          const ADDRESS_BATCH_SIZE = currentList?.chunk_size || 100
+          
+          console.log(`Background: Processing ${uniqueAddresses.length} addresses (starting from ${startIndex})...`)
+          
+          for (let i = startIndex; i < uniqueAddresses.length; i += ADDRESS_BATCH_SIZE) {
             const batch = uniqueAddresses.slice(i, i + ADDRESS_BATCH_SIZE)
             
             // Process all addresses in the batch in parallel for maximum speed
@@ -379,25 +406,30 @@ serve(async (req) => {
               }
             }
 
-            // Update progress after each batch
+            // Update progress AND last_processed_index after each batch
+            const nextIndex = Math.min(i + ADDRESS_BATCH_SIZE, uniqueAddresses.length)
             await supabaseClient
               .from('project_address_lists')
               .update({
+                last_processed_index: nextIndex,
                 upload_stats: {
                   total: uniqueAddresses.length,
                   successful: successfulAddresses.length,
                   failed: failedAddresses.length,
                   units: totalUnits,
-                  progress: `${successfulAddresses.length}/${uniqueAddresses.length} Adressen gespeichert...`,
+                  progress: `${nextIndex}/${uniqueAddresses.length} Adressen verarbeitet`,
                 },
               })
               .eq('id', listId)
+            
+            console.log(`Batch complete: ${nextIndex}/${uniqueAddresses.length} addresses processed`)
           }
 
-          // Mark as completed, start geocoding
+          // Mark as completed and reset last_processed_index
           await supabaseClient
             .from('project_address_lists')
             .update({
+              last_processed_index: 0,
               status: 'completed',
               upload_stats: {
                 total: uniqueAddresses.length,

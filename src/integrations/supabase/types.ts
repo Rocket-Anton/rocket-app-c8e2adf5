@@ -593,12 +593,14 @@ export type Database = {
       }
       project_address_lists: {
         Row: {
+          chunk_size: number | null
           column_mapping: Json | null
           created_at: string
           created_by: string
           error_details: Json | null
           file_name: string | null
           id: string
+          last_processed_index: number | null
           name: string
           project_id: string
           status: string
@@ -606,12 +608,14 @@ export type Database = {
           upload_stats: Json | null
         }
         Insert: {
+          chunk_size?: number | null
           column_mapping?: Json | null
           created_at?: string
           created_by: string
           error_details?: Json | null
           file_name?: string | null
           id?: string
+          last_processed_index?: number | null
           name: string
           project_id: string
           status?: string
@@ -619,12 +623,14 @@ export type Database = {
           upload_stats?: Json | null
         }
         Update: {
+          chunk_size?: number | null
           column_mapping?: Json | null
           created_at?: string
           created_by?: string
           error_details?: Json | null
           file_name?: string | null
           id?: string
+          last_processed_index?: number | null
           name?: string
           project_id?: string
           status?: string

@@ -263,16 +263,40 @@ export const ProjectAddListDialog = ({
   useEffect(() => {
     if (step !== 'importing' || !currentListId) return;
 
+    let lastUpdateTime = Date.now();
+    let lastProcessedCount = 0;
+
     const interval = setInterval(async () => {
       const { data, error } = await supabase
         .from('project_address_lists')
-        .select('status, upload_stats, error_details, name')
+        .select('status, upload_stats, error_details, name, last_processed_index')
         .eq('id', currentListId)
         .single();
 
       if (error) {
         console.error('Polling error:', error);
         return;
+      }
+
+      const currentProcessed = data?.last_processed_index || 0;
+      const now = Date.now();
+
+      // Check if import is stuck (no progress for >15 seconds)
+      if (data?.status === 'importing') {
+        if (currentProcessed === lastProcessedCount) {
+          const timeSinceUpdate = now - lastUpdateTime;
+          if (timeSinceUpdate > 15000) {
+            console.log('Import appears stuck, attempting resume...');
+            // Attempt to resume the import
+            supabase.functions.invoke('upload-street-list', {
+              body: { resumeListId: currentListId }
+            }).catch(err => console.error('Resume error:', err));
+            lastUpdateTime = now;
+          }
+        } else {
+          lastUpdateTime = now;
+          lastProcessedCount = currentProcessed;
+        }
       }
 
       if (data?.status === 'completed') {
