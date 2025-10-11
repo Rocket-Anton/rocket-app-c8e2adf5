@@ -49,6 +49,7 @@ const MARKETING_TYPES = [
   { value: 'ADRESSERMITTLUNG', color: 'bg-orange-100 text-orange-800' },
   { value: 'GEE-VERTRIEB', color: 'bg-rose-100 text-rose-800' },
   { value: 'VVM-BK', color: 'bg-indigo-100 text-indigo-800' },
+  { value: 'FLYER', color: 'bg-amber-100 text-amber-800' },
 ];
 
 const QUOTA_TYPES = [
