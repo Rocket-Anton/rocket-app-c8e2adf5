@@ -163,10 +163,32 @@ function KarteContent() {
 
     setIsLoadingAddresses(true);
     
-    // Load addresses with their units from the separate units table
+    // First, get all completed list IDs
+    const { data: completedLists, error: listsError } = await supabase
+      .from('project_address_lists')
+      .select('id')
+      .eq('status', 'completed');
+
+    if (listsError) {
+      console.error('Error loading completed lists:', listsError);
+      setIsLoadingAddresses(false);
+      return;
+    }
+
+    const completedListIds = (completedLists || []).map(list => list.id);
+    
+    if (completedListIds.length === 0) {
+      console.log('No completed address lists found');
+      setAddresses([]);
+      setIsLoadingAddresses(false);
+      return;
+    }
+
+    // Load addresses only from completed lists
     const { data: addressData, error: addressError } = await supabase
       .from('addresses')
-      .select('*');
+      .select('*')
+      .in('list_id', completedListIds);
 
     if (addressError) {
       console.error('Error loading addresses:', addressError);
@@ -175,7 +197,7 @@ function KarteContent() {
     }
 
     if (!addressData || addressData.length === 0) {
-      console.log('No addresses found in database');
+      console.log('No addresses found in completed lists');
       setAddresses([]);
       setIsLoadingAddresses(false);
       return;

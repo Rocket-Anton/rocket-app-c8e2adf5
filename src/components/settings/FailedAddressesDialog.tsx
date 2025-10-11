@@ -5,6 +5,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Loader2 } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 interface FailedItem {
   address: string;
@@ -62,6 +63,10 @@ export const FailedAddressesDialog = ({ listId, open, onOpenChange }: FailedAddr
                 </TableHeader>
                 <TableBody>
                   {failed.map((f, idx) => {
+                    // Determine error type
+                    const isImportError = (f as any).type === 'import';
+                    const isGeocodingError = (f as any).type === 'geocoding';
+                    
                     // Parse error message to be more user-friendly
                     let errorMessage = f.reason;
                     if (errorMessage.includes('FunctionsHttpError')) {
@@ -73,7 +78,22 @@ export const FailedAddressesDialog = ({ listId, open, onOpenChange }: FailedAddr
                     return (
                       <TableRow key={idx}>
                         <TableCell className="font-medium">{f.address}</TableCell>
-                        <TableCell className="text-sm text-red-600 dark:text-red-500">
+                        <TableCell className={cn(
+                          "text-sm",
+                          isImportError && "text-red-600 dark:text-red-400",
+                          isGeocodingError && "text-yellow-600 dark:text-yellow-400",
+                          !isImportError && !isGeocodingError && "text-red-600 dark:text-red-500"
+                        )}>
+                          {isImportError && (
+                            <Badge variant="outline" className="mr-2 bg-red-50 text-red-700 border-red-200">
+                              Import-Fehler
+                            </Badge>
+                          )}
+                          {isGeocodingError && (
+                            <Badge variant="outline" className="mr-2 bg-yellow-50 text-yellow-700 border-yellow-200">
+                              Geocoding-Fehler
+                            </Badge>
+                          )}
                           {errorMessage}
                         </TableCell>
                       </TableRow>

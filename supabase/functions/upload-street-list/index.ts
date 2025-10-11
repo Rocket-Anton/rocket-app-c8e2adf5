@@ -6,7 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const MAX_BATCHES_PER_CALL = 3; // Process max 3 batches per function call
+const MAX_BATCHES_PER_CALL = 2; // Process max 2 batches per function call (500 addresses each = 1000 total)
 
 interface CSVRow {
   PLZ: string
@@ -544,27 +544,38 @@ async function processChunk(
             }
           }
 
-          // Geocode if needed
-          if (!addr.coordinates?.lat || !addr.coordinates?.lng) {
-            try {
-              await supabaseClient.functions.invoke('geocode-address', {
-                body: {
-                  addressId: insertedAddress.id,
-                  street: addr.street,
-                  houseNumber: addr.houseNumber,
-                  postalCode: addr.postalCode,
-                  city: addr.city
-                }
-              });
-            } catch (geocodeError) {
-              console.error('Geocoding error:', geocodeError);
-            }
-          }
+          // Store coordinates if available, otherwise null (geocoding done later)
+          // No synchronous geocoding here to avoid timeouts
 
           successCount++;
-        } catch (error) {
+        } catch (error: any) {
           console.error('Error processing address:', error);
           failCount++;
+          
+          // Track failed addresses
+          const failedAddress = {
+            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+            reason: error.message || 'Unbekannter Fehler beim Anlegen',
+            type: 'import'
+          };
+          
+          // Update error_details immediately
+          const { data: currentList } = await supabaseClient
+            .from('project_address_lists')
+            .select('error_details')
+            .eq('id', listId)
+            .single();
+          
+          const existingErrors = (currentList?.error_details as any)?.failedAddresses || [];
+          
+          await supabaseClient
+            .from('project_address_lists')
+            .update({
+              error_details: {
+                failedAddresses: [...existingErrors, failedAddress]
+              }
+            })
+            .eq('id', listId);
         }
       }
 
@@ -591,11 +602,11 @@ async function processChunk(
 
     // Check if we're done or need to continue
     if (currentIndex >= addresses.length) {
-      console.log('Import completed successfully');
+      console.log('Import completed, starting geocoding phase');
       await supabaseClient
         .from('project_address_lists')
         .update({
-          status: 'completed',
+          status: 'geocoding',
           last_processed_index: 0,
           last_progress_at: new Date().toISOString(),
           upload_stats: {
@@ -606,6 +617,19 @@ async function processChunk(
           updated_at: new Date().toISOString()
         })
         .eq('id', listId);
+      
+      // Trigger geocoding batch function
+      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+      
+      fetch(`${supabaseUrl}/functions/v1/geocode-addresses-batch`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${supabaseKey}`,
+        },
+        body: JSON.stringify({ listId }),
+      }).catch(err => console.error('Error triggering geocoding:', err));
     } else {
       // More work to do - self-invoke to continue
       console.log(`Scheduling continuation: ${currentIndex}/${addresses.length} processed`);

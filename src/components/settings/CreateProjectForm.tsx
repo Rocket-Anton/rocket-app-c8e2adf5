@@ -65,6 +65,7 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
   const [shiftDate, setShiftDate] = useState<Date>();
   const [selectedTariffs, setSelectedTariffs] = useState<string[]>([]);
   const [selectedAddons, setSelectedAddons] = useState<string[]>([]);
+  const [uploadFile, setUploadFile] = useState<File | null>(null);
 
   const [formData, setFormData] = useState({
     areaName: "",
@@ -240,7 +241,102 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
         if (addonsError) throw addonsError;
       }
 
-      toast.success("Projekt erfolgreich erstellt");
+      // Handle CSV upload if file is provided
+      if (uploadFile) {
+        try {
+          console.log('Processing uploaded CSV for project:', project.id);
+          
+          // Parse CSV/Excel
+          const isExcel = uploadFile.name.endsWith('.xlsx') || uploadFile.name.endsWith('.xls');
+          let csvData: any[] = [];
+          let csvHeaders: string[] = [];
+
+          if (isExcel) {
+            const reader = new FileReader();
+            const fileContent = await new Promise<string>((resolve, reject) => {
+              reader.onload = (e) => resolve(e.target?.result as string);
+              reader.onerror = reject;
+              reader.readAsBinaryString(uploadFile);
+            });
+
+            const XLSX = await import('xlsx');
+            const workbook = XLSX.read(fileContent, { type: 'binary' });
+            const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
+            const jsonData = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
+            
+            csvHeaders = jsonData[0] as string[];
+            csvData = jsonData.slice(1).map((row: any) => {
+              const obj: any = {};
+              row.forEach((cell: any, idx: number) => {
+                obj[csvHeaders[idx]] = cell;
+              });
+              return obj;
+            });
+          } else {
+            const Papa = await import('papaparse');
+            const parseResult = await new Promise<any>((resolve, reject) => {
+              Papa.parse(uploadFile, {
+                header: true,
+                skipEmptyLines: true,
+                complete: resolve,
+                error: reject,
+              });
+            });
+            csvData = parseResult.data;
+            csvHeaders = parseResult.meta.fields || [];
+          }
+
+          // Analyze CSV structure
+          const { data: analysisData, error: analysisError } = await supabase.functions.invoke(
+            'analyze-csv-structure',
+            {
+              body: {
+                csvHeaders,
+                sampleRows: csvData.slice(0, 5),
+                providerId: selectedProviderId,
+              },
+            }
+          );
+
+          if (analysisError) throw analysisError;
+
+          // Create project_address_lists record
+          const { data: addressList, error: listError } = await supabase
+            .from('project_address_lists')
+            .insert({
+              project_id: project.id,
+              name: `Import vom ${new Date().toLocaleDateString('de-DE')}`,
+              status: 'pending',
+              created_by: userData.user.id,
+              column_mapping: analysisData.suggested_mapping,
+              file_name: uploadFile.name,
+            })
+            .select()
+            .single();
+
+          if (listError) throw listError;
+
+          // Trigger upload-street-list function
+          const { error: uploadError } = await supabase.functions.invoke('upload-street-list', {
+            body: {
+              listId: addressList.id,
+              csvData: JSON.stringify(csvData),
+              columnMapping: analysisData.suggested_mapping,
+              questionAnswers: {},
+            },
+          });
+
+          if (uploadError) throw uploadError;
+
+          toast.success("Projekt erstellt. Adressliste wird importiert...");
+        } catch (uploadError: any) {
+          console.error('Error uploading address list:', uploadError);
+          toast.error(`Projekt erstellt, aber Fehler beim CSV-Upload: ${uploadError.message}`);
+        }
+      } else {
+        toast.success("Projekt erfolgreich erstellt");
+      }
+
       onSuccess();
     } catch (error: any) {
       console.error('Error creating project:', error);
@@ -624,11 +720,18 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
 
       {/* Straßenliste Upload */}
       <div className="space-y-2">
-        <Label>Straßenliste hochladen</Label>
-        <Button type="button" variant="outline" className="w-full">
-          <Upload className="w-4 h-4 mr-2" />
-          Excel hochladen (kommt später)
-        </Button>
+        <Label>Straßenliste hochladen (optional)</Label>
+        <Input
+          type="file"
+          accept=".csv,.xlsx,.xls"
+          onChange={(e) => setUploadFile(e.target.files?.[0] || null)}
+          className="cursor-pointer"
+        />
+        {uploadFile && (
+          <p className="text-sm text-muted-foreground">
+            Datei ausgewählt: {uploadFile.name}
+          </p>
+        )}
       </div>
 
       {/* Action Buttons */}
