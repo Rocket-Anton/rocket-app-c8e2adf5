@@ -76,6 +76,7 @@ export const RaketenSettings = () => {
   const [selectedRaketen, setSelectedRaketen] = useState<Set<string>>(new Set());
 
   const isSuperAdmin = actualUserRole === 'super_admin';
+  const isAdmin = actualUserRole === 'admin';
 
   const { data: raketen = [], isLoading: loading } = useQuery({
     queryKey: ['raketen'],
@@ -522,11 +523,11 @@ export const RaketenSettings = () => {
                       <SelectContent>
                         <SelectItem value="rocket">Rakete</SelectItem>
                         <SelectItem value="project_manager">Projektleiter</SelectItem>
+                        {(isSuperAdmin || isAdmin) && (
+                          <SelectItem value="admin">Admin</SelectItem>
+                        )}
                         {isSuperAdmin && (
-                          <>
-                            <SelectItem value="admin">Admin</SelectItem>
-                            <SelectItem value="super_admin">Super Admin</SelectItem>
-                          </>
+                          <SelectItem value="super_admin">Super Admin</SelectItem>
                         )}
                       </SelectContent>
                     </Select>
@@ -653,12 +654,16 @@ export const RaketenSettings = () => {
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleEdit(rakete)}>
+                        <DropdownMenuItem 
+                          onClick={() => handleEdit(rakete)}
+                          disabled={isAdmin && rakete.role === 'super_admin'}
+                        >
                           Bearbeiten
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => handleDelete(rakete.id)}
                           className="text-destructive"
+                          disabled={isAdmin && rakete.role === 'super_admin'}
                         >
                           Löschen
                         </DropdownMenuItem>
