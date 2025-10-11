@@ -20,11 +20,17 @@ const authSchema = z.object({
     .regex(/[A-Z]/, 'Mindestens ein Großbuchstabe erforderlich')
     .regex(/[a-z]/, 'Mindestens ein Kleinbuchstabe erforderlich')
     .regex(/[0-9]/, 'Mindestens eine Zahl erforderlich'),
-  name: z.string()
+  firstName: z.string()
     .trim()
-    .min(1, 'Name ist erforderlich')
-    .max(100, 'Name darf maximal 100 Zeichen haben')
-    .regex(/^[a-zA-ZäöüÄÖÜß\s\-']+$/, 'Name enthält ungültige Zeichen')
+    .min(1, 'Vorname ist erforderlich')
+    .max(50, 'Vorname darf maximal 50 Zeichen haben')
+    .regex(/^[a-zA-ZäöüÄÖÜß\s\-']+$/, 'Vorname enthält ungültige Zeichen')
+    .optional(),
+  lastName: z.string()
+    .trim()
+    .min(1, 'Nachname ist erforderlich')
+    .max(50, 'Nachname darf maximal 50 Zeichen haben')
+    .regex(/^[a-zA-ZäöüÄÖÜß\s\-']+$/, 'Nachname enthält ungültige Zeichen')
     .optional()
 });
 
@@ -33,7 +39,8 @@ const Auth = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
-  const [name, setName] = useState("");
+  const [firstName, setFirstName] = useState("");
+  const [lastName, setLastName] = useState("");
 
   useEffect(() => {
     // Check if user is already logged in
@@ -62,7 +69,8 @@ const Auth = () => {
       const validationResult = authSchema.safeParse({
         email,
         password,
-        name
+        firstName,
+        lastName
       });
 
       if (!validationResult.success) {
@@ -77,7 +85,8 @@ const Auth = () => {
         password: validationResult.data.password,
         options: {
           data: {
-            name: validationResult.data.name,
+            first_name: validationResult.data.firstName,
+            last_name: validationResult.data.lastName,
           },
           emailRedirectTo: `${window.location.origin}/karte`,
         },
@@ -99,7 +108,7 @@ const Auth = () => {
 
     try {
       // Validate inputs
-      const validationResult = authSchema.omit({ name: true }).safeParse({
+      const validationResult = authSchema.omit({ firstName: true, lastName: true }).safeParse({
         email,
         password
       });
@@ -175,13 +184,24 @@ const Auth = () => {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-name">Name</Label>
+                  <Label htmlFor="signup-firstname">Vorname</Label>
                   <Input
-                    id="signup-name"
+                    id="signup-firstname"
                     type="text"
-                    placeholder="Ihr Name"
-                    value={name}
-                    onChange={(e) => setName(e.target.value)}
+                    placeholder="Dein Vorname"
+                    value={firstName}
+                    onChange={(e) => setFirstName(e.target.value)}
+                    required
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="signup-lastname">Nachname</Label>
+                  <Input
+                    id="signup-lastname"
+                    type="text"
+                    placeholder="Dein Nachname"
+                    value={lastName}
+                    onChange={(e) => setLastName(e.target.value)}
                     required
                   />
                 </div>
