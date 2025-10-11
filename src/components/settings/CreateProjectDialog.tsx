@@ -518,10 +518,11 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
     e.preventDefault();
     
     // Validation
-    // Info Text is only required for non-FLYER projects
+    // Info Text and unitCount are only required for non-FLYER projects
     const isTenderInfoRequired = marketingType !== 'FLYER';
+    const isUnitCountRequired = marketingType !== 'FLYER';
     
-    if (!selectedProvider || !areaName || !status || !city || !postalCode || !federalState || !marketingType || !unitCount || !telegramGroupCreate || !postJobBooster || (isTenderInfoRequired && !tenderInfo) || !dateRange?.from || !dateRange?.to) {
+    if (!selectedProvider || !areaName || !status || !city || !postalCode || !federalState || !marketingType || (isUnitCountRequired && !unitCount) || !telegramGroupCreate || !postJobBooster || (isTenderInfoRequired && !tenderInfo) || !dateRange?.from || !dateRange?.to) {
       toast.error("Bitte füllen Sie alle Pflichtfelder (*) aus");
       return;
     }
@@ -887,7 +888,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
               </PopoverContent>
             </Popover>
 
-            {workingDaysInfo && (
+            {workingDaysInfo && marketingType !== 'FLYER' && (
               <div className="mt-3 p-3 bg-muted/50 rounded-md border space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Gesamttage:</span>
@@ -924,7 +925,7 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
                 </div>
               </div>
             )}
-            {!federalState && dateRange?.from && dateRange?.to && (
+            {!federalState && dateRange?.from && dateRange?.to && marketingType !== 'FLYER' && (
               <p className="text-xs text-orange-600 dark:text-orange-400 mt-2">
                 Bundesland auswählen, um Feiertage zu berücksichtigen
               </p>
@@ -947,156 +948,9 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </div>
       )}
 
-      {/* Bestandskunden Toggle - nur wenn nicht FLYER */}
+      {/* Bestandskunden Toggle und berechnete Felder - nur wenn nicht FLYER */}
       {marketingType !== 'FLYER' && (
-        <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
-          <Label htmlFor="has-existing-customers" className="text-sm font-medium cursor-pointer">
-            Bestandskunden
-          </Label>
-          <Switch
-            id="has-existing-customers"
-            checked={hasExistingCustomers}
-            onCheckedChange={setHasExistingCustomers}
-          />
-        </div>
-      )}
-
-      {/* Bestandskunden Felder */}
-      {hasExistingCustomers && marketingType !== 'FLYER' && (
         <>
-          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
-            <Label className="text-sm font-medium">
-              Anzahl der Bestandskunden<span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Input
-              type="number"
-              value={existingCustomerCount}
-              onChange={(e) => setExistingCustomerCount(e.target.value)}
-              placeholder="0"
-              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-            />
-          </div>
-
-          <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4 pointer-events-auto">
-            <Label className="text-sm font-medium">
-              Können Bestandskunden beschrieben werden?<span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Select value={canWriteExistingCustomers} onValueChange={setCanWriteExistingCustomers}>
-              <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-                <SelectValue placeholder="Option auswählen" className="data-[placeholder]:text-muted-foreground" />
-              </SelectTrigger>
-              <SelectContent className="bg-background pointer-events-auto">
-                {YES_NO_OPTIONS.map((option) => (
-                  <SelectItem key={option.value} value={option.value}>
-                    {option.value}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-        </>
-      )}
-
-      {/* WE Reduktion Toggle - nur wenn nicht FLYER */}
-      {marketingType !== 'FLYER' && (
-        <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
-          <Label htmlFor="has-we-reduction" className="text-sm font-medium cursor-pointer">
-            WE Reduktion angeben
-          </Label>
-          <Switch
-            id="has-we-reduction"
-            checked={hasWeReduction}
-            onCheckedChange={setHasWeReduction}
-          />
-        </div>
-      )}
-
-      {/* Beide Felder: WE Reduktion und Saleable WE */}
-      {hasWeReduction && marketingType !== 'FLYER' && (
-        <div className="ml-4 space-y-4 border-l-2 border-primary/30 pl-4">
-          {/* Anzahl WE Reduktion */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              Anzahl WE Reduktion<span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Input
-              type="number"
-              value={lastEditedField === 'reduction' ? weReductionCount : (calculatedReduction?.toString() || weReductionCount)}
-              onChange={(e) => {
-                setWeReductionCount(e.target.value);
-                setLastEditedField('reduction');
-                setSaleableUnitsManual(''); // Clear manual saleable input
-              }}
-              placeholder="0"
-              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-            />
-          </div>
-
-          {/* Saleable WE */}
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              Saleable WE<span className="text-red-500 ml-1">*</span>
-            </Label>
-            <Input
-              type="number"
-              value={lastEditedField === 'saleable' ? saleableUnitsManual : (saleableUnits?.toString() || '')}
-              onChange={(e) => {
-                setSaleableUnitsManual(e.target.value);
-                setLastEditedField('saleable');
-                setWeReductionCount(''); // Clear manual reduction input
-              }}
-              placeholder="0"
-              className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-            />
-          </div>
-        </div>
-      )}
-
-      {/* Art Quote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv UND nicht FLYER */}
-      {(hasExistingCustomers || hasWeReduction) && marketingType !== 'FLYER' && (
-        <div className="space-y-2 pointer-events-auto">
-          <Label className="text-sm font-medium">
-            Art Quote<span className="text-red-500 ml-1">*</span>
-          </Label>
-          <Select value={quotaType} onValueChange={setQuotaType}>
-            <SelectTrigger className="bg-background border border-input hover:border-primary/50 transition-colors h-11 pointer-events-auto">
-              <SelectValue placeholder="Art Quote auswählen" className="data-[placeholder]:text-muted-foreground" />
-            </SelectTrigger>
-            <SelectContent className="bg-background pointer-events-auto">
-              {QUOTA_TYPES.map((type) => (
-                <SelectItem key={type.value} value={type.value}>
-                  {type.value}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
-      )}
-
-      {/* Zielquote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv UND nicht FLYER */}
-      {(hasExistingCustomers || hasWeReduction) && marketingType !== 'FLYER' && (
-        <>
-          <div className="space-y-2">
-            <Label className="text-sm font-medium">
-              Zielquote<span className="text-red-500 ml-1">*</span>
-            </Label>
-            <div className="relative">
-              <Input
-                type="number"
-                step="1"
-                min="0"
-                max="100"
-                value={targetQuota}
-                onChange={(e) => setTargetQuota(e.target.value.replace(/[^0-9]/g, ""))}
-                placeholder="0"
-                className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11 pr-8"
-              />
-              <span className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none">
-                %
-              </span>
-            </div>
-          </div>
-
           {/* Zielaufträge Anzeige */}
           {targetOrders !== null && (
             <div className="space-y-2 p-3 bg-green-50 dark:bg-green-950/20 rounded-lg border border-green-200 dark:border-green-800">
@@ -1122,9 +976,9 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </>
       )}
 
-      {/* Anzahl Raketen Soll - mit Vorschlag */}
+      {/* Anzahl Raketen Soll - mit Vorschlag nur bei nicht-FLYER */}
       <div className="space-y-4 pt-4 border-t">
-        {rocketSuggestion && (
+        {rocketSuggestion && marketingType !== 'FLYER' && (
           <div className="p-4 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800">
             <div className="flex items-center justify-between mb-3">
               <div>
@@ -1156,10 +1010,10 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           </div>
         )}
 
-        {(!acceptRocketSuggestion || !rocketSuggestion) && (
+        {(!acceptRocketSuggestion || !rocketSuggestion || marketingType === 'FLYER') && (
           <div className="space-y-2">
             <Label className="text-sm font-medium">
-              Anzahl Raketen Soll{!rocketSuggestion && <span className="text-red-500 ml-1">*</span>}
+              Anzahl Raketen Soll<span className="text-red-500 ml-1">*</span>
             </Label>
             <Input
               type="number"
@@ -1172,8 +1026,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
           </div>
         )}
 
-        {/* Durchschnittliche WE pro Rakete */}
-        {avgWePerRocket && (
+        {/* Durchschnittliche WE pro Rakete - nur bei nicht-FLYER */}
+        {avgWePerRocket && marketingType !== 'FLYER' && (
           <div className="p-3 bg-purple-50 dark:bg-purple-950/20 rounded-lg border border-purple-200 dark:border-purple-800">
             <Label className="text-sm font-medium text-purple-700 dark:text-purple-400">Durchschnittliche WE pro Rakete</Label>
             <div className="text-2xl font-bold text-purple-700 dark:text-purple-400 mt-1">
