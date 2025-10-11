@@ -6,19 +6,8 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
-const MAX_BATCHES_PER_CALL = 2; // Process max 2 batches per function call (500 addresses each = 1000 total)
-
 interface CSVRow {
-  PLZ: string
-  ORT: string
-  STRASSE: string
-  HAUSNR: string
-  WEANZ?: string
-  STATUS?: string
-  ETAGE?: string
-  LAGE?: string
-  NOTIZ_ADRESSE?: string
-  NOTIZ_WE?: string
+  [key: string]: any;
 }
 
 interface ParsedAddress {
@@ -33,18 +22,309 @@ interface ParsedAddress {
   lage?: string
   notizAdresse?: string
   notizWE?: string
-  unitNote?: string
-  coordinates?: {
-    lat: number | null
-    lng: number | null
-  }
+  normalizedKey: string
 }
 
-interface GeocodeResult {
-  lat: number | null
-  lng: number | null
-  error?: string
+interface ValidationError {
+  field: string;
+  message: string;
+  suggestion?: string;
+  addressIndex: number;
+  addressPreview: string;
 }
+
+// ===== ADDRESS NORMALIZATION FUNCTIONS =====
+
+function normalizeStreet(street: string): string {
+  if (!street) return '';
+  
+  let normalized = street.trim();
+  const lower = normalized.toLowerCase();
+  
+  const abbreviations: Record<string, string> = {
+    'str.': 'strasse',
+    'str ': 'strasse ',
+    'straße': 'strasse',
+    'stra?e': 'strasse',
+    'st.': 'strasse',
+  };
+  
+  for (const [abbr, full] of Object.entries(abbreviations)) {
+    if (lower.includes(abbr)) {
+      normalized = normalized.replace(new RegExp(abbr, 'gi'), full);
+      break;
+    }
+  }
+  
+  normalized = normalizeUmlauts(normalized);
+  normalized = normalized.replace(/\s+/g, ' ').trim();
+  
+  return normalized;
+}
+
+function normalizeUmlauts(text: string): string {
+  if (!text) return '';
+  
+  return text
+    .replace(/ä/g, 'ae')
+    .replace(/ö/g, 'oe')
+    .replace(/ü/g, 'ue')
+    .replace(/Ä/g, 'ae')
+    .replace(/Ö/g, 'oe')
+    .replace(/Ü/g, 'ue')
+    .replace(/ß/g, 'ss')
+    .toLowerCase();
+}
+
+function normalizeHouseNumber(houseNumber: string): string {
+  if (!houseNumber) return '';
+  
+  let normalized = houseNumber.trim().replace(/\s+/g, '');
+  normalized = normalized.toLowerCase();
+  normalized = normalized.replace(/[\s\-_]/g, '');
+  
+  return normalized;
+}
+
+function createNormalizedKey(
+  street: string,
+  houseNumber: string,
+  postalCode: string,
+  city: string
+): string {
+  const normStreet = normalizeStreet(street);
+  const normHouseNumber = normalizeHouseNumber(houseNumber);
+  const normPostalCode = postalCode.trim();
+  const normCity = normalizeUmlauts(city.trim());
+  
+  return `${normStreet}_${normHouseNumber}_${normPostalCode}_${normCity}`;
+}
+
+function consolidateAddresses(addresses: ParsedAddress[]): ParsedAddress[] {
+  const addressMap = new Map<string, ParsedAddress>();
+  
+  for (const addr of addresses) {
+    const key = addr.normalizedKey;
+    
+    if (addressMap.has(key)) {
+      const existing = addressMap.get(key)!;
+      existing.weCount += addr.weCount;
+    } else {
+      addressMap.set(key, { ...addr });
+    }
+  }
+  
+  return Array.from(addressMap.values());
+}
+
+function validateAddress(
+  address: ParsedAddress,
+  allAddresses: ParsedAddress[],
+  index: number
+): ValidationError[] {
+  const errors: ValidationError[] = [];
+  const addressPreview = `${address.street || '?'} ${address.houseNumber || '?'}, ${address.postalCode || '?'} ${address.city || '?'}`;
+  
+  if (!address.street || address.street.trim().length === 0) {
+    errors.push({
+      field: 'street',
+      message: 'Straße fehlt',
+      addressIndex: index,
+      addressPreview,
+    });
+  }
+  
+  if (!address.houseNumber || address.houseNumber.trim().length === 0) {
+    errors.push({
+      field: 'houseNumber',
+      message: 'Hausnummer fehlt',
+      addressIndex: index,
+      addressPreview,
+    });
+  }
+  
+  if (!address.postalCode || address.postalCode.trim().length === 0) {
+    const suggestion = suggestPostalCode(address, allAddresses);
+    errors.push({
+      field: 'postalCode',
+      message: 'Postleitzahl fehlt',
+      suggestion,
+      addressIndex: index,
+      addressPreview,
+    });
+  } else if (!/^\d{5}$/.test(address.postalCode.trim())) {
+    errors.push({
+      field: 'postalCode',
+      message: 'Postleitzahl muss 5-stellig sein',
+      addressIndex: index,
+      addressPreview,
+    });
+  }
+  
+  if (!address.city || address.city.trim().length === 0) {
+    const suggestion = suggestCity(address, allAddresses);
+    errors.push({
+      field: 'city',
+      message: 'Ort fehlt',
+      suggestion,
+      addressIndex: index,
+      addressPreview,
+    });
+  }
+  
+  return errors;
+}
+
+function suggestPostalCode(address: ParsedAddress, allAddresses: ParsedAddress[]): string | undefined {
+  if (!address.street || !address.city) return undefined;
+  
+  const normStreet = normalizeStreet(address.street);
+  const normCity = normalizeUmlauts(address.city);
+  
+  const matches = allAddresses.filter(a => 
+    a.postalCode && 
+    /^\d{5}$/.test(a.postalCode) &&
+    normalizeStreet(a.street) === normStreet &&
+    normalizeUmlauts(a.city) === normCity
+  );
+  
+  if (matches.length > 0) {
+    const plzCounts = new Map<string, number>();
+    for (const match of matches) {
+      const count = plzCounts.get(match.postalCode) || 0;
+      plzCounts.set(match.postalCode, count + 1);
+    }
+    
+    let maxCount = 0;
+    let mostCommonPlz = '';
+    for (const [plz, count] of plzCounts.entries()) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommonPlz = plz;
+      }
+    }
+    
+    return mostCommonPlz;
+  }
+  
+  return undefined;
+}
+
+function suggestCity(address: ParsedAddress, allAddresses: ParsedAddress[]): string | undefined {
+  if (!address.street || !address.postalCode) return undefined;
+  
+  const normStreet = normalizeStreet(address.street);
+  const postalCode = address.postalCode.trim();
+  
+  const matches = allAddresses.filter(a => 
+    a.city && 
+    a.city.trim().length > 0 &&
+    normalizeStreet(a.street) === normStreet &&
+    a.postalCode === postalCode
+  );
+  
+  if (matches.length > 0) {
+    const cityCounts = new Map<string, number>();
+    for (const match of matches) {
+      const count = cityCounts.get(match.city) || 0;
+      cityCounts.set(match.city, count + 1);
+    }
+    
+    let maxCount = 0;
+    let mostCommonCity = '';
+    for (const [city, count] of cityCounts.entries()) {
+      if (count > maxCount) {
+        maxCount = count;
+        mostCommonCity = city;
+      }
+    }
+    
+    return mostCommonCity;
+  }
+  
+  return undefined;
+}
+
+// ===== ADDRESS PARSING =====
+
+function parseAddressesFromCSV(
+  csvData: CSVRow[],
+  columnMapping: Record<string, string>,
+  questionAnswers: Record<string, string> | null
+): ParsedAddress[] {
+  console.log(`Parsing ${csvData.length} rows with mapping:`, columnMapping);
+  
+  const addresses: ParsedAddress[] = [];
+  
+  const streetCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'street');
+  const houseNumberCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'house_number');
+  const houseNumberCombinedCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'house_number_combined');
+  const postalCodeCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'postal_code');
+  const cityCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'city');
+  const localityCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'locality');
+  const unitCountCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'unit_count');
+  const unitsResidentialCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'units_residential');
+  const unitsCommercialCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'units_commercial');
+  const etageCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'floor');
+  const lageCol = Object.keys(columnMapping).find(k => columnMapping[k] === 'position');
+  
+  for (const row of csvData) {
+    const street = streetCol ? String(row[streetCol] || '').trim() : '';
+    let houseNumber = '';
+    
+    if (houseNumberCombinedCol) {
+      houseNumber = String(row[houseNumberCombinedCol] || '').trim();
+    } else if (houseNumberCol) {
+      houseNumber = String(row[houseNumberCol] || '').trim();
+    }
+    
+    const postalCode = postalCodeCol ? String(row[postalCodeCol] || '').trim() : '';
+    const city = cityCol ? String(row[cityCol] || '').trim() : '';
+    const locality = localityCol ? String(row[localityCol] || '').trim() : '';
+    
+    let weCount = 1;
+    
+    if (unitCountCol) {
+      const count = parseInt(String(row[unitCountCol] || '1'), 10);
+      weCount = isNaN(count) ? 1 : count;
+    } else {
+      const weResidential = unitsResidentialCol ? parseInt(String(row[unitsResidentialCol] || '0'), 10) : 0;
+      const weCommercial = unitsCommercialCol ? parseInt(String(row[unitsCommercialCol] || '0'), 10) : 0;
+      
+      const addGE = questionAnswers?.['ge_calculation'] === 'GE zu WE addieren (WE + GE = Gesamt)';
+      
+      if (addGE) {
+        weCount = (isNaN(weResidential) ? 0 : weResidential) + (isNaN(weCommercial) ? 0 : weCommercial);
+      } else {
+        weCount = isNaN(weResidential) ? 0 : weResidential;
+      }
+      
+      if (weCount === 0) weCount = 1;
+    }
+    
+    const normalizedKey = createNormalizedKey(street, houseNumber, postalCode, city);
+    
+    addresses.push({
+      street,
+      houseNumber,
+      postalCode,
+      city,
+      locality,
+      weCount,
+      status: 'Offen',
+      etage: etageCol ? String(row[etageCol] || '').trim() : undefined,
+      lage: lageCol ? String(row[lageCol] || '').trim() : undefined,
+      notizAdresse: '',
+      notizWE: '',
+      normalizedKey,
+    });
+  }
+  
+  console.log(`Parsed ${addresses.length} addresses`);
+  return addresses;
+}
+
+// ===== MAIN HANDLER =====
 
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -62,9 +342,7 @@ serve(async (req) => {
       }
     )
 
-    const authHeader = req.headers.get('Authorization') || ''
-    const accessToken = authHeader.replace('Bearer ', '')
-    const { data: { user } } = await supabaseClient.auth.getUser(accessToken)
+    const { data: { user } } = await supabaseClient.auth.getUser()
     if (!user) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), {
         status: 401,
@@ -72,374 +350,93 @@ serve(async (req) => {
       })
     }
 
-    const userId = user.id
+    const requestData = await req.json();
+    const { 
+      projectId, 
+      listId,
+      csvData, 
+      columnMapping, 
+      questionAnswers,
+    } = requestData;
 
-    // Handle JSON body uploads
-    const contentType = req.headers.get('content-type') || ''
-    if (contentType.includes('application/json')) {
-      console.log('Processing JSON upload request');
-      
-      const requestData = await req.json();
-      const { 
-        projectId, 
-        listId,
-        listName, 
-        csvData, 
-        columnMapping, 
-        questionAnswers,
-        marketingType,
-        resumeListId 
-      } = requestData;
-
-      // ===== RESUME LOGIC =====
-      if (resumeListId) {
-        console.log(`Resuming import for list ${resumeListId}`);
-        
-        const { data: existingList, error: listCheckError } = await supabaseClient
-          .from('project_address_lists')
-          .select('id, status, last_processed_index, import_payload, project_id')
-          .eq('id', resumeListId)
-          .single();
-
-        if (listCheckError || !existingList) {
-          console.error('List not found for resume:', listCheckError);
-          return new Response(
-            JSON.stringify({ error: 'List not found' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-          );
-        }
-
-        if (existingList.status === 'completed') {
-          return new Response(
-            JSON.stringify({ error: 'Import already completed' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          );
-        }
-
-        if (!existingList.import_payload) {
-          console.error('Import payload missing - cannot resume');
-          await supabaseClient
-            .from('project_address_lists')
-            .update({ 
-              status: 'failed',
-              error_details: { error: 'Import payload missing - cannot resume. Please restart the import.' },
-              updated_at: new Date().toISOString()
-            })
-            .eq('id', resumeListId);
-          
-          return new Response(
-            JSON.stringify({ error: 'Import payload missing - cannot resume' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 400 }
-          );
-        }
-
-        console.log(`Resuming from index ${existingList.last_processed_index}`);
-        
-        await supabaseClient
-          .from('project_address_lists')
-          .update({ 
-            status: 'importing',
-            last_progress_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', resumeListId);
-
-        EdgeRuntime.waitUntil(
-          processChunk(
-            resumeListId, 
-            existingList.project_id,
-            existingList.import_payload,
-            supabaseClient, 
-            authHeader
-          )
-        );
-        
-        return new Response(
-          JSON.stringify({ 
-            message: 'Import resumed',
-            listId: resumeListId,
-            resumedFrom: existingList.last_processed_index
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
-
-      // ===== START EXISTING LIST IMPORT =====
-      if (listId) {
-        console.log(`Starting import for existing list ${listId}`);
-        
-        // Validate required fields
-        if (!projectId || !Array.isArray(csvData) || !columnMapping) {
-          return new Response(
-            JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        // Load existing list
-        const { data: existingList, error: listLoadError } = await supabaseClient
-          .from('project_address_lists')
-          .select('id, project_id, status')
-          .eq('id', listId)
-          .single();
-
-        if (listLoadError || !existingList) {
-          console.error('List not found:', listLoadError);
-          return new Response(
-            JSON.stringify({ error: 'List not found' }),
-            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
-          );
-        }
-
-        // Parse and normalize addresses
-        const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
-        
-        if (addresses.length === 0) {
-          return new Response(
-            JSON.stringify({ error: 'No valid addresses found in CSV' }),
-            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        // Prepare import payload for resume capability
-        const importPayload = {
-          csvData,
-          columnMapping,
-          questionAnswers,
-          marketingType,
-          totalAddresses: addresses.length,
-          userId
-        };
-
-        // Update existing list with import data
-        const { error: updateError } = await supabaseClient
-          .from('project_address_lists')
-          .update({
-            status: 'importing',
-            column_mapping: columnMapping,
-            chunk_size: 500,
-            last_processed_index: 0,
-            import_payload: importPayload,
-            last_progress_at: new Date().toISOString(),
-            upload_stats: {
-              total: addresses.length,
-              successful: 0,
-              failed: 0
-            },
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', listId);
-
-        if (updateError) {
-          console.error('Failed to update list:', updateError);
-          return new Response(
-            JSON.stringify({ error: 'Failed to update address list' }),
-            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-          );
-        }
-
-        console.log(`JSON start on existing listId=${listId} total=${addresses.length}`);
-
-        // Start background processing
-        EdgeRuntime.waitUntil(
-          processChunk(listId, projectId, importPayload, supabaseClient, authHeader)
-        );
-        
-        return new Response(
-          JSON.stringify({ 
-            message: 'Import started', 
-            listId: listId,
-            totalAddresses: addresses.length
-          }),
-          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-        );
-      }
-
-      // ===== NEW IMPORT LOGIC =====
-      if (!projectId || !Array.isArray(csvData) || !columnMapping) {
-        return new Response(
-          JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      if (!listName) {
-        return new Response(
-          JSON.stringify({ error: 'Missing listName for new import' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-      
-      console.log(`Processing new import for project ${projectId}`);
-
-      // Parse and normalize addresses
-      const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
-      
-      if (addresses.length === 0) {
-        return new Response(
-          JSON.stringify({ error: 'No valid addresses found in CSV' }),
-          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      // Prepare import payload for resume capability
-      const importPayload = {
-        csvData,
-        columnMapping,
-        questionAnswers,
-        marketingType,
-        totalAddresses: addresses.length,
-        userId
-      };
-
-      // Create the address list record with import_payload
-      const { data: newList, error: listError } = await supabaseClient
-        .from('project_address_lists')
-        .insert({
-          project_id: projectId,
-          name: listName,
-          file_name: `${listName}.csv`,
-          status: 'importing',
-          column_mapping: columnMapping,
-          chunk_size: 500,
-          last_processed_index: 0,
-          import_payload: importPayload,
-          last_progress_at: new Date().toISOString(),
-          upload_stats: {
-            total: addresses.length,
-            successful: 0,
-            failed: 0
-          },
-          created_by: userId
-        })
-        .select()
-        .single();
-
-      if (listError) {
-        console.error('Failed to create list:', listError);
-        return new Response(
-          JSON.stringify({ error: 'Failed to create address list' }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-        );
-      }
-
-      console.log(`Created list ${newList.id}, starting background import`);
-
-      // Start background processing
-      EdgeRuntime.waitUntil(
-        processChunk(newList.id, projectId, importPayload, supabaseClient, authHeader)
+    if (!projectId || !listId || !Array.isArray(csvData) || !columnMapping) {
+      return new Response(
+        JSON.stringify({ error: 'Missing required fields' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
+    }
+
+    console.log(`[PHASE 1] Starting validation for list ${listId}`);
+
+    // Parse addresses
+    const rawAddresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
+    
+    // Consolidate duplicates and determine WE logic
+    const consolidatedAddresses = consolidateAddresses(rawAddresses);
+    
+    console.log(`[PHASE 1] Consolidated ${rawAddresses.length} rows into ${consolidatedAddresses.length} unique addresses`);
+    
+    // Validate all addresses
+    const allErrors: ValidationError[] = [];
+    consolidatedAddresses.forEach((addr, index) => {
+      const errors = validateAddress(addr, consolidatedAddresses, index);
+      allErrors.push(...errors);
+    });
+    
+    if (allErrors.length > 0) {
+      console.log(`[PHASE 1] Found ${allErrors.length} validation errors`);
+      
+      await supabaseClient
+        .from('project_address_lists')
+        .update({
+          status: 'validation_required',
+          error_details: { validationErrors: allErrors },
+          upload_stats: {
+            total: consolidatedAddresses.length,
+            successful: 0,
+            failed: allErrors.length,
+          },
+          updated_at: new Date().toISOString(),
+        })
+        .eq('id', listId);
       
       return new Response(
         JSON.stringify({ 
-          message: 'Import started', 
-          listId: newList.id,
-          totalAddresses: addresses.length
+          message: 'Validation required',
+          errors: allErrors,
+          listId,
         }),
         { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
       );
     }
-
-    const body = await req.formData()
-    const fileName = body.get('file-name') as string | null
-    const file = body.get('file') as File | null
-    const projectId = body.get('project-id') as string | null
-    const listName = body.get('list-name') as string | null
-    const columnMappingString = body.get('column-mapping') as string | null
-    const marketingType = body.get('marketing-type') as string | null
-    const questionAnswersString = body.get('question-answers') as string | null
-
-    if (!file || !fileName || !projectId || !listName || !columnMappingString) {
-      return new Response(
-        JSON.stringify({ error: 'Missing file, project-id, list-name or column mapping' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    let columnMapping
-    try {
-      columnMapping = JSON.parse(columnMappingString)
-    } catch (e) {
-      console.error('Failed to parse column mapping', e)
-      return new Response(
-        JSON.stringify({ error: 'Invalid column mapping' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    let questionAnswers = null
-    if (questionAnswersString) {
-      try {
-        questionAnswers = JSON.parse(questionAnswersString)
-      } catch (e) {
-        console.warn('Failed to parse question answers, ignoring', e)
-      }
-    }
-
-    const fileBuffer = await file.arrayBuffer()
-    const fileContent = new TextDecoder().decode(fileBuffer)
-
-    const csvData = fileContent
-      .split('\n')
-      .map((line) => line.split(';').map((entry) => entry.trim()))
-
-    const header = csvData.shift()
-
-    if (!header) {
-      return new Response(
-        JSON.stringify({ error: 'CSV file is empty or has no header' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const jsonData = csvData.map((row) => {
-      const rowData: { [key: string]: string } = {}
-      header.forEach((headerCell, index) => {
-        rowData[headerCell] = row[index] || ''
-      })
-      return rowData
-    })
-
-    const addresses = parseAddressesFromCSV(jsonData, columnMapping, questionAnswers)
-
-    if (addresses.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No valid addresses found in CSV' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    const { data: newList, error: listError } = await supabaseClient
+    
+    // No errors - proceed with import
+    console.log(`[PHASE 2] Starting sequential import for ${consolidatedAddresses.length} addresses`);
+    
+    await supabaseClient
       .from('project_address_lists')
-      .insert({
-        project_id: projectId,
-        name: listName,
-        file_name: fileName,
+      .update({
         status: 'importing',
-        column_mapping: columnMapping,
-        chunk_size: 100,
+        last_progress_at: new Date().toISOString(),
         upload_stats: {
-          total: addresses.length,
+          total: consolidatedAddresses.length,
           successful: 0,
           failed: 0,
+          units: 0,
         },
-        created_by: userId,
+        updated_at: new Date().toISOString(),
       })
-      .select()
-      .single()
-
-    if (listError) {
-      console.error('Failed to create list:', listError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to create address list' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
-    }
-
-    let successCount = 0
-    let failCount = 0
-
-    for (const addr of addresses) {
+      .eq('id', listId);
+    
+    // Sequential import
+    let successCount = 0;
+    let failCount = 0;
+    let totalUnits = 0;
+    const failedAddresses: any[] = [];
+    
+    for (let i = 0; i < consolidatedAddresses.length; i++) {
+      const addr = consolidatedAddresses[i];
+      
       try {
         const { data: insertedAddress, error: insertError } = await supabaseClient
           .from('addresses')
@@ -449,453 +446,117 @@ serve(async (req) => {
             postal_code: addr.postalCode,
             city: addr.city,
             locality: addr.locality || '',
-            coordinates: addr.coordinates || { lat: null, lng: null },
+            coordinates: { lat: null, lng: null },
             project_id: projectId,
-            list_id: newList.id,
+            list_id: listId,
             notiz: addr.notizAdresse || '',
-            created_by: userId,
+            created_by: user.id,
           })
           .select()
-          .single()
+          .single();
 
         if (insertError) {
-          console.error('Failed to insert address:', insertError)
-          failCount++
-          continue
+          console.error(`Failed to insert address ${i}:`, insertError);
+          failCount++;
+          failedAddresses.push({
+            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+            reason: insertError.message,
+          });
+          continue;
         }
 
+        // Create units
         if (addr.weCount > 0) {
-          const unitsToInsert = []
-          for (let i = 0; i < addr.weCount; i++) {
+          const unitsToInsert = [];
+          for (let j = 0; j < addr.weCount; j++) {
             unitsToInsert.push({
               address_id: insertedAddress.id,
               etage: addr.etage || '',
               lage: addr.lage || '',
               notiz: addr.notizWE || '',
-              system_notes: addr.unitNote || '',
-              marketable: addr.status !== 'Verbot',
-              status: addr.status === 'Verbot' ? 'Nicht vermarktbar' : 'Offen',
-            })
+              marketable: true,
+              status: 'Offen',
+            });
           }
 
           const { error: unitsError } = await supabaseClient
             .from('units')
-            .insert(unitsToInsert)
+            .insert(unitsToInsert);
 
           if (unitsError) {
-            console.error('Failed to insert units:', unitsError)
+            console.error('Failed to insert units:', unitsError);
+          } else {
+            totalUnits += unitsToInsert.length;
           }
         }
 
-        if (!addr.coordinates?.lat || !addr.coordinates?.lng) {
-          try {
-            await supabaseClient.functions.invoke('geocode-address', {
-              body: {
-                addressId: insertedAddress.id,
-                street: addr.street,
-                houseNumber: addr.houseNumber,
-                postalCode: addr.postalCode,
-                city: addr.city,
-              },
-            })
-          } catch (geocodeError) {
-            console.error('Geocoding error:', geocodeError)
-          }
-        }
-
-        successCount++
-      } catch (error) {
-        console.error('Error processing address:', error)
-        failCount++
-      }
-    }
-
-    await supabaseClient
-      .from('project_address_lists')
-      .update({
-        status: 'completed',
-        upload_stats: {
-          total: addresses.length,
-          successful: successCount,
-          failed: failCount,
-        },
-      })
-      .eq('id', newList.id)
-
-    return new Response(
-      JSON.stringify({ message: 'File uploaded and processed successfully' }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
-    )
-    return new Response(
-      JSON.stringify({ error: 'Unsupported content type' }),
-      { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  } catch (error) {
-    console.error('Request error:', error);
-    return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : 'Unknown error' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    );
-  }
-});
-
-// Process a chunk of addresses and self-invoke if more work remains
-async function processChunk(
-  listId: string,
-  projectId: string,
-  importPayload: any,
-  supabaseClient: any,
-  authHeader: string
-) {
-  try {
-    console.log(`processChunk: Starting for list ${listId}`);
-    
-    const { data: list, error: listError } = await supabaseClient
-      .from('project_address_lists')
-      .select('*')
-      .eq('id', listId)
-      .single();
-
-    if (listError || !list) {
-      console.error('Failed to load list:', listError);
-      return;
-    }
-
-    const { chunk_size = 100, last_processed_index = 0, upload_stats } = list;
-    const { csvData, columnMapping, questionAnswers, userId } = importPayload;
-
-    const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
-    
-    if (addresses.length === 0) {
-      console.log('No addresses to process, marking as completed');
-      await supabaseClient
-        .from('project_address_lists')
-        .update({
-          status: 'completed',
-          last_progress_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', listId);
-      return;
-    }
-
-    console.log(`Processing ${addresses.length} addresses from index ${last_processed_index}`);
-
-    let currentIndex = last_processed_index;
-    let batchesProcessed = 0;
-    let successCount = upload_stats?.successful || 0;
-    let failCount = upload_stats?.failed || 0;
-    
-    // Fine-grained progress updates
-    const PROGRESS_STEPS = 20; // ~20 updates per chunk
-    const PROGRESS_EVERY = Math.max(1, Math.floor(chunk_size / PROGRESS_STEPS));
-
-    // Process MAX_BATCHES_PER_CALL batches
-    while (currentIndex < addresses.length && batchesProcessed < MAX_BATCHES_PER_CALL) {
-      const endIndex = Math.min(currentIndex + chunk_size, addresses.length);
-      const batch = addresses.slice(currentIndex, endIndex);
-      
-      console.log(`Processing batch ${batchesProcessed + 1}/${MAX_BATCHES_PER_CALL}: ${currentIndex}-${endIndex}/${addresses.length}`);
-
-      let processedInBatch = 0;
-      
-      for (const addr of batch) {
-        try {
-          // Insert address
-          const { data: insertedAddress, error: insertError } = await supabaseClient
-            .from('addresses')
-            .insert({
-              street: addr.street,
-              house_number: addr.houseNumber,
-              postal_code: addr.postalCode,
-              city: addr.city,
-              locality: addr.locality || '',
-              coordinates: addr.coordinates || { lat: null, lng: null },
-              project_id: projectId,
-              list_id: listId,
-              notiz: addr.notizAdresse || '',
-              created_by: userId
-            })
-            .select()
-            .single();
-
-          if (insertError) {
-            console.error('Failed to insert address:', insertError);
-            failCount++;
-            processedInBatch++;
-            continue;
-          }
-
-          // Insert units
-          if (addr.weCount > 0) {
-            const unitsToInsert = [];
-            for (let i = 0; i < addr.weCount; i++) {
-              unitsToInsert.push({
-                address_id: insertedAddress.id,
-                etage: addr.etage || '',
-                lage: addr.lage || '',
-                notiz: addr.notizWE || '',
-                system_notes: addr.unitNote || '',
-                marketable: addr.status !== 'Verbot',
-                status: addr.status === 'Verbot' ? 'Nicht vermarktbar' : 'Offen'
-              });
-            }
-
-            const { error: unitsError } = await supabaseClient
-              .from('units')
-              .insert(unitsToInsert);
-
-            if (unitsError) {
-              console.error('Failed to insert units:', unitsError);
-            }
-          }
-
-          // Store coordinates if available, otherwise null (geocoding done later)
-          // No synchronous geocoding here to avoid timeouts
-
-          successCount++;
-          processedInBatch++;
-          
-          // Fine-grained progress update within batch
-          if (processedInBatch % PROGRESS_EVERY === 0 || (currentIndex + processedInBatch) === endIndex) {
-            try {
-              await supabaseClient
-                .from('project_address_lists')
-                .update({
-                  last_processed_index: currentIndex + processedInBatch,
-                  last_progress_at: new Date().toISOString(),
-                  upload_stats: {
-                    total: addresses.length,
-                    successful: successCount,
-                    failed: failCount,
-                    units: successCount // rough estimate
-                  }
-                })
-                .eq('id', listId);
-            } catch (updateError) {
-              console.error('Error updating progress:', updateError);
-              // Don't fail the import, just log it
-            }
-          }
-        } catch (error: any) {
-          console.error('Error processing address:', error);
-          failCount++;
-          processedInBatch++;
-          
-          // Track failed addresses
-          const failedAddress = {
-            address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
-            reason: error.message || 'Unbekannter Fehler beim Anlegen',
-            type: 'import'
-          };
-          
-          // Update error_details immediately
-          const { data: currentList } = await supabaseClient
-            .from('project_address_lists')
-            .select('error_details')
-            .eq('id', listId)
-            .single();
-          
-          const existingErrors = (currentList?.error_details as any)?.failedAddresses || [];
-          
+        successCount++;
+        
+        // Update progress every 10 addresses
+        if (i % 10 === 0 || i === consolidatedAddresses.length - 1) {
           await supabaseClient
             .from('project_address_lists')
             .update({
-              error_details: {
-                failedAddresses: [...existingErrors, failedAddress]
-              }
+              last_progress_at: new Date().toISOString(),
+              last_processed_index: i + 1,
+              upload_stats: {
+                total: consolidatedAddresses.length,
+                successful: successCount,
+                failed: failCount,
+                units: totalUnits,
+              },
             })
             .eq('id', listId);
         }
-      }
-
-      currentIndex = endIndex;
-      batchesProcessed++;
-
-      // Update progress after each batch
-      await supabaseClient
-        .from('project_address_lists')
-        .update({
-          last_processed_index: currentIndex,
-          last_progress_at: new Date().toISOString(),
-          upload_stats: {
-            total: addresses.length,
-            successful: successCount,
-            failed: failCount,
-            units: successCount // rough estimate
-          },
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', listId);
-
-      console.log(`Batch complete: ${currentIndex}/${addresses.length} addresses processed`);
-    }
-
-    // Check if we're done or need to continue
-    if (currentIndex >= addresses.length) {
-      console.log('Import completed, starting geocoding phase');
-      await supabaseClient
-        .from('project_address_lists')
-        .update({
-          status: 'geocoding',
-          last_processed_index: 0,
-          last_progress_at: new Date().toISOString(),
-          upload_stats: {
-            total: addresses.length,
-            successful: successCount,
-            failed: failCount,
-            units: successCount // rough estimate
-          },
-          updated_at: new Date().toISOString()
-        })
-        .eq('id', listId);
-      
-      // Trigger geocoding batch function
-      const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-      const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-      
-      fetch(`${supabaseUrl}/functions/v1/geocode-addresses-batch`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${supabaseKey}`,
-        },
-        body: JSON.stringify({ listId }),
-      }).catch(err => console.error('Error triggering geocoding:', err));
-    } else {
-      // More work to do - self-invoke to continue
-      console.log(`Scheduling continuation: ${currentIndex}/${addresses.length} processed`);
-      
-      try {
-        const continueResponse = await fetch(
-          `${Deno.env.get('SUPABASE_URL')}/functions/v1/upload-street-list`,
-          {
-            method: 'POST',
-            headers: {
-              'Authorization': authHeader,
-              'Content-Type': 'application/json'
-            },
-            body: JSON.stringify({
-              resumeListId: listId
-            })
-          }
-        );
-
-        if (!continueResponse.ok) {
-          console.error('Failed to schedule continuation:', await continueResponse.text());
-        } else {
-          console.log('Successfully scheduled continuation');
-        }
-      } catch (error) {
-        console.error('Error scheduling continuation:', error);
+      } catch (error: any) {
+        console.error(`Error processing address ${i}:`, error);
+        failCount++;
+        failedAddresses.push({
+          address: `${addr.street} ${addr.houseNumber}, ${addr.postalCode} ${addr.city}`,
+          reason: error.message,
+        });
       }
     }
-
-  } catch (error) {
-    console.error('Chunk processing failed:', error);
+    
+    console.log(`[PHASE 2] Import complete: ${successCount} successful, ${failCount} failed`);
+    
+    // Update final status
+    const finalStatus = failCount > 0 ? 'import_completed_with_errors' : 'ready_for_geocoding';
+    
     await supabaseClient
       .from('project_address_lists')
       .update({
-        status: 'failed',
-        error_details: { error: error instanceof Error ? error.message : 'Unknown error' },
+        status: finalStatus,
         last_progress_at: new Date().toISOString(),
-        updated_at: new Date().toISOString()
+        upload_stats: {
+          total: consolidatedAddresses.length,
+          successful: successCount,
+          failed: failCount,
+          units: totalUnits,
+        },
+        error_details: failedAddresses.length > 0 ? { failedAddresses } : null,
+        updated_at: new Date().toISOString(),
       })
       .eq('id', listId);
+    
+    return new Response(
+      JSON.stringify({ 
+        message: 'Import completed',
+        status: finalStatus,
+        stats: {
+          total: consolidatedAddresses.length,
+          successful: successCount,
+          failed: failCount,
+          units: totalUnits,
+        },
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+    );
+  } catch (error: any) {
+    console.error('Import error:', error);
+    return new Response(
+      JSON.stringify({ error: error.message }),
+      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
   }
-}
-
-// Helper: Parse addresses from CSV data
-function parseAddressesFromCSV(csvData: any[], columnMapping: any, questionAnswers: any): ParsedAddress[] {
-  const addresses: ParsedAddress[] = [];
-  
-  const getCol = (key: string) => Object.keys(columnMapping).find(k => columnMapping[k] === key);
-  const val = (row: any, key: string): string => {
-    const col = getCol(key);
-    const v = col ? row[col] : undefined;
-    return (v === null || v === undefined) ? '' : String(v);
-  };
-
-  const normalizeHouseNumber = (houseNumber: string): string => {
-    if (!houseNumber) return '';
-    return houseNumber.replace(/[A-Z]/g, (match) => match.toLowerCase());
-  };
-
-  for (const row of csvData) {
-    const street = val(row, 'street').trim();
-    let houseNumber = val(row, 'house_number').trim();
-    const hCombined = val(row, 'house_number_combined').trim();
-    const hAddon = val(row, 'house_number_addon').trim();
-    
-    if (!houseNumber && hCombined) houseNumber = hCombined;
-    if (houseNumber && hAddon) houseNumber = `${houseNumber}${hAddon}`;
-    houseNumber = normalizeHouseNumber(houseNumber);
-    
-    const postalCode = val(row, 'postal_code').trim();
-    const city = val(row, 'city').trim();
-    const locality = val(row, 'locality').trim();
-
-    if (!street || !postalCode || !city) {
-      continue;
-    }
-
-    const unitCountStr = val(row, 'unit_count');
-    const weStr = val(row, 'units_residential');
-    const geStr = val(row, 'units_commercial');
-    
-    let weCount = parseInt(unitCountStr) || 0;
-    
-    if (!weCount) {
-      const weNum = parseInt(weStr) || 0;
-      const geNum = parseInt(geStr) || 0;
-      const geCalculationAnswer = questionAnswers?.ge_calculation;
-      const shouldAddGE = geCalculationAnswer?.includes('addieren') || !geCalculationAnswer;
-      
-      if (shouldAddGE) {
-        weCount = weNum + geNum;
-      } else {
-        weCount = Math.max(weNum, geNum, 1);
-      }
-    }
-    if (!weCount) weCount = 1;
-
-    const etage = val(row, 'floor').trim() || undefined;
-    const lage = val(row, 'position').trim() || undefined;
-    const unitNote = val(row, 'unit_note').trim() || undefined;
-    const status = val(row, 'status').trim() || 'Offen';
-    const notizAdresse = val(row, 'address_notes').trim() || undefined;
-    const notizWE = val(row, 'unit_notes').trim() || undefined;
-
-    // Parse coordinates if present
-    let lat: number | null = null;
-    let lng: number | null = null;
-    const latRaw = val(row, 'latitude');
-    const lngRaw = val(row, 'longitude');
-    if (latRaw) {
-      const parsed = parseFloat(latRaw.replace(',', '.'));
-      if (!Number.isNaN(parsed)) lat = parsed;
-    }
-    if (lngRaw) {
-      const parsed = parseFloat(lngRaw.replace(',', '.'));
-      if (!Number.isNaN(parsed)) lng = parsed;
-    }
-
-    addresses.push({
-      street,
-      houseNumber,
-      postalCode,
-      city,
-      locality,
-      weCount,
-      status,
-      etage,
-      lage,
-      unitNote,
-      notizAdresse,
-      notizWE,
-      coordinates: { lat, lng }
-    });
-  }
-
-  return addresses;
-}
+})
