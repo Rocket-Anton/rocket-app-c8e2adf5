@@ -931,34 +931,38 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
             )}
           </div>
 
-      {/* Anzahl WE */}
-      <div className="space-y-2">
-        <Label className="text-sm font-medium">
-          Anzahl WE<span className="text-red-500 ml-1">*</span>
-        </Label>
-        <Input
-          type="number"
-          value={unitCount}
-          onChange={(e) => setUnitCount(e.target.value)}
-          placeholder="0"
-          className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
-        />
-      </div>
+      {/* Anzahl WE - nur wenn nicht FLYER */}
+      {marketingType !== 'FLYER' && (
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">
+            Anzahl WE<span className="text-red-500 ml-1">*</span>
+          </Label>
+          <Input
+            type="number"
+            value={unitCount}
+            onChange={(e) => setUnitCount(e.target.value)}
+            placeholder="0"
+            className="bg-background border border-input hover:border-primary/50 focus:border-primary transition-colors h-11"
+          />
+        </div>
+      )}
 
-      {/* Bestandskunden Toggle */}
-      <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
-        <Label htmlFor="has-existing-customers" className="text-sm font-medium cursor-pointer">
-          Bestandskunden
-        </Label>
-        <Switch
-          id="has-existing-customers"
-          checked={hasExistingCustomers}
-          onCheckedChange={setHasExistingCustomers}
-        />
-      </div>
+      {/* Bestandskunden Toggle - nur wenn nicht FLYER */}
+      {marketingType !== 'FLYER' && (
+        <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
+          <Label htmlFor="has-existing-customers" className="text-sm font-medium cursor-pointer">
+            Bestandskunden
+          </Label>
+          <Switch
+            id="has-existing-customers"
+            checked={hasExistingCustomers}
+            onCheckedChange={setHasExistingCustomers}
+          />
+        </div>
+      )}
 
       {/* Bestandskunden Felder */}
-      {hasExistingCustomers && (
+      {hasExistingCustomers && marketingType !== 'FLYER' && (
         <>
           <div className="space-y-2 ml-4 border-l-2 border-primary/30 pl-4">
             <Label className="text-sm font-medium">
@@ -993,20 +997,22 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </>
       )}
 
-      {/* WE Reduktion Toggle */}
-      <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
-        <Label htmlFor="has-we-reduction" className="text-sm font-medium cursor-pointer">
-          WE Reduktion angeben
-        </Label>
-        <Switch
-          id="has-we-reduction"
-          checked={hasWeReduction}
-          onCheckedChange={setHasWeReduction}
-        />
-      </div>
+      {/* WE Reduktion Toggle - nur wenn nicht FLYER */}
+      {marketingType !== 'FLYER' && (
+        <div className="flex items-center justify-between space-x-2 p-3 bg-muted/30 rounded-lg">
+          <Label htmlFor="has-we-reduction" className="text-sm font-medium cursor-pointer">
+            WE Reduktion angeben
+          </Label>
+          <Switch
+            id="has-we-reduction"
+            checked={hasWeReduction}
+            onCheckedChange={setHasWeReduction}
+          />
+        </div>
+      )}
 
       {/* Beide Felder: WE Reduktion und Saleable WE */}
-      {hasWeReduction && (
+      {hasWeReduction && marketingType !== 'FLYER' && (
         <div className="ml-4 space-y-4 border-l-2 border-primary/30 pl-4">
           {/* Anzahl WE Reduktion */}
           <div className="space-y-2">
@@ -1046,8 +1052,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </div>
       )}
 
-      {/* Art Quote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
-      {(hasExistingCustomers || hasWeReduction) && (
+      {/* Art Quote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv UND nicht FLYER */}
+      {(hasExistingCustomers || hasWeReduction) && marketingType !== 'FLYER' && (
         <div className="space-y-2 pointer-events-auto">
           <Label className="text-sm font-medium">
             Art Quote<span className="text-red-500 ml-1">*</span>
@@ -1067,8 +1073,8 @@ export const CreateProjectDialog = ({ providers, onClose }: CreateProjectDialogP
         </div>
       )}
 
-      {/* Zielquote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv */}
-      {(hasExistingCustomers || hasWeReduction) && (
+      {/* Zielquote - nur anzeigen wenn Bestandskunden oder WE Reduktion aktiv UND nicht FLYER */}
+      {(hasExistingCustomers || hasWeReduction) && marketingType !== 'FLYER' && (
         <>
           <div className="space-y-2">
             <Label className="text-sm font-medium">
