@@ -205,20 +205,29 @@ const ProjectDetail = () => {
 
       if (error) throw error;
       
-      // Count units for each address
-      const addressesWithUnits = await Promise.all(
-        (data || []).map(async (addr) => {
-          const { count } = await supabase
-            .from("units")
-            .select("*", { count: 'exact', head: true })
-            .eq("address_id", addr.id);
-          
-          return {
-            ...addr,
-            units: Array(count || 0).fill({}),
-          };
-        })
-      );
+      if (!data || data.length === 0) {
+        setAddresses([]);
+        return;
+      }
+      
+      // Bulk count units for all addresses in a single query
+      const addressIds = data.map(a => a.id);
+      const { data: unitCounts } = await supabase
+        .from("units")
+        .select("address_id")
+        .in("address_id", addressIds);
+      
+      // Create a map of address_id to unit count
+      const countMap = new Map<number, number>();
+      unitCounts?.forEach(u => {
+        countMap.set(u.address_id, (countMap.get(u.address_id) || 0) + 1);
+      });
+      
+      // Attach unit counts to addresses
+      const addressesWithUnits = data.map(addr => ({
+        ...addr,
+        units: Array(countMap.get(addr.id) || 0).fill({}),
+      }));
       
       setAddresses(addressesWithUnits);
     } catch (error) {
@@ -953,8 +962,8 @@ const ProjectDetail = () => {
                             </div>
                           ) : (
                             <>
-                              <ScrollArea className="h-[600px]">
-                                <div className="border rounded-lg overflow-hidden">
+                              <div className="border rounded-lg overflow-hidden">
+                                <div className="max-h-[600px] overflow-y-auto">
                                   <Table>
                                     <TableHeader>
                                       <TableRow>
@@ -996,7 +1005,7 @@ const ProjectDetail = () => {
                                     </TableBody>
                                   </Table>
                                 </div>
-                              </ScrollArea>
+                              </div>
                               <div className="flex items-center justify-between mt-4">
                                 <div className="text-sm text-muted-foreground">
                                   Gesamt: {addresses.length} Adressen, {addresses.reduce((sum, addr) => sum + (addr.units?.length || 0), 0)} WE
