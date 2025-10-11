@@ -82,6 +82,7 @@ serve(async (req) => {
       const requestData = await req.json();
       const { 
         projectId, 
+        listId,
         listName, 
         csvData, 
         columnMapping, 
@@ -163,10 +164,108 @@ serve(async (req) => {
         );
       }
 
+      // ===== START EXISTING LIST IMPORT =====
+      if (listId) {
+        console.log(`Starting import for existing list ${listId}`);
+        
+        // Validate required fields
+        if (!projectId || !Array.isArray(csvData) || !columnMapping) {
+          return new Response(
+            JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Load existing list
+        const { data: existingList, error: listLoadError } = await supabaseClient
+          .from('project_address_lists')
+          .select('id, project_id, status')
+          .eq('id', listId)
+          .single();
+
+        if (listLoadError || !existingList) {
+          console.error('List not found:', listLoadError);
+          return new Response(
+            JSON.stringify({ error: 'List not found' }),
+            { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 404 }
+          );
+        }
+
+        // Parse and normalize addresses
+        const addresses = parseAddressesFromCSV(csvData, columnMapping, questionAnswers);
+        
+        if (addresses.length === 0) {
+          return new Response(
+            JSON.stringify({ error: 'No valid addresses found in CSV' }),
+            { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        // Prepare import payload for resume capability
+        const importPayload = {
+          csvData,
+          columnMapping,
+          questionAnswers,
+          marketingType,
+          totalAddresses: addresses.length,
+          userId
+        };
+
+        // Update existing list with import data
+        const { error: updateError } = await supabaseClient
+          .from('project_address_lists')
+          .update({
+            status: 'importing',
+            column_mapping: columnMapping,
+            chunk_size: 500,
+            last_processed_index: 0,
+            import_payload: importPayload,
+            last_progress_at: new Date().toISOString(),
+            upload_stats: {
+              total: addresses.length,
+              successful: 0,
+              failed: 0
+            },
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', listId);
+
+        if (updateError) {
+          console.error('Failed to update list:', updateError);
+          return new Response(
+            JSON.stringify({ error: 'Failed to update address list' }),
+            { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          );
+        }
+
+        console.log(`JSON start on existing listId=${listId} total=${addresses.length}`);
+
+        // Start background processing
+        EdgeRuntime.waitUntil(
+          processChunk(listId, projectId, importPayload, supabaseClient, authHeader)
+        );
+        
+        return new Response(
+          JSON.stringify({ 
+            message: 'Import started', 
+            listId: listId,
+            totalAddresses: addresses.length
+          }),
+          { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 }
+        );
+      }
+
       // ===== NEW IMPORT LOGIC =====
       if (!projectId || !Array.isArray(csvData) || !columnMapping) {
         return new Response(
           JSON.stringify({ error: 'Missing projectId, csvData or columnMapping' }),
+          { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+
+      if (!listName) {
+        return new Response(
+          JSON.stringify({ error: 'Missing listName for new import' }),
           { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
         );
       }
@@ -202,7 +301,7 @@ serve(async (req) => {
           file_name: `${listName}.csv`,
           status: 'importing',
           column_mapping: columnMapping,
-          chunk_size: 100,
+          chunk_size: 500,
           last_processed_index: 0,
           import_payload: importPayload,
           last_progress_at: new Date().toISOString(),

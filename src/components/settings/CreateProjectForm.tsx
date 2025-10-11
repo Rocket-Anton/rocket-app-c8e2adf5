@@ -319,8 +319,9 @@ export const CreateProjectForm = ({ onSuccess, onCancel }: CreateProjectFormProp
           // Trigger upload-street-list function
           const { error: uploadError } = await supabase.functions.invoke('upload-street-list', {
             body: {
+              projectId: project.id,
               listId: addressList.id,
-              csvData: JSON.stringify(csvData),
+              csvData: csvData,
               columnMapping: analysisData.suggested_mapping,
               questionAnswers: {},
             },
