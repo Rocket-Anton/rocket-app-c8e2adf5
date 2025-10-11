@@ -29,3 +29,6 @@ verify_jwt = true
 
 [functions.geocode-addresses-batch]
 verify_jwt = true
+
+[functions.delete-project-addresses]
+verify_jwt = true

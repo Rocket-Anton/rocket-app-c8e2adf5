@@ -331,34 +331,20 @@ const ProjectDetail = () => {
     if (!listToDelete) return;
 
     try {
-      // First, get all addresses from this list
-      const { data: listAddresses, error: fetchError } = await supabase
-        .from("addresses")
-        .select("id")
-        .eq("list_id", listToDelete);
+      // Use new delete-project-addresses function with CASCADE
+      const { data, error } = await supabase.functions.invoke('delete-project-addresses', {
+        body: { 
+          projectId: id,
+          listId: listToDelete
+        },
+      });
 
-      if (fetchError) throw fetchError;
+      if (error) throw error;
 
-      // Delete all addresses associated with this list
-      if (listAddresses && listAddresses.length > 0) {
-        const addressIds = listAddresses.map(addr => addr.id);
-        const { error: deleteAddressesError } = await supabase
-          .from("addresses")
-          .delete()
-          .in("id", addressIds);
-
-        if (deleteAddressesError) throw deleteAddressesError;
-      }
-
-      // Then delete the list itself
-      const { error: deleteListError } = await supabase
-        .from("project_address_lists")
-        .delete()
-        .eq("id", listToDelete);
-
-      if (deleteListError) throw deleteListError;
-
-      toast.success('Adressliste und alle zugehörigen Adressen erfolgreich gelöscht');
+      const { deleted } = data;
+      toast.success(
+        `Liste gelöscht: ${deleted.addresses} Adressen, ${deleted.units} WE entfernt`
+      );
       loadLists();
     } catch (error: any) {
       console.error('Delete error:', error);
@@ -366,6 +352,27 @@ const ProjectDetail = () => {
     } finally {
       setDeleteDialogOpen(false);
       setListToDelete(null);
+    }
+  };
+
+  const handleCleanupProject = async () => {
+    if (!confirm('Wirklich ALLE Adressen und WE aus diesem Projekt löschen?')) return;
+
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-project-addresses', {
+        body: { projectId: id },
+      });
+
+      if (error) throw error;
+
+      const { deleted } = data;
+      toast.success(
+        `Projekt bereinigt: ${deleted.lists} Listen, ${deleted.addresses} Adressen, ${deleted.units} WE gelöscht`
+      );
+      loadLists();
+    } catch (error: any) {
+      console.error('Cleanup error:', error);
+      toast.error(`Bereinigung fehlgeschlagen: ${error.message}`);
     }
   };
 
@@ -429,8 +436,11 @@ const ProjectDetail = () => {
       pending: { variant: "secondary" as const, label: "Hochgeladen", icon: FileText },
       analyzing: { variant: "default" as const, label: "Analysiere...", icon: Loader2 },
       mapped: { variant: "default" as const, label: "Gemappt", icon: CheckCircle },
-      importing: { variant: "default" as const, label: "Importiere Adressen...", icon: Loader2 },
-      geocoding: { variant: "default" as const, label: "Geokodierung läuft...", icon: Loader2 },
+      validation_required: { variant: "default" as const, label: "Validierung nötig", icon: AlertTriangle },
+      importing: { variant: "default" as const, label: "Importiere...", icon: Loader2 },
+      import_completed_with_errors: { variant: "default" as const, label: "Import mit Fehlern", icon: AlertCircle },
+      ready_for_geocoding: { variant: "secondary" as const, label: "Bereit für Geocoding", icon: CheckCircle },
+      geocoding: { variant: "default" as const, label: "Geokodierung...", icon: Loader2 },
       completed: { variant: "default" as const, label: "Abgeschlossen", icon: CheckCircle },
       failed: { variant: "destructive" as const, label: "Fehler", icon: AlertCircle },
     };
